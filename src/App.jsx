@@ -1,4 +1,16 @@
 import React, { useState } from "react";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -22,19 +34,6 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDate, setFilterDate] = useState("");
 
-  const cards = [
-    { title: "💰 Total Sales", value: "₹1,25,000" },
-    { title: "🚚 Suppliers", value: "42" },
-    { title: "🛒 Buyers", value: "31" },
-    { title: "⏳ Pending Payments", value: "₹18,000" },
-  ];
-
-  const suppliers = [
-    { name: "Ramesh Traders", product: "🥭 Mango", status: "✅ Paid" },
-    { name: "Kiran Supplies", product: "🌾 Rice", status: "⏳ Pending" },
-    { name: "Lakshmi Agro", product: "🌽 Corn", status: "✅ Paid" },
-  ];
-
   const updateProduct = (index, field, value) => {
     const updated = [...products];
     updated[index][field] = field === "name" ? value : Number(value);
@@ -56,13 +55,26 @@ function App() {
   );
 
   const totalExpense = Object.values(expenses).reduce((a, b) => a + b, 0);
-
   const netSale = grossSale - totalExpense;
   const balancePayable = netSale - advancePayment;
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Weekwise comparison dummy data
+  const weekData = {
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    datasets: [
+      {
+        label: "Gross Sale",
+        data: [grossSale * 0.8, grossSale, grossSale * 0.9, grossSale * 0.7, grossSale * 1.1, grossSale * 0.95, grossSale],
+        backgroundColor: [
+          "#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6", "#fcd34d",
+        ],
+      },
+    ],
+  };
 
   const printInvoice = () => {
     const invoiceWindow = window.open("", "PRINT", "height=600,width=800");
@@ -74,9 +86,17 @@ function App() {
     });
     invoiceWindow.document.write(`</table><h3>💰 Gross Sale: ₹${grossSale}</h3>`);
     invoiceWindow.document.write(`<h3>💸 Expenses: ₹${totalExpense}</h3>`);
-    invoiceWindow.document.write(`<h3>💹 Net Sale: ₹${netSale}</h3>`);
+    invoiceWindow.document.write(`<h3>📈 Net Sale: ₹${netSale}</h3>`);
     invoiceWindow.document.write(`<h3>💳 Advance Payment: ₹${advancePayment}</h3>`);
     invoiceWindow.document.write(`<h3>🧮 Balance Payable: ₹${balancePayable}</h3>`);
+    invoiceWindow.document.write("<h3>📊 Week Sales Comparison</h3>");
+    invoiceWindow.document.write(`<p>Mon: ${weekData.datasets[0].data[0]}</p>`);
+    invoiceWindow.document.write(`<p>Tue: ${weekData.datasets[0].data[1]}</p>`);
+    invoiceWindow.document.write(`<p>Wed: ${weekData.datasets[0].data[2]}</p>`);
+    invoiceWindow.document.write(`<p>Thu: ${weekData.datasets[0].data[3]}</p>`);
+    invoiceWindow.document.write(`<p>Fri: ${weekData.datasets[0].data[4]}</p>`);
+    invoiceWindow.document.write(`<p>Sat: ${weekData.datasets[0].data[5]}</p>`);
+    invoiceWindow.document.write(`<p>Sun: ${weekData.datasets[0].data[6]}</p>`);
     invoiceWindow.document.write("</body></html>");
     invoiceWindow.document.close();
     invoiceWindow.print();
@@ -218,7 +238,12 @@ function App() {
           />
           <button
             onClick={printInvoice}
-            style={{ background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}
+            style={{
+              background: "#22c55e",
+              color: "white",
+              borderRadius: "8px",
+              padding: "6px 12px",
+            }}
           >
             🖨 Print Invoice
           </button>
@@ -275,7 +300,11 @@ function App() {
                   <td>
                     <button
                       onClick={() => deleteProduct(index)}
-                      style={{ background: "#ef4444", color: "white", borderRadius: "4px" }}
+                      style={{
+                        background: "#ef4444",
+                        color: "white",
+                        borderRadius: "4px",
+                      }}
                     >
                       ❌
                     </button>
@@ -287,7 +316,13 @@ function App() {
 
           <button
             onClick={addProduct}
-            style={{ marginTop: "10px", background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}
+            style={{
+              marginTop: "10px",
+              background: "#22c55e",
+              color: "white",
+              borderRadius: "8px",
+              padding: "6px 12px",
+            }}
           >
             ➕ Add Product
           </button>
@@ -298,6 +333,12 @@ function App() {
           <h3 style={{ color: "#16a34a" }}>📈 Net Sale = ₹{netSale}</h3>
           <h3 style={{ color: "#7c3aed" }}>💳 Advance Payment = ₹{advancePayment}</h3>
           <h3 style={{ color: "#2563eb" }}>🧮 Balance Payable = ₹{balancePayable}</h3>
+
+          {/* Weekwise Graph */}
+          <div style={{ marginTop: "30px" }}>
+            <h3>📊 Week Sales Comparison</h3>
+            <Bar data={weekData} />
+          </div>
         </div>
       </div>
     </div>
