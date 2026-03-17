@@ -63,39 +63,26 @@ function App() {
   const balancePayable = netSale - advancePayment;
 
   // ===== Week Graph Data =====
-  const weekValues = [
-    grossSale * 0.8,
-    grossSale,
-    grossSale * 0.9,
-    grossSale * 0.7,
-    grossSale * 1.1,
-    grossSale * 0.95,
-    grossSale,
-  ];
-  const weekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
   const weekData = {
-    labels: weekLabels,
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     datasets: [
       {
         label: "Gross Sale",
-        data: weekValues,
+        data: [grossSale * 0.8, grossSale, grossSale * 0.9, grossSale * 0.7, grossSale * 1.1, grossSale * 0.95, grossSale],
         backgroundColor: ["#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6", "#fcd34d"],
       },
     ],
   };
 
-  // ===== Determine highest and lowest sale day =====
-  const maxSale = Math.max(...weekValues);
-  const minSale = Math.min(...weekValues);
-  const maxDay = weekLabels[weekValues.indexOf(maxSale)];
-  const minDay = weekLabels[weekValues.indexOf(minSale)];
+  // Determine which day had max and min sale
+  const maxSaleIndex = weekData.datasets[0].data.indexOf(Math.max(...weekData.datasets[0].data));
+  const minSaleIndex = weekData.datasets[0].data.indexOf(Math.min(...weekData.datasets[0].data));
 
   // ===== Invoice Print =====
   const printInvoice = () => {
     const invoiceWindow = window.open("", "PRINT", "height=600,width=800");
     invoiceWindow.document.write("<html><head><title>Invoice</title></head><body>");
-    invoiceWindow.document.write("<h2>🧾 Buyer Invoice</h2>");
+    invoiceWindow.document.write(`<h2 style="text-align:center;">🧾 Buyer Invoice</h2>`);
     invoiceWindow.document.write("<table border='1' cellpadding='10'><tr><th>Product</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>");
     products.forEach((p) => {
       invoiceWindow.document.write(`<tr><td>${p.name}</td><td>${p.quantity}</td><td>₹${p.rate}</td><td>₹${p.quantity*p.rate}</td></tr>`);
@@ -107,11 +94,12 @@ function App() {
     invoiceWindow.document.write(`<h3>💳 Advance Payment: ₹${advancePayment}</h3>`);
     invoiceWindow.document.write(`<h3>🧮 Balance Payable: ₹${balancePayable}</h3>`);
     invoiceWindow.document.write("<h3>📊 Week Sales Comparison</h3>");
-    weekLabels.forEach((day, i) => {
-      invoiceWindow.document.write(`<p>${day}: ₹${weekValues[i]}</p>`);
+    weekData.labels.forEach((day, i) => {
+      let highlight = "";
+      if (i === maxSaleIndex) highlight = " (Highest)";
+      if (i === minSaleIndex) highlight = " (Lowest)";
+      invoiceWindow.document.write(`<p>${day}: ₹${weekData.datasets[0].data[i]}${highlight}</p>`);
     });
-    invoiceWindow.document.write(`<p>📈 Highest Sale Day: ${maxDay} (₹${maxSale})</p>`);
-    invoiceWindow.document.write(`<p>📉 Lowest Sale Day: ${minDay} (₹${minSale})</p>`);
     invoiceWindow.document.write("</body></html>");
     invoiceWindow.document.close();
     invoiceWindow.print();
@@ -147,16 +135,9 @@ function App() {
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
       {/* Sidebar */}
       <div style={{ width: "240px", background: "#1f2937", color: "white", padding: "20px" }}>
-        {/* Company Logo */}
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <img 
-            src="https://tse4.mm.bing.net/th/id/OIP.ks72csN96u4QVk_QF_7MlwHaHa?pid=Api&P=0&h=180" 
-            alt="Company Logo" 
-            style={{ width: "150px", borderRadius: "8px" }}
-          />
-        </div>
-        <h2 style={{ color: "#facc15" }}>🥭 Mandi ERP</h2>
-        <ul style={{ listStyle: "none", padding: 0, marginTop: "30px" }}>
+        <img src="https://tse4.mm.bing.net/th/id/OIP.ks72csN96u4QVk_QF_7MlwHaHa?pid=Api&P=0&h=180" alt="Company Logo" style={{ width: "100%", borderRadius: "8px" }} />
+        <h2 style={{ color: "#facc15", marginTop: "15px" }}>🥭 Mandi ERP</h2>
+        <ul style={{ listStyle: "none", padding: 0, marginTop: "20px" }}>
           {["📊 Dashboard","🚚 Suppliers","🛒 Buyers","📦 Inventory","🧾 Invoices","📈 Reports","⚙️ Settings"].map((item) => (
             <li key={item} style={{ padding: "12px", marginBottom: "10px", background: "#374151", borderRadius: "8px" }}>{item}</li>
           ))}
@@ -202,20 +183,21 @@ function App() {
           </table>
           <button onClick={addProduct} style={{ marginTop: "10px", background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}>➕ Add Product</button>
 
-          {/* Calculations */}
-          <hr style={{ marginTop: "20px" }} />
-          <h3 style={{ color: "#d97706" }}>💰 Gross Sale = ₹{grossSale}</h3>
-          <h3 style={{ color: "#dc2626" }}>💸 Total Expenses = ₹{totalExpense}</h3>
-          <h3 style={{ color: "#16a34a" }}>📈 Net Sale = ₹{netSale}</h3>
-          <h3 style={{ color: "#7c3aed" }}>💳 Advance Payment = ₹{advancePayment}</h3>
-          <h3 style={{ color: "#2563eb" }}>🧮 Balance Payable = ₹{balancePayable}</h3>
+          {/* Calculations Cards */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "20px" }}>
+            <div style={{ flex: "1 1 150px", background: "#fef3c7", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>💰 Gross Sale<br/>₹{grossSale}</div>
+            <div style={{ flex: "1 1 150px", background: "#fee2e2", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>💸 Total Expenses<br/>₹{totalExpense}</div>
+            <div style={{ flex: "1 1 150px", background: "#dcfce7", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>📈 Net Sale<br/>₹{netSale}</div>
+            <div style={{ flex: "1 1 150px", background: "#ede9fe", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>💳 Advance Payment<br/>₹{advancePayment}</div>
+            <div style={{ flex: "1 1 150px", background: "#e0f2fe", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>🧮 Balance Payable<br/>₹{balancePayable}</div>
+          </div>
 
           {/* Weekwise Graph */}
           <div style={{ marginTop: "30px" }}>
             <h3>📊 Week Sales Comparison</h3>
             <Bar data={weekData} />
-            <p>📈 Highest Sale Day: {maxDay} (₹{maxSale})</p>
-            <p>📉 Lowest Sale Day: {minDay} (₹{minSale})</p>
+            <p>Highest Sale: {weekData.labels[maxSaleIndex]} - ₹{weekData.datasets[0].data[maxSaleIndex]}</p>
+            <p>Lowest Sale: {weekData.labels[minSaleIndex]} - ₹{weekData.datasets[0].data[minSaleIndex]}</p>
           </div>
 
           {/* Expenses Section */}
