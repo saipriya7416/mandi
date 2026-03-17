@@ -11,8 +11,8 @@ function App() {
   ];
 
   const suppliers = [
-    { name: "Ramesh Traders", product: "Rice", status: "Paid" },
-    { name: "Kiran Supplies", product: "Wheat", status: "Pending" },
+    { name: "Ramesh Traders", product: "Mango", status: "Paid" },
+    { name: "Kiran Supplies", product: "Rice", status: "Pending" },
     { name: "Lakshmi Agro", product: "Corn", status: "Paid" },
   ];
 
@@ -21,28 +21,33 @@ function App() {
       <div
         style={{
           height: "100vh",
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=1600&q=80')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          background: "#f3f4f6",
         }}
       >
         <div
           style={{
-            background: "white",
+            background: "rgba(255,255,255,0.92)",
             padding: "40px",
-            borderRadius: "12px",
-            width: "350px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            borderRadius: "16px",
+            width: "360px",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
           }}
         >
-          <h2 style={{ textAlign: "center", color: "#d97706" }}>Mandi ERP Login</h2>
+          <h2 style={{ textAlign: "center", color: "#d97706" }}>
+            Mango Mandi ERP Login
+          </h2>
 
           <input
             placeholder="Username"
             style={{
               width: "100%",
-              padding: "10px",
+              padding: "12px",
               marginTop: "20px",
               marginBottom: "15px",
               borderRadius: "8px",
@@ -55,7 +60,7 @@ function App() {
             placeholder="Password"
             style={{
               width: "100%",
-              padding: "10px",
+              padding: "12px",
               marginBottom: "20px",
               borderRadius: "8px",
               border: "1px solid #ccc",
@@ -66,7 +71,7 @@ function App() {
             onClick={() => setLoggedIn(true)}
             style={{
               width: "100%",
-              padding: "10px",
+              padding: "12px",
               background: "#facc15",
               border: "none",
               borderRadius: "8px",
@@ -206,7 +211,7 @@ function App() {
           ))}
         </div>
 
-        {/* Invoice Section */}
+        {/* Invoice */}
         <div
           style={{
             marginTop: "40px",
@@ -343,10 +348,10 @@ function App() {
           <h2>Recent Activity</h2>
 
           <ul style={{ marginTop: "15px", lineHeight: "2" }}>
-            <li>✅ Invoice generated</li>
+            <li>✅ Mango stock updated</li>
             <li>📦 Supplier added</li>
             <li>💰 Payment received</li>
-            <li>📊 Inventory updated</li>
+            <li>📊 Inventory synced</li>
           </ul>
         </div>
       </div>
