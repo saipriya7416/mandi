@@ -638,6 +638,97 @@ function App() {
     ➕ Add Inventory Lot
   </button>
 </div>
+
+{/* Supplier Bill Generation Section */}
+<div style={{ marginTop: "30px", background: "#fff7ed", padding: "25px", borderRadius: "16px", border: "2px solid #f59e0b" }}>
+  <h2 style={{ textAlign: "center", color: "#b45309", fontSize: "26px", fontWeight: "bold" }}>🧾 Supplier Bill Generation</h2>
+
+  {/* Bill Info */}
+  <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginTop: "20px" }}>
+    <input
+      placeholder="🔢 Bill Number"
+      value={supplierBill?.billNumber || ""}
+      onChange={(e) => setSupplierBill({ ...supplierBill, billNumber: e.target.value })}
+      style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #b45309" }}
+    />
+    <input
+      type="date"
+      placeholder="📅 Date"
+      value={supplierBill?.date || ""}
+      onChange={(e) => setSupplierBill({ ...supplierBill, date: e.target.value })}
+      style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #b45309" }}
+    />
+    <input
+      placeholder="🚚 Supplier Name"
+      value={supplierBill?.supplierName || ""}
+      onChange={(e) => setSupplierBill({ ...supplierBill, supplierName: e.target.value })}
+      style={{ flex: "2", padding: "10px", borderRadius: "8px", border: "1px solid #b45309" }}
+    />
+  </div>
+
+  {/* Item Table */}
+  <div style={{ marginTop: "25px", background: "#fef3c7", padding: "15px", borderRadius: "12px" }}>
+    <h3 style={{ fontWeight: "bold", color: "#b45309" }}>📦 Items</h3>
+    <table style={{ width: "100%", marginTop: "10px", borderCollapse: "collapse", textAlign: "center" }}>
+      <thead>
+        <tr>
+          <th style={{ padding: "8px", border: "1px solid #f59e0b" }}>📦 Product</th>
+          <th style={{ padding: "8px", border: "1px solid #f59e0b" }}>⚖ Quantity</th>
+          <th style={{ padding: "8px", border: "1px solid #f59e0b" }}>💰 Rate</th>
+          <th style={{ padding: "8px", border: "1px solid #f59e0b" }}>💵 Amount</th>
+          <th style={{ padding: "8px", border: "1px solid #f59e0b" }}>❌ Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {supplierBill?.items?.map((item, index) => (
+          <tr key={index}>
+            <td><input value={item.name} onChange={(e) => updateSupplierBillItem(index, "name", e.target.value)} /></td>
+            <td><input type="number" value={item.quantity} onChange={(e) => updateSupplierBillItem(index, "quantity", e.target.value)} /></td>
+            <td><input type="number" value={item.rate} onChange={(e) => updateSupplierBillItem(index, "rate", e.target.value)} /></td>
+            <td>₹{item.quantity * item.rate}</td>
+            <td><button onClick={() => deleteSupplierBillItem(index)} style={{ background: "#ef4444", color: "white", borderRadius: "4px" }}>❌</button></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <button onClick={addSupplierBillItem} style={{ marginTop: "10px", background: "#f59e0b", color: "white", borderRadius: "8px", padding: "6px 12px" }}>➕ Add Item</button>
+  </div>
+
+  {/* Expense Deductions */}
+  <div style={{ marginTop: "25px", background: "#fee2e2", padding: "15px", borderRadius: "12px" }}>
+    <h3 style={{ fontWeight: "bold", color: "#b91c1c" }}>💸 Expense Deductions</h3>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginTop: "10px" }}>
+      {["transport","marketing","labour","packing","misc"].map((key) => (
+        <div key={key} style={{ flex: "1" }}>
+          <label>
+            {key==="transport"?"🚚 Transport / Freight":
+             key==="marketing"?"📢 Marketing":
+             key==="labour"?"💪 Labour / Coolie":
+             key==="packing"?"📦 Packing":"🛠 Miscellaneous"}
+          </label><br/>
+          <input type="number" min="0" value={supplierBill?.expenses?.[key] || 0} onChange={(e)=>updateSupplierBillExpense(key, parseFloat(e.target.value)||0)} style={{ padding:"8px", width:"120px", borderRadius:"6px", border:"1px solid #b91c1c", textAlign:"right"}}/>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Totals */}
+  <div style={{ marginTop:"25px", display:"flex", flexWrap:"wrap", gap:"20px" }}>
+    <div style={{ flex:"1 1 150px", background:"#fef3c7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💰 Gross Sale<br/>₹{grossSupplierSale()}</div>
+    <div style={{ flex:"1 1 150px", background:"#fee2e2", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💸 Total Expenses<br/>₹{totalSupplierExpenses()}</div>
+    <div style={{ flex:"1 1 150px", background:"#dcfce7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>📈 Net Sale<br/>₹{netSupplierSale()}</div>
+    <div style={{ flex:"1 1 150px", background:"#ede9fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💳 Advance Payment<br/>₹{supplierBill?.advancePayment || 0}</div>
+    <div style={{ flex:"1 1 150px", background:"#e0f2fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>🧮 Balance Payable<br/>₹{balanceSupplierPayable()}</div>
+  </div>
+
+  {/* Actions */}
+  <div style={{ marginTop:"20px", display:"flex", gap:"15px" }}>
+    <button onClick={printSupplierBill} style={{ flex:"1", padding:"10px", borderRadius:"12px", background:"#22c55e", color:"white", fontWeight:"bold" }}>🖨 Print Bill</button>
+    <button onClick={downloadSupplierBillPDF} style={{ flex:"1", padding:"10px", borderRadius:"12px", background:"#3b82f6", color:"white", fontWeight:"bold" }}>📄 Download PDF</button>
+    <button onClick={shareSupplierBillWhatsApp} style={{ flex:"1", padding:"10px", borderRadius:"12px", background:"#25d366", color:"white", fontWeight:"bold" }}>💬 Share WhatsApp</button>
+  </div>
+</div>
+
         </div>
       </div>
     </div>
