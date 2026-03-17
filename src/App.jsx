@@ -252,42 +252,65 @@ function App() {
           <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
           <button onClick={printInvoice} style={{ background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}>🖨 Print Invoice</button>
         </div>
+        {/* Product Entry Table */}
+<div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+  <h2>📦 Product Entry</h2>
+  <table style={{ width: "100%", marginTop: "15px", borderCollapse: "collapse", textAlign:"center" }}>
+    <thead>
+      <tr>
+        <th style={{padding:"10px"}}>📦 Product</th>
+        <th style={{padding:"10px"}}>⚖ Quantity (KG)</th>
+        <th style={{padding:"10px"}}>₹ Rate</th>
+        <th style={{padding:"10px"}}>💰 Amount</th>
+        <th style={{padding:"10px"}}>❌ Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filteredProducts.map((item, index) => (
+        <tr key={index} style={{ height:"50px" }}>
+          <td>
+            <input
+              value={item.name}
+              onChange={(e)=>updateProduct(index,"name",e.target.value)}
+              style={{ width:"100%", padding:"6px 8px", borderRadius:"6px", border:"1px solid #ccc", textAlign:"center" }}
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              value={item.quantity}
+              onChange={(e)=>updateProduct(index,"quantity",e.target.value)}
+              style={{ width:"80%", padding:"6px 8px", borderRadius:"6px", border:"1px solid #ccc", textAlign:"right" }}
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              value={item.rate}
+              onChange={(e)=>updateProduct(index,"rate",e.target.value)}
+              style={{ width:"80%", padding:"6px 8px", borderRadius:"6px", border:"1px solid #ccc", textAlign:"right" }}
+            />
+          </td>
+          <td style={{ fontWeight:"bold" }}>₹{item.quantity * item.rate}</td>
+          <td>
+            <button onClick={()=>deleteProduct(index)} style={{ background: "#ef4444", color: "white", borderRadius:"4px", padding:"6px 10px" }}>❌</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <button onClick={addProduct} style={{ marginTop:"10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px" }}>➕ Add Product</button>
 
-        {/* Product Table */}
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
-          <h2>📦 Product Entry</h2>
-          <table style={{ width: "100%", marginTop: "15px", borderCollapse:"collapse" }}>
-            <thead>
-              <tr>
-                <th>📦 Product</th>
-                <th style={{ textAlign:"right" }}>⚖ Quantity (KG)</th>
-                <th style={{ textAlign:"right" }}>₹ Rate</th>
-                <th style={{ textAlign:"right" }}>💰 Amount</th>
-                <th>❌ Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map((item, index) => (
-                <tr key={index}>
-                  <td><input value={item.name} onChange={(e)=>updateProduct(index,"name",e.target.value)} /></td>
-                  <td><input type="number" value={item.quantity} onChange={(e)=>updateProduct(index,"quantity",e.target.value)} style={{ textAlign:"right", width:"80px", padding:"6px" }} /></td>
-                  <td><input type="number" value={item.rate} onChange={(e)=>updateProduct(index,"rate",e.target.value)} style={{ textAlign:"right", width:"80px", padding:"6px" }} /></td>
-                  <td style={{ textAlign:"right", fontWeight:"bold" }}>{formatCurrency(item.quantity * item.rate)}</td>
-                  <td><button onClick={()=>deleteProduct(index)} style={{ background: "#ef4444", color: "white", borderRadius:"4px" }}>❌</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button onClick={addProduct} style={{ marginTop:"10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px" }}>➕ Add Product</button>
+  {/* Calculations Cards */}
+  <div style={{ display:"flex", flexWrap:"wrap", gap:"20px", marginTop:"20px" }}>
+    <div style={{ flex:"1 1 150px", background:"#fef3c7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💰 Gross Sale<br/>₹{grossSale}</div>
+    <div style={{ flex:"1 1 150px", background:"#fee2e2", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💸 Total Expenses<br/>₹{totalExpense}</div>
+    <div style={{ flex:"1 1 150px", background:"#dcfce7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>📈 Net Sale<br/>₹{netSale}</div>
+    <div style={{ flex:"1 1 150px", background:"#ede9fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💳 Advance Payment<br/>₹{advancePayment}</div>
+    <div style={{ flex:"1 1 150px", background:"#e0f2fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>🧮 Balance Payable<br/>₹{balancePayable}</div>
+  </div>
+</div>
 
-          {/* Calculations Cards */}
-          <div style={{ display:"flex", flexWrap:"wrap", gap:"20px", marginTop:"20px" }}>
-            <div style={{ flex:"1 1 150px", background:"#fef3c7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💰 Gross Sale<br/>{formatCurrency(grossSale)}</div>
-            <div style={{ flex:"1 1 150px", background:"#fee2e2", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💸 Total Expenses<br/>{formatCurrency(totalExpense)}</div>
-            <div style={{ flex:"1 1 150px", background:"#dcfce7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>📈 Net Sale<br/>{formatCurrency(netSale)}</div>
-            <div style={{ flex:"1 1 150px", background:"#ede9fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💳 Advance Payment<br/>{formatCurrency(advancePayment)}</div>
-            <div style={{ flex:"1 1 150px", background:"#e0f2fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>🧮 Balance Payable<br/>{formatCurrency(balancePayable)}</div>
-          </div>
                     {/* Weekwise Graph */}
           <div style={{ marginTop:"30px" }}>
             <h3>📊 Week Sales Comparison</h3>
@@ -314,8 +337,6 @@ function App() {
             <div style={{ marginTop:"20px", textAlign:"center", fontWeight:"bold", fontSize:"18px" }}>
               Total Expenses: {formatCurrency(totalExpense)}
             </div>
-          </div>
-
           {/* Suppliers Section */}
           <div style={{ marginTop:"30px", background:"#f0fdf4", padding:"20px", borderRadius:"12px", border:"2px solid #22c55e" }}>
             <h2 style={{ textAlign:"center", color:"#16a34a" }}>🚚 Supplier Management</h2>
