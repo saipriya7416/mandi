@@ -467,46 +467,62 @@ function App() {
             <button onClick={addBuyer} style={{ marginTop: "20px", background: "#14b8a6", color: "white", borderRadius: "12px", padding: "10px 20px", fontWeight: "bold" }}>➕ Add Buyer</button>
           </div>
 
-          {/* Inventory Intake Section */}
-<div style={{ marginTop: "30px", background: "#fef3f3", padding: "20px", borderRadius: "12px", border: "2px solid #f87171" }}>
-  <h2 style={{ textAlign: "center", color: "#b91c1c" }}>📦 Inventory Intake</h2>
-  <table style={{ width: "100%", marginTop: "15px", borderCollapse: "collapse", textAlign:"center" }}>
+         {/* Inventory Intake Section */}
+<div style={{ marginTop: "30px", background: "#fff7ed", padding: "25px", borderRadius: "16px", border: "2px solid #f59e0b" }}>
+  <h2 style={{ textAlign: "center", color: "#d97706", fontSize: "26px", fontWeight: "bold" }}>📦 Inventory Intake</h2>
+
+  <table style={{ width: "100%", marginTop: "20px", borderCollapse: "collapse", textAlign: "center", fontWeight:"bold" }}>
     <thead>
-      <tr>
-        <th>Date</th>
-        <th>Supplier</th>
-        <th>Product</th>
-        <th>Grade</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-        <th>Rate</th>
-        <th>Lot ID</th>
-        <th>Files</th>
+      <tr style={{ background: "#fbbf24", color: "white" }}>
+        <th>📅 Date</th>
+        <th>🚚 Supplier</th>
+        <th>📦 Product</th>
+        <th>🏷 Grade</th>
+        <th>⚖ Quantity</th>
+        <th>🔢 Unit</th>
+        <th>💰 Rate</th>
+        <th>🆔 Lot ID</th>
+        <th>🗂 Files</th>
         <th>❌ Delete</th>
       </tr>
     </thead>
     <tbody>
       {inventory.map((inv, index) => (
-        <tr key={index}>
-          <td><input type="date" value={inv.date} onChange={(e)=>updateInventory(index,"date",e.target.value)} /></td>
-          <td><input value={inv.supplier} onChange={(e)=>updateInventory(index,"supplier",e.target.value)} /></td>
-          <td><input value={inv.product} onChange={(e)=>updateInventory(index,"product",e.target.value)} /></td>
-          <td><input value={inv.grade} onChange={(e)=>updateInventory(index,"grade",e.target.value)} /></td>
-          <td><input type="number" value={inv.quantity} onChange={(e)=>updateInventory(index,"quantity",e.target.value)} style={{width:"80px"}} /></td>
-          <td>{inv.unit}</td>
-          <td><input type="number" value={inv.rate} onChange={(e)=>updateInventory(index,"rate",e.target.value)} style={{width:"80px"}} /></td>
-          <td>{inv.lotId}</td>
+        <tr key={index} style={{ height:"50px", borderBottom:"1px solid #fcd34d" }}>
           <td>
-            <input type="file" multiple onChange={(e)=>updateInventoryFiles(index, e.target.files)} />
+            <input type="date" value={inv.date} onChange={(e) => updateInventory(index, "date", e.target.value)} style={{ padding:"6px", borderRadius:"6px", border:"1px solid #f59e0b", textAlign:"center" }} />
           </td>
           <td>
-            <button onClick={()=>setInventory(inventory.filter((_,i)=>i!==index))} style={{background:"#ef4444", color:"white", borderRadius:"4px"}}>❌</button>
+            <input value={inv.supplier} onChange={(e) => updateInventory(index, "supplier", e.target.value)} placeholder="Supplier Name" style={{ padding:"6px", borderRadius:"6px", border:"1px solid #f59e0b", textAlign:"center" }} />
+          </td>
+          <td>
+            <input value={inv.product} onChange={(e) => updateInventory(index, "product", e.target.value)} placeholder="Product Name" style={{ padding:"6px", borderRadius:"6px", border:"1px solid #f59e0b", textAlign:"center" }} />
+          </td>
+          <td>
+            <input value={inv.grade} onChange={(e) => updateInventory(index, "grade", e.target.value)} placeholder="Grade" style={{ padding:"6px", borderRadius:"6px", border:"1px solid #f59e0b", textAlign:"center" }} />
+          </td>
+          <td>
+            <input type="number" value={inv.quantity} onChange={(e) => updateInventory(index, "quantity", e.target.value)} style={{ width:"80px", padding:"6px", borderRadius:"6px", border:"1px solid #f59e0b", textAlign:"right" }} />
+          </td>
+          <td>{inv.unit}</td>
+          <td>
+            <input type="number" value={inv.rate} onChange={(e) => updateInventory(index, "rate", e.target.value)} style={{ width:"80px", padding:"6px", borderRadius:"6px", border:"1px solid #f59e0b", textAlign:"right" }} />
+          </td>
+          <td>{inv.lotId}</td>
+          <td>
+            <input type="file" multiple onChange={(e) => updateInventoryFiles(index, e.target.files)} style={{ padding:"4px", borderRadius:"4px", border:"1px solid #f59e0b" }} />
+          </td>
+          <td>
+            <button onClick={() => setInventory(inventory.filter((_, i) => i !== index))} style={{ background:"#ef4444", color:"white", borderRadius:"6px", padding:"6px 10px", fontWeight:"bold" }}>❌</button>
           </td>
         </tr>
       ))}
     </tbody>
   </table>
-  <button onClick={addInventory} style={{ marginTop:"10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px" }}>➕ Add Inventory</button>
+
+  <button onClick={addInventory} style={{ marginTop:"15px", background:"#16a34a", color:"white", borderRadius:"12px", padding:"10px 20px", fontWeight:"bold", boxShadow:"0 4px 8px rgba(0,0,0,0.2)" }}>
+    ➕ Add Inventory
+  </button>
 </div>
 
         </div>
