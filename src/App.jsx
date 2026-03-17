@@ -1,247 +1,159 @@
-import React, { useState } from "react";
+import React from "react";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [page, setPage] = useState("Dashboard");
+  const cards = [
+    { title: "Total Sales", value: "₹1,25,000" },
+    { title: "Suppliers", value: "42" },
+    { title: "Buyers", value: "31" },
+    { title: "Pending Payments", value: "₹18,000" },
+  ];
 
-  const menuItems = ["Dashboard", "Suppliers", "Buyers", "Inventory", "Reports", "Invoice"];
-
-  if (!loggedIn) {
-    return (
-      <div style={loginWrapper}>
-        <div style={loginBox}>
-          <h2 style={{ color: "#d97706", textAlign: "center" }}>Mandi ERP Login</h2>
-          <input placeholder="Username" style={inputStyle} />
-          <input type="password" placeholder="Password" style={inputStyle} />
-          <button style={buttonStyle} onClick={() => setLoggedIn(true)}>
-            Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const renderPage = () => {
-    switch (page) {
-      case "Dashboard":
-        return (
-          <div>
-            <h2>Dashboard</h2>
-
-            <div style={cardGrid}>
-              <div style={cardStyle}>Total Inventory Received Today</div>
-              <div style={cardStyle}>Total Sales Today</div>
-              <div style={cardStyle}>Pending Payments</div>
-            </div>
-
-            {/* Simple Chart */}
-            <div style={chartBox}>
-              <h3>Weekly Sales Chart</h3>
-              <div style={{ display: "flex", gap: "10px", alignItems: "flex-end", height: "150px" }}>
-                <div style={{ width: "40px", height: "60px", background: "#facc15" }}></div>
-                <div style={{ width: "40px", height: "100px", background: "#f59e0b" }}></div>
-                <div style={{ width: "40px", height: "80px", background: "#eab308" }}></div>
-                <div style={{ width: "40px", height: "120px", background: "#d97706" }}></div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "Suppliers":
-        return (
-          <div>
-            <h2>Suppliers</h2>
-            <table border="1" cellPadding="10" width="100%">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Village</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Ramu</td>
-                  <td>9999999999</td>
-                  <td>Village A</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        );
-
-      case "Buyers":
-        return (
-          <div>
-            <h2>Buyers</h2>
-            <table border="1" cellPadding="10" width="100%">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Shop</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Gopal</td>
-                  <td>7777777777</td>
-                  <td>Shop A</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        );
-
-      case "Inventory":
-        return (
-          <div>
-            <h2>Inventory Intake</h2>
-            <input placeholder="Product" style={inputStyle} />
-            <input placeholder="Quantity" style={inputStyle} />
-            <button style={buttonStyle}>Add Entry</button>
-          </div>
-        );
-
-      case "Reports":
-        return (
-          <div>
-            <h2>Reports</h2>
-            <p>Total Sales: ₹15,000</p>
-            <p>Total Expenses: ₹2,500</p>
-            <p>Outstanding Balance: ₹4,000</p>
-          </div>
-        );
-
-      case "Invoice":
-        return (
-          <div>
-            <h2>Invoice</h2>
-            <table border="1" cellPadding="10" width="100%">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Rate</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Tomato</td>
-                  <td>50</td>
-                  <td>20</td>
-                  <td>1000</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <button style={{ ...buttonStyle, marginTop: "20px" }} onClick={() => window.print()}>
-              Print Invoice
-            </button>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
+  const suppliers = [
+    { name: "Ramesh Traders", product: "Rice", status: "Paid" },
+    { name: "Kiran Supplies", product: "Wheat", status: "Pending" },
+    { name: "Lakshmi Agro", product: "Corn", status: "Paid" },
+  ];
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", fontFamily: "Arial" }}>
-      
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
       {/* Sidebar */}
-      <div style={sidebarStyle}>
+      <div style={{
+        width: "240px",
+        background: "#1f2937",
+        color: "white",
+        padding: "20px"
+      }}>
         <h2 style={{ color: "#facc15" }}>Mandi ERP</h2>
-
-        {menuItems.map((item, index) => (
-          <p
-            key={index}
-            onClick={() => setPage(item)}
-            style={{
-              padding: "10px",
-              cursor: "pointer",
-              background: page === item ? "#1f2937" : "transparent",
-              borderRadius: "8px"
-            }}
-          >
-            {item}
-          </p>
-        ))}
-
-        <button style={{ ...buttonStyle, background: "#dc2626" }} onClick={() => setLoggedIn(false)}>
-          Logout
-        </button>
+        <ul style={{ listStyle: "none", padding: 0, marginTop: "30px" }}>
+          {["Dashboard", "Suppliers", "Buyers", "Inventory", "Invoices", "Reports", "Settings"].map(item => (
+            <li key={item} style={{
+              padding: "12px",
+              marginBottom: "10px",
+              background: "#374151",
+              borderRadius: "8px",
+              cursor: "pointer"
+            }}>
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Main */}
       <div style={{ flex: 1, padding: "30px" }}>
-        <h1 style={{ color: "#d97706" }}>Trade Operations Dashboard</h1>
-        {renderPage()}
+        <h1 style={{ marginBottom: "25px" }}>Trade Operations Dashboard</h1>
+
+        {/* Cards */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "20px"
+        }}>
+          {cards.map(card => (
+            <div key={card.title} style={{
+              background: "white",
+              padding: "20px",
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+            }}>
+              <h3>{card.title}</h3>
+              <p style={{
+                fontSize: "24px",
+                color: "#d97706",
+                fontWeight: "bold"
+              }}>
+                {card.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Supplier Table */}
+        <div style={{
+          marginTop: "40px",
+          background: "white",
+          padding: "20px",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+        }}>
+          <h2>Supplier Overview</h2>
+
+          <table style={{
+            width: "100%",
+            marginTop: "20px",
+            borderCollapse: "collapse"
+          }}>
+            <thead>
+              <tr style={{ background: "#f3f4f6" }}>
+                <th style={{ padding: "12px" }}>Supplier</th>
+                <th style={{ padding: "12px" }}>Product</th>
+                <th style={{ padding: "12px" }}>Status</th>
+                <th style={{ padding: "12px" }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {suppliers.map((s, i) => (
+                <tr key={i}>
+                  <td style={{ padding: "12px" }}>{s.name}</td>
+                  <td style={{ padding: "12px" }}>{s.product}</td>
+                  <td style={{ padding: "12px" }}>
+                    <span style={{
+                      background: s.status === "Paid" ? "#dcfce7" : "#fef3c7",
+                      padding: "6px 10px",
+                      borderRadius: "8px"
+                    }}>
+                      {s.status}
+                    </span>
+                  </td>
+                  <td style={{ padding: "12px" }}>
+                    <button style={{
+                      marginRight: "10px",
+                      padding: "6px 12px"
+                    }}>Edit</button>
+                    <button style={{
+                      padding: "6px 12px"
+                    }}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Chart Placeholder */}
+        <div style={{
+          marginTop: "40px",
+          background: "white",
+          padding: "20px",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+        }}>
+          <h2>Weekly Sales</h2>
+          <div style={{
+            display: "flex",
+            gap: "15px",
+            alignItems: "end",
+            height: "200px",
+            marginTop: "20px"
+          }}>
+            {[80, 120, 60, 150, 100].map((h, i) => (
+              <div key={i}>
+                <div style={{
+                  width: "40px",
+                  height: `${h}px`,
+                  background: "#facc15"
+                }}></div>
+                <p style={{ textAlign: "center" }}>
+                  {["Mon", "Tue", "Wed", "Thu", "Fri"][i]}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
 }
-
-const loginWrapper = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "100vh",
-  background: "#f3f4f6"
-};
-
-const loginBox = {
-  background: "white",
-  padding: "40px",
-  borderRadius: "12px",
-  width: "320px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  marginTop: "15px"
-};
-
-const buttonStyle = {
-  width: "100%",
-  padding: "10px",
-  marginTop: "15px",
-  background: "#facc15",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer"
-};
-
-const sidebarStyle = {
-  width: "240px",
-  background: "#111827",
-  color: "white",
-  minHeight: "100vh",
-  padding: "20px"
-};
-
-const cardGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
-  gap: "20px"
-};
-
-const cardStyle = {
-  background: "white",
-  padding: "20px",
-  borderRadius: "12px",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-};
-
-const chartBox = {
-  marginTop: "30px",
-  background: "white",
-  padding: "20px",
-  borderRadius: "12px",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-};
 
 export default App;
