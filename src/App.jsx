@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
   const cards = [
     { title: "Total Sales", value: "₹1,25,000" },
     { title: "Suppliers", value: "42" },
@@ -13,6 +15,71 @@ function App() {
     { name: "Kiran Supplies", product: "Wheat", status: "Pending" },
     { name: "Lakshmi Agro", product: "Corn", status: "Paid" },
   ];
+
+  if (!loggedIn) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "#f3f4f6",
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            padding: "40px",
+            borderRadius: "12px",
+            width: "350px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h2 style={{ textAlign: "center", color: "#d97706" }}>Mandi ERP Login</h2>
+
+          <input
+            placeholder="Username"
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginTop: "20px",
+              marginBottom: "15px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+            }}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginBottom: "20px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+            }}
+          />
+
+          <button
+            onClick={() => setLoggedIn(true)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              background: "#facc15",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
@@ -46,7 +113,6 @@ function App() {
                 background: "#374151",
                 borderRadius: "8px",
                 cursor: "pointer",
-                fontWeight: "500",
               }}
             >
               {item}
@@ -55,25 +121,22 @@ function App() {
         </ul>
       </div>
 
-      {/* Main Content */}
+      {/* Main */}
       <div style={{ flex: 1, padding: "30px" }}>
-
-        {/* Top Bar */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
             marginBottom: "30px",
           }}
         >
           <input
-            placeholder="Search suppliers, buyers..."
+            placeholder="Search..."
             style={{
               padding: "10px",
               width: "300px",
               borderRadius: "8px",
-              border: "1px solid #d1d5db",
+              border: "1px solid #ccc",
             }}
           />
 
@@ -82,16 +145,13 @@ function App() {
               background: "white",
               padding: "10px 20px",
               borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             }}
           >
             Admin User
           </div>
         </div>
 
-        <h1 style={{ marginBottom: "25px" }}>Trade Operations Dashboard</h1>
-
-        {/* KPI Cards */}
+        {/* Cards */}
         <div
           style={{
             display: "grid",
@@ -106,22 +166,41 @@ function App() {
                 background: "white",
                 padding: "20px",
                 borderRadius: "12px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                transition: "0.3s",
               }}
             >
               <h3>{card.title}</h3>
-              <p
-                style={{
-                  fontSize: "24px",
-                  color: "#d97706",
-                  fontWeight: "bold",
-                }}
-              >
+              <p style={{ fontSize: "24px", color: "#d97706", fontWeight: "bold" }}>
                 {card.value}
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Invoice Box */}
+        <div
+          style={{
+            marginTop: "40px",
+            background: "white",
+            padding: "20px",
+            borderRadius: "12px",
+          }}
+        >
+          <h2>Invoice Summary</h2>
+          <p>Invoice No: INV-1023</p>
+          <p>Buyer: Sai Traders</p>
+          <p>Total: ₹45,000</p>
+
+          <button
+            style={{
+              marginTop: "10px",
+              padding: "10px 15px",
+              background: "#facc15",
+              border: "none",
+              borderRadius: "8px",
+            }}
+          >
+            Print Invoice
+          </button>
         </div>
 
         {/* Supplier Table */}
@@ -131,112 +210,29 @@ function App() {
             background: "white",
             padding: "20px",
             borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
         >
           <h2>Supplier Overview</h2>
 
-          <table
-            style={{
-              width: "100%",
-              marginTop: "20px",
-              borderCollapse: "collapse",
-            }}
-          >
+          <table style={{ width: "100%", marginTop: "20px" }}>
             <thead>
-              <tr style={{ background: "#f3f4f6" }}>
-                <th style={{ padding: "12px" }}>Supplier</th>
-                <th style={{ padding: "12px" }}>Product</th>
-                <th style={{ padding: "12px" }}>Status</th>
-                <th style={{ padding: "12px" }}>Action</th>
+              <tr>
+                <th>Supplier</th>
+                <th>Product</th>
+                <th>Status</th>
               </tr>
             </thead>
 
             <tbody>
               {suppliers.map((s, i) => (
                 <tr key={i}>
-                  <td style={{ padding: "12px" }}>{s.name}</td>
-                  <td style={{ padding: "12px" }}>{s.product}</td>
-                  <td style={{ padding: "12px" }}>
-                    <span
-                      style={{
-                        background:
-                          s.status === "Paid" ? "#dcfce7" : "#fef3c7",
-                        padding: "6px 10px",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      {s.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: "12px" }}>
-                    <button style={{ marginRight: "10px", padding: "6px 12px" }}>
-                      Edit
-                    </button>
-                    <button style={{ padding: "6px 12px" }}>Delete</button>
-                  </td>
+                  <td>{s.name}</td>
+                  <td>{s.product}</td>
+                  <td>{s.status}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Weekly Sales */}
-        <div
-          style={{
-            marginTop: "40px",
-            background: "white",
-            padding: "20px",
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <h2>Weekly Sales</h2>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "15px",
-              alignItems: "end",
-              height: "200px",
-              marginTop: "20px",
-            }}
-          >
-            {[80, 120, 60, 150, 100].map((h, i) => (
-              <div key={i}>
-                <div
-                  style={{
-                    width: "40px",
-                    height: `${h}px`,
-                    background: "#facc15",
-                  }}
-                ></div>
-                <p style={{ textAlign: "center" }}>
-                  {["Mon", "Tue", "Wed", "Thu", "Fri"][i]}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div
-          style={{
-            marginTop: "40px",
-            background: "white",
-            padding: "20px",
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <h2>Recent Activity</h2>
-
-          <ul style={{ marginTop: "15px", lineHeight: "2" }}>
-            <li>✅ Invoice #1023 generated</li>
-            <li>📦 New supplier added</li>
-            <li>💰 Payment received from buyer</li>
-            <li>📊 Inventory updated</li>
-          </ul>
         </div>
       </div>
     </div>
