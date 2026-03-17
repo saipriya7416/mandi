@@ -50,6 +50,20 @@ function App() {
     },
   ]);
 
+  // ===== Buyers =====
+  const [buyers, setBuyers] = useState([
+    {
+      name: "",
+      phone: "",
+      shopName: "",
+      address: "",
+      govId: "",
+      idType: "",
+      creditLimit: "",
+      notes: "",
+    },
+  ]);
+
   // ===== Product Functions =====
   const updateProduct = (index, field, value) => {
     const updated = [...products];
@@ -83,6 +97,25 @@ function App() {
   const deleteSupplier = (index) => {
     const updated = suppliers.filter((_, i) => i !== index);
     setSuppliers(updated);
+  };
+
+  // ===== Buyer Functions =====
+  const updateBuyer = (index, field, value) => {
+    const updated = [...buyers];
+    updated[index][field] = value;
+    setBuyers(updated);
+  };
+
+  const addBuyer = () => {
+    setBuyers([
+      ...buyers,
+      { name: "", phone: "", shopName: "", address: "", govId: "", idType: "", creditLimit: "", notes: "" },
+    ]);
+  };
+
+  const deleteBuyer = (index) => {
+    const updated = buyers.filter((_, i) => i !== index);
+    setBuyers(updated);
   };
 
   const filteredProducts = products.filter((p) =>
@@ -293,6 +326,42 @@ function App() {
               </tbody>
             </table>
             <button onClick={addSupplier} style={{marginTop:"10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px"}}>➕ Add Supplier</button>
+          </div>
+
+          {/* Buyers Section */}
+          <div style={{ marginTop: "30px", background: "#f0fdfa", padding: "20px", borderRadius: "12px", border:"2px solid #14b8a6" }}>
+            <h2 style={{ textAlign:"center", color:"#0d9488" }}>🛒 Buyer Management</h2>
+            <table style={{ width:"100%", marginTop:"15px", borderCollapse:"collapse" }}>
+              <thead>
+                <tr>
+                  <th>🏷 Name</th>
+                  <th>📞 Phone</th>
+                  <th>🏪 Shop Name</th>
+                  <th>🏠 Address</th>
+                  <th>🆔 Govt ID</th>
+                  <th>📝 ID Type</th>
+                  <th>💳 Credit Limit</th>
+                  <th>🗒 Notes</th>
+                  <th>❌ Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {buyers.map((b,index)=>(
+                  <tr key={index}>
+                    <td><input value={b.name} onChange={(e)=>updateBuyer(index,"name",e.target.value)} /></td>
+                    <td><input value={b.phone} onChange={(e)=>updateBuyer(index,"phone",e.target.value)} /></td>
+                    <td><input value={b.shopName} onChange={(e)=>updateBuyer(index,"shopName",e.target.value)} /></td>
+                    <td><input value={b.address} onChange={(e)=>updateBuyer(index,"address",e.target.value)} /></td>
+                    <td><input value={b.govId} onChange={(e)=>updateBuyer(index,"govId",e.target.value)} /></td>
+                    <td><input value={b.idType} onChange={(e)=>updateBuyer(index,"idType",e.target.value)} /></td>
+                    <td><input value={b.creditLimit} onChange={(e)=>updateBuyer(index,"creditLimit",e.target.value)} /></td>
+                    <td><input value={b.notes} onChange={(e)=>updateBuyer(index,"notes",e.target.value)} /></td>
+                    <td><button onClick={()=>deleteBuyer(index)} style={{background:"#ef4444", color:"white", borderRadius:"4px"}}>❌</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={addBuyer} style={{marginTop:"10px", background:"#14b8a6", color:"white", borderRadius:"8px", padding:"6px 12px"}}>➕ Add Buyer</button>
           </div>
 
         </div>
