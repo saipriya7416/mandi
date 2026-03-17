@@ -286,6 +286,50 @@ function App() {
             borderRadius: "12px",
           }}
         >
+          <h2>Weekly Sales Comparison</h2>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "15px",
+              alignItems: "end",
+              height: "220px",
+              marginTop: "25px",
+            }}
+          >
+            {[
+              { day: "Mon", value: 90, color: "#f97316" },
+              { day: "Tue", value: 130, color: "#22c55e" },
+              { day: "Wed", value: 70, color: "#3b82f6" },
+              { day: "Thu", value: 160, color: "#eab308" },
+              { day: "Fri", value: 110, color: "#ec4899" },
+              { day: "Sat", value: 180, color: "#8b5cf6" },
+              { day: "Sun", value: 140, color: "#14b8a6" },
+            ].map((item, i) => (
+              <div key={i} style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    width: "45px",
+                    height: `${item.value}px`,
+                    background: item.color,
+                    borderRadius: "8px 8px 0 0",
+                  }}
+                ></div>
+
+                <p style={{ marginTop: "8px", fontWeight: "bold" }}>{item.day}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: "40px",
+            background: "white",
+            padding: "20px",
+            borderRadius: "12px",
+          }}
+        >
           <h2>Recent Activity</h2>
 
           <ul style={{ marginTop: "15px", lineHeight: "2" }}>
