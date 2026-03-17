@@ -467,6 +467,48 @@ function App() {
             <button onClick={addBuyer} style={{ marginTop: "20px", background: "#14b8a6", color: "white", borderRadius: "12px", padding: "10px 20px", fontWeight: "bold" }}>➕ Add Buyer</button>
           </div>
 
+          {/* Inventory Intake Section */}
+<div style={{ marginTop: "30px", background: "#fef3f3", padding: "20px", borderRadius: "12px", border: "2px solid #f87171" }}>
+  <h2 style={{ textAlign: "center", color: "#b91c1c" }}>📦 Inventory Intake</h2>
+  <table style={{ width: "100%", marginTop: "15px", borderCollapse: "collapse", textAlign:"center" }}>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Supplier</th>
+        <th>Product</th>
+        <th>Grade</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Rate</th>
+        <th>Lot ID</th>
+        <th>Files</th>
+        <th>❌ Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {inventory.map((inv, index) => (
+        <tr key={index}>
+          <td><input type="date" value={inv.date} onChange={(e)=>updateInventory(index,"date",e.target.value)} /></td>
+          <td><input value={inv.supplier} onChange={(e)=>updateInventory(index,"supplier",e.target.value)} /></td>
+          <td><input value={inv.product} onChange={(e)=>updateInventory(index,"product",e.target.value)} /></td>
+          <td><input value={inv.grade} onChange={(e)=>updateInventory(index,"grade",e.target.value)} /></td>
+          <td><input type="number" value={inv.quantity} onChange={(e)=>updateInventory(index,"quantity",e.target.value)} style={{width:"80px"}} /></td>
+          <td>{inv.unit}</td>
+          <td><input type="number" value={inv.rate} onChange={(e)=>updateInventory(index,"rate",e.target.value)} style={{width:"80px"}} /></td>
+          <td>{inv.lotId}</td>
+          <td>
+            <input type="file" multiple onChange={(e)=>updateInventoryFiles(index, e.target.files)} />
+          </td>
+          <td>
+            <button onClick={()=>setInventory(inventory.filter((_,i)=>i!==index))} style={{background:"#ef4444", color:"white", borderRadius:"4px"}}>❌</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <button onClick={addInventory} style={{ marginTop:"10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px" }}>➕ Add Inventory</button>
+</div>
+
         </div>
       </div>
     </div>
