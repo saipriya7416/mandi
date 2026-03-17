@@ -248,26 +248,25 @@ function App() {
         </div>
 
         {/* Product Entry Table */}
-                {/* Product Entry Table */}
         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h2>📦 Product Entry</h2>
-          <table style={{ width: "100%", marginTop: "15px" }}>
+          <table style={{ width: "100%", marginTop: "15px", borderCollapse:"collapse" }}>
             <thead>
               <tr>
-                <th>📦 Product</th>
-                <th>⚖ Quantity (KG)</th>
-                <th>₹ Rate</th>
-                <th>💰 Amount</th>
+                <th style={{ textAlign:"left" }}>📦 Product</th>
+                <th style={{ textAlign:"right" }}>⚖ Quantity (KG)</th>
+                <th style={{ textAlign:"right" }}>₹ Rate</th>
+                <th style={{ textAlign:"right" }}>💰 Amount</th>
                 <th>❌ Delete</th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.map((item, index) => (
                 <tr key={index}>
-                  <td><input value={item.name} onChange={(e)=>updateProduct(index,"name",e.target.value)} /></td>
-                  <td><input type="number" value={item.quantity} onChange={(e)=>updateProduct(index,"quantity",e.target.value)} /></td>
-                  <td><input type="number" value={item.rate} onChange={(e)=>updateProduct(index,"rate",e.target.value)} /></td>
-                  <td>₹{item.quantity * item.rate}</td>
+                  <td><input value={item.name} onChange={(e)=>updateProduct(index,"name",e.target.value)} style={{ width:"100%" }} /></td>
+                  <td><input type="number" value={item.quantity} onChange={(e)=>updateProduct(index,"quantity",e.target.value)} style={{ width:"100%", textAlign:"right" }} /></td>
+                  <td><input type="number" value={item.rate} onChange={(e)=>updateProduct(index,"rate",e.target.value)} style={{ width:"100%", textAlign:"right" }} /></td>
+                  <td style={{ textAlign:"right" }}>₹{item.quantity * item.rate}</td>
                   <td><button onClick={()=>deleteProduct(index)} style={{ background: "#ef4444", color: "white", borderRadius:"4px" }}>❌</button></td>
                 </tr>
               ))}
@@ -289,8 +288,7 @@ function App() {
             <h3>📊 Week Sales Comparison</h3>
             <Bar data={weekData} />
           </div>
-
-          {/* Expenses Section */}
+                    {/* Expenses Section */}
           <div style={{ marginTop:"30px", padding:"20px", border:"2px solid #fbbf24", borderRadius:"10px", backgroundColor:"#fff7ed" }}>
             <h2 style={{ textAlign:"center", color:"#b91c1c" }}>💰 Custom Expenses</h2>
             <div style={{ display:"flex", flexWrap:"wrap", gap:"15px", justifyContent:"center", marginTop:"15px" }}>
@@ -332,14 +330,14 @@ function App() {
               <tbody>
                 {suppliers.map((s,index)=>(
                   <tr key={index}>
-                    <td><input value={s.name} onChange={(e)=>updateSupplier(index,"name",e.target.value)} /></td>
-                    <td><input value={s.phone} onChange={(e)=>updateSupplier(index,"phone",e.target.value)} /></td>
-                    <td><input value={s.address} onChange={(e)=>updateSupplier(index,"address",e.target.value)} /></td>
-                    <td><input value={s.village} onChange={(e)=>updateSupplier(index,"village",e.target.value)} /></td>
-                    <td><input value={s.govId} onChange={(e)=>updateSupplier(index,"govId",e.target.value)} /></td>
-                    <td><input value={s.idType} onChange={(e)=>updateSupplier(index,"idType",e.target.value)} /></td>
-                    <td><input value={s.bankDetails} onChange={(e)=>updateSupplier(index,"bankDetails",e.target.value)} /></td>
-                    <td><input value={s.notes} onChange={(e)=>updateSupplier(index,"notes",e.target.value)} /></td>
+                    <td><input value={s.name} onChange={(e)=>updateSupplier(index,"name",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.phone} onChange={(e)=>updateSupplier(index,"phone",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.address} onChange={(e)=>updateSupplier(index,"address",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.village} onChange={(e)=>updateSupplier(index,"village",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.govId} onChange={(e)=>updateSupplier(index,"govId",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.idType} onChange={(e)=>updateSupplier(index,"idType",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.bankDetails} onChange={(e)=>updateSupplier(index,"bankDetails",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.notes} onChange={(e)=>updateSupplier(index,"notes",e.target.value)} style={{ width:"100%" }} /></td>
                     <td><button onClick={()=>deleteSupplier(index)} style={{background:"#ef4444", color:"white", borderRadius:"4px"}}>❌</button></td>
                   </tr>
                 ))}
@@ -349,65 +347,64 @@ function App() {
           </div>
 
           {/* Buyers Section with Advanced Tabs */}
-          {/* ===== Buyers Section with Advanced UI ===== */}
-<div style={{ marginTop: "30px", background: "#f0fdfa", padding: "25px", borderRadius: "16px", border: "2px solid #14b8a6" }}>
-  <h2 style={{ textAlign: "center", color: "#0d9488", fontSize: "26px", fontWeight: "bold" }}>🛒 Buyer Management</h2>
-  {buyers.map((b, index) => (
-    <div key={index} style={{ marginTop: "25px", border: "1px solid #14b8a6", borderRadius: "12px", padding: "15px", background: "#e0f2f1", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-      
-      {/* Buyer Info Card */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
-        <input placeholder="🧑 Name" value={b.name} onChange={(e) => updateBuyer(index, "name", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488", fontWeight: "bold" }} />
-        <input placeholder="📞 Phone" value={b.phone} onChange={(e) => updateBuyer(index, "phone", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-        <input placeholder="🏪 Shop Name" value={b.shopName} onChange={(e) => updateBuyer(index, "shopName", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-        <input placeholder="🏠 Address" value={b.address} onChange={(e) => updateBuyer(index, "address", e.target.value)} style={{ flex: "2", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-        <input placeholder="🆔 Govt ID" value={b.govId} onChange={(e) => updateBuyer(index, "govId", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-        <input placeholder="📝 ID Type" value={b.idType} onChange={(e) => updateBuyer(index, "idType", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-        <input placeholder="💳 Credit Limit" value={b.creditLimit} onChange={(e) => updateBuyer(index, "creditLimit", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-        <input placeholder="🗒 Notes" value={b.notes} onChange={(e) => updateBuyer(index, "notes", e.target.value)} style={{ flex: "2", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-        <button onClick={() => deleteBuyer(index)} style={{ background: "#ef4444", color: "white", borderRadius: "8px", padding: "10px 16px", fontWeight: "bold" }}>❌ Delete</button>
-      </div>
+          <div style={{ marginTop: "30px", background: "#f0fdfa", padding: "25px", borderRadius: "16px", border: "2px solid #14b8a6" }}>
+            <h2 style={{ textAlign: "center", color: "#0d9488", fontSize: "26px", fontWeight: "bold" }}>🛒 Buyer Management</h2>
+            {buyers.map((b, index) => (
+              <div key={index} style={{ marginTop: "25px", border: "1px solid #14b8a6", borderRadius: "12px", padding: "15px", background: "#e0f2f1", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                
+                {/* Buyer Info Card */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+                  <input placeholder="🧑 Name" value={b.name} onChange={(e) => updateBuyer(index, "name", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488", fontWeight: "bold" }} />
+                  <input placeholder="📞 Phone" value={b.phone} onChange={(e) => updateBuyer(index, "phone", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <input placeholder="🏪 Shop Name" value={b.shopName} onChange={(e) => updateBuyer(index, "shopName", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <input placeholder="🏠 Address" value={b.address} onChange={(e) => updateBuyer(index, "address", e.target.value)} style={{ flex: "2", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <input placeholder="🆔 Govt ID" value={b.govId} onChange={(e) => updateBuyer(index, "govId", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <input placeholder="📝 ID Type" value={b.idType} onChange={(e) => updateBuyer(index, "idType", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <input placeholder="💳 Credit Limit" value={b.creditLimit} onChange={(e) => updateBuyer(index, "creditLimit", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <input placeholder="🗒 Notes" value={b.notes} onChange={(e) => updateBuyer(index, "notes", e.target.value)} style={{ flex: "2", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <button onClick={() => deleteBuyer(index)} style={{ background: "#ef4444", color: "white", borderRadius: "8px", padding: "10px 16px", fontWeight: "bold" }}>❌ Delete</button>
+                </div>
 
-      {/* Tabs for Advanced Features */}
-      <div style={{ marginTop: "20px" }}>
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-          {["💼 Ledger", "🛍 Purchase History", "💳 Outstanding", "💰 Payments"].map(tab => {
-            const key = `${index}-${tab}`;
-            return (
-              <button
-                key={key}
-                onClick={() => setActiveBuyerTab({ ...activeBuyerTab, [index]: tab })}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  border: activeBuyerTab[index] === tab ? "2px solid #0d9488" : "1px solid #ccc",
-                  background: activeBuyerTab[index] === tab ? "#0d9488" : "#fff",
-                  color: activeBuyerTab[index] === tab ? "#fff" : "#000",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  flex: "1",
-                  textAlign: "center",
-                }}
-              >
-                {tab}
-              </button>
-            );
-          })}
-        </div>
+                {/* Tabs for Advanced Features */}
+                <div style={{ marginTop: "20px" }}>
+                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                    {["💼 Ledger", "🛍 Purchase History", "💳 Outstanding", "💰 Payments"].map(tab => {
+                      const key = `${index}-${tab}`;
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => setActiveBuyerTab({ ...activeBuyerTab, [index]: tab })}
+                          style={{
+                            padding: "8px 16px",
+                            borderRadius: "8px",
+                            border: activeBuyerTab[index] === tab ? "2px solid #0d9488" : "1px solid #ccc",
+                            background: activeBuyerTab[index] === tab ? "#0d9488" : "#fff",
+                            color: activeBuyerTab[index] === tab ? "#fff" : "#000",
+                            fontWeight: "bold",
+                            cursor: "pointer",
+                            flex: "1",
+                            textAlign: "center",
+                          }}
+                        >
+                          {tab}
+                        </button>
+                      );
+                    })}
+                  </div>
 
-        {/* Tab Content Card */}
-        <div style={{ marginTop: "15px", padding: "15px", borderRadius: "12px", background: "#d1fae5", border: "1px solid #0d9488", minHeight: "80px" }}>
-          {activeBuyerTab[index] === "💼 Ledger" && <div>💼 Buyer Ledger Details</div>}
-          {activeBuyerTab[index] === "🛍 Purchase History" && <div>🛍 Purchase History Details</div>}
-          {activeBuyerTab[index] === "💳 Outstanding" && <div>💳 Outstanding Tracking</div>}
-          {activeBuyerTab[index] === "💰 Payments" && <div>💰 Payment Tracking</div>}
-          {!activeBuyerTab[index] && <div style={{ color: "#0d9488", fontWeight: "bold" }}>Select a tab to view details</div>}
-        </div>
-      </div>
-    </div>
-  ))}
-  <button onClick={addBuyer} style={{ marginTop: "20px", background: "#14b8a6", color: "white", borderRadius: "12px", padding: "10px 20px", fontWeight: "bold" }}>➕ Add Buyer</button>
-</div>
+                  {/* Tab Content Card */}
+                  <div style={{ marginTop: "15px", padding: "15px", borderRadius: "12px", background: "#d1fae5", border: "1px solid #0d9488", minHeight: "80px" }}>
+                    {activeBuyerTab[index] === "💼 Ledger" && <div>💼 Buyer Ledger Details</div>}
+                    {activeBuyerTab[index] === "🛍 Purchase History" && <div>🛍 Purchase History Details</div>}
+                    {activeBuyerTab[index] === "💳 Outstanding" && <div>💳 Outstanding Tracking</div>}
+                    {activeBuyerTab[index] === "💰 Payments" && <div>💰 Payment Tracking</div>}
+                    {!activeBuyerTab[index] && <div style={{ color: "#0d9488", fontWeight: "bold" }}>Select a tab to view details</div>}
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button onClick={addBuyer} style={{ marginTop: "20px", background: "#14b8a6", color: "white", borderRadius: "12px", padding: "10px 20px", fontWeight: "bold" }}>➕ Add Buyer</button>
+          </div>
 
         </div>
       </div>
