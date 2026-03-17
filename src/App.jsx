@@ -22,7 +22,7 @@ function App() {
         style={{
           height: "100vh",
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=1600&q=80')",
+            "url('https://femina.wwmindia.com/content/2023/may/bengalurufoodnews-royalorchid1685205463.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "flex",
@@ -32,11 +32,11 @@ function App() {
       >
         <div
           style={{
-            background: "rgba(255,255,255,0.92)",
+            background: "rgba(255,255,255,0.9)",
             padding: "40px",
             borderRadius: "16px",
             width: "360px",
-            boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
           }}
         >
           <h2 style={{ textAlign: "center", color: "#d97706" }}>
@@ -88,8 +88,6 @@ function App() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
-      
-      {/* Sidebar */}
       <div
         style={{
           width: "240px",
@@ -141,10 +139,7 @@ function App() {
         </button>
       </div>
 
-      {/* Main */}
       <div style={{ flex: 1, padding: "30px" }}>
-        
-        {/* Top Bar */}
         <div
           style={{
             display: "flex",
@@ -163,29 +158,15 @@ function App() {
           />
 
           <div style={{ display: "flex", gap: "15px" }}>
-            <div
-              style={{
-                background: "white",
-                padding: "10px 15px",
-                borderRadius: "8px",
-              }}
-            >
+            <div style={{ background: "white", padding: "10px 15px", borderRadius: "8px" }}>
               🔔
             </div>
-
-            <div
-              style={{
-                background: "white",
-                padding: "10px 20px",
-                borderRadius: "8px",
-              }}
-            >
+            <div style={{ background: "white", padding: "10px 20px", borderRadius: "8px" }}>
               Admin User
             </div>
           </div>
         </div>
 
-        {/* KPI Cards */}
         <div
           style={{
             display: "grid",
@@ -211,7 +192,6 @@ function App() {
           ))}
         </div>
 
-        {/* Invoice */}
         <div
           style={{
             marginTop: "40px",
@@ -238,7 +218,6 @@ function App() {
           </button>
         </div>
 
-        {/* Supplier Table */}
         <div
           style={{
             marginTop: "40px",
@@ -299,44 +278,6 @@ function App() {
           </table>
         </div>
 
-        {/* Weekly Sales */}
-        <div
-          style={{
-            marginTop: "40px",
-            background: "white",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>Weekly Sales</h2>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "15px",
-              alignItems: "end",
-              height: "200px",
-              marginTop: "20px",
-            }}
-          >
-            {[80, 120, 60, 150, 100].map((h, i) => (
-              <div key={i}>
-                <div
-                  style={{
-                    width: "40px",
-                    height: `${h}px`,
-                    background: "#facc15",
-                  }}
-                ></div>
-                <p style={{ textAlign: "center" }}>
-                  {["Mon", "Tue", "Wed", "Thu", "Fri"][i]}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
         <div
           style={{
             marginTop: "40px",
