@@ -466,7 +466,7 @@ function App() {
             ))}
             <button onClick={addBuyer} style={{ marginTop: "20px", background: "#14b8a6", color: "white", borderRadius: "12px", padding: "10px 20px", fontWeight: "bold" }}>➕ Add Buyer</button>
           </div>
-          {/* Inventory Intake Section with Tabs */}
+          {/* Inventory Intake Section with Default Values and Tabs */}
 <div style={{ marginTop: "30px", background: "#fff7ed", padding: "25px", borderRadius: "16px", border: "2px solid #f59e0b" }}>
   <h2 style={{ textAlign: "center", color: "#d97706", fontSize: "26px", fontWeight: "bold" }}>📦 Inventory Intake</h2>
 
@@ -517,10 +517,10 @@ function App() {
         {/* Tab Content */}
         <div style={{ marginTop: "15px", padding: "15px", borderRadius: "12px", background: "#fff7ed", border: "1px solid #f59e0b", minHeight: "80px" }}>
           {activeBuyerTab[`inventory-${index}`] === "📊 Overview" && (
-            <div>📦 Product: {inv.product} | Supplier: {inv.supplier} | Qty: {inv.quantity} {inv.unit} | Rate: ₹{inv.rate}</div>
+            <div>📦 Product: {inv.product || "🥭 Mango"} | Supplier: {inv.supplier || "🚚 Default Supplier"} | Qty: {inv.quantity || 50} {inv.unit} | Rate: ₹{inv.rate || 40}</div>
           )}
           {activeBuyerTab[`inventory-${index}`] === "💵 Value Calculation" && (
-            <div>💰 Total Value: ₹{inv.quantity * inv.rate}</div>
+            <div>💰 Total Value: ₹{(inv.quantity || 50) * (inv.rate || 40)}</div>
           )}
           {activeBuyerTab[`inventory-${index}`] === "🗂 Attached Files" && (
             <div>
@@ -535,7 +535,17 @@ function App() {
     </div>
   ))}
 
-  <button onClick={addInventory} style={{ marginTop:"15px", background:"#16a34a", color:"white", borderRadius:"12px", padding:"10px 20px", fontWeight:"bold", boxShadow:"0 4px 8px rgba(0,0,0,0.2)" }}>
+  <button onClick={() => addInventory({
+      date: new Date().toISOString().slice(0,10),
+      supplier: "🚚 Default Supplier",
+      product: "🥭 Mango",
+      grade: "A",
+      quantity: 50,
+      unit: "KG",
+      rate: 40,
+      lotId: "LOT" + Date.now(),
+      files: []
+  })} style={{ marginTop:"15px", background:"#16a34a", color:"white", borderRadius:"12px", padding:"10px 20px", fontWeight:"bold", boxShadow:"0 4px 8px rgba(0,0,0,0.2)" }}>
     ➕ Add Inventory
   </button>
 </div>
