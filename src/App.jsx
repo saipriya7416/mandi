@@ -531,6 +531,113 @@ function App() {
     ➕ Add Inventory
   </button>
 </div>
+{/* Inventory Allocation to Buyers */}
+<div style={{ marginTop: "30px", background: "#f0fdfa", padding: "25px", borderRadius: "16px", border: "2px solid #14b8a6" }}>
+  <h2 style={{ textAlign: "center", color: "#0d9488", fontSize: "26px", fontWeight: "bold" }}>🔗 Inventory Allocation to Buyers</h2>
+
+  {inventory.map((lot, lotIndex) => (
+    <div key={lotIndex} style={{ marginTop: "25px", border: "1px solid #14b8a6", borderRadius: "12px", padding: "15px", background: "#e0f2f1", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+      
+      {/* Lot Info Card */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+        <div style={{ flex: "1", fontWeight: "bold" }}>📅 Date: {lot.date}</div>
+        <div style={{ flex: "1", fontWeight: "bold" }}>🚚 Supplier: {lot.supplier || "N/A"}</div>
+        <div style={{ flex: "1", fontWeight: "bold" }}>📦 Product: {lot.product || "N/A"}</div>
+        <div style={{ flex: "1", fontWeight: "bold" }}>🏷 Grade: {lot.grade || "N/A"}</div>
+        <div style={{ flex: "1", fontWeight: "bold" }}>⚖ Qty: {lot.quantity}</div>
+        <div style={{ flex: "1", fontWeight: "bold" }}>💰 Rate: ₹{lot.rate}</div>
+        <div style={{ flex: "1", fontWeight: "bold" }}>🆔 Lot ID: {lot.lotId}</div>
+        <div style={{ flex: "1" }}>🗂 Files: {lot.files.length} attached</div>
+      </div>
+
+      {/* Buyer Allocation */}
+      <div style={{ marginTop: "15px" }}>
+        <h4 style={{ fontWeight: "bold", color: "#0d9488" }}>🛒 Allocate to Buyers</h4>
+        {buyers.map((b, buyerIndex) => (
+          <div key={buyerIndex} style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "8px" }}>
+            <div style={{ flex: "2" }}>🧑 {b.name || "N/A"} ({b.shopName || "Shop"})</div>
+            <input
+              type="number"
+              placeholder="Qty to allocate"
+              value={lot.allocations?.[buyerIndex]?.quantity || ""}
+              min="0"
+              max={lot.quantity - (lot.allocations?.reduce((sum, a) => sum + (a?.quantity || 0), 0) || 0)}
+              onChange={(e) => {
+                const qty = parseFloat(e.target.value) || 0;
+                const updatedAlloc = [...(lot.allocations || [])];
+                updatedAlloc[buyerIndex] = { ...updatedAlloc[buyerIndex], buyerIndex, quantity: qty };
+                const updatedLot = { ...lot, allocations: updatedAlloc };
+                const updatedInventory = [...inventory];
+                updatedInventory[lotIndex] = updatedLot;
+                setInventory(updatedInventory);
+              }}
+              style={{ flex: "1", padding: "6px 8px", borderRadius: "6px", border: "1px solid #0d9488", textAlign: "right" }}
+            />
+            <div style={{ flex: "1", fontWeight: "bold" }}>Allocated: {lot.allocations?.[buyerIndex]?.quantity || 0}</div>
+          </div>
+        ))}
+        <div style={{ marginTop: "10px", fontWeight: "bold", color: "#0d9488" }}>
+          ⚖ Remaining Stock: {lot.quantity - (lot.allocations?.reduce((sum, a) => sum + (a?.quantity || 0), 0) || 0)}
+        </div>
+      </div>
+
+      {/* Tabs for Advanced Features */}
+      <div style={{ marginTop: "20px" }}>
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          {["📊 Allocation Summary", "📝 Supplier-Buyer History"].map(tab => {
+            const key = `${lotIndex}-${tab}`;
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveBuyerTab({ ...activeBuyerTab, [`lot-${lotIndex}`]: tab })}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  border: activeBuyerTab[`lot-${lotIndex}`] === tab ? "2px solid #0d9488" : "1px solid #ccc",
+                  background: activeBuyerTab[`lot-${lotIndex}`] === tab ? "#0d9488" : "#fff",
+                  color: activeBuyerTab[`lot-${lotIndex}`] === tab ? "#fff" : "#000",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  flex: "1",
+                  textAlign: "center",
+                }}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab Content Card */}
+        <div style={{ marginTop: "15px", padding: "15px", borderRadius: "12px", background: "#d1fae5", border: "1px solid #0d9488", minHeight: "80px" }}>
+          {activeBuyerTab[`lot-${lotIndex}`] === "📊 Allocation Summary" &&
+            <div>
+              {lot.allocations?.length > 0
+                ? lot.allocations.map((a, i) => (
+                    <p key={i}>🧑 {buyers[a.buyerIndex]?.name || "N/A"}: {a.quantity} KG</p>
+                  ))
+                : "No allocations yet"}
+            </div>
+          }
+          {activeBuyerTab[`lot-${lotIndex}`] === "📝 Supplier-Buyer History" &&
+            <div>
+              {lot.allocations?.length > 0
+                ? lot.allocations.map((a, i) => (
+                    <p key={i}>🚚 {lot.supplier} → 🧑 {buyers[a.buyerIndex]?.name || "N/A"}: {a.quantity} KG</p>
+                  ))
+                : "No history yet"}
+            </div>
+          }
+          {!activeBuyerTab[`lot-${lotIndex}`] && <div style={{ color: "#0d9488", fontWeight: "bold" }}>Select a tab to view details</div>}
+        </div>
+      </div>
+    </div>
+  ))}
+
+  <button onClick={addInventory} style={{ marginTop: "20px", background: "#14b8a6", color: "white", borderRadius: "12px", padding: "10px 20px", fontWeight: "bold" }}>
+    ➕ Add Inventory Lot
+  </button>
+</div>
         </div>
       </div>
     </div>
