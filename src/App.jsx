@@ -75,6 +75,8 @@ function App() {
   ]);
 
   const [activeBuyerTab, setActiveBuyerTab] = useState({}); // key: buyer index, value: active tab
+   // ===== Inventory Intake State =====
+  const [inventory, setInventory] = useState([]);
 
   // ===== Product Functions =====
   const updateProduct = (index, field, value) => {
@@ -138,14 +140,46 @@ function App() {
     ]);
   };
 
+
   const deleteBuyer = (index) => {
     const updated = buyers.filter((_, i) => i !== index);
     setBuyers(updated);
   };
 
+  // ===== Inventory Functions =====
+  const addInventory = () => {
+    setInventory([
+      ...inventory,
+      {
+        date: new Date().toISOString().slice(0,10),
+        supplier: "",
+        product: "",
+        grade: "",
+        quantity: 0,
+        unit: "KG",
+        rate: "",
+        lotId: "LOT" + Date.now(),
+        files: []
+      }
+    ]);
+  };
+
+  const updateInventory = (index, field, value) => {
+    const updated = [...inventory];
+    updated[index][field] = value;
+    setInventory(updated);
+  };
+
+  const updateInventoryFiles = (index, files) => {
+    const updated = [...inventory];
+    updated[index].files = Array.from(files);
+    setInventory(updated);
+  };
+
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   // ===== Calculations =====
   const grossSale = products.reduce((sum, item) => sum + item.quantity * item.rate, 0);
