@@ -63,24 +63,33 @@ function App() {
   const balancePayable = netSale - advancePayment;
 
   // ===== Week Graph Data =====
+  const weekValues = [
+    grossSale * 0.8,
+    grossSale,
+    grossSale * 0.9,
+    grossSale * 0.7,
+    grossSale * 1.1,
+    grossSale * 0.95,
+    grossSale,
+  ];
+  const weekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
   const weekData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: weekLabels,
     datasets: [
       {
         label: "Gross Sale",
-        data: [
-          grossSale * 0.8,
-          grossSale,
-          grossSale * 0.9,
-          grossSale * 0.7,
-          grossSale * 1.1,
-          grossSale * 0.95,
-          grossSale,
-        ],
+        data: weekValues,
         backgroundColor: ["#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6", "#fcd34d"],
       },
     ],
   };
+
+  // ===== Determine highest and lowest sale day =====
+  const maxSale = Math.max(...weekValues);
+  const minSale = Math.min(...weekValues);
+  const maxDay = weekLabels[weekValues.indexOf(maxSale)];
+  const minDay = weekLabels[weekValues.indexOf(minSale)];
 
   // ===== Invoice Print =====
   const printInvoice = () => {
@@ -98,9 +107,11 @@ function App() {
     invoiceWindow.document.write(`<h3>💳 Advance Payment: ₹${advancePayment}</h3>`);
     invoiceWindow.document.write(`<h3>🧮 Balance Payable: ₹${balancePayable}</h3>`);
     invoiceWindow.document.write("<h3>📊 Week Sales Comparison</h3>");
-    weekData.labels.forEach((day, i) => {
-      invoiceWindow.document.write(`<p>${day}: ₹${weekData.datasets[0].data[i]}</p>`);
+    weekLabels.forEach((day, i) => {
+      invoiceWindow.document.write(`<p>${day}: ₹${weekValues[i]}</p>`);
     });
+    invoiceWindow.document.write(`<p>📈 Highest Sale Day: ${maxDay} (₹${maxSale})</p>`);
+    invoiceWindow.document.write(`<p>📉 Lowest Sale Day: ${minDay} (₹${minSale})</p>`);
     invoiceWindow.document.write("</body></html>");
     invoiceWindow.document.close();
     invoiceWindow.print();
@@ -203,6 +214,8 @@ function App() {
           <div style={{ marginTop: "30px" }}>
             <h3>📊 Week Sales Comparison</h3>
             <Bar data={weekData} />
+            <p>📈 Highest Sale Day: {maxDay} (₹{maxSale})</p>
+            <p>📉 Lowest Sale Day: {minDay} (₹{minSale})</p>
           </div>
 
           {/* Expenses Section */}
