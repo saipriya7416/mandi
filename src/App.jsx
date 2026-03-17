@@ -3,18 +3,84 @@ import React, { useState } from "react";
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
+  const [products, setProducts] = useState([
+    { name: "🥭 Mango", quantity: 50, rate: 40 },
+    { name: "🌾 Rice", quantity: 30, rate: 35 },
+  ]);
+
+  const [expenses, setExpenses] = useState({
+    lorry: 2000,
+    marketing: 1500,
+    coolie: 1000,
+    cash: 500,
+    kaja: 300,
+    others: 700,
+  });
+
+  const [advancePayment, setAdvancePayment] = useState(5000);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+
   const cards = [
-    { title: "Total Sales", value: "₹1,25,000" },
-    { title: "Suppliers", value: "42" },
-    { title: "Buyers", value: "31" },
-    { title: "Pending Payments", value: "₹18,000" },
+    { title: "💰 Total Sales", value: "₹1,25,000" },
+    { title: "🚚 Suppliers", value: "42" },
+    { title: "🛒 Buyers", value: "31" },
+    { title: "⏳ Pending Payments", value: "₹18,000" },
   ];
 
   const suppliers = [
-    { name: "Ramesh Traders", product: "Mango", status: "Paid" },
-    { name: "Kiran Supplies", product: "Rice", status: "Pending" },
-    { name: "Lakshmi Agro", product: "Corn", status: "Paid" },
+    { name: "Ramesh Traders", product: "🥭 Mango", status: "✅ Paid" },
+    { name: "Kiran Supplies", product: "🌾 Rice", status: "⏳ Pending" },
+    { name: "Lakshmi Agro", product: "🌽 Corn", status: "✅ Paid" },
   ];
+
+  const updateProduct = (index, field, value) => {
+    const updated = [...products];
+    updated[index][field] = field === "name" ? value : Number(value);
+    setProducts(updated);
+  };
+
+  const addProduct = () => {
+    setProducts([...products, { name: "", quantity: 0, rate: 0 }]);
+  };
+
+  const deleteProduct = (index) => {
+    const updated = products.filter((_, i) => i !== index);
+    setProducts(updated);
+  };
+
+  const grossSale = products.reduce(
+    (sum, item) => sum + item.quantity * item.rate,
+    0
+  );
+
+  const totalExpense = Object.values(expenses).reduce((a, b) => a + b, 0);
+
+  const netSale = grossSale - totalExpense;
+  const balancePayable = netSale - advancePayment;
+
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const printInvoice = () => {
+    const invoiceWindow = window.open("", "PRINT", "height=600,width=800");
+    invoiceWindow.document.write("<html><head><title>Invoice</title></head><body>");
+    invoiceWindow.document.write("<h2>🧾 Buyer Invoice</h2>");
+    invoiceWindow.document.write("<table border='1' cellpadding='10'><tr><th>Product</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>");
+    products.forEach((p) => {
+      invoiceWindow.document.write(`<tr><td>${p.name}</td><td>${p.quantity}</td><td>₹${p.rate}</td><td>₹${p.quantity*p.rate}</td></tr>`);
+    });
+    invoiceWindow.document.write(`</table><h3>💰 Gross Sale: ₹${grossSale}</h3>`);
+    invoiceWindow.document.write(`<h3>💸 Expenses: ₹${totalExpense}</h3>`);
+    invoiceWindow.document.write(`<h3>💹 Net Sale: ₹${netSale}</h3>`);
+    invoiceWindow.document.write(`<h3>💳 Advance Payment: ₹${advancePayment}</h3>`);
+    invoiceWindow.document.write(`<h3>🧮 Balance Payable: ₹${balancePayable}</h3>`);
+    invoiceWindow.document.write("</body></html>");
+    invoiceWindow.document.close();
+    invoiceWindow.print();
+  };
 
   if (!loggedIn) {
     return (
@@ -32,7 +98,7 @@ function App() {
       >
         <div
           style={{
-            background: "rgba(255,255,255,0.9)",
+            background: "rgba(255,255,255,0.92)",
             padding: "40px",
             borderRadius: "16px",
             width: "360px",
@@ -40,11 +106,11 @@ function App() {
           }}
         >
           <h2 style={{ textAlign: "center", color: "#d97706" }}>
-            Mango Mandi ERP Login
+            🥭 Mango Mandi ERP Login
           </h2>
 
           <input
-            placeholder="Username"
+            placeholder="👤 Username"
             style={{
               width: "100%",
               padding: "12px",
@@ -57,7 +123,7 @@ function App() {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder="🔒 Password"
             style={{
               width: "100%",
               padding: "12px",
@@ -76,10 +142,9 @@ function App() {
               border: "none",
               borderRadius: "8px",
               fontWeight: "bold",
-              cursor: "pointer",
             }}
           >
-            Login
+            🚀 Login
           </button>
         </div>
       </div>
@@ -96,17 +161,17 @@ function App() {
           padding: "20px",
         }}
       >
-        <h2 style={{ color: "#facc15" }}>Mandi ERP</h2>
+        <h2 style={{ color: "#facc15" }}>🥭 Mandi ERP</h2>
 
         <ul style={{ listStyle: "none", padding: 0, marginTop: "30px" }}>
           {[
-            "Dashboard",
-            "Suppliers",
-            "Buyers",
-            "Inventory",
-            "Invoices",
-            "Reports",
-            "Settings",
+            "📊 Dashboard",
+            "🚚 Suppliers",
+            "🛒 Buyers",
+            "📦 Inventory",
+            "🧾 Invoices",
+            "📈 Reports",
+            "⚙️ Settings",
           ].map((item) => (
             <li
               key={item}
@@ -115,7 +180,6 @@ function App() {
                 marginBottom: "10px",
                 background: "#374151",
                 borderRadius: "8px",
-                cursor: "pointer",
               }}
             >
               {item}
@@ -135,209 +199,105 @@ function App() {
             borderRadius: "8px",
           }}
         >
-          Logout
+          🔓 Logout
         </button>
       </div>
 
       <div style={{ flex: 1, padding: "30px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "30px",
-          }}
-        >
+        {/* Search & Filter */}
+        <div style={{ marginBottom: "20px", display: "flex", gap: "20px" }}>
           <input
-            placeholder="Search suppliers, buyers..."
-            style={{
-              padding: "10px",
-              width: "300px",
-              borderRadius: "8px",
-              border: "1px solid #ccc",
-            }}
+            placeholder="🔍 Search Product"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-
-          <div style={{ display: "flex", gap: "15px" }}>
-            <div style={{ background: "white", padding: "10px 15px", borderRadius: "8px" }}>
-              🔔
-            </div>
-            <div style={{ background: "white", padding: "10px 20px", borderRadius: "8px" }}>
-              Admin User
-            </div>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "20px",
-          }}
-        >
-          {cards.map((card) => (
-            <div
-              key={card.title}
-              style={{
-                background: "white",
-                padding: "20px",
-                borderRadius: "12px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              <h3>{card.title}</h3>
-              <p style={{ fontSize: "24px", color: "#d97706", fontWeight: "bold" }}>
-                {card.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div
-          style={{
-            marginTop: "40px",
-            background: "white",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>Invoice Summary</h2>
-          <p>Invoice No: INV-1023</p>
-          <p>Buyer: Sai Traders</p>
-          <p>Total: ₹45,000</p>
-
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+          />
           <button
-            style={{
-              marginTop: "10px",
-              padding: "10px 15px",
-              background: "#facc15",
-              border: "none",
-              borderRadius: "8px",
-            }}
+            onClick={printInvoice}
+            style={{ background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}
           >
-            Print Invoice
+            🖨 Print Invoice
           </button>
         </div>
 
-        <div
-          style={{
-            marginTop: "40px",
-            background: "white",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <h2>Supplier Overview</h2>
+        {/* Product Entry Table */}
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+          <h2>📦 Product Entry</h2>
 
-            <button
-              style={{
-                padding: "8px 14px",
-                background: "#22c55e",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-              }}
-            >
-              + Add Supplier
-            </button>
-          </div>
-
-          <table style={{ width: "100%", marginTop: "20px" }}>
+          <table style={{ width: "100%", marginTop: "15px" }}>
             <thead>
               <tr>
-                <th>Supplier</th>
-                <th>Product</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>📦 Product</th>
+                <th>⚖ Quantity (KG)</th>
+                <th>₹ Rate</th>
+                <th>💰 Amount</th>
+                <th>❌ Delete</th>
               </tr>
             </thead>
 
             <tbody>
-              {suppliers.map((s, i) => (
-                <tr key={i}>
-                  <td>{s.name}</td>
-                  <td>{s.product}</td>
+              {filteredProducts.map((item, index) => (
+                <tr key={index}>
                   <td>
-                    <span
-                      style={{
-                        background:
-                          s.status === "Paid" ? "#dcfce7" : "#fef3c7",
-                        padding: "5px 10px",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      {s.status}
-                    </span>
+                    <input
+                      value={item.name}
+                      onChange={(e) =>
+                        updateProduct(index, "name", e.target.value)
+                      }
+                    />
                   </td>
+
                   <td>
-                    <button>Edit</button>
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateProduct(index, "quantity", e.target.value)
+                      }
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="number"
+                      value={item.rate}
+                      onChange={(e) =>
+                        updateProduct(index, "rate", e.target.value)
+                      }
+                    />
+                  </td>
+
+                  <td>₹{item.quantity * item.rate}</td>
+                  <td>
+                    <button
+                      onClick={() => deleteProduct(index)}
+                      style={{ background: "#ef4444", color: "white", borderRadius: "4px" }}
+                    >
+                      ❌
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
 
-        <div
-          style={{
-            marginTop: "40px",
-            background: "white",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>Weekly Sales Comparison</h2>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "15px",
-              alignItems: "end",
-              height: "220px",
-              marginTop: "25px",
-            }}
+          <button
+            onClick={addProduct}
+            style={{ marginTop: "10px", background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}
           >
-            {[
-              { day: "Mon", value: 90, color: "#f97316" },
-              { day: "Tue", value: 130, color: "#22c55e" },
-              { day: "Wed", value: 70, color: "#3b82f6" },
-              { day: "Thu", value: 160, color: "#eab308" },
-              { day: "Fri", value: 110, color: "#ec4899" },
-              { day: "Sat", value: 180, color: "#8b5cf6" },
-              { day: "Sun", value: 140, color: "#14b8a6" },
-            ].map((item, i) => (
-              <div key={i} style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    width: "45px",
-                    height: `${item.value}px`,
-                    background: item.color,
-                    borderRadius: "8px 8px 0 0",
-                  }}
-                ></div>
+            ➕ Add Product
+          </button>
 
-                <p style={{ marginTop: "8px", fontWeight: "bold" }}>{item.day}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          style={{
-            marginTop: "40px",
-            background: "white",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          <h2>Recent Activity</h2>
-
-          <ul style={{ marginTop: "15px", lineHeight: "2" }}>
-            <li>✅ Mango stock updated</li>
-            <li>📦 Supplier added</li>
-            <li>💰 Payment received</li>
-            <li>📊 Inventory synced</li>
-          </ul>
+          <hr style={{ marginTop: "20px" }} />
+          <h3 style={{ color: "#d97706" }}>💰 Gross Sale = ₹{grossSale}</h3>
+          <h3 style={{ color: "#dc2626" }}>💸 Total Expenses = ₹{totalExpense}</h3>
+          <h3 style={{ color: "#16a34a" }}>📈 Net Sale = ₹{netSale}</h3>
+          <h3 style={{ color: "#7c3aed" }}>💳 Advance Payment = ₹{advancePayment}</h3>
+          <h3 style={{ color: "#2563eb" }}>🧮 Balance Payable = ₹{balancePayable}</h3>
         </div>
       </div>
     </div>
