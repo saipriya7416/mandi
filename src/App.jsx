@@ -150,7 +150,7 @@ function App() {
         {/* Company Logo */}
         <div style={{ textAlign: "center", marginBottom: "20px" }}>
           <img 
-            src="C:/Users/sailo/Downloads/WhatsApp Image 2026-03-16 at 18.04.18.jpeg" 
+            src="https://tse4.mm.bing.net/th/id/OIP.ks72csN96u4QVk_QF_7MlwHaHa?pid=Api&P=0&h=180" 
             alt="Company Logo" 
             style={{ width: "150px", borderRadius: "8px" }}
           />
