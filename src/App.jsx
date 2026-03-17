@@ -198,29 +198,29 @@ function App() {
         {/* Product Entry Table */}
         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h2>📦 Product Entry</h2>
-          <table style={{ width: "100%", marginTop: "15px" }}>
+          <table style={{ width: "100%", marginTop: "15px", borderCollapse: "collapse" }}>
             <thead>
-              <tr>
-                <th>📦 Product</th>
-                <th>⚖ Quantity (KG)</th>
-                <th>₹ Rate</th>
-                <th>💰 Amount</th>
-                <th>❌ Delete</th>
+              <tr style={{ background: "#f3f4f6" }}>
+                <th style={{ padding: "10px", textAlign: "center" }}>📦 Product</th>
+                <th style={{ padding: "10px", textAlign: "center" }}>⚖ Quantity (KG)</th>
+                <th style={{ padding: "10px", textAlign: "center" }}>₹ Rate</th>
+                <th style={{ padding: "10px", textAlign: "center" }}>💰 Amount</th>
+                <th style={{ padding: "10px", textAlign: "center" }}>❌ Delete</th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.map((item, index) => (
-                <tr key={index}>
-                  <td><input value={item.name} onChange={(e)=>updateProduct(index,"name",e.target.value)} /></td>
-                  <td><input type="number" value={item.quantity} onChange={(e)=>updateProduct(index,"quantity",e.target.value)} /></td>
-                  <td><input type="number" value={item.rate} onChange={(e)=>updateProduct(index,"rate",e.target.value)} /></td>
-                  <td>₹{item.quantity * item.rate}</td>
-                  <td><button onClick={()=>deleteProduct(index)} style={{ background: "#ef4444", color: "white", borderRadius: "4px" }}>❌</button></td>
+                <tr key={index} style={{ textAlign:"center", borderBottom:"1px solid #e5e7eb" }}>
+                  <td><input value={item.name} onChange={(e)=>updateProduct(index,"name",e.target.value)} style={{ width:"90%", padding:"6px 8px", borderRadius:"6px", border:"1px solid #ccc", outline:"none", transition:"0.2s", textAlign:"center" }} /></td>
+                  <td><input type="number" value={item.quantity} onChange={(e)=>updateProduct(index,"quantity",e.target.value)} style={{ width:"90%", padding:"6px 8px", borderRadius:"6px", border:"1px solid #ccc", outline:"none", transition:"0.2s", textAlign:"center" }} /></td>
+                  <td><input type="number" value={item.rate} onChange={(e)=>updateProduct(index,"rate",e.target.value)} style={{ width:"90%", padding:"6px 8px", borderRadius:"6px", border:"1px solid #ccc", outline:"none", transition:"0.2s", textAlign:"center" }} /></td>
+                  <td style={{ fontWeight:"bold" }}>₹{item.quantity * item.rate}</td>
+                  <td><button onClick={()=>deleteProduct(index)} style={{ background: "#ef4444", color: "white", borderRadius:"4px", padding:"4px 8px" }}>❌</button></td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <button onClick={addProduct} style={{ marginTop: "10px", background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}>➕ Add Product</button>
+          <button onClick={addProduct} style={{ marginTop: "10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px" }}>➕ Add Product</button>
 
           {/* Calculations Cards */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "20px" }}>
