@@ -15,6 +15,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
+  // ===== Products =====
   const [products, setProducts] = useState([
     { name: "🥭 Mango", quantity: 50, rate: 40 },
     { name: "🌾 Rice", quantity: 30, rate: 35 },
@@ -23,6 +24,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDate, setFilterDate] = useState("");
 
+  // ===== Expenses =====
   const [expenses, setExpenses] = useState({
     lorry: 2000,
     marketing: 1500,
@@ -34,6 +36,7 @@ function App() {
 
   const [advancePayment, setAdvancePayment] = useState(5000);
 
+  // ===== Product Functions =====
   const updateProduct = (index, field, value) => {
     const updated = [...products];
     updated[index][field] = field === "name" ? value : Number(value);
@@ -53,42 +56,33 @@ function App() {
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calculations
+  // ===== Calculations =====
   const grossSale = products.reduce((sum, item) => sum + item.quantity * item.rate, 0);
   const totalExpense = Object.values(expenses).reduce((a, b) => a + b, 0);
   const netSale = grossSale - totalExpense;
   const balancePayable = netSale - advancePayment;
 
-  // Weekly data for graph
-  const weekSales = [
-    grossSale * 0.8,
-    grossSale,
-    grossSale * 0.9,
-    grossSale * 0.7,
-    grossSale * 1.1,
-    grossSale * 0.95,
-    grossSale,
-  ];
-
-  const weekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
+  // ===== Week Graph Data =====
   const weekData = {
-    labels: weekLabels,
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     datasets: [
       {
         label: "Gross Sale",
-        data: weekSales,
+        data: [
+          grossSale * 0.8,
+          grossSale,
+          grossSale * 0.9,
+          grossSale * 0.7,
+          grossSale * 1.1,
+          grossSale * 0.95,
+          grossSale,
+        ],
         backgroundColor: ["#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6", "#fcd34d"],
       },
     ],
   };
 
-  // Determine high and low sale days
-  const maxSale = Math.max(...weekSales);
-  const minSale = Math.min(...weekSales);
-  const highDay = weekLabels[weekSales.indexOf(maxSale)];
-  const lowDay = weekLabels[weekSales.indexOf(minSale)];
-
+  // ===== Invoice Print =====
   const printInvoice = () => {
     const invoiceWindow = window.open("", "PRINT", "height=600,width=800");
     invoiceWindow.document.write("<html><head><title>Invoice</title></head><body>");
@@ -104,11 +98,9 @@ function App() {
     invoiceWindow.document.write(`<h3>💳 Advance Payment: ₹${advancePayment}</h3>`);
     invoiceWindow.document.write(`<h3>🧮 Balance Payable: ₹${balancePayable}</h3>`);
     invoiceWindow.document.write("<h3>📊 Week Sales Comparison</h3>");
-    weekLabels.forEach((day, i) => {
-      invoiceWindow.document.write(`<p>${day}: ₹${weekSales[i]}</p>`);
+    weekData.labels.forEach((day, i) => {
+      invoiceWindow.document.write(`<p>${day}: ₹${weekData.datasets[0].data[i]}</p>`);
     });
-    invoiceWindow.document.write(`<p>📈 High Sale Day: ${highDay} (₹${maxSale})</p>`);
-    invoiceWindow.document.write(`<p>📉 Low Sale Day: ${lowDay} (₹${minSale})</p>`);
     invoiceWindow.document.write("</body></html>");
     invoiceWindow.document.close();
     invoiceWindow.print();
@@ -144,6 +136,14 @@ function App() {
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
       {/* Sidebar */}
       <div style={{ width: "240px", background: "#1f2937", color: "white", padding: "20px" }}>
+        {/* Company Logo */}
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <img 
+            src="C:/Users/sailo/Downloads/WhatsApp Image 2026-03-16 at 18.04.18.jpeg" 
+            alt="Company Logo" 
+            style={{ width: "150px", borderRadius: "8px" }}
+          />
+        </div>
         <h2 style={{ color: "#facc15" }}>🥭 Mandi ERP</h2>
         <ul style={{ listStyle: "none", padding: 0, marginTop: "30px" }}>
           {["📊 Dashboard","🚚 Suppliers","🛒 Buyers","📦 Inventory","🧾 Invoices","📈 Reports","⚙️ Settings"].map((item) => (
@@ -199,12 +199,10 @@ function App() {
           <h3 style={{ color: "#7c3aed" }}>💳 Advance Payment = ₹{advancePayment}</h3>
           <h3 style={{ color: "#2563eb" }}>🧮 Balance Payable = ₹{balancePayable}</h3>
 
-          {/* Weekwise Graph & Analysis */}
+          {/* Weekwise Graph */}
           <div style={{ marginTop: "30px" }}>
             <h3>📊 Week Sales Comparison</h3>
             <Bar data={weekData} />
-            <p style={{ marginTop: "10px" }}>📈 High Sale Day: {highDay} (₹{maxSale})</p>
-            <p>📉 Low Sale Day: {lowDay} (₹{minSale})</p>
           </div>
 
           {/* Expenses Section */}
