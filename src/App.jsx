@@ -74,7 +74,10 @@ function App() {
   };
 
   const addSupplier = () => {
-    setSuppliers([...suppliers, { name:"", phone:"", address:"", village:"", govId:"", idType:"", bankDetails:"", notes:"" }]);
+    setSuppliers([
+      ...suppliers,
+      { name: "", phone: "", address: "", village: "", govId: "", idType: "", bankDetails: "", notes: "" },
+    ]);
   };
 
   const deleteSupplier = (index) => {
@@ -93,19 +96,24 @@ function App() {
   const balancePayable = netSale - advancePayment;
 
   // ===== Week Graph Data =====
+  const weekRawData = [grossSale * 0.8, grossSale, grossSale * 0.9, grossSale * 0.7, grossSale * 1.1, grossSale * 0.95, grossSale];
+  const maxValue = Math.max(...weekRawData);
+  const minValue = Math.min(...weekRawData);
+
   const weekData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     datasets: [
       {
         label: "Gross Sale",
-        data: [grossSale * 0.8, grossSale, grossSale * 0.9, grossSale * 0.7, grossSale * 1.1, grossSale * 0.95, grossSale],
-        backgroundColor: ["#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6", "#fcd34d"],
+        data: weekRawData,
+        backgroundColor: weekRawData.map((value) => {
+          if (value === maxValue) return "#16a34a"; // green = highest
+          if (value === minValue) return "#dc2626"; // red = lowest
+          return "#3b82f6"; // blue = others
+        }),
       },
     ],
   };
-
-  const maxSaleIndex = weekData.datasets[0].data.indexOf(Math.max(...weekData.datasets[0].data));
-  const minSaleIndex = weekData.datasets[0].data.indexOf(Math.min(...weekData.datasets[0].data));
 
   // ===== Invoice Print =====
   const printInvoice = () => {
@@ -125,9 +133,9 @@ function App() {
     invoiceWindow.document.write("<h3>📊 Week Sales Comparison</h3>");
     weekData.labels.forEach((day, i) => {
       let highlight = "";
-      if (i === maxSaleIndex) highlight = " (Highest)";
-      if (i === minSaleIndex) highlight = " (Lowest)";
-      invoiceWindow.document.write(`<p>${day}: ₹${weekData.datasets[0].data[i]}${highlight}</p>`);
+      if (weekRawData[i] === maxValue) highlight = " (Highest)";
+      if (weekRawData[i] === minValue) highlight = " (Lowest)";
+      invoiceWindow.document.write(`<p>${day}: ₹${weekRawData[i]}${highlight}</p>`);
     });
     invoiceWindow.document.write("</body></html>");
     invoiceWindow.document.close();
@@ -227,8 +235,6 @@ function App() {
           <div style={{ marginTop: "30px" }}>
             <h3>📊 Week Sales Comparison</h3>
             <Bar data={weekData} />
-            <p>Highest Sale: {weekData.labels[maxSaleIndex]} - ₹{weekData.datasets[0].data[maxSaleIndex]}</p>
-            <p>Lowest Sale: {weekData.labels[minSaleIndex]} - ₹{weekData.datasets[0].data[minSaleIndex]}</p>
           </div>
 
           {/* Expenses Section */}
@@ -253,7 +259,7 @@ function App() {
             </div>
           </div>
 
-          {/* ===== Suppliers Section ===== */}
+          {/* Suppliers Section */}
           <div style={{ marginTop: "30px", background: "#f0fdf4", padding: "20px", borderRadius: "12px", border:"2px solid #22c55e" }}>
             <h2 style={{ textAlign:"center", color:"#16a34a" }}>🚚 Supplier Management</h2>
             <table style={{ width:"100%", marginTop:"15px", borderCollapse:"collapse" }}>
