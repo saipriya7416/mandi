@@ -38,8 +38,15 @@ function App() {
 
   // ===== Suppliers =====
   const [suppliers, setSuppliers] = useState([
-    { 
-      name: "", phone: "", address: "", village: "", govId: "", idType: "", bank: "", notes: "" 
+    {
+      name: "",
+      phone: "",
+      address: "",
+      village: "",
+      govId: "",
+      idType: "",
+      bankDetails: "",
+      notes: "",
     },
   ]);
 
@@ -59,10 +66,6 @@ function App() {
     setProducts(updated);
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // ===== Supplier Functions =====
   const updateSupplier = (index, field, value) => {
     const updated = [...suppliers];
@@ -71,13 +74,17 @@ function App() {
   };
 
   const addSupplier = () => {
-    setSuppliers([...suppliers, { name: "", phone: "", address: "", village: "", govId: "", idType: "", bank: "", notes: "" }]);
+    setSuppliers([...suppliers, { name:"", phone:"", address:"", village:"", govId:"", idType:"", bankDetails:"", notes:"" }]);
   };
 
   const deleteSupplier = (index) => {
     const updated = suppliers.filter((_, i) => i !== index);
     setSuppliers(updated);
   };
+
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // ===== Calculations =====
   const grossSale = products.reduce((sum, item) => sum + item.quantity * item.rate, 0);
@@ -161,12 +168,27 @@ function App() {
              alt="Company Logo" 
              style={{ width: "120px", height: "120px", borderRadius: "50%", objectFit: "cover", display: "block", margin: "0 auto" }} />
         <h2 style={{ color: "#facc15", marginTop: "15px", textAlign:"center" }}>🥭 Mandi ERP</h2>
+        <ul style={{ listStyle: "none", padding: 0, marginTop: "20px" }}>
+          {["📊 Dashboard","🚚 Suppliers","🛒 Buyers","📦 Inventory","🧾 Invoices","📈 Reports","⚙️ Settings"].map((item) => (
+            <li key={item} style={{ padding: "12px", marginBottom: "10px", background: "#374151", borderRadius: "8px" }}>{item}</li>
+          ))}
+        </ul>
+        <button onClick={() => setLoggedIn(false)} style={{ marginTop: "20px", width: "100%", padding: "10px", background: "#ef4444", color: "white", border: "none", borderRadius: "8px" }}>
+          🔓 Logout
+        </button>
       </div>
 
       {/* Main Content */}
       <div style={{ flex: 1, padding: "30px" }}>
-        {/* Products Table */}
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px", marginBottom:"30px" }}>
+        {/* Search & Filter */}
+        <div style={{ marginBottom: "20px", display: "flex", gap: "20px" }}>
+          <input placeholder="🔍 Search Product" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
+          <button onClick={printInvoice} style={{ background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}>🖨 Print Invoice</button>
+        </div>
+
+        {/* Product Entry Table */}
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h2>📦 Product Entry</h2>
           <table style={{ width: "100%", marginTop: "15px" }}>
             <thead>
@@ -191,42 +213,82 @@ function App() {
             </tbody>
           </table>
           <button onClick={addProduct} style={{ marginTop: "10px", background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}>➕ Add Product</button>
-        </div>
 
-        {/* Suppliers Table */}
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
-          <h2>🚚 Suppliers Management</h2>
-          <table style={{ width: "100%", marginTop: "15px" }}>
-            <thead>
-              <tr>
-                <th>👤 Name</th>
-                <th>📞 Phone</th>
-                <th>🏠 Address</th>
-                <th>🏘 Village</th>
-                <th>🆔 Gov ID</th>
-                <th>📝 ID Type</th>
-                <th>🏦 Bank Details</th>
-                <th>🗒 Notes</th>
-                <th>❌ Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {suppliers.map((s, i) => (
-                <tr key={i}>
-                  <td><input value={s.name} onChange={(e)=>updateSupplier(i,"name",e.target.value)} /></td>
-                  <td><input value={s.phone} onChange={(e)=>updateSupplier(i,"phone",e.target.value)} /></td>
-                  <td><input value={s.address} onChange={(e)=>updateSupplier(i,"address",e.target.value)} /></td>
-                  <td><input value={s.village} onChange={(e)=>updateSupplier(i,"village",e.target.value)} /></td>
-                  <td><input value={s.govId} onChange={(e)=>updateSupplier(i,"govId",e.target.value)} /></td>
-                  <td><input value={s.idType} onChange={(e)=>updateSupplier(i,"idType",e.target.value)} /></td>
-                  <td><input value={s.bank} onChange={(e)=>updateSupplier(i,"bank",e.target.value)} /></td>
-                  <td><input value={s.notes} onChange={(e)=>updateSupplier(i,"notes",e.target.value)} /></td>
-                  <td><button onClick={()=>deleteSupplier(i)} style={{ background:"#ef4444", color:"white", borderRadius:"4px" }}>❌</button></td>
-                </tr>
+          {/* Calculations Cards */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "20px" }}>
+            <div style={{ flex: "1 1 150px", background: "#fef3c7", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>💰 Gross Sale<br/>₹{grossSale}</div>
+            <div style={{ flex: "1 1 150px", background: "#fee2e2", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>💸 Total Expenses<br/>₹{totalExpense}</div>
+            <div style={{ flex: "1 1 150px", background: "#dcfce7", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>📈 Net Sale<br/>₹{netSale}</div>
+            <div style={{ flex: "1 1 150px", background: "#ede9fe", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>💳 Advance Payment<br/>₹{advancePayment}</div>
+            <div style={{ flex: "1 1 150px", background: "#e0f2fe", padding: "12px", borderRadius: "8px", textAlign: "center", fontWeight: "bold" }}>🧮 Balance Payable<br/>₹{balancePayable}</div>
+          </div>
+
+          {/* Weekwise Graph */}
+          <div style={{ marginTop: "30px" }}>
+            <h3>📊 Week Sales Comparison</h3>
+            <Bar data={weekData} />
+            <p>Highest Sale: {weekData.labels[maxSaleIndex]} - ₹{weekData.datasets[0].data[maxSaleIndex]}</p>
+            <p>Lowest Sale: {weekData.labels[minSaleIndex]} - ₹{weekData.datasets[0].data[minSaleIndex]}</p>
+          </div>
+
+          {/* Expenses Section */}
+          <div style={{ marginTop: "30px", padding: "20px", border: "2px solid #fbbf24", borderRadius: "10px", backgroundColor: "#fff7ed" }}>
+            <h2 style={{ textAlign: "center", color: "#b91c1c" }}>💰 Custom Expenses</h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", justifyContent: "center", marginTop: "15px" }}>
+              {Object.keys(expenses).map((key) => (
+                <div key={key}>
+                  <label>
+                    {key==="lorry"?"🚚 Lorry Freight":
+                     key==="marketing"?"📢 Marketing":
+                     key==="coolie"?"💪 Coolie":
+                     key==="cash"?"💵 Cash":
+                     key==="kaja"?"🍰 Kaja":"🛠️ Others"}
+                  </label><br/>
+                  <input type="number" min="0" value={expenses[key]} onChange={(e)=>setExpenses({...expenses,[key]:parseFloat(e.target.value)||0})} style={{ padding:"8px", margin:"5px", width:"120px", borderRadius:"5px", border:"1px solid #ccc"}}/>
+                </div>
               ))}
-            </tbody>
-          </table>
-          <button onClick={addSupplier} style={{ marginTop: "10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px" }}>➕ Add Supplier</button>
+            </div>
+            <div style={{ marginTop: "20px", textAlign:"center", fontWeight:"bold", fontSize:"18px" }}>
+              Total Expenses: ₹ {totalExpense}
+            </div>
+          </div>
+
+          {/* ===== Suppliers Section ===== */}
+          <div style={{ marginTop: "30px", background: "#f0fdf4", padding: "20px", borderRadius: "12px", border:"2px solid #22c55e" }}>
+            <h2 style={{ textAlign:"center", color:"#16a34a" }}>🚚 Supplier Management</h2>
+            <table style={{ width:"100%", marginTop:"15px", borderCollapse:"collapse" }}>
+              <thead>
+                <tr>
+                  <th>🏷 Name</th>
+                  <th>📞 Phone</th>
+                  <th>🏠 Address</th>
+                  <th>🌾 Village</th>
+                  <th>🆔 Govt ID</th>
+                  <th>📝 ID Type</th>
+                  <th>🏦 Bank</th>
+                  <th>🗒 Notes</th>
+                  <th>❌ Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {suppliers.map((s,index)=>(
+                  <tr key={index}>
+                    <td><input value={s.name} onChange={(e)=>updateSupplier(index,"name",e.target.value)} /></td>
+                    <td><input value={s.phone} onChange={(e)=>updateSupplier(index,"phone",e.target.value)} /></td>
+                    <td><input value={s.address} onChange={(e)=>updateSupplier(index,"address",e.target.value)} /></td>
+                    <td><input value={s.village} onChange={(e)=>updateSupplier(index,"village",e.target.value)} /></td>
+                    <td><input value={s.govId} onChange={(e)=>updateSupplier(index,"govId",e.target.value)} /></td>
+                    <td><input value={s.idType} onChange={(e)=>updateSupplier(index,"idType",e.target.value)} /></td>
+                    <td><input value={s.bankDetails} onChange={(e)=>updateSupplier(index,"bankDetails",e.target.value)} /></td>
+                    <td><input value={s.notes} onChange={(e)=>updateSupplier(index,"notes",e.target.value)} /></td>
+                    <td><button onClick={()=>deleteSupplier(index)} style={{background:"#ef4444", color:"white", borderRadius:"4px"}}>❌</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={addSupplier} style={{marginTop:"10px", background:"#22c55e", color:"white", borderRadius:"8px", padding:"6px 12px"}}>➕ Add Supplier</button>
+          </div>
+
         </div>
       </div>
     </div>
