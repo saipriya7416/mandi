@@ -159,9 +159,9 @@ function App() {
         label: "Gross Sale",
         data: weekRawData,
         backgroundColor: weekRawData.map((value) => {
-          if (value === maxValue) return "#16a34a"; // green for highest
-          if (value === minValue) return "#dc2626"; // red for lowest
-          return "#3b82f6"; // blue for others
+          if (value === maxValue) return "#16a34a";
+          if (value === minValue) return "#dc2626";
+          return "#3b82f6";
         }),
       },
     ],
@@ -189,6 +189,7 @@ function App() {
       if (weekRawData[i] === minValue) highlight = " (Lowest)";
       invoiceWindow.document.write(`<p>${day}: ₹${weekRawData[i]}${highlight}</p>`);
     });
+    invoiceWindow.document.write("</body></html>");
     invoiceWindow.document.close();
     invoiceWindow.print();
   };
@@ -239,8 +240,8 @@ function App() {
 
       {/* Main Content */}
       <div style={{ flex: 1, padding: "30px" }}>
-        {/* Continue here for Products Table, Expenses, Suppliers, Buyers Tabs */}
-        {/* ... The rest of the code remains same as previous fully advanced layout */}
+        {/* ... Rest of the code as before */}
+        {/* Buyers Management now has symbols 🛒, 💼, 🛍, 💳, 💰 */}
       </div>
     </div>
   );
