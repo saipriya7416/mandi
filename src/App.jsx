@@ -12,6 +12,12 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// ===== Helper function =====
+const formatCurrency = (value) => {
+  if (value === "" || isNaN(value)) return "";
+  return "₹" + parseFloat(value).toLocaleString("en-IN");
+};
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -174,20 +180,20 @@ function App() {
     invoiceWindow.document.write(`<h2 style="text-align:center;">🧾 Buyer Invoice</h2>`);
     invoiceWindow.document.write("<table border='1' cellpadding='10'><tr><th>Product</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>");
     products.forEach((p) => {
-      invoiceWindow.document.write(`<tr><td>${p.name}</td><td>${p.quantity}</td><td>₹${p.rate}</td><td>₹${p.quantity*p.rate}</td></tr>`);
+      invoiceWindow.document.write(`<tr><td>${p.name}</td><td>${formatCurrency(p.quantity)}</td><td>${formatCurrency(p.rate)}</td><td>${formatCurrency(p.quantity*p.rate)}</td></tr>`);
     });
     invoiceWindow.document.write("</table>");
-    invoiceWindow.document.write(`<h3>💰 Gross Sale: ₹${grossSale}</h3>`);
-    invoiceWindow.document.write(`<h3>💸 Total Expenses: ₹${totalExpense}</h3>`);
-    invoiceWindow.document.write(`<h3>📈 Net Sale: ₹${netSale}</h3>`);
-    invoiceWindow.document.write(`<h3>💳 Advance Payment: ₹${advancePayment}</h3>`);
-    invoiceWindow.document.write(`<h3>🧮 Balance Payable: ₹${balancePayable}</h3>`);
+    invoiceWindow.document.write(`<h3>💰 Gross Sale: ${formatCurrency(grossSale)}</h3>`);
+    invoiceWindow.document.write(`<h3>💸 Total Expenses: ${formatCurrency(totalExpense)}</h3>`);
+    invoiceWindow.document.write(`<h3>📈 Net Sale: ${formatCurrency(netSale)}</h3>`);
+    invoiceWindow.document.write(`<h3>💳 Advance Payment: ${formatCurrency(advancePayment)}</h3>`);
+    invoiceWindow.document.write(`<h3>🧮 Balance Payable: ${formatCurrency(balancePayable)}</h3>`);
     invoiceWindow.document.write("<h3>📊 Week Sales Comparison</h3>");
     weekData.labels.forEach((day, i) => {
       let highlight = "";
       if (weekRawData[i] === maxValue) highlight = " (Highest)";
       if (weekRawData[i] === minValue) highlight = " (Lowest)";
-      invoiceWindow.document.write(`<p>${day}: ₹${weekRawData[i]}${highlight}</p>`);
+      invoiceWindow.document.write(`<p>${day}: ${formatCurrency(weekRawData[i])}${highlight}</p>`);
     });
     invoiceWindow.document.write("</body></html>");
     invoiceWindow.document.close();
@@ -247,13 +253,13 @@ function App() {
           <button onClick={printInvoice} style={{ background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}>🖨 Print Invoice</button>
         </div>
 
-        {/* Product Entry Table */}
+        {/* Product Table */}
         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h2>📦 Product Entry</h2>
           <table style={{ width: "100%", marginTop: "15px", borderCollapse:"collapse" }}>
             <thead>
               <tr>
-                <th style={{ textAlign:"left" }}>📦 Product</th>
+                <th>📦 Product</th>
                 <th style={{ textAlign:"right" }}>⚖ Quantity (KG)</th>
                 <th style={{ textAlign:"right" }}>₹ Rate</th>
                 <th style={{ textAlign:"right" }}>💰 Amount</th>
@@ -263,10 +269,10 @@ function App() {
             <tbody>
               {filteredProducts.map((item, index) => (
                 <tr key={index}>
-                  <td><input value={item.name} onChange={(e)=>updateProduct(index,"name",e.target.value)} style={{ width:"100%" }} /></td>
-                  <td><input type="number" value={item.quantity} onChange={(e)=>updateProduct(index,"quantity",e.target.value)} style={{ width:"100%", textAlign:"right" }} /></td>
-                  <td><input type="number" value={item.rate} onChange={(e)=>updateProduct(index,"rate",e.target.value)} style={{ width:"100%", textAlign:"right" }} /></td>
-                  <td style={{ textAlign:"right" }}>₹{item.quantity * item.rate}</td>
+                  <td><input value={item.name} onChange={(e)=>updateProduct(index,"name",e.target.value)} /></td>
+                  <td><input type="number" value={item.quantity} onChange={(e)=>updateProduct(index,"quantity",e.target.value)} style={{ textAlign:"right", width:"80px", padding:"6px" }} /></td>
+                  <td><input type="number" value={item.rate} onChange={(e)=>updateProduct(index,"rate",e.target.value)} style={{ textAlign:"right", width:"80px", padding:"6px" }} /></td>
+                  <td style={{ textAlign:"right", fontWeight:"bold" }}>{formatCurrency(item.quantity * item.rate)}</td>
                   <td><button onClick={()=>deleteProduct(index)} style={{ background: "#ef4444", color: "white", borderRadius:"4px" }}>❌</button></td>
                 </tr>
               ))}
@@ -276,19 +282,19 @@ function App() {
 
           {/* Calculations Cards */}
           <div style={{ display:"flex", flexWrap:"wrap", gap:"20px", marginTop:"20px" }}>
-            <div style={{ flex:"1 1 150px", background:"#fef3c7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💰 Gross Sale<br/>₹{grossSale}</div>
-            <div style={{ flex:"1 1 150px", background:"#fee2e2", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💸 Total Expenses<br/>₹{totalExpense}</div>
-            <div style={{ flex:"1 1 150px", background:"#dcfce7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>📈 Net Sale<br/>₹{netSale}</div>
-            <div style={{ flex:"1 1 150px", background:"#ede9fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💳 Advance Payment<br/>₹{advancePayment}</div>
-            <div style={{ flex:"1 1 150px", background:"#e0f2fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>🧮 Balance Payable<br/>₹{balancePayable}</div>
+            <div style={{ flex:"1 1 150px", background:"#fef3c7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💰 Gross Sale<br/>{formatCurrency(grossSale)}</div>
+            <div style={{ flex:"1 1 150px", background:"#fee2e2", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💸 Total Expenses<br/>{formatCurrency(totalExpense)}</div>
+            <div style={{ flex:"1 1 150px", background:"#dcfce7", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>📈 Net Sale<br/>{formatCurrency(netSale)}</div>
+            <div style={{ flex:"1 1 150px", background:"#ede9fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>💳 Advance Payment<br/>{formatCurrency(advancePayment)}</div>
+            <div style={{ flex:"1 1 150px", background:"#e0f2fe", padding:"12px", borderRadius:"8px", textAlign:"center", fontWeight:"bold" }}>🧮 Balance Payable<br/>{formatCurrency(balancePayable)}</div>
           </div>
-
-          {/* Weekwise Graph */}
+                    {/* Weekwise Graph */}
           <div style={{ marginTop:"30px" }}>
             <h3>📊 Week Sales Comparison</h3>
             <Bar data={weekData} />
           </div>
-                    {/* Expenses Section */}
+
+          {/* Expenses Section */}
           <div style={{ marginTop:"30px", padding:"20px", border:"2px solid #fbbf24", borderRadius:"10px", backgroundColor:"#fff7ed" }}>
             <h2 style={{ textAlign:"center", color:"#b91c1c" }}>💰 Custom Expenses</h2>
             <div style={{ display:"flex", flexWrap:"wrap", gap:"15px", justifyContent:"center", marginTop:"15px" }}>
@@ -301,12 +307,12 @@ function App() {
                      key==="cash"?"💵 Cash":
                      key==="kaja"?"🍰 Kaja":"🛠️ Others"}
                   </label><br/>
-                  <input type="number" min="0" value={expenses[key]} onChange={(e)=>setExpenses({...expenses,[key]:parseFloat(e.target.value)||0})} style={{ padding:"8px", margin:"5px", width:"120px", borderRadius:"5px", border:"1px solid #ccc"}}/>
+                  <input type="number" min="0" value={expenses[key]} onChange={(e)=>setExpenses({...expenses,[key]:parseFloat(e.target.value)||0})} style={{ padding:"8px", margin:"5px", width:"120px", borderRadius:"5px", border:"1px solid #ccc", textAlign:"right"}}/>
                 </div>
               ))}
             </div>
             <div style={{ marginTop:"20px", textAlign:"center", fontWeight:"bold", fontSize:"18px" }}>
-              Total Expenses: ₹ {totalExpense}
+              Total Expenses: {formatCurrency(totalExpense)}
             </div>
           </div>
 
@@ -330,14 +336,14 @@ function App() {
               <tbody>
                 {suppliers.map((s,index)=>(
                   <tr key={index}>
-                    <td><input value={s.name} onChange={(e)=>updateSupplier(index,"name",e.target.value)} style={{ width:"100%" }} /></td>
-                    <td><input value={s.phone} onChange={(e)=>updateSupplier(index,"phone",e.target.value)} style={{ width:"100%" }} /></td>
-                    <td><input value={s.address} onChange={(e)=>updateSupplier(index,"address",e.target.value)} style={{ width:"100%" }} /></td>
-                    <td><input value={s.village} onChange={(e)=>updateSupplier(index,"village",e.target.value)} style={{ width:"100%" }} /></td>
-                    <td><input value={s.govId} onChange={(e)=>updateSupplier(index,"govId",e.target.value)} style={{ width:"100%" }} /></td>
-                    <td><input value={s.idType} onChange={(e)=>updateSupplier(index,"idType",e.target.value)} style={{ width:"100%" }} /></td>
-                    <td><input value={s.bankDetails} onChange={(e)=>updateSupplier(index,"bankDetails",e.target.value)} style={{ width:"100%" }} /></td>
-                    <td><input value={s.notes} onChange={(e)=>updateSupplier(index,"notes",e.target.value)} style={{ width:"100%" }} /></td>
+                    <td><input value={s.name} onChange={(e)=>updateSupplier(index,"name",e.target.value)} /></td>
+                    <td><input value={s.phone} onChange={(e)=>updateSupplier(index,"phone",e.target.value)} /></td>
+                    <td><input value={s.address} onChange={(e)=>updateSupplier(index,"address",e.target.value)} /></td>
+                    <td><input value={s.village} onChange={(e)=>updateSupplier(index,"village",e.target.value)} /></td>
+                    <td><input value={s.govId} onChange={(e)=>updateSupplier(index,"govId",e.target.value)} /></td>
+                    <td><input value={s.idType} onChange={(e)=>updateSupplier(index,"idType",e.target.value)} /></td>
+                    <td><input value={s.bankDetails} onChange={(e)=>updateSupplier(index,"bankDetails",e.target.value)} /></td>
+                    <td><input value={s.notes} onChange={(e)=>updateSupplier(index,"notes",e.target.value)} /></td>
                     <td><button onClick={()=>deleteSupplier(index)} style={{background:"#ef4444", color:"white", borderRadius:"4px"}}>❌</button></td>
                   </tr>
                 ))}
@@ -360,7 +366,7 @@ function App() {
                   <input placeholder="🏠 Address" value={b.address} onChange={(e) => updateBuyer(index, "address", e.target.value)} style={{ flex: "2", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
                   <input placeholder="🆔 Govt ID" value={b.govId} onChange={(e) => updateBuyer(index, "govId", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
                   <input placeholder="📝 ID Type" value={b.idType} onChange={(e) => updateBuyer(index, "idType", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
-                  <input placeholder="💳 Credit Limit" value={b.creditLimit} onChange={(e) => updateBuyer(index, "creditLimit", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
+                  <input placeholder="💳 Credit Limit" value={b.creditLimit} onChange={(e) => updateBuyer(index, "creditLimit", e.target.value)} style={{ flex: "1", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488", textAlign:"right" }} />
                   <input placeholder="🗒 Notes" value={b.notes} onChange={(e) => updateBuyer(index, "notes", e.target.value)} style={{ flex: "2", padding: "10px", borderRadius: "8px", border: "1px solid #0d9488" }} />
                   <button onClick={() => deleteBuyer(index)} style={{ background: "#ef4444", color: "white", borderRadius: "8px", padding: "10px 16px", fontWeight: "bold" }}>❌ Delete</button>
                 </div>
