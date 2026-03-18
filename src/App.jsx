@@ -716,48 +716,125 @@ const weekOptions = {
   </button>
 </div>
 {/* Supplier Bill Generation Section */}
-<div className="section-card">
-  <h2>🧾 Supplier Bill Generation</h2>
+<div
+  style={{
+    background: "linear-gradient(135deg, #ffffff, #f8fafc)",
+    padding: "28px",
+    borderRadius: "20px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+    marginTop: "30px",
+    border: "1px solid #e5e7eb",
+  }}
+>
+  <h2
+    style={{
+      fontSize: "24px",
+      fontWeight: "700",
+      marginBottom: "24px",
+      color: "#111827",
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+    }}
+  >
+    🧾 Supplier Bill Generation
+  </h2>
 
-  <div className="buyers-table">
-
-    <div className="buyer-row">
-      <div className="buyer-field">
-        <label>Bill Number</label>
-        <input
-          type="text"
-          placeholder="Enter Bill Number"
-          value={supplierBill.billNumber}
-          onChange={(e) =>
-            setSupplierBill({ ...supplierBill, billNumber: e.target.value })
-          }
-        />
-      </div>
-
-      <div className="buyer-field">
-        <label>Date</label>
-        <input
-          type="date"
-          value={supplierBill.date}
-          onChange={(e) =>
-            setSupplierBill({ ...supplierBill, date: e.target.value })
-          }
-        />
-      </div>
-
-      <div className="buyer-field">
-        <label>Supplier Name</label>
-        <input
-          type="text"
-          placeholder="Enter Supplier Name"
-          value={supplierBill.supplierName}
-          onChange={(e) =>
-            setSupplierBill({ ...supplierBill, supplierName: e.target.value })
-          }
-        />
-      </div>
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
+      gap: "20px",
+    }}
+  >
+    {/* Bill Number */}
+    <div
+      style={{
+        background: "#fff",
+        padding: "18px",
+        borderRadius: "16px",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+      }}
+    >
+      <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>
+        Bill Number
+      </label>
+      <input
+        type="text"
+        placeholder="Enter Bill Number"
+        value={supplierBill.billNumber}
+        onChange={(e) =>
+          setSupplierBill({ ...supplierBill, billNumber: e.target.value })
+        }
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "12px",
+          border: "1px solid #d1d5db",
+          outline: "none",
+          fontSize: "14px",
+        }}
+      />
     </div>
 
+    {/* Date */}
+    <div
+      style={{
+        background: "#fff",
+        padding: "18px",
+        borderRadius: "16px",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+      }}
+    >
+      <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>
+        Date
+      </label>
+      <input
+        type="date"
+        value={supplierBill.date}
+        onChange={(e) =>
+          setSupplierBill({ ...supplierBill, date: e.target.value })
+        }
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "12px",
+          border: "1px solid #d1d5db",
+          outline: "none",
+          fontSize: "14px",
+        }}
+      />
+    </div>
+
+    {/* Supplier Name */}
+    <div
+      style={{
+        background: "#fff",
+        padding: "18px",
+        borderRadius: "16px",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+      }}
+    >
+      <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>
+        Supplier Name
+      </label>
+      <input
+        type="text"
+        placeholder="Enter Supplier Name"
+        value={supplierBill.supplierName}
+        onChange={(e) =>
+          setSupplierBill({ ...supplierBill, supplierName: e.target.value })
+        }
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "12px",
+          border: "1px solid #d1d5db",
+          outline: "none",
+          fontSize: "14px",
+        }}
+      />
+    </div>
   </div>
 </div>
         </div>
