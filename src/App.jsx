@@ -2247,116 +2247,6 @@ const weekOptions = {
   >
     💾 Save Mobile Settings
   </button>
-  {/* Mobile Friendly Interface */}
-<div
-  style={{
-    marginTop: "30px",
-    background: "linear-gradient(135deg,#ffffff,#e0f2fe)",
-    padding: "25px",
-    borderRadius: "18px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-    border: "1px solid #60a5fa",
-  }}
->
-  <h2 style={{ color: "#1e40af", fontWeight: "800", marginBottom: "20px" }}>
-    📱 Mobile Friendly Interface
-  </h2>
-
-  <ul style={{ listStyle: "disc", paddingLeft: "20px", fontWeight: "600", lineHeight: "1.8" }}>
-    <li>✅ Responsive interface for phones and desktops</li>
-    <li>✅ Tablet compatibility for mid-size screens</li>
-    <li>✅ Optimized touch interactions for mobile users</li>
-    <li>✅ Dynamic layout adjustments based on screen size</li>
-    <li>✅ Smooth scrolling and mobile-friendly buttons</li>
-  </ul>
-
-  <button
-    style={{
-      marginTop: "15px",
-      background: "#1e3a8a",
-      color: "white",
-      border: "none",
-      padding: "12px 18px",
-      borderRadius: "12px",
-      fontWeight: "700",
-      cursor: "pointer",
-    }}
-  >
-    💾 Save Mobile Settings
-  </button>
-  {/* Data Security */}
-<div
-  style={{
-    marginTop: "30px",
-    background: "linear-gradient(135deg,#ffffff,#fef3c7)",
-    padding: "25px",
-    borderRadius: "18px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-    border: "1px solid #facc15",
-  }}
->
-  <h2 style={{ color: "#b45309", fontWeight: "800", marginBottom: "20px" }}>
-    🔒 Data Security
-  </h2>
-
-  <ul style={{ listStyle: "disc", paddingLeft: "20px", fontWeight: "600", lineHeight: "1.8" }}>
-    <li>✅ Secure authentication (login/password + optional OTP)</li>
-    <li>✅ Encrypted storage for sensitive data</li>
-    <li>✅ Regular automated backups</li>
-    <li>✅ Role-based access control</li>
-    <li>✅ Audit trail for all transactions</li>
-  </ul>
-
-  <button
-    style={{
-      marginTop: "15px",
-      background: "#b45309",
-      color: "white",
-      border: "none",
-      padding: "12px 18px",
-      borderRadius: "12px",
-      fontWeight: "700",
-      cursor: "pointer",
-    }}
-  >
-    💾 Save Security Settings
-  </button>
-  {/* Export & Sharing */}
-<div
-  style={{
-    marginTop: "30px",
-    background: "linear-gradient(135deg,#ffffff,#dbeafe)",
-    padding: "25px",
-    borderRadius: "18px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-    border: "1px solid #3b82f6",
-  }}
->
-  <h2 style={{ color: "#1e40af", fontWeight: "800", marginBottom: "20px" }}>
-    📤 Export & Sharing
-  </h2>
-
-  <ul style={{ listStyle: "disc", paddingLeft: "20px", fontWeight: "600", lineHeight: "1.8" }}>
-    <li>✅ Export reports to Excel / CSV</li>
-    <li>✅ Generate PDF invoices</li>
-    <li>✅ Share invoices and reports via WhatsApp / Email</li>
-    <li>✅ Download transaction history</li>
-  </ul>
-
-  <button
-    style={{
-      marginTop: "15px",
-      background: "#1e40af",
-      color: "white",
-      border: "none",
-      padding: "12px 18px",
-      borderRadius: "12px",
-      fontWeight: "700",
-      cursor: "pointer",
-    }}
-  >
-    💾 Save Export Settings
-  </button>
 </div>
 </div>
 </div>
@@ -2370,9 +2260,6 @@ const weekOptions = {
 </div>
 </div>
 </div>
-</div>
-</div> 
-</div> 
 );
 }
 
