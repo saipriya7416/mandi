@@ -715,6 +715,51 @@ const weekOptions = {
     ➕ Add Inventory Lot
   </button>
 </div>
+{/* Supplier Bill Generation Section */}
+<div className="section-card">
+  <h2>🧾 Supplier Bill Generation</h2>
+
+  <div className="buyers-table">
+
+    <div className="buyer-row">
+      <div className="buyer-field">
+        <label>Bill Number</label>
+        <input
+          type="text"
+          placeholder="Enter Bill Number"
+          value={supplierBill.billNumber}
+          onChange={(e) =>
+            setSupplierBill({ ...supplierBill, billNumber: e.target.value })
+          }
+        />
+      </div>
+
+      <div className="buyer-field">
+        <label>Date</label>
+        <input
+          type="date"
+          value={supplierBill.date}
+          onChange={(e) =>
+            setSupplierBill({ ...supplierBill, date: e.target.value })
+          }
+        />
+      </div>
+
+      <div className="buyer-field">
+        <label>Supplier Name</label>
+        <input
+          type="text"
+          placeholder="Enter Supplier Name"
+          value={supplierBill.supplierName}
+          onChange={(e) =>
+            setSupplierBill({ ...supplierBill, supplierName: e.target.value })
+          }
+        />
+      </div>
+    </div>
+
+  </div>
+</div>
         </div>
       </div>
     </div>
