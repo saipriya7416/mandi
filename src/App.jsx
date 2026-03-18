@@ -20,11 +20,6 @@ const formatCurrency = (value) => {
 };
 // ===== Add at top of App function =====
 const [activeSection, setActiveSection] = useState("product-entry");
-
-
-const [activeSection, setActiveSection] = useState("product-entry");
-   
-
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -321,97 +316,132 @@ const weekOptions = {
     );
   }
 
-  return (
+return (
+  <>
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
       {/* Sidebar */}
-      {/* Sidebar Navigation */}
-<ul
-  style={{
-    listStyle: "none",
-    padding: 0,
-    marginTop: "30px",
-    flex: 1,
-    overflowY: "auto",
-    maxHeight: "calc(100vh - 220px)",
-  }}
->
-  {[
-    { label: "📦 Product Entry", key: "product-entry" },
-    { label: "📊 Weekly Sale Comparison", key: "week-sale" },
-    { label: "💰 Custom Expenses", key: "custom-expenses" },
-    { label: "🏭 Supplier Management", key: "supplier-management" },
-    { label: "🧾 Buyer Invoice", key: "buyer-invoice" },
-    { label: "💳 Payment Management", key: "payment-management" },
-    { label: "📈 Dashboard", key: "dashboard" },
-    { label: "📄 Reports", key: "reports" },
-    { label: "🔍 Search & Filters", key: "search-filters" },
-    { label: "📂 Document Management", key: "document-management" },
-    { label: "📱 Mobile Interface", key: "mobile-interface" },
-    { label: "🔒 Data Security", key: "data-security" },
-    { label: "📤 Export & Sharing", key: "export-sharing" },
-  ].map((item) => (
-    <li
-      key={item.key}
-      style={{
-        padding: "12px 16px",
-        borderRadius: "10px",
-        marginBottom: "10px",
-        cursor: "pointer",
-        transition: "all 0.2s ease-in-out",
-        background: activeSection === item.key ? "#374151" : "transparent",
-      }}
-      onClick={() => setActiveSection(item.key)}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = "#374151";
-        e.currentTarget.style.transform = "translateX(5px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background =
-          activeSection === item.key ? "#374151" : "transparent";
-        e.currentTarget.style.transform = "translateX(0)";
-      }}
-    >
-      {item.label}
-    </li>
-  ))}
-</ul>
+      <div style={{
+        width: "240px",
+        background: "#1f2937",
+        color: "white",
+        padding: "20px",
+        display: "flex",
+        flexDirection: "column",
+      }}>
+        {/* Logo */}
+        <img
+          src="https://tse4.mm.bing.net/th/id/OIP.ks72csN96u4QVk_QF_7MlwHaHa?pid=Api&P=0&h=180"
+          alt="Company Logo"
+          style={{
+            width: "120px",
+            height: "120px",
+            borderRadius: "50%",
+            objectFit: "cover",
+            display: "block",
+            margin: "0 auto",
+            border: "3px solid #facc15",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          }}
+        />
+        <h2 style={{
+          color: "#facc15",
+          marginTop: "15px",
+          textAlign: "center",
+          fontWeight: "800",
+          letterSpacing: "1px",
+        }}>🥭 Mandi ERP</h2>
 
-{/* ===== Right Side Content Area ===== */}
-<div style={{ marginLeft: "260px", padding: "20px", flex: 1 }}>
-  {activeSection === "product-entry" && <div>🛒 Product Entry Section</div>}
-  {activeSection === "week-sale" && <div>📊 Weekly Sale Comparison Section</div>}
-  {activeSection === "custom-expenses" && <div>💰 Custom Expenses Section</div>}
-  {activeSection === "supplier-management" && <div>🏭 Supplier Management Section</div>}
-  {activeSection === "buyer-invoice" && <div>🧾 Buyer Invoice Section</div>}
-  {activeSection === "payment-management" && <div>💳 Payment Management Section</div>}
-  {activeSection === "dashboard" && <div>📈 Dashboard Section</div>}
-  {activeSection === "reports" && <div>📄 Reports Section</div>}
-  {activeSection === "search-filters" && <div>🔍 Search & Filters Section</div>}
-  {activeSection === "document-management" && <div>📂 Document Management Section</div>}
-  {activeSection === "mobile-interface" && <div>📱 Mobile Interface Section</div>}
-  {activeSection === "data-security" && <div>🔒 Data Security Section</div>}
-  {activeSection === "export-sharing" && <div>📤 Export & Sharing Section</div>}
-</div>
-  {/* Footer / Version */}
-  <div style={{ marginTop: "auto", textAlign: "center", fontSize: "12px", color: "#9ca3af" }}>
-    © 2026 SPV Fruits
-  </div>
-</div>
+        {/* Sidebar Navigation */}
+        <ul style={{
+          listStyle: "none",
+          padding: 0,
+          marginTop: "30px",
+          flex: 1,
+          overflowY: "auto",
+          maxHeight: "calc(100vh - 220px)",
+        }}>
+          {[
+            { label: "📦 Product Entry", key: "product-entry" },
+            { label: "📊 Weekly Sale Comparison", key: "week-sale" },
+            { label: "💰 Custom Expenses", key: "custom-expenses" },
+            { label: "🏭 Supplier Management", key: "supplier-management" },
+            { label: "🧾 Buyer Invoice", key: "buyer-invoice" },
+            { label: "💳 Payment Management", key: "payment-management" },
+            { label: "📈 Dashboard", key: "dashboard" },
+            { label: "📄 Reports", key: "reports" },
+            { label: "🔍 Search & Filters", key: "search-filters" },
+            { label: "📂 Document Management", key: "document-management" },
+            { label: "📱 Mobile Interface", key: "mobile-interface" },
+            { label: "🔒 Data Security", key: "data-security" },
+            { label: "📤 Export & Sharing", key: "export-sharing" },
+          ].map((item) => (
+            <li
+              key={item.key}
+              style={{
+                padding: "12px 16px",
+                borderRadius: "10px",
+                marginBottom: "10px",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                background: activeSection === item.key ? "#374151" : "transparent",
+              }}
+              onClick={() => setActiveSection(item.key)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#374151";
+                e.currentTarget.style.transform = "translateX(5px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background =
+                  activeSection === item.key ? "#374151" : "transparent";
+                e.currentTarget.style.transform = "translateX(0)";
+              }}
+            >
+              {item.label}
+            </li>
+          ))}
+        </ul>
 
-{/* Main Content Wrapper */}
-<div style={{ marginLeft: "260px", padding: "25px" }}>
-  {/* All your main ERP modules UI will render here */}
-</div>
-
-      {/* Main Content */}
-      <div style={{ flex: 1, padding: "30px" }}>
-        {/* Search & Filter */}
-        <div style={{ marginBottom: "20px", display: "flex", gap: "20px" }}>
-          <input placeholder="🔍 Search Product" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
-          <button onClick={printInvoice} style={{ background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}>🖨 Print Invoice</button>
+        {/* Footer */}
+        <div style={{ marginTop: "auto", textAlign: "center", fontSize: "12px", color: "#9ca3af" }}>
+          © 2026 SPV Fruits
         </div>
-        {/* Product Entry Table */}
+      </div>
+
+      {/* Right Side Content */}
+      <div style={{ marginLeft: "260px", flex: 1, padding: "25px" }}>
+        {/* Dynamic Sections */}
+        {activeSection === "product-entry" && <div>🛒 Product Entry Section</div>}
+        {activeSection === "week-sale" && <div>📊 Weekly Sale Comparison Section</div>}
+        {activeSection === "custom-expenses" && <div>💰 Custom Expenses Section</div>}
+        {activeSection === "supplier-management" && <div>🏭 Supplier Management Section</div>}
+        {activeSection === "buyer-invoice" && <div>🧾 Buyer Invoice Section</div>}
+        {activeSection === "payment-management" && <div>💳 Payment Management Section</div>}
+        {activeSection === "dashboard" && <div>📈 Dashboard Section</div>}
+        {activeSection === "reports" && <div>📄 Reports Section</div>}
+        {activeSection === "search-filters" && <div>🔍 Search & Filters Section</div>}
+        {activeSection === "document-management" && <div>📂 Document Management Section</div>}
+        {activeSection === "mobile-interface" && <div>📱 Mobile Interface Section</div>}
+        {activeSection === "data-security" && <div>🔒 Data Security Section</div>}
+        {activeSection === "export-sharing" && <div>📤 Export & Sharing Section</div>}
+
+        {/* Search & Filter */}
+        <div style={{ marginTop: "20px", marginBottom: "20px", display: "flex", gap: "20px" }}>
+          <input
+            placeholder="🔍 Search Product"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
+          <button
+            onClick={printInvoice}
+            style={{ background: "#22c55e", color: "white", borderRadius: "8px", padding: "6px 12px" }}
+          >
+            🖨 Print Invoice
+          </button>
+        </div>
+      </div>
+    </div>
+{/*main content*/}
 <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
   <h2>📦 Product Entry</h2>
   <table style={{ width: "100%", marginTop: "15px", borderCollapse: "collapse", textAlign:"center" }}>
@@ -2268,8 +2298,7 @@ const weekOptions = {
 </div>
 </div>
 </div>
-</div>
-</div>
+</>
 );
 }
 
