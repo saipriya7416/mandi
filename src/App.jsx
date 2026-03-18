@@ -228,21 +228,17 @@ const balancePayable = netSale - (supplierBill.advancePayment || 0);
   const maxValue = Math.max(...weekRawData);
   const minValue = Math.min(...weekRawData);
 
-  const weekData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        label: "Gross Sale",
-        data: weekRawData,
-        backgroundColor: weekRawData.map((value) => {
-  if (value === maxValue) return "#f59e0b"; // max bar amber
-  if (value === minValue) return "#ef4444"; // min bar red
-  return "#3b82f6"; // normal bar blue
-}),
-        borderRadius: 6, 
-      },
-    ],
-  };
+const weekData = {
+  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  datasets: [
+    {
+      label: "Gross Sale",
+      data: weekRawData,
+      backgroundColor: ["#3b82f6","#3b82f6","#3b82f6","#3b82f6","#3b82f6","#3b82f6","#3b82f6"],
+      borderRadius: 6,
+    },
+  ],
+};
   const weekOptions = {
   responsive: true,
   plugins: {
