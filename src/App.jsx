@@ -448,6 +448,7 @@ const weekOptions = {
             <div style={{ marginTop:"20px", textAlign:"center", fontWeight:"bold", fontSize:"18px" }}>
               Total Expenses: {formatCurrency(totalExpense)}
             </div>
+             </div>
           {/* Suppliers Section */}
           <div style={{ marginTop:"30px", background:"#f0fdf4", padding:"20px", borderRadius:"12px", border:"2px solid #22c55e" }}>
             <h2 style={{ textAlign:"center", color:"#16a34a" }}>🚚 Supplier Management</h2>
@@ -805,7 +806,6 @@ const weekOptions = {
         }}
       />
     </div>
-
     {/* Supplier Name */}
    <div
   style={{
@@ -961,6 +961,5 @@ const weekOptions = {
       </div>
     </div>
   );
-}
 }
 export default App; 
