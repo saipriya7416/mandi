@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./index.css"; // Make sure this line is at top of App.js
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -234,10 +235,10 @@ const balancePayable = netSale - (supplierBill.advancePayment || 0);
         label: "Gross Sale",
         data: weekRawData,
         backgroundColor: weekRawData.map((value) => {
-          if (value === maxValue) return "#16a34a";
-          if (value === minValue) return "#dc2626";
-          return "#3b82f6";
-        }),
+  if (value === maxValue) return "#f59e0b"; // max bar amber
+  if (value === minValue) return "#ef4444"; // min bar red
+  return "#3b82f6"; // normal bar blue
+}),
         borderRadius: 6, 
       },
     ],

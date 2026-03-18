@@ -108,3 +108,8 @@ table input {
     flex-wrap: wrap !important;
   }
 }
+:root {
+  --bar-max: #0bf584;; /* amber-500 */
+  --bar-min: #ef4444; /* red-500 */
+  --bar-normal: #3b82f6; /* blue-500 */
+}
