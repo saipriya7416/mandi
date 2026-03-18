@@ -224,9 +224,18 @@ const netSale = grossSale - totalExpense;
 const balancePayable = netSale - (supplierBill.advancePayment || 0);
 
 // ===== Week Graph Data =====
-  const weekRawData = [grossSale * 0.8, grossSale, grossSale * 0.9, grossSale * 0.7, grossSale * 1.1, grossSale * 0.95, grossSale];
-  const maxValue = Math.max(...weekRawData);
-  const minValue = Math.min(...weekRawData);
+const weekRawData = [
+  (grossSale * 0.8) || 0,
+  grossSale || 0,
+  (grossSale * 0.9) || 0,
+  (grossSale * 0.7) || 0,
+  (grossSale * 1.1) || 0,
+  (grossSale * 0.95) || 0,
+  grossSale || 0,
+];
+
+const maxValue = Math.max(...weekRawData);
+const minValue = Math.min(...weekRawData);
 
 const weekData = {
   labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -234,12 +243,17 @@ const weekData = {
     {
       label: "Gross Sale",
       data: weekRawData,
-      backgroundColor: ["#3b82f6","#3b82f6","#3b82f6","#3b82f6","#3b82f6","#3b82f6","#3b82f6"],
+      backgroundColor: weekRawData.map((value) => {
+        if (value === maxValue) return "#16a34a"; // green
+        if (value === minValue) return "#dc2626"; // red
+        return "#3b82f6"; // blue
+      }),
       borderRadius: 6,
     },
   ],
 };
-  const weekOptions = {
+
+const weekOptions = {
   responsive: true,
   plugins: {
     legend: {
@@ -247,7 +261,7 @@ const weekData = {
     },
     tooltip: {
       callbacks: {
-        label: function(context) {
+        label: function (context) {
           return `₹${context.raw}`;
         },
       },
@@ -397,11 +411,11 @@ const weekData = {
   </div>
 </div>
 
-          {/* Weekwise Graph */}
-          <div style={{ marginTop:"30px" }}>
-            <h3>📊 Week Sales Comparison</h3>
-            <Bar data={weekData} options={weekOptions} />
-          </div>
+          {/* week sales graph */}
+<div style={{ marginTop:"30px" }}>
+  <h3>📊 Week Sales Comparison</h3>
+  <Bar data={weekData} options={weekOptions} />
+</div>
 
           {/* Expenses Section */}
           <div style={{ marginTop:"30px", padding:"20px", border:"2px solid #fbbf24", borderRadius:"10px", backgroundColor:"#fff7ed" }}>
