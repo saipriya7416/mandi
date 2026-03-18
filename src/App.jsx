@@ -222,26 +222,34 @@ const totalExpense = Object.values(supplierBill.expenses).reduce((a, b) => a + b
 const netSale = grossSale - totalExpense;
 const balancePayable = netSale - (supplierBill.advancePayment || 0);
 
-  // ===== Week Graph Data =====
-  const weekRawData = [grossSale * 0.8, grossSale, grossSale * 0.9, grossSale * 0.7, grossSale * 1.1, grossSale * 0.95, grossSale];
-  const maxValue = Math.max(...weekRawData);
-  const minValue = Math.min(...weekRawData);
+ // ===== Week Graph Data =====
+const weekRawData = [
+  grossSale * 0.8,
+  grossSale,
+  grossSale * 0.9,
+  grossSale * 0.7,
+  grossSale * 1.1,
+  grossSale * 0.95,
+  grossSale,
+];
 
-  const weekData = {
+const maxValue = Math.max(...weekRawData);
+const minValue = Math.min(...weekRawData);
+
+const weekData = {
   labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   datasets: [
     {
       label: "Gross Sale",
       data: weekRawData,
       backgroundColor: weekRawData.map((value) => {
-        if (Math.abs(value - maxValue) < 0.01) return "#16a34a"; // Green for max
-        if (Math.abs(value - minValue) < 0.01) return "#dc2626"; // Red for min
+        if (Math.abs(value - maxValue) < 1) return "#16a34a"; // Green for highest
+        if (Math.abs(value - minValue) < 1) return "#dc2626"; // Red for lowest
         return "#3b82f6"; // Blue for other days
       }),
     },
   ],
 };
-
   // ===== Invoice Print =====
   const printInvoice = () => {
     const invoiceWindow = window.open("", "PRINT", "height=600,width=800");
