@@ -1,9 +1,10 @@
-/* index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom overrides (optional) */
+/* Custom styles */
 body {
-  @apply bg-gray-50 font-sans text-gray-800;
+  background-color: #fefce8; /* soft yellow */
+  font-family: 'Inter', sans-serif;
+  color: #1f2937;
 }
