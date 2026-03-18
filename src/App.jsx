@@ -318,20 +318,98 @@ const weekOptions = {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
       {/* Sidebar */}
-      <div style={{ width: "240px", background: "#1f2937", color: "white", padding: "20px" }}>
-        <img src="https://tse4.mm.bing.net/th/id/OIP.ks72csN96u4QVk_QF_7MlwHaHa?pid=Api&P=0&h=180" 
-             alt="Company Logo" 
-             style={{ width: "120px", height: "120px", borderRadius: "50%", objectFit: "cover", display: "block", margin: "0 auto" }} />
-        <h2 style={{ color: "#facc15", marginTop: "15px", textAlign:"center" }}>🥭 Mandi ERP</h2>
-        <ul style={{ listStyle: "none", padding: 0, marginTop: "20px" }}>
-          {["📊 Dashboard","🚚 Suppliers","🛒 Buyers","📦 Inventory","🧾 Invoices","📈 Reports","⚙️ Settings"].map((item) => (
-            <li key={item} style={{ padding: "12px", marginBottom: "10px", background: "#374151", borderRadius: "8px" }}>{item}</li>
-          ))}
-        </ul>
-        <button onClick={() => setLoggedIn(false)} style={{ marginTop: "20px", width: "100%", padding: "10px", background: "#ef4444", color: "white", border: "none", borderRadius: "8px" }}>
-          🔓 Logout
-        </button>
-      </div>
+      {/* Sidebar Navigation */}
+<div
+  style={{
+    width: "240px",
+    background: "#1f2937",
+    color: "white",
+    padding: "20px",
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    position: "fixed",
+    top: 0,
+    left: 0,
+  }}
+>
+  {/* Logo */}
+  <img
+    src="https://tse4.mm.bing.net/th/id/OIP.ks72csN96u4QVk_QF_7MlwHaHa?pid=Api&P=0&h=180"
+    alt="Company Logo"
+    style={{
+      width: "120px",
+      height: "120px",
+      borderRadius: "50%",
+      objectFit: "cover",
+      display: "block",
+      margin: "0 auto",
+      border: "3px solid #facc15",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+    }}
+  />
+  <h2
+    style={{
+      color: "#facc15",
+      marginTop: "15px",
+      textAlign: "center",
+      fontWeight: "800",
+      letterSpacing: "1px",
+    }}
+  >
+    🥭 Mandi ERP
+  </h2>
+
+  {/* Navigation Links */}
+  <ul style={{ listStyle: "none", padding: 0, marginTop: "30px", flex: 1 }}>
+    {[
+      { label: "📦 Product Entry", key: "product-entry" },
+      { label: "📊 Weekly Sale Comparison", key: "week-sale" },
+      { label: "💰 Custom Expenses", key: "custom-expenses" },
+      { label: "🏭 Supplier Management", key: "supplier-management" },
+      { label: "🧾 Buyer Invoice", key: "buyer-invoice" },
+      { label: "💳 Payment Management", key: "payment-management" },
+      { label: "📈 Dashboard", key: "dashboard" },
+      { label: "📄 Reports", key: "reports" },
+      { label: "🔍 Search & Filters", key: "search-filters" },
+      { label: "📂 Document Management", key: "document-management" },
+      { label: "📱 Mobile Interface", key: "mobile-interface" },
+      { label: "🔒 Data Security", key: "data-security" },
+      { label: "📤 Export & Sharing", key: "export-sharing" },
+    ].map((item) => (
+      <li
+        key={item.key}
+        style={{
+          padding: "12px 16px",
+          borderRadius: "10px",
+          marginBottom: "10px",
+          cursor: "pointer",
+          transition: "all 0.2s ease-in-out",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#374151";
+          e.currentTarget.style.transform = "translateX(5px)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "transparent";
+          e.currentTarget.style.transform = "translateX(0)";
+        }}
+      >
+        {item.label}
+      </li>
+    ))}
+  </ul>
+
+  {/* Footer / Version */}
+  <div style={{ marginTop: "auto", textAlign: "center", fontSize: "12px", color: "#9ca3af" }}>
+    © 2026 SPV Fruits
+  </div>
+</div>
+
+{/* Main Content Wrapper */}
+<div style={{ marginLeft: "260px", padding: "25px" }}>
+  {/* All your main ERP modules UI will render here */}
+</div>
 
       {/* Main Content */}
       <div style={{ flex: 1, padding: "30px" }}>
