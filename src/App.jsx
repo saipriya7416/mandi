@@ -404,29 +404,7 @@ const weekOptions = {
 <div style={{ marginTop:"30px" }}>
   <h3>📊 Week Sales Comparison</h3>
   <Bar data={weekData} options={weekOptions} />
-</div>
-
-          {/* Expenses Section */}
-          <div style={{ marginTop:"30px", padding:"20px", border:"2px solid #fbbf24", borderRadius:"10px", backgroundColor:"#fff7ed" }}>
-            <h2 style={{ textAlign:"center", color:"#b91c1c" }}>💰 Custom Expenses</h2>
-            <div style={{ display:"flex", flexWrap:"wrap", gap:"15px", justifyContent:"center", marginTop:"15px" }}>
-              {Object.keys(expenses).map((key) => (
-                <div key={key}>
-                  <label>
-                    {key==="lorry"?"🚚 Lorry Freight":
-                     key==="marketing"?"📢 Marketing":
-                     key==="coolie"?"💪 Coolie":
-                     key==="cash"?"💵 Cash":
-                     key==="kaja"?"🍰 Kaja":"🛠️ Others"}
-                  </label><br/>
-                  <input type="number" min="0" value={expenses[key]} onChange={(e)=>setExpenses({...expenses,[key]:parseFloat(e.target.value)||0})} style={{ padding:"8px", margin:"5px", width:"120px", borderRadius:"5px", border:"1px solid #ccc"}}/>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop:"20px", textAlign:"center", fontWeight:"bold", fontSize:"18px" }}>
-              Total Expenses: ₹ {totalExpense}
-            </div>
-          </div>
+</div> 
 
           {/* Expenses Section */}
           <div style={{ marginTop:"30px", padding:"20px", border:"2px solid #fbbf24", borderRadius:"10px", backgroundColor:"#fff7ed" }}>
