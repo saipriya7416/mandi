@@ -228,19 +228,19 @@ const balancePayable = netSale - (supplierBill.advancePayment || 0);
   const minValue = Math.min(...weekRawData);
 
   const weekData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets:
-      {
-        label: "Gross Sale",
-        data: weekRawData,
-backgroundColor: weekRawData.map((value) => {
-  if (Math.abs(value - maxValue) < 0.01) return "#16a34a"; // Green for max
-  if (Math.abs(value - minValue) < 0.01) return "#dc2626"; // Red for min
-  return "#3b82f6"; // Blue for other days
-}),
-        },
-      },
-  };
+  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  datasets: [
+    {
+      label: "Gross Sale",
+      data: weekRawData,
+      backgroundColor: weekRawData.map((value) => {
+        if (Math.abs(value - maxValue) < 0.01) return "#16a34a"; // Green for max
+        if (Math.abs(value - minValue) < 0.01) return "#dc2626"; // Red for min
+        return "#3b82f6"; // Blue for other days
+      }),
+    },
+  ],
+};
 
   // ===== Invoice Print =====
   const printInvoice = () => {
