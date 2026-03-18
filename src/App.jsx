@@ -717,103 +717,63 @@ const weekOptions = {
   </button>
 </div>
 {/* Supplier Bill Generation Section */}
-<div
-  style={{
-    background: "linear-gradient(135deg, #ffffff, #eef6ff)",
-    padding: "30px",
-    borderRadius: "22px",
-    boxShadow: "0 12px 28px rgba(0,0,0,0.08)",
-    marginTop: "30px",
-    border: "1px solid #dbeafe",
-  }}
->
-  <h2
-    style={{
-      fontSize: "24px",
-      fontWeight: "800",
-      marginBottom: "24px",
-      color: "#1e3a8a",
-      display: "flex",
-      alignItems: "center",
-      gap: "10px",
-    }}
-  >
-    🧾 Supplier Bill Generation
-  </h2>
+<div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "12px" }}>
+  <h2>🧾 Supplier Bill Generation</h2>
 
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
-      gap: "20px",
-    }}
-  >
-    {[
-      {
-        label: "Bill Number",
-        value: supplierBill.billNumber,
-        key: "billNumber",
-        type: "text",
-        icon: "🔢",
-      },
-      {
-        label: "Date",
-        value: supplierBill.date,
-        key: "date",
-        type: "date",
-        icon: "📅",
-      },
-      {
-        label: "Supplier Name",
-        value: supplierBill.supplierName,
-        key: "supplierName",
-        type: "text",
-        icon: "🏢",
-      },
-    ].map((field, i) => (
-      <div
-        key={i}
-        style={{
-          background: "#fff",
-          padding: "18px",
-          borderRadius: "16px",
-          boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
-        }}
-      >
-        <label
-          style={{
-            fontWeight: "700",
-            display: "block",
-            marginBottom: "8px",
-            color: "#374151",
-          }}
-        >
-          {field.icon} {field.label}
-        </label>
+  <input
+    placeholder="Bill Number"
+    value={supplierBill.billNumber}
+    onChange={(e) =>
+      setSupplierBill({ ...supplierBill, billNumber: e.target.value })
+    }
+  />
 
-        <input
-          type={field.type}
-          value={field.value}
-          onChange={(e) =>
-            setSupplierBill({
-              ...supplierBill,
-              [field.key]: e.target.value,
-            })
-          }
-          placeholder={`Enter ${field.label}`}
-          style={{
-            width: "100%",
-            padding: "12px",
-            borderRadius: "12px",
-            border: "1px solid #bfdbfe",
-            background: "#f8fbff",
-            outline: "none",
-            fontSize: "14px",
-          }}
-        />
-      </div>
-    ))}
+  <input
+    type="date"
+    value={supplierBill.date}
+    onChange={(e) =>
+      setSupplierBill({ ...supplierBill, date: e.target.value })
+    }
+  />
+
+  <input
+    placeholder="Supplier Name"
+    value={supplierBill.supplierName}
+    onChange={(e) =>
+      setSupplierBill({ ...supplierBill, supplierName: e.target.value })
+    }
+  />
+
+  {supplierBill.items.map((item, index) => (
+    <div key={index} style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+      <input
+        value={item.name}
+        onChange={(e) => updateSupplierBillItem(index, "name", e.target.value)}
+      />
+      <input
+        type="number"
+        value={item.quantity}
+        onChange={(e) => updateSupplierBillItem(index, "quantity", e.target.value)}
+      />
+      <input
+        type="number"
+        value={item.rate}
+        onChange={(e) => updateSupplierBillItem(index, "rate", e.target.value)}
+      />
+      <button onClick={() => deleteSupplierBillItem(index)}>❌</button>
+    </div>
+  ))}
+
+  <button onClick={addSupplierBillItem}>➕ Add Product</button>
+
+  <div style={{ marginTop: "20px", fontWeight: "bold" }}>
+    Gross Sale ₹ {grossSale}
   </div>
+
+  <div style={{ marginTop: "10px", fontWeight: "bold" }}>
+    Total Expenses ₹ {totalExpense}
+  </div>
+</div>
 
   {/* Product Table */}
   <div
@@ -834,10 +794,9 @@ const weekOptions = {
       }}
     >
       📦 Product Details
-    </h3>
+</h3>
 
-  {/* Header Row */}
-  {/* Header Tabs */}
+{/* Header Tabs */}
 <div
   style={{
     display: "grid",
@@ -869,111 +828,207 @@ const weekOptions = {
     </div>
   ))}
 </div>
-    {supplierBill.items.map((item, index) => (  
-      <div
-        key={index}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
-          gap: "14px",
-          marginBottom: "14px",
-          alignItems: "center",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="🛒 Product"
-          value={item.name}
-          onChange={(e) =>
-            updateSupplierBillItem(index, "name", e.target.value)
-          }
-          style={{
-            padding: "12px",
-            borderRadius: "12px",
-            border: "1px solid #93c5fd",
-            background: "#eff6ff",
-          }}
-        />
 
-        <input
-          type="number"
-          placeholder="Qty"
-          value={item.quantity}
-          onChange={(e) =>
-            updateSupplierBillItem(index, "quantity", e.target.value)
-          }
-          style={{
-            padding: "12px",
-            borderRadius: "12px",
-            border: "1px solid #86efac",
-            background: "#f0fdf4",
-          }}
-        />
-
-        <input
-          type="number"
-          placeholder="Rate"
-          value={item.rate}
-          onChange={(e) =>
-            updateSupplierBillItem(index, "rate", e.target.value)
-          }
-          style={{
-            padding: "12px",
-            borderRadius: "12px",
-            border: "1px solid #fde68a",
-            background: "#fefce8",
-          }}
-        />
-
-        <div
-          style={{
-            padding: "12px",
-            borderRadius: "12px",
-            background: "#f3f4f6",
-            textAlign: "center",
-            fontWeight: "700",
-          }}
-        >
-          ₹{item.quantity * item.rate}
-        </div>
-
-        <button
-          onClick={() => deleteSupplierBillItem(index)}
-          style={{
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-            padding: "10px 14px",
-            borderRadius: "10px",
-            cursor: "pointer",
-          }}
-        >
-          ✖
-        </button>
-      </div>
-    ))}
-
-    <button
-      onClick={addSupplierBillItem}
+{supplierBill.items.map((item, index) => (
+  <div
+    key={index}
+    style={{
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
+      gap: "14px",
+      marginBottom: "14px",
+      alignItems: "center",
+    }}
+  >
+    <input
+      type="text"
+      placeholder="🛒 Product"
+      value={item.name}
+      onChange={(e) =>
+        updateSupplierBillItem(index, "name", e.target.value)
+      }
       style={{
-        marginTop: "12px",
-        background: "#16a34a",
-        color: "white",
-        border: "none",
-        padding: "12px 18px",
+        padding: "12px",
         borderRadius: "12px",
-        cursor: "pointer",
+        border: "1px solid #93c5fd",
+        background: "#eff6ff",
+      }}
+    />
+
+    <input
+      type="number"
+      placeholder="Qty"
+      value={item.quantity}
+      onChange={(e) =>
+        updateSupplierBillItem(index, "quantity", e.target.value)
+      }
+      style={{
+        padding: "12px",
+        borderRadius: "12px",
+        border: "1px solid #86efac",
+        background: "#f0fdf4",
+      }}
+    />
+
+    <input
+      type="number"
+      placeholder="Rate"
+      value={item.rate}
+      onChange={(e) =>
+        updateSupplierBillItem(index, "rate", e.target.value)
+      }
+      style={{
+        padding: "12px",
+        borderRadius: "12px",
+        border: "1px solid #fde68a",
+        background: "#fefce8",
+      }}
+    />
+
+    <div
+      style={{
+        padding: "12px",
+        borderRadius: "12px",
+        background: "#f3f4f6",
+        textAlign: "center",
         fontWeight: "700",
       }}
     >
-      ➕ Add Product Row
+      ₹{item.quantity * item.rate}
+    </div>
+
+    <button
+      onClick={() => deleteSupplierBillItem(index)}
+      style={{
+        background: "#ef4444",
+        color: "white",
+        border: "none",
+        padding: "10px 14px",
+        borderRadius: "10px",
+        cursor: "pointer",
+      }}
+    >
+      ✖
     </button>
+  </div>
+))}
+
+<button
+  onClick={addSupplierBillItem}
+  style={{
+    marginTop: "12px",
+    background: "#16a34a",
+    color: "white",
+    border: "none",
+    padding: "12px 18px",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontWeight: "700",
+  }}
+>
+  ➕ Add Product Row
+</button>
+
+{/* Expense Deductions */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg, #ffffff, #f9fafb)",
+    padding: "24px",
+    borderRadius: "18px",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+    border: "1px solid #e5e7eb",
+  }}
+>
+  <h3
+    style={{
+      fontSize: "20px",
+      fontWeight: "800",
+      marginBottom: "20px",
+      color: "#111827",
+    }}
+  >
+    💸 Expense Deductions
+  </h3>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: "18px",
+    }}
+  >
+    {[
+      { label: "🚚 Transport / Freight", key: "freight" },
+      { label: "📢 Marketing", key: "marketing" },
+      { label: "👷 Labour / Coolie", key: "labour" },
+      { label: "📦 Packing", key: "packing" },
+      { label: "🧾 Miscellaneous", key: "misc" },
+    ].map((expense, i) => (
+      <div
+        key={i}
+        style={{
+          background: "#fff",
+          padding: "16px",
+          borderRadius: "14px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <label
+          style={{
+            display: "block",
+            fontWeight: "700",
+            marginBottom: "8px",
+            color: "#374151",
+          }}
+        >
+          {expense.label}
+        </label>
+
+        <input
+          type="number"
+          value={supplierBill.expenses[expense.key]}
+          onChange={(e) =>
+            setSupplierBill({
+              ...supplierBill,
+              expenses: {
+                ...supplierBill.expenses,
+                [expense.key]: Number(e.target.value),
+              },
+            })
+          }
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #d1d5db",
+            background: "#f9fafb",
+            outline: "none",
+          }}
+        />
+      </div>
+    ))}
+  </div>
+
+  <div
+    style={{
+      marginTop: "20px",
+      padding: "16px",
+      background: "#eef2ff",
+      borderRadius: "14px",
+      fontWeight: "800",
+      fontSize: "18px",
+      color: "#1e3a8a",
+      textAlign: "right",
+    }}
+  >
+    Total Expenses ₹ {totalExpense}
   </div>
 </div>
 
-</div>
-</div>
-
+</div> 
+</div> 
+</div> 
 );
 }
 
