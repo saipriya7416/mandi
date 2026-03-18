@@ -888,6 +888,7 @@ const weekOptions = {
   </div>
 
   {/* Summary Cards */}
+    {/* Summary Cards */}
   <div style={{ display: "flex", gap: "15px", marginTop: "25px", flexWrap: "wrap" }}>
     <div style={{ background: "#fef3c7", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
       💰 Gross Sale ₹ {grossSale}
@@ -902,6 +903,42 @@ const weekOptions = {
       🧮 Balance ₹ {balancePayable}
     </div>
   </div>
+
+  {/* Detailed Totals Section */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: "15px",
+      marginTop: "25px",
+    }}
+  >
+    {[
+      { label: "💰 Gross Sale", value: grossSale, bg: "#fef3c7" },
+      { label: "💸 Total Expenses", value: totalExpense, bg: "#fee2e2" },
+      { label: "📈 Net Sale", value: netSale, bg: "#dcfce7" },
+      { label: "💳 Advance Payment", value: supplierBill.advancePayment, bg: "#dbeafe" },
+      { label: "🧮 Balance Payable", value: balancePayable, bg: "#ede9fe" },
+    ].map((card, i) => (
+      <div
+        key={i}
+        style={{
+          background: card.bg,
+          padding: "16px",
+          borderRadius: "14px",
+          fontWeight: "800",
+          fontSize: "17px",
+          boxShadow: "0 6px 15px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div>{card.label}</div>
+        <div style={{ marginTop: "8px", fontSize: "20px" }}>
+          ₹ {card.value}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
 </div>
 
   {/* Product Table */}
@@ -1155,7 +1192,6 @@ const weekOptions = {
   </div>
 </div>
 
-</div> 
 </div> 
 </div> 
 );
