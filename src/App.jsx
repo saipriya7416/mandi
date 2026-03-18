@@ -238,10 +238,30 @@ const balancePayable = netSale - (supplierBill.advancePayment || 0);
           if (value === minValue) return "#dc2626";
           return "#3b82f6";
         }),
+        borderRadius: 6, 
       },
     ],
   };
-
+  const weekOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          return `₹${context.raw}`;
+        },
+      },
+    },
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+    },
+  },
+};
   // ===== Invoice Print =====
   const printInvoice = () => {
     const invoiceWindow = window.open("", "PRINT", "height=600,width=800");
@@ -383,7 +403,7 @@ const balancePayable = netSale - (supplierBill.advancePayment || 0);
           {/* Weekwise Graph */}
           <div style={{ marginTop:"30px" }}>
             <h3>📊 Week Sales Comparison</h3>
-            <Bar data={weekData} />
+            <Bar data={weekData} options={weekOptions} />
           </div>
 
           {/* Expenses Section */}
