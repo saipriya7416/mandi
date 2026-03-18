@@ -886,8 +886,6 @@ const weekOptions = {
       }}
     />
   </div>
-
-  {/* Summary Cards */}
     {/* Summary Cards */}
   <div style={{ display: "flex", gap: "15px", marginTop: "25px", flexWrap: "wrap" }}>
     <div style={{ background: "#fef3c7", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
@@ -938,7 +936,6 @@ const weekOptions = {
       </div>
     ))}
   </div>
-</div>
 </div>
 
   {/* Product Table */}
@@ -1191,7 +1188,7 @@ const weekOptions = {
     Total Expenses ₹ {totalExpense}
   </div>
 </div>
-
+</div>
 </div> 
 </div> 
 );
