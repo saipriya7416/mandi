@@ -222,34 +222,26 @@ const totalExpense = Object.values(supplierBill.expenses).reduce((a, b) => a + b
 const netSale = grossSale - totalExpense;
 const balancePayable = netSale - (supplierBill.advancePayment || 0);
 
- // ===== Week Graph Data =====
-const weekRawData = [
-  grossSale * 0.8,
-  grossSale,
-  grossSale * 0.9,
-  grossSale * 0.7,
-  grossSale * 1.1,
-  grossSale * 0.95,
-  grossSale,
-];
+// ===== Week Graph Data =====
+  const weekRawData = [grossSale * 0.8, grossSale, grossSale * 0.9, grossSale * 0.7, grossSale * 1.1, grossSale * 0.95, grossSale];
+  const maxValue = Math.max(...weekRawData);
+  const minValue = Math.min(...weekRawData);
 
-const maxValue = Math.max(...weekRawData);
-const minValue = Math.min(...weekRawData);
+  const weekData = {
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    datasets: [
+      {
+        label: "Gross Sale",
+        data: weekRawData,
+        backgroundColor: weekRawData.map((value) => {
+          if (value === maxValue) return "#16a34a";
+          if (value === minValue) return "#dc2626";
+          return "#3b82f6";
+        }),
+      },
+    ],
+  };
 
-const weekData = {
-  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  datasets: [
-    {
-      label: "Gross Sale",
-      data: weekRawData,
-      backgroundColor: weekRawData.map((value) => {
-        if (Math.abs(value - maxValue) < 1) return "#16a34a"; // Green for highest
-        if (Math.abs(value - minValue) < 1) return "#dc2626"; // Red for lowest
-        return "#3b82f6"; // Blue for other days
-      }),
-    },
-  ],
-};
   // ===== Invoice Print =====
   const printInvoice = () => {
     const invoiceWindow = window.open("", "PRINT", "height=600,width=800");
@@ -388,10 +380,32 @@ const weekData = {
   </div>
 </div>
 
-                    {/* Weekwise Graph */}
+          {/* Weekwise Graph */}
           <div style={{ marginTop:"30px" }}>
             <h3>📊 Week Sales Comparison</h3>
             <Bar data={weekData} />
+          </div>
+
+          {/* Expenses Section */}
+          <div style={{ marginTop:"30px", padding:"20px", border:"2px solid #fbbf24", borderRadius:"10px", backgroundColor:"#fff7ed" }}>
+            <h2 style={{ textAlign:"center", color:"#b91c1c" }}>💰 Custom Expenses</h2>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:"15px", justifyContent:"center", marginTop:"15px" }}>
+              {Object.keys(expenses).map((key) => (
+                <div key={key}>
+                  <label>
+                    {key==="lorry"?"🚚 Lorry Freight":
+                     key==="marketing"?"📢 Marketing":
+                     key==="coolie"?"💪 Coolie":
+                     key==="cash"?"💵 Cash":
+                     key==="kaja"?"🍰 Kaja":"🛠️ Others"}
+                  </label><br/>
+                  <input type="number" min="0" value={expenses[key]} onChange={(e)=>setExpenses({...expenses,[key]:parseFloat(e.target.value)||0})} style={{ padding:"8px", margin:"5px", width:"120px", borderRadius:"5px", border:"1px solid #ccc"}}/>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop:"20px", textAlign:"center", fontWeight:"bold", fontSize:"18px" }}>
+              Total Expenses: ₹ {totalExpense}
+            </div>
           </div>
 
           {/* Expenses Section */}
