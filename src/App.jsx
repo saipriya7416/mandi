@@ -719,20 +719,20 @@ const weekOptions = {
 {/* Supplier Bill Generation Section */}
 <div
   style={{
-    background: "linear-gradient(135deg, #ffffff, #f8fafc)",
-    padding: "28px",
-    borderRadius: "20px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+    background: "linear-gradient(135deg, #ffffff, #eef6ff)",
+    padding: "30px",
+    borderRadius: "22px",
+    boxShadow: "0 12px 28px rgba(0,0,0,0.08)",
     marginTop: "30px",
-    border: "1px solid #e5e7eb",
+    border: "1px solid #dbeafe",
   }}
 >
   <h2
     style={{
       fontSize: "24px",
-      fontWeight: "700",
+      fontWeight: "800",
       marginBottom: "24px",
-      color: "#111827",
+      color: "#1e3a8a",
       display: "flex",
       alignItems: "center",
       gap: "10px",
@@ -744,113 +744,91 @@ const weekOptions = {
   <div
     style={{
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
+      gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
       gap: "20px",
     }}
   >
-    {/* Bill Number */}
-    <div
-      style={{
-        background: "#fff",
-        padding: "18px",
-        borderRadius: "16px",
-        boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
-      }}
-    >
-      <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>
-        Bill Number
-      </label>
-      <input
-        type="text"
-        placeholder="Enter Bill Number"
-        value={supplierBill.billNumber}
-        onChange={(e) =>
-          setSupplierBill({ ...supplierBill, billNumber: e.target.value })
-        }
+    {[
+      {
+        label: "Bill Number",
+        value: supplierBill.billNumber,
+        key: "billNumber",
+        type: "text",
+        icon: "🔢",
+      },
+      {
+        label: "Date",
+        value: supplierBill.date,
+        key: "date",
+        type: "date",
+        icon: "📅",
+      },
+      {
+        label: "Supplier Name",
+        value: supplierBill.supplierName,
+        key: "supplierName",
+        type: "text",
+        icon: "🏢",
+      },
+    ].map((field, i) => (
+      <div
+        key={i}
         style={{
-          width: "100%",
-          padding: "12px",
-          borderRadius: "12px",
-          border: "1px solid #d1d5db",
-          outline: "none",
-          fontSize: "14px",
+          background: "#fff",
+          padding: "18px",
+          borderRadius: "16px",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
         }}
-      />
-    </div>
+      >
+        <label
+          style={{
+            fontWeight: "700",
+            display: "block",
+            marginBottom: "8px",
+            color: "#374151",
+          }}
+        >
+          {field.icon} {field.label}
+        </label>
 
-    {/* Date */}
-    <div
-      style={{
-        background: "#fff",
-        padding: "18px",
-        borderRadius: "16px",
-        boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
-      }}
-    >
-      <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>
-        Date
-      </label>
-      <input
-        type="date"
-        value={supplierBill.date}
-        onChange={(e) =>
-          setSupplierBill({ ...supplierBill, date: e.target.value })
-        }
-        style={{
-          width: "100%",
-          padding: "12px",
-          borderRadius: "12px",
-          border: "1px solid #d1d5db",
-          outline: "none",
-          fontSize: "14px",
-        }}
-      />
-    </div>
-       {/* Supplier Name */}
-    <div
-      style={{
-        background: "#fff",
-        padding: "18px",
-        borderRadius: "16px",
-        boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
-      }}
-    >
-      <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>
-        Supplier Name
-      </label>
-      <input
-        type="text"
-        placeholder="Enter Supplier Name"
-        value={supplierBill.supplierName}
-        onChange={(e) =>
-          setSupplierBill({ ...supplierBill, supplierName: e.target.value })
-        }
-        style={{
-          width: "100%",
-          padding: "12px",
-          borderRadius: "12px",
-          border: "1px solid #d1d5db",
-          outline: "none",
-          fontSize: "14px",
-        }}
-      />
-    </div>
+        <input
+          type={field.type}
+          value={field.value}
+          onChange={(e) =>
+            setSupplierBill({
+              ...supplierBill,
+              [field.key]: e.target.value,
+            })
+          }
+          placeholder={`Enter ${field.label}`}
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #bfdbfe",
+            background: "#f8fbff",
+            outline: "none",
+            fontSize: "14px",
+          }}
+        />
+      </div>
+    ))}
   </div>
 
-  {/* Product Details */}
+  {/* Product Table */}
   <div
     style={{
-      marginTop: "28px",
-      background: "#ffffff",
+      marginTop: "30px",
+      background: "#fff",
       padding: "24px",
       borderRadius: "18px",
-      boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+      boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
     }}
   >
     <h3
       style={{
         fontSize: "20px",
-        fontWeight: "700",
+        fontWeight: "800",
         marginBottom: "20px",
         color: "#111827",
       }}
@@ -864,41 +842,100 @@ const weekOptions = {
         style={{
           display: "grid",
           gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
-          gap: "16px",
-          marginBottom: "16px",
+          gap: "14px",
+          marginBottom: "14px",
           alignItems: "center",
         }}
       >
         <input
           type="text"
-          placeholder="Product"
+          placeholder="🛒 Product"
           value={item.name}
-          onChange={(e) => updateSupplierBillItem(index, "name", e.target.value)}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "name", e.target.value)
+          }
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #93c5fd",
+            background: "#eff6ff",
+          }}
         />
 
         <input
           type="number"
           placeholder="Qty"
           value={item.quantity}
-          onChange={(e) => updateSupplierBillItem(index, "quantity", e.target.value)}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "quantity", e.target.value)
+          }
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #86efac",
+            background: "#f0fdf4",
+          }}
         />
 
         <input
           type="number"
           placeholder="Rate"
           value={item.rate}
-          onChange={(e) => updateSupplierBillItem(index, "rate", e.target.value)}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "rate", e.target.value)
+          }
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #fde68a",
+            background: "#fefce8",
+          }}
         />
 
-        <div>₹{item.quantity * item.rate}</div>
+        <div
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            background: "#f3f4f6",
+            textAlign: "center",
+            fontWeight: "700",
+          }}
+        >
+          ₹{item.quantity * item.rate}
+        </div>
 
-        <button onClick={() => deleteSupplierBillItem(index)}>✖</button>
+        <button
+          onClick={() => deleteSupplierBillItem(index)}
+          style={{
+            background: "#ef4444",
+            color: "white",
+            border: "none",
+            padding: "10px 14px",
+            borderRadius: "10px",
+            cursor: "pointer",
+          }}
+        >
+          ✖
+        </button>
       </div>
     ))}
 
-    <button onClick={addSupplierBillItem}>➕ Add Product Row</button>
+    <button
+      onClick={addSupplierBillItem}
+      style={{
+        marginTop: "12px",
+        background: "#16a34a",
+        color: "white",
+        border: "none",
+        padding: "12px 18px",
+        borderRadius: "12px",
+        cursor: "pointer",
+        fontWeight: "700",
+      }}
+    >
+      ➕ Add Product Row
+    </button>
   </div>
-
 </div>
 
 </div>
