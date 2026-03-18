@@ -224,18 +224,16 @@ const netSale = grossSale - totalExpense;
 const balancePayable = netSale - (supplierBill.advancePayment || 0);
 
 // ===== Week Graph Data =====
-const weekRawData = [
-  (grossSale * 0.8) || 0,
-  grossSale || 0,
-  (grossSale * 0.9) || 0,
-  (grossSale * 0.7) || 0,
-  (grossSale * 1.1) || 0,
-  (grossSale * 0.95) || 0,
-  grossSale || 0,
-];
+const weekRawData = [12000, 18000, 9000, 22000, 15000, 7000, 20000];
 
 const maxValue = Math.max(...weekRawData);
 const minValue = Math.min(...weekRawData);
+
+const barColors = weekRawData.map((value) => {
+  if (value === maxValue) return "green";
+  if (value === minValue) return "red";
+  return "blue";
+});
 
 const weekData = {
   labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -243,12 +241,10 @@ const weekData = {
     {
       label: "Gross Sale",
       data: weekRawData,
-      backgroundColor: weekRawData.map((value) => {
-        if (value === maxValue) return "#16a34a"; // green
-        if (value === minValue) return "#dc2626"; // red
-        return "#3b82f6"; // blue
-      }),
-      borderRadius: 6,
+      backgroundColor: barColors,
+      borderColor: barColors,
+      borderWidth: 1,
+      borderRadius: 8,
     },
   ],
 };
@@ -258,13 +254,6 @@ const weekOptions = {
   plugins: {
     legend: {
       display: false,
-    },
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          return `₹${context.raw}`;
-        },
-      },
     },
   },
   scales: {
