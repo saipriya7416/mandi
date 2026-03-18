@@ -1742,6 +1742,630 @@ const weekOptions = {
   >
     💾 Save Expense Entry
   </button>
+  {/* Verification & Compliance (India) */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#ecfeff)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #bae6fd",
+  }}
+>
+  <h2 style={{ color: "#0369a1", fontWeight: "800", marginBottom: "20px" }}>
+    🛡 Verification & Compliance (India)
+  </h2>
+
+  {/* Verification Fields */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+      gap: "18px",
+      marginBottom: "25px",
+    }}
+  >
+    {[
+      { label: "🆔 Aadhaar Number", placeholder: "Enter Aadhaar Number" },
+      { label: "💳 PAN Number", placeholder: "Enter PAN Number" },
+      { label: "🗳 Voter ID (Optional)", placeholder: "Enter Voter ID" },
+    ].map((field, i) => (
+      <div
+        key={i}
+        style={{
+          background: "#fff",
+          padding: "16px",
+          borderRadius: "14px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            fontWeight: "700",
+            color: "#0c4a6e",
+          }}
+        >
+          {field.label}
+        </label>
+
+        <input
+          type="text"
+          placeholder={field.placeholder}
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "10px",
+            border: "1px solid #cbd5e1",
+            background: "#f8fafc",
+            outline: "none",
+          }}
+        />
+      </div>
+    ))}
+  </div>
+
+  {/* Upload Documents */}
+  <div
+    style={{
+      background: "#f0f9ff",
+      padding: "18px",
+      borderRadius: "14px",
+      marginBottom: "20px",
+    }}
+  >
+    <label style={{ fontWeight: "700", color: "#0369a1" }}>
+      📂 Upload ID Documents
+    </label>
+    <input
+      type="file"
+      style={{
+        marginTop: "10px",
+        width: "100%",
+        padding: "10px",
+      }}
+    />
+  </div>
+
+  {/* Verification Status */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(2,1fr)",
+      gap: "15px",
+      marginBottom: "20px",
+    }}
+  >
+    {[
+      { label: "✅ Verification Status", value: "Pending" },
+      { label: "📁 KYC Records", value: "Stored Securely" },
+    ].map((card, i) => (
+      <div
+        key={i}
+        style={{
+          background: "#e0f2fe",
+          padding: "16px",
+          borderRadius: "14px",
+          fontWeight: "800",
+          color: "#075985",
+        }}
+      >
+        <div>{card.label}</div>
+        <div style={{ marginTop: "8px", fontSize: "18px" }}>
+          {card.value}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Save Button */}
+  <button
+    style={{
+      background: "#0284c7",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Verification
+  </button>
+  {/* Dashboard */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#f0fdf4)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #bbf7d0",
+  }}
+>
+  <h2 style={{ color: "#15803d", fontWeight: "800", marginBottom: "20px" }}>
+    📊 Dashboard
+  </h2>
+
+  {/* Metrics Cards */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: "18px",
+    }}
+  >
+    {[
+      {
+        label: "📦 Total Inventory Received Today",
+        value: "0 KG",
+        bg: "#dcfce7",
+      },
+      {
+        label: "💰 Total Sales Today",
+        value: "₹ 0",
+        bg: "#fef9c3",
+      },
+      {
+        label: "📘 Outstanding Balances",
+        value: "₹ 0",
+        bg: "#fee2e2",
+      },
+      {
+        label: "💳 Pending Payments",
+        value: "₹ 0",
+        bg: "#dbeafe",
+      },
+      {
+        label: "💸 Expense Overview",
+        value: "₹ 0",
+        bg: "#f3e8ff",
+      },
+    ].map((card, i) => (
+      <div
+        key={i}
+        style={{
+          background: card.bg,
+          padding: "18px",
+          borderRadius: "16px",
+          fontWeight: "800",
+          boxShadow: "0 6px 15px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div style={{ fontSize: "15px", marginBottom: "10px" }}>
+          {card.label}
+        </div>
+        <div style={{ fontSize: "22px" }}>{card.value}</div>
+      </div>
+    ))}
+  </div>
+
+  {/* Dashboard Summary */}
+  <div
+    style={{
+      marginTop: "25px",
+      background: "#f0fdf4",
+      padding: "18px",
+      borderRadius: "14px",
+      fontWeight: "700",
+      color: "#166534",
+    }}
+  >
+    📈 Daily business summary available here
+  </div>
+
+  {/* Refresh Button */}
+  <button
+    style={{
+      marginTop: "20px",
+      background: "#16a34a",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    🔄 Refresh Dashboard
+  </button>
+  {/* Reports */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#fff7ed)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #fdba74",
+  }}
+>
+  <h2 style={{ color: "#c2410c", fontWeight: "800", marginBottom: "20px" }}>
+    📄 Reports
+  </h2>
+
+  {/* Report Cards */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: "18px",
+    }}
+  >
+    {[
+      {
+        label: "🚚 Supplier Transaction Report",
+        value: "Available",
+        bg: "#ffedd5",
+      },
+      {
+        label: "🛒 Buyer Sales Report",
+        value: "Available",
+        bg: "#fed7aa",
+      },
+      {
+        label: "📦 Inventory Movement Report",
+        value: "Available",
+        bg: "#fdba74",
+      },
+      {
+        label: "💸 Expense Report",
+        value: "Available",
+        bg: "#ffedd5",
+      },
+      {
+        label: "📊 Financial Summary",
+        value: "Available",
+        bg: "#fed7aa",
+      },
+    ].map((card, i) => (
+      <div
+        key={i}
+        style={{
+          background: card.bg,
+          padding: "18px",
+          borderRadius: "16px",
+          fontWeight: "800",
+          boxShadow: "0 6px 15px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div style={{ fontSize: "15px", marginBottom: "10px" }}>
+          {card.label}
+        </div>
+        <div style={{ fontSize: "20px" }}>{card.value}</div>
+      </div>
+    ))}
+  </div>
+
+  {/* Report Summary */}
+  <div
+    style={{
+      marginTop: "25px",
+      background: "#fff7ed",
+      padding: "18px",
+      borderRadius: "14px",
+      fontWeight: "700",
+      color: "#9a3412",
+    }}
+  >
+    📑 All business reports generated here
+  </div>
+
+  {/* Generate Button */}
+  <button
+    style={{
+      marginTop: "20px",
+      background: "#ea580c",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    🖨 Generate Reports
+  </button>
+  {/* Search & Filters */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#e0f2fe)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #60a5fa",
+  }}
+>
+  <h2 style={{ color: "#1e3a8a", fontWeight: "800", marginBottom: "20px" }}>
+    🔍 Search & Filters
+  </h2>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: "18px",
+    }}
+  >
+    {[
+      { placeholder: "Supplier", bg: "#dbeafe" },
+      { placeholder: "Buyer", bg: "#bfdbfe" },
+      { placeholder: "Product", bg: "#93c5fd" },
+      { placeholder: "Date", type: "date", bg: "#60a5fa" },
+      { placeholder: "Invoice Number", bg: "#3b82f6" },
+      { placeholder: "Lot ID", bg: "#2563eb" },
+    ].map((field, i) => (
+      <input
+        key={i}
+        type={field.type || "text"}
+        placeholder={field.placeholder}
+        style={{
+          padding: "12px",
+          borderRadius: "12px",
+          border: "1px solid #3b82f6",
+          background: field.bg,
+          fontWeight: "600",
+        }}
+      />
+    ))}
+  </div>
+
+  <button
+    style={{
+      marginTop: "20px",
+      background: "#1e40af",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    🔎 Apply Filters
+  </button>
+  {/* Document Management */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#f0fdf4)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #86efac",
+  }}
+>
+  <h2 style={{ color: "#166534", fontWeight: "800", marginBottom: "20px" }}>
+    📂 Document Management
+  </h2>
+
+  {/* Upload Bills */}
+  <div style={{ marginBottom: "20px" }}>
+    <label style={{ fontWeight: "700", marginBottom: "8px", display: "block" }}>
+      🧾 Upload Bill Photos
+    </label>
+    <input
+      type="file"
+      multiple
+      style={{
+        padding: "10px",
+        borderRadius: "12px",
+        border: "1px solid #34d399",
+        background: "#d1fae5",
+        width: "100%",
+      }}
+    />
+  </div>
+
+  {/* Attach documents to transactions */}
+  <div style={{ marginBottom: "20px" }}>
+    <label style={{ fontWeight: "700", marginBottom: "8px", display: "block" }}>
+      📎 Attach Documents to Transactions
+    </label>
+    <input
+      type="file"
+      multiple
+      style={{
+        padding: "10px",
+        borderRadius: "12px",
+        border: "1px solid #10b981",
+        background: "#a7f3d0",
+        width: "100%",
+      }}
+    />
+  </div>
+
+  {/* Store Verification Documents */}
+  <div style={{ marginBottom: "20px" }}>
+    <label style={{ fontWeight: "700", marginBottom: "8px", display: "block" }}>
+      📝 Store Verification Documents
+    </label>
+    <input
+      type="file"
+      multiple
+      style={{
+        padding: "10px",
+        borderRadius: "12px",
+        border: "1px solid #059669",
+        background: "#6ee7b7",
+        width: "100%",
+      }}
+    />
+  </div>
+
+  <button
+    style={{
+      marginTop: "15px",
+      background: "#047857",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Documents
+  </button>
+  {/* Mobile Friendly Interface */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#e0f2fe)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #60a5fa",
+  }}
+>
+  <h2 style={{ color: "#1e40af", fontWeight: "800", marginBottom: "20px" }}>
+    📱 Mobile Friendly Interface
+  </h2>
+
+  <ul style={{ listStyle: "disc", paddingLeft: "20px", fontWeight: "600", lineHeight: "1.8" }}>
+    <li>✅ Responsive interface for phones and desktops</li>
+    <li>✅ Tablet compatibility for mid-size screens</li>
+    <li>✅ Optimized touch interactions for mobile users</li>
+    <li>✅ Dynamic layout adjustments based on screen size</li>
+    <li>✅ Smooth scrolling and mobile-friendly buttons</li>
+  </ul>
+
+  <button
+    style={{
+      marginTop: "15px",
+      background: "#1e3a8a",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Mobile Settings
+  </button>
+  {/* Mobile Friendly Interface */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#e0f2fe)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #60a5fa",
+  }}
+>
+  <h2 style={{ color: "#1e40af", fontWeight: "800", marginBottom: "20px" }}>
+    📱 Mobile Friendly Interface
+  </h2>
+
+  <ul style={{ listStyle: "disc", paddingLeft: "20px", fontWeight: "600", lineHeight: "1.8" }}>
+    <li>✅ Responsive interface for phones and desktops</li>
+    <li>✅ Tablet compatibility for mid-size screens</li>
+    <li>✅ Optimized touch interactions for mobile users</li>
+    <li>✅ Dynamic layout adjustments based on screen size</li>
+    <li>✅ Smooth scrolling and mobile-friendly buttons</li>
+  </ul>
+
+  <button
+    style={{
+      marginTop: "15px",
+      background: "#1e3a8a",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Mobile Settings
+  </button>
+  {/* Data Security */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#fef3c7)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #facc15",
+  }}
+>
+  <h2 style={{ color: "#b45309", fontWeight: "800", marginBottom: "20px" }}>
+    🔒 Data Security
+  </h2>
+
+  <ul style={{ listStyle: "disc", paddingLeft: "20px", fontWeight: "600", lineHeight: "1.8" }}>
+    <li>✅ Secure authentication (login/password + optional OTP)</li>
+    <li>✅ Encrypted storage for sensitive data</li>
+    <li>✅ Regular automated backups</li>
+    <li>✅ Role-based access control</li>
+    <li>✅ Audit trail for all transactions</li>
+  </ul>
+
+  <button
+    style={{
+      marginTop: "15px",
+      background: "#b45309",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Security Settings
+  </button>
+  {/* Export & Sharing */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#dbeafe)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #3b82f6",
+  }}
+>
+  <h2 style={{ color: "#1e40af", fontWeight: "800", marginBottom: "20px" }}>
+    📤 Export & Sharing
+  </h2>
+
+  <ul style={{ listStyle: "disc", paddingLeft: "20px", fontWeight: "600", lineHeight: "1.8" }}>
+    <li>✅ Export reports to Excel / CSV</li>
+    <li>✅ Generate PDF invoices</li>
+    <li>✅ Share invoices and reports via WhatsApp / Email</li>
+    <li>✅ Download transaction history</li>
+  </ul>
+
+  <button
+    style={{
+      marginTop: "15px",
+      background: "#1e40af",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Export Settings
+  </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
