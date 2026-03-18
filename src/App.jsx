@@ -1582,6 +1582,167 @@ const weekOptions = {
   >
     💾 Save Payment Record
   </button>
+  {/* Expense Management */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#fdf4ff)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #e9d5ff",
+  }}
+>
+  <h2 style={{ color: "#7c3aed", fontWeight: "800", marginBottom: "20px" }}>
+    💸 Expense Management
+  </h2>
+
+  {/* Expense Entry Fields */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr",
+      gap: "16px",
+      marginBottom: "25px",
+    }}
+  >
+    {[
+      { label: "📅 Expense Date", type: "date", placeholder: "" },
+      { label: "🧾 Transaction Reference", type: "text", placeholder: "Enter Bill / Invoice No" },
+      { label: "💰 Expense Amount", type: "number", placeholder: "Enter Amount" },
+    ].map((field, i) => (
+      <div
+        key={i}
+        style={{
+          background: "#fff",
+          padding: "16px",
+          borderRadius: "14px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          border: "1px solid #ddd6fe",
+        }}
+      >
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            fontWeight: "700",
+            color: "#6d28d9",
+          }}
+        >
+          {field.label}
+        </label>
+
+        <input
+          type={field.type}
+          placeholder={field.placeholder}
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "10px",
+            border: "1px solid #ccc",
+            background: "#f9fafb",
+            outline: "none",
+          }}
+        />
+      </div>
+    ))}
+  </div>
+
+  {/* Expense Categories */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(5,1fr)",
+      gap: "15px",
+      marginBottom: "20px",
+    }}
+  >
+    {[
+      "👷 Labour",
+      "🚚 Transport",
+      "📢 Marketing",
+      "📦 Packing",
+      "🧾 Miscellaneous",
+    ].map((category, i) => (
+      <button
+        key={i}
+        style={{
+          padding: "14px",
+          borderRadius: "12px",
+          border: "none",
+          background: "#ede9fe",
+          fontWeight: "700",
+          cursor: "pointer",
+        }}
+      >
+        {category}
+      </button>
+    ))}
+  </div>
+
+  {/* Expense Tracking Cards */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: "15px",
+      marginTop: "20px",
+    }}
+  >
+    {[
+      { label: "💰 Total Expense", value: "₹ 0", bg: "#f3e8ff" },
+      { label: "📊 Today's Expense", value: "₹ 0", bg: "#fae8ff" },
+      { label: "📌 Transaction Expense", value: "₹ 0", bg: "#ede9fe" },
+    ].map((card, i) => (
+      <div
+        key={i}
+        style={{
+          background: card.bg,
+          padding: "16px",
+          borderRadius: "14px",
+          fontWeight: "800",
+          fontSize: "17px",
+          boxShadow: "0 6px 15px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div>{card.label}</div>
+        <div style={{ marginTop: "8px", fontSize: "20px" }}>
+          {card.value}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Expense Report Section */}
+  <div
+    style={{
+      marginTop: "25px",
+      background: "#faf5ff",
+      padding: "16px",
+      borderRadius: "14px",
+      fontWeight: "700",
+      color: "#6d28d9",
+    }}
+  >
+    📄 Expense Reports Available Per Transaction / Daily / Monthly
+  </div>
+
+  {/* Save Button */}
+  <button
+    style={{
+      marginTop: "25px",
+      background: "#7c3aed",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Expense Entry
+  </button>
+</div>
 </div>
 </div>
 </div>
