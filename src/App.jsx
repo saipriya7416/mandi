@@ -361,44 +361,54 @@ const weekOptions = {
   </h2>
 
   {/* Navigation Links */}
-  <ul style={{ listStyle: "none", padding: 0, marginTop: "30px", flex: 1 }}>
-    {[
-      { label: "📦 Product Entry", key: "product-entry" },
-      { label: "📊 Weekly Sale Comparison", key: "week-sale" },
-      { label: "💰 Custom Expenses", key: "custom-expenses" },
-      { label: "🏭 Supplier Management", key: "supplier-management" },
-      { label: "🧾 Buyer Invoice", key: "buyer-invoice" },
-      { label: "💳 Payment Management", key: "payment-management" },
-      { label: "📈 Dashboard", key: "dashboard" },
-      { label: "📄 Reports", key: "reports" },
-      { label: "🔍 Search & Filters", key: "search-filters" },
-      { label: "📂 Document Management", key: "document-management" },
-      { label: "📱 Mobile Interface", key: "mobile-interface" },
-      { label: "🔒 Data Security", key: "data-security" },
-      { label: "📤 Export & Sharing", key: "export-sharing" },
-    ].map((item) => (
-      <li
-        key={item.key}
-        style={{
-          padding: "12px 16px",
-          borderRadius: "10px",
-          marginBottom: "10px",
-          cursor: "pointer",
-          transition: "all 0.2s ease-in-out",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#374151";
-          e.currentTarget.style.transform = "translateX(5px)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.transform = "translateX(0)";
-        }}
-      >
-        {item.label}
-      </li>
-    ))}
-  </ul>
+{/* Navigation Links */}
+<ul
+  style={{
+    listStyle: "none",
+    padding: 0,
+    marginTop: "30px",
+    flex: 1,
+    overflowY: "auto",          // scrollable
+    maxHeight: "calc(100vh - 220px)",
+  }}
+>
+  {[
+    { label: "📦 Product Entry", key: "product-entry" },
+    { label: "📊 Weekly Sale Comparison", key: "week-sale" },
+    { label: "💰 Custom Expenses", key: "custom-expenses" },
+    { label: "🏭 Supplier Management", key: "supplier-management" },
+    { label: "🧾 Buyer Invoice", key: "buyer-invoice" },
+    { label: "💳 Payment Management", key: "payment-management" },
+    { label: "📈 Dashboard", key: "dashboard" },
+    { label: "📄 Reports", key: "reports" },
+    { label: "🔍 Search & Filters", key: "search-filters" },
+    { label: "📂 Document Management", key: "document-management" },
+    { label: "📱 Mobile Interface", key: "mobile-interface" },
+    { label: "🔒 Data Security", key: "data-security" },
+    { label: "📤 Export & Sharing", key: "export-sharing" },
+  ].map((item) => (
+    <li
+      key={item.key}
+      style={{
+        padding: "12px 16px",
+        borderRadius: "10px",
+        marginBottom: "10px",
+        cursor: "pointer",
+        transition: "all 0.2s ease-in-out",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "#374151";
+        e.currentTarget.style.transform = "translateX(5px)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.transform = "translateX(0)";
+      }}
+    >
+      {item.label}
+    </li>
+  ))} {/* <-- closing .map */}
+</ul> {/* <-- single ul closing */}
 
   {/* Footer / Version */}
   <div style={{ marginTop: "auto", textAlign: "center", fontSize: "12px", color: "#9ca3af" }}>
