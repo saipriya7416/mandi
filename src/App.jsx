@@ -18,6 +18,12 @@ const formatCurrency = (value) => {
   if (value === "" || isNaN(value)) return "";
   return "₹" + parseFloat(value).toLocaleString("en-IN");
 };
+// ===== Add at top of App function =====
+const [activeSection, setActiveSection] = useState("product-entry");
+
+
+const [activeSection, setActiveSection] = useState("product-entry");
+   
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -319,56 +325,13 @@ const weekOptions = {
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
       {/* Sidebar */}
       {/* Sidebar Navigation */}
-<div
-  style={{
-    width: "240px",
-    background: "#1f2937",
-    color: "white",
-    padding: "20px",
-    height: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    position: "fixed",
-    top: 0,
-    left: 0,
-  }}
->
-  {/* Logo */}
-  <img
-    src="https://tse4.mm.bing.net/th/id/OIP.ks72csN96u4QVk_QF_7MlwHaHa?pid=Api&P=0&h=180"
-    alt="Company Logo"
-    style={{
-      width: "120px",
-      height: "120px",
-      borderRadius: "50%",
-      objectFit: "cover",
-      display: "block",
-      margin: "0 auto",
-      border: "3px solid #facc15",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-    }}
-  />
-  <h2
-    style={{
-      color: "#facc15",
-      marginTop: "15px",
-      textAlign: "center",
-      fontWeight: "800",
-      letterSpacing: "1px",
-    }}
-  >
-    🥭 Mandi ERP
-  </h2>
-
-  {/* Navigation Links */}
-{/* Navigation Links */}
 <ul
   style={{
     listStyle: "none",
     padding: 0,
     marginTop: "30px",
     flex: 1,
-    overflowY: "auto",          // scrollable
+    overflowY: "auto",
     maxHeight: "calc(100vh - 220px)",
   }}
 >
@@ -395,21 +358,40 @@ const weekOptions = {
         marginBottom: "10px",
         cursor: "pointer",
         transition: "all 0.2s ease-in-out",
+        background: activeSection === item.key ? "#374151" : "transparent",
       }}
+      onClick={() => setActiveSection(item.key)}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = "#374151";
         e.currentTarget.style.transform = "translateX(5px)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.background =
+          activeSection === item.key ? "#374151" : "transparent";
         e.currentTarget.style.transform = "translateX(0)";
       }}
     >
       {item.label}
     </li>
-  ))} {/* <-- closing .map */}
-</ul> {/* <-- single ul closing */}
+  ))}
+</ul>
 
+{/* ===== Right Side Content Area ===== */}
+<div style={{ marginLeft: "260px", padding: "20px", flex: 1 }}>
+  {activeSection === "product-entry" && <div>🛒 Product Entry Section</div>}
+  {activeSection === "week-sale" && <div>📊 Weekly Sale Comparison Section</div>}
+  {activeSection === "custom-expenses" && <div>💰 Custom Expenses Section</div>}
+  {activeSection === "supplier-management" && <div>🏭 Supplier Management Section</div>}
+  {activeSection === "buyer-invoice" && <div>🧾 Buyer Invoice Section</div>}
+  {activeSection === "payment-management" && <div>💳 Payment Management Section</div>}
+  {activeSection === "dashboard" && <div>📈 Dashboard Section</div>}
+  {activeSection === "reports" && <div>📄 Reports Section</div>}
+  {activeSection === "search-filters" && <div>🔍 Search & Filters Section</div>}
+  {activeSection === "document-management" && <div>📂 Document Management Section</div>}
+  {activeSection === "mobile-interface" && <div>📱 Mobile Interface Section</div>}
+  {activeSection === "data-security" && <div>🔒 Data Security Section</div>}
+  {activeSection === "export-sharing" && <div>📤 Export & Sharing Section</div>}
+</div>
   {/* Footer / Version */}
   <div style={{ marginTop: "auto", textAlign: "center", fontSize: "12px", color: "#9ca3af" }}>
     © 2026 SPV Fruits
