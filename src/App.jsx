@@ -1416,6 +1416,173 @@ const weekOptions = {
       </div>
     ))}
   </div>
+  {/* Payment Management */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#fefce8)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #fde68a",
+  }}
+>
+  <h2 style={{ color: "#92400e", fontWeight: "800", marginBottom: "20px" }}>
+    💳 Payment Management
+  </h2>
+
+  {/* Top Fields */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr",
+      gap: "16px",
+      marginBottom: "25px",
+    }}
+  >
+    {[
+      { label: "📅 Payment Date", type: "date", placeholder: "" },
+      { label: "🏢 Party Name", type: "text", placeholder: "Enter Supplier / Buyer Name" },
+      { label: "💰 Payment Amount", type: "number", placeholder: "Enter Amount" },
+    ].map((field, i) => (
+      <div
+        key={i}
+        style={{
+          background: "#fff",
+          padding: "16px",
+          borderRadius: "14px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          border: "1px solid #fde68a",
+        }}
+      >
+        <label
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            fontWeight: "700",
+            color: "#92400e",
+          }}
+        >
+          {field.label}
+        </label>
+
+        <input
+          type={field.type}
+          placeholder={field.placeholder}
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "10px",
+            border: "1px solid #ccc",
+            background: "#f9fafb",
+            outline: "none",
+          }}
+        />
+      </div>
+    ))}
+  </div>
+
+  {/* Payment Modes */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(3,1fr)",
+      gap: "15px",
+      marginBottom: "20px",
+    }}
+  >
+    {["💵 Cash", "📲 UPI", "🏦 Bank"].map((mode, i) => (
+      <button
+        key={i}
+        style={{
+          padding: "14px",
+          borderRadius: "12px",
+          border: "none",
+          background: "#fef3c7",
+          fontWeight: "700",
+          cursor: "pointer",
+        }}
+      >
+        {mode}
+      </button>
+    ))}
+  </div>
+
+  {/* Payment Type */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(3,1fr)",
+      gap: "15px",
+      marginBottom: "20px",
+    }}
+  >
+    {["🧾 Partial Payment", "💳 Advance Payment", "✅ Full Settlement"].map((type, i) => (
+      <div
+        key={i}
+        style={{
+          background: "#fff7ed",
+          padding: "14px",
+          borderRadius: "12px",
+          textAlign: "center",
+          fontWeight: "700",
+          border: "1px solid #fdba74",
+        }}
+      >
+        {type}
+      </div>
+    ))}
+  </div>
+
+  {/* Settlement Tracking */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: "15px",
+      marginTop: "20px",
+    }}
+  >
+    {[
+      { label: "💰 Total Due", value: "₹ 0", bg: "#fef3c7" },
+      { label: "💳 Paid Amount", value: "₹ 0", bg: "#dcfce7" },
+      { label: "📌 Balance Pending", value: "₹ 0", bg: "#fee2e2" },
+    ].map((card, i) => (
+      <div
+        key={i}
+        style={{
+          background: card.bg,
+          padding: "16px",
+          borderRadius: "14px",
+          fontWeight: "800",
+          fontSize: "17px",
+          boxShadow: "0 6px 15px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div>{card.label}</div>
+        <div style={{ marginTop: "8px", fontSize: "20px" }}>
+          {card.value}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Save Button */}
+  <button
+    style={{
+      marginTop: "25px",
+      background: "#ca8a04",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    💾 Save Payment Record
+  </button>
+</div>
 </div>
 </div>
 </div>
