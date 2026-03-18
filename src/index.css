@@ -8,3 +8,103 @@ body {
   font-family: 'Inter', sans-serif;
   color: #1f2937;
 }
+/* index.css */
+
+/* ===== General Body ===== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+}
+
+/* ===== Inputs ===== */
+input {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s all;
+}
+
+input:focus {
+  border-color: #facc15;
+  box-shadow: 0 0 5px rgba(250, 204, 21, 0.5);
+}
+
+/* ===== Buttons ===== */
+button {
+  cursor: pointer;
+  transition: 0.2s all;
+  font-weight: bold;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* ===== Tables ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background-color: #f3f4f6;
+}
+
+/* ===== Supplier & Buyer Tables ===== */
+table input {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* ===== Week Graph ===== */
+.chartjs-render-monitor {
+  max-height: 300px;
+}
+
+/* ===== Tabs in Buyer Management ===== */
+.buyer-tabs button {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #000;
+  font-weight: bold;
+}
+
+.buyer-tabs button.active {
+  background-color: #0d9488;
+  color: #fff;
+  border: 2px solid #0d9488;
+}
+
+/* ===== Scrollable Tables ===== */
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* ===== Card Style ===== */
+.card {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .flex-wrap {
+    flex-wrap: wrap !important;
+  }
+}
