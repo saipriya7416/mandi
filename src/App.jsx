@@ -1203,20 +1203,68 @@ const weekOptions = {
   </h2>
 
   {/* Top Fields */}
-  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "15px" }}>
-    <input
-      placeholder="🔢 Invoice Number"
-      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
-    />
-    <input
-      type="date"
-      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
-    />
-    <input
-      placeholder="🏢 Buyer Name"
-      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
-    />
-  </div>
+  {/* Top Fields - Vertical Advanced Boxes */}
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "16px",
+    marginBottom: "25px",
+  }}
+>
+  {[
+    {
+      label: "🔢 Invoice Number",
+      placeholder: "Enter Invoice Number",
+      type: "text",
+    },
+    {
+      label: "📅 Date",
+      placeholder: "",
+      type: "date",
+    },
+    {
+      label: "🏢 Buyer Name",
+      placeholder: "Enter Buyer Name",
+      type: "text",
+    },
+  ].map((field, i) => (
+    <div
+      key={i}
+      style={{
+        background: "#ffffff",
+        padding: "16px",
+        borderRadius: "14px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        border: "1px solid #d1fae5",
+      }}
+    >
+      <label
+        style={{
+          display: "block",
+          marginBottom: "8px",
+          fontWeight: "700",
+          color: "#166534",
+        }}
+      >
+        {field.label}
+      </label>
+
+      <input
+        type={field.type}
+        placeholder={field.placeholder}
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "10px",
+          border: "1px solid #ccc",
+          background: "#f9fafb",
+          outline: "none",
+        }}
+      />
+    </div>
+  ))}
+</div>
 
   {/* Product Header */}
   <div
