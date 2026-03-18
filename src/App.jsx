@@ -807,40 +807,160 @@ const weekOptions = {
     </div>
 
     {/* Supplier Name */}
+   <div
+  style={{
+    marginTop: "28px",
+    background: "#ffffff",
+    padding: "24px",
+    borderRadius: "18px",
+    boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+  }}
+>
+  <h3
+    style={{
+      fontSize: "20px",
+      fontWeight: "700",
+      marginBottom: "20px",
+      color: "#111827",
+    }}
+  >
+    📦 Product Details
+  </h3>
+
+  {supplierBill.items.map((item, index) => (
     <div
+      key={index}
       style={{
-        background: "#fff",
-        padding: "18px",
-        borderRadius: "16px",
-        boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+        display: "grid",
+        gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
+        gap: "16px",
+        marginBottom: "16px",
+        alignItems: "center",
       }}
     >
-      <label style={{ fontWeight: "600", display: "block", marginBottom: "8px" }}>
-        Supplier Name
-      </label>
-      <input
-        type="text"
-        placeholder="Enter Supplier Name"
-        value={supplierBill.supplierName}
-        onChange={(e) =>
-          setSupplierBill({ ...supplierBill, supplierName: e.target.value })
-        }
+      {/* Product Name */}
+      <div>
+        <label style={{ fontWeight: "700", marginBottom: "6px", display: "block" }}>
+          🛒 Product Name
+        </label>
+        <input
+          type="text"
+          placeholder="Enter Product"
+          value={item.name}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "name", e.target.value)
+          }
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #93c5fd",
+            background: "#eff6ff",
+            width: "100%",
+          }}
+        />
+      </div>
+
+      {/* Quantity */}
+      <div>
+        <label style={{ fontWeight: "700", marginBottom: "6px", display: "block" }}>
+          📦 Qty
+        </label>
+        <input
+          type="number"
+          placeholder="Qty"
+          value={item.quantity}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "quantity", e.target.value)
+          }
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #86efac",
+            background: "#f0fdf4",
+            width: "100%",
+          }}
+        />
+      </div>
+
+      {/* Rate */}
+      <div>
+        <label style={{ fontWeight: "700", marginBottom: "6px", display: "block" }}>
+          💰 Rate
+        </label>
+        <input
+          type="number"
+          placeholder="Rate"
+          value={item.rate}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "rate", e.target.value)
+          }
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            border: "1px solid #fde68a",
+            background: "#fefce8",
+            width: "100%",
+          }}
+        />
+      </div>
+
+      {/* Amount */}
+      <div>
+        <label style={{ fontWeight: "700", marginBottom: "6px", display: "block" }}>
+          🧾 Amount
+        </label>
+        <div
+          style={{
+            padding: "12px",
+            borderRadius: "12px",
+            background: "#f3f4f6",
+            fontWeight: "700",
+            textAlign: "center",
+          }}
+        >
+          ₹{item.quantity * item.rate}
+        </div>
+      </div>
+
+      {/* Delete */}
+      <button
+        onClick={() => deleteSupplierBillItem(index)}
         style={{
-          width: "100%",
+          background: "#ef4444",
+          color: "white",
+          border: "none",
           padding: "12px",
           borderRadius: "12px",
-          border: "1px solid #d1d5db",
-          outline: "none",
-          fontSize: "14px",
+          cursor: "pointer",
+          marginTop: "28px",
         }}
-      />
+      >
+        ✖
+      </button>
     </div>
-  </div>
+  ))}
+
+  {/* Add Row */}
+  <button
+    onClick={addSupplierBillItem}
+    style={{
+      marginTop: "12px",
+      background: "#16a34a",
+      color: "white",
+      border: "none",
+      padding: "12px 18px",
+      borderRadius: "12px",
+      cursor: "pointer",
+      fontWeight: "700",
+    }}
+  >
+    ➕ Add Product Row
+  </button>
 </div>
         </div>
       </div>
     </div>
   );
 }
-
+}
 export default App; 
