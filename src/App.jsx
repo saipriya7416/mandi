@@ -717,61 +717,190 @@ const weekOptions = {
   </button>
 </div>
 {/* Supplier Bill Generation Section */}
-<div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "12px" }}>
-  <h2>🧾 Supplier Bill Generation</h2>
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#eef6ff)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #dbeafe",
+  }}
+>
+  <h2 style={{ color: "#1e3a8a", fontWeight: "800", marginBottom: "20px" }}>
+    🧾 Supplier Bill Generation
+  </h2>
 
-  <input
-    placeholder="Bill Number"
-    value={supplierBill.billNumber}
-    onChange={(e) =>
-      setSupplierBill({ ...supplierBill, billNumber: e.target.value })
-    }
-  />
+  {/* Top Fields */}
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "15px" }}>
+    <input
+      placeholder="🔢 Bill Number"
+      value={supplierBill.billNumber}
+      onChange={(e) =>
+        setSupplierBill({ ...supplierBill, billNumber: e.target.value })
+      }
+      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
+    />
 
-  <input
-    type="date"
-    value={supplierBill.date}
-    onChange={(e) =>
-      setSupplierBill({ ...supplierBill, date: e.target.value })
-    }
-  />
+    <input
+      type="date"
+      value={supplierBill.date}
+      onChange={(e) =>
+        setSupplierBill({ ...supplierBill, date: e.target.value })
+      }
+      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
+    />
 
-  <input
-    placeholder="Supplier Name"
-    value={supplierBill.supplierName}
-    onChange={(e) =>
-      setSupplierBill({ ...supplierBill, supplierName: e.target.value })
-    }
-  />
-
-  {supplierBill.items.map((item, index) => (
-    <div key={index} style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-      <input
-        value={item.name}
-        onChange={(e) => updateSupplierBillItem(index, "name", e.target.value)}
-      />
-      <input
-        type="number"
-        value={item.quantity}
-        onChange={(e) => updateSupplierBillItem(index, "quantity", e.target.value)}
-      />
-      <input
-        type="number"
-        value={item.rate}
-        onChange={(e) => updateSupplierBillItem(index, "rate", e.target.value)}
-      />
-      <button onClick={() => deleteSupplierBillItem(index)}>❌</button>
-    </div>
-  ))}
-
-  <button onClick={addSupplierBillItem}>➕ Add Product</button>
-
-  <div style={{ marginTop: "20px", fontWeight: "bold" }}>
-    Gross Sale ₹ {grossSale}
+    <input
+      placeholder="🏢 Supplier Name"
+      value={supplierBill.supplierName}
+      onChange={(e) =>
+        setSupplierBill({ ...supplierBill, supplierName: e.target.value })
+      }
+      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
+    />
   </div>
 
-  <div style={{ marginTop: "10px", fontWeight: "bold" }}>
-    Total Expenses ₹ {totalExpense}
+  {/* Product Rows */}
+  <div style={{ marginTop: "25px" }}>
+    {supplierBill.items.map((item, index) => (
+      <div
+        key={index}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
+          gap: "10px",
+          marginBottom: "12px",
+        }}
+      >
+        <input
+          placeholder="📦 Product"
+          value={item.name}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "name", e.target.value)
+          }
+          style={{ padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
+        />
+
+        <input
+          type="number"
+          placeholder="Qty"
+          value={item.quantity}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "quantity", e.target.value)
+          }
+          style={{ padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
+        />
+
+        <input
+          type="number"
+          placeholder="Rate"
+          value={item.rate}
+          onChange={(e) =>
+            updateSupplierBillItem(index, "rate", e.target.value)
+          }
+          style={{ padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
+        />
+
+        <div
+          style={{
+            padding: "10px",
+            background: "#f3f4f6",
+            borderRadius: "8px",
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          ₹{item.quantity * item.rate}
+        </div>
+
+        <button
+          onClick={() => deleteSupplierBillItem(index)}
+          style={{
+            background: "#ef4444",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            padding: "8px 12px",
+          }}
+        >
+          ❌
+        </button>
+      </div>
+    ))}
+
+    <button
+      onClick={addSupplierBillItem}
+      style={{
+        background: "#16a34a",
+        color: "white",
+        padding: "10px 16px",
+        borderRadius: "10px",
+        border: "none",
+        fontWeight: "bold",
+      }}
+    >
+      ➕ Add Product
+    </button>
+  </div>
+
+  {/* Expense Section */}
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "12px", marginTop: "25px" }}>
+    {["freight", "marketing", "labour", "packing", "misc"].map((key) => (
+      <input
+        key={key}
+        type="number"
+        placeholder={key}
+        value={supplierBill.expenses[key]}
+        onChange={(e) =>
+          setSupplierBill({
+            ...supplierBill,
+            expenses: {
+              ...supplierBill.expenses,
+              [key]: Number(e.target.value),
+            },
+          })
+        }
+        style={{ padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }}
+      />
+    ))}
+  </div>
+
+  {/* Advance Payment */}
+  <div style={{ marginTop: "20px" }}>
+    <input
+      type="number"
+      placeholder="💳 Advance Payment"
+      value={supplierBill.advancePayment}
+      onChange={(e) =>
+        setSupplierBill({
+          ...supplierBill,
+          advancePayment: Number(e.target.value),
+        })
+      }
+      style={{
+        padding: "12px",
+        width: "250px",
+        borderRadius: "10px",
+        border: "1px solid #ccc",
+      }}
+    />
+  </div>
+
+  {/* Summary Cards */}
+  <div style={{ display: "flex", gap: "15px", marginTop: "25px", flexWrap: "wrap" }}>
+    <div style={{ background: "#fef3c7", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
+      💰 Gross Sale ₹ {grossSale}
+    </div>
+    <div style={{ background: "#fee2e2", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
+      💸 Expenses ₹ {totalExpense}
+    </div>
+    <div style={{ background: "#dcfce7", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
+      📈 Net ₹ {netSale}
+    </div>
+    <div style={{ background: "#dbeafe", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
+      🧮 Balance ₹ {balancePayable}
+    </div>
   </div>
 </div>
 
