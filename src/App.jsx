@@ -1187,6 +1187,188 @@ const weekOptions = {
   >
     Total Expenses ₹ {totalExpense}
   </div>
+  {/* Buyer Invoice Generation */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "linear-gradient(135deg,#ffffff,#f0fdf4)",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #bbf7d0",
+  }}
+>
+  <h2 style={{ color: "#166534", fontWeight: "800", marginBottom: "20px" }}>
+    🧾 Buyer Invoice Generation
+  </h2>
+
+  {/* Top Fields */}
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "15px" }}>
+    <input
+      placeholder="🔢 Invoice Number"
+      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
+    />
+    <input
+      type="date"
+      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
+    />
+    <input
+      placeholder="🏢 Buyer Name"
+      style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
+    />
+  </div>
+
+  {/* Product Header */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
+      gap: "12px",
+      marginTop: "25px",
+      marginBottom: "10px",
+    }}
+  >
+    {["📦 Product", "Qty", "₹ Rate", "💰 Amount", "❌"].map((head, i) => (
+      <div
+        key={i}
+        style={{
+          background: "#dcfce7",
+          padding: "10px",
+          borderRadius: "10px",
+          textAlign: "center",
+          fontWeight: "700",
+        }}
+      >
+        {head}
+      </div>
+    ))}
+  </div>
+
+  {/* Product Rows */}
+  {[1].map((_, index) => (
+    <div
+      key={index}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
+        gap: "12px",
+        marginBottom: "12px",
+      }}
+    >
+      <input placeholder="Product" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }} />
+      <input type="number" placeholder="Qty" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }} />
+      <input type="number" placeholder="Rate" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #ccc" }} />
+      <div style={{ padding: "10px", background: "#f3f4f6", borderRadius: "8px", textAlign: "center" }}>₹0</div>
+      <button style={{ background: "#ef4444", color: "white", border: "none", borderRadius: "8px" }}>❌</button>
+    </div>
+  ))}
+
+  <button
+    style={{
+      background: "#16a34a",
+      color: "white",
+      padding: "10px 16px",
+      borderRadius: "10px",
+      border: "none",
+      fontWeight: "bold",
+    }}
+  >
+    ➕ Add Product
+  </button>
+
+  {/* Additional Charges */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(3,1fr)",
+      gap: "15px",
+      marginTop: "25px",
+    }}
+  >
+    {["Commission", "Transport", "Handling"].map((charge, i) => (
+      <input
+        key={i}
+        placeholder={charge}
+        type="number"
+        style={{
+          padding: "12px",
+          borderRadius: "10px",
+          border: "1px solid #ccc",
+        }}
+      />
+    ))}
+  </div>
+
+  {/* Totals */}
+  <div style={{ display: "flex", gap: "15px", marginTop: "25px", flexWrap: "wrap" }}>
+    <div style={{ background: "#fef3c7", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
+      💰 Gross Total ₹ 0
+    </div>
+    <div style={{ background: "#fee2e2", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
+      💸 Charges ₹ 0
+    </div>
+    <div style={{ background: "#dcfce7", padding: "12px", borderRadius: "10px", fontWeight: "bold" }}>
+      📈 Net Total ₹ 0
+    </div>
+  </div>
+
+  {/* PDF Button */}
+  <button
+    style={{
+      marginTop: "20px",
+      background: "#2563eb",
+      color: "white",
+      padding: "12px 18px",
+      borderRadius: "10px",
+      border: "none",
+      fontWeight: "700",
+    }}
+  >
+    🖨 Generate Invoice PDF
+  </button>
+</div>
+
+{/* Supplier Ledger */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "#fff",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+  }}
+>
+  <h2 style={{ fontWeight: "800", marginBottom: "20px" }}>📘 Supplier Ledger</h2>
+
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: "10px" }}>
+    {["Date", "Bill No", "Quantity", "Amount", "Advance", "Balance"].map((h, i) => (
+      <div key={i} style={{ fontWeight: "700", background: "#e0f2fe", padding: "10px", borderRadius: "8px" }}>
+        {h}
+      </div>
+    ))}
+  </div>
+</div>
+
+{/* Buyer Ledger */}
+<div
+  style={{
+    marginTop: "30px",
+    background: "#fff",
+    padding: "25px",
+    borderRadius: "18px",
+    boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+  }}
+>
+  <h2 style={{ fontWeight: "800", marginBottom: "20px" }}>📗 Buyer Ledger</h2>
+
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "10px" }}>
+    {["Date", "Invoice No", "Purchase Amount", "Payments", "Outstanding"].map((h, i) => (
+      <div key={i} style={{ fontWeight: "700", background: "#dcfce7", padding: "10px", borderRadius: "8px" }}>
+        {h}
+      </div>
+    ))}
+  </div>
+</div>
 </div>
 </div>
 </div> 
