@@ -836,6 +836,28 @@ const weekOptions = {
       📦 Product Details
     </h3>
 
+  {/* Header Row */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr 1fr 1fr auto",
+      gap: "14px",
+      marginBottom: "14px",
+      padding: "10px",
+      background: "#dbeafe",
+      borderRadius: "12px",
+      fontWeight: "700",
+      color: "#1e3a8a",
+      textAlign: "center",
+    }}
+  >
+    <div>🛒 Product Name</div>
+    <div>📦 Quantity</div>
+    <div>💰 Rate</div>
+    <div>🧾 Amount</div>
+    <div>❌</div>
+  </div>
+
     {supplierBill.items.map((item, index) => (
       <div
         key={index}
