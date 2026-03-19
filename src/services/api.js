@@ -1,14 +1,19 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "http://127.0.0.1:5000/api";
 
 export const MandiService = {
   // --- 4. SUPPLIERS ---
   addSupplier: async (data) => {
-    const res = await fetch(`${API_BASE}/supplier`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${API_BASE}/supplier`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    } catch (e) {
+      alert("❌ API CONNECTION ERROR: Is the Backend Running?");
+      return { status: "ERROR" };
+    }
   },
   getSuppliers: async () => {
     const res = await fetch(`${API_BASE}/suppliers`);
@@ -17,12 +22,17 @@ export const MandiService = {
 
   // --- 5. BUYERS ---
   addBuyer: async (data) => {
-    const res = await fetch(`${API_BASE}/buyer`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${API_BASE}/buyer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    } catch (e) {
+      alert("❌ API Error: Frontend could not reach Backend.");
+      return { status: "ERROR" };
+    }
   },
   getBuyers: async () => {
     const res = await fetch(`${API_BASE}/buyers`);
@@ -31,12 +41,17 @@ export const MandiService = {
 
   // --- 6. INVENTORY INTAKE ---
   createLot: async (data) => {
-    const res = await fetch(`${API_BASE}/lot/intake`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${API_BASE}/lot/intake`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    } catch (e) {
+      alert("❌ Inventory Intake Failed: Backend unreachable.");
+      return { status: "ERROR" };
+    }
   },
   getLots: async () => {
     const res = await fetch(`${API_BASE}/lots`);
