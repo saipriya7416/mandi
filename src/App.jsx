@@ -96,6 +96,11 @@ export default function App() {
   const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
   const [intakeForm, setIntakeForm] = useState({ supplierId: "", product: "", variety: "", quantity: "", unit: "KG", rate: "" });
 
+  // --- DATA STORAGE STATES ---
+  const [suppliers, setSuppliers] = useState([]);
+  const [buyers, setBuyers] = useState([]);
+  const [lots, setLots] = useState([]);
+
   // --- DATA SYNC WITH BACKEND ---
   const fetchData = async () => {
     try {
@@ -305,14 +310,15 @@ export default function App() {
                 <table style={{ width: "100%", marginTop: "40px", borderCollapse: "collapse" }}>
                   <thead><tr style={{ background: "#f8fafc", textAlign: "left" }}><th>Name</th><th>Verification</th><th>Balance</th><th>Actions</th></tr></thead>
                   <tbody>
-                    {[1, 2].map(i => (
-                      <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "20px 0" }}><b>{i === 1 ? "Ramesh Goud" : "Anil Kumar"}</b><br /><small>{i === 1 ? "Nellore" : "Guntur"}</small></td>
+                    {suppliers.map(s => (
+                      <tr key={s._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "20px 0" }}><b>{s.name}</b><br /><small>{s.address}</small></td>
                         <td><span style={{ padding: "4px 10px", background: "#dcfce7", color: "#166534", borderRadius: "20px", fontSize: "12px", fontWeight: "800" }}>AUTHENTICATED</span></td>
-                        <td style={{ fontWeight: "900", color: COLORS.danger }}>₹ 1,24,000</td>
+                        <td style={{ fontWeight: "900", color: COLORS.danger }}>₹ {s.balance || 0}</td>
                         <td><Button variant="secondary" style={{ padding: "6px 14px" }}>📜 History</Button></td>
                       </tr>
                     ))}
+                    {suppliers.length === 0 && <tr><td colSpan="4" style={{ padding: "40px", textAlign: "center", color: COLORS.muted }}>No suppliers found. Add one above!</td></tr>}
                   </tbody>
                 </table>
               </Card>
@@ -332,18 +338,19 @@ export default function App() {
                 <Button onClick={handleOnboardBuyer} style={{ background: COLORS.success }}>💾 Save Buyer to Database</Button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-                {[1, 2].map(i => (
-                  <div key={i} style={{ padding: "24px", background: "#f8fafc", borderRadius: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #e2e8f0" }}>
+                {buyers.map(b => (
+                  <div key={b._id} style={{ padding: "24px", background: "#f8fafc", borderRadius: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #e2e8f0" }}>
                     <div>
-                      <b style={{ fontSize: "18px" }}>{i === 1 ? "Suri Traders" : "Mandi Wholesale"}</b>
-                      <p style={{ margin: 0, color: COLORS.muted }}>Balance: <b style={{ color: COLORS.danger }}>{formatCurrency(i * 45000)}</b></p>
+                      <b style={{ fontSize: "18px" }}>{b.shopName || b.name}</b>
+                      <p style={{ margin: 0, color: COLORS.muted }}>Balance: <b style={{ color: COLORS.danger }}>{formatCurrency(b.outstanding)}</b></p>
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
-                      <Button variant="secondary" style={{ padding: "8px 14px", fontSize: "12px" }}>Purchase History</Button>
+                      <Button variant="secondary" style={{ padding: "8px 14px", fontSize: "12px" }}>History</Button>
                       <Button variant="secondary" style={{ padding: "8px 14px", fontSize: "12px" }}>Ledger</Button>
                     </div>
                   </div>
                 ))}
+                {buyers.length === 0 && <p style={{ color: COLORS.muted }}>No buyers onboarded.</p>}
               </div>
             </Card>
           )}
@@ -386,16 +393,17 @@ export default function App() {
                 <Button onClick={handleCreateLot} style={{ width: "100%" }}>Create Inventory Records</Button>
               </Card>
               <Card title="📦 Live Stock Intake" subtitle="Unallocated inventory awaiting buyer link">
-                {[1, 2, 3].map(i => (
-                  <div key={i} style={{ padding: "20px", background: "#f8fafc", borderRadius: "16px", marginBottom: "16px", border: "1.5px solid #e2e8f0" }}>
+                {lots.map(lot => (
+                  <div key={lot._id} style={{ padding: "20px", background: "#f8fafc", borderRadius: "16px", marginBottom: "16px", border: "1.5px solid #e2e8f0" }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <b>LOT-992{i} / 🥭 Mango</b>
-                      <span style={{ fontSize: "12px", background: COLORS.primary, padding: "2px 8px", borderRadius: "8px", fontWeight: "800" }}>IN STOCK</span>
+                      <b>{lot.lotId} / {lot.product}</b>
+                      <span style={{ fontSize: "12px", background: COLORS.primary, padding: "2px 8px", borderRadius: "8px", fontWeight: "800" }}>{lot.remaining > 0 ? "IN STOCK" : "SOLD"}</span>
                     </div>
-                    <p style={{ margin: "10px 0", fontSize: "14px" }}>Source: <b>Bhargav Mandi</b> | ⚖️ 1,250 KG</p>
+                    <p style={{ margin: "10px 0", fontSize: "14px" }}>Source: <b>{lot.supplier?.name}</b> | ⚖️ {lot.remaining} {lot.unit}</p>
                     <Button variant="secondary" style={{ padding: "6px 12px", fontSize: "12px" }}>Link to Buyer</Button>
                   </div>
                 ))}
+                {lots.length === 0 && <p style={{ color: COLORS.muted }}>No inventory lots recorded.</p>}
               </Card>
             </div>
           )}
