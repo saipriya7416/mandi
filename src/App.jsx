@@ -90,6 +90,20 @@ const formatCurrency = (v) => "₹" + (Number(v) || 0).toLocaleString("en-IN");
 export default function App() {
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authForm, setAuthForm] = useState({ username: "", password: "" });
+  const [loading, setLoading] = useState(true);
+
+  // --- INITIALIZE SESSION ---
+  useEffect(() => {
+    const savedToken = localStorage.getItem("mandi_token");
+    const savedUser = localStorage.getItem("mandi_user");
+    if (savedToken && savedUser) {
+      setLoggedIn(true);
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
+  }, []);
 
   // --- FORM STATES ---
   const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
@@ -120,6 +134,24 @@ export default function App() {
   useEffect(() => {
     if (loggedIn) fetchData();
   }, [loggedIn, activeSection]);
+
+  const handleLogin = async () => {
+    if (!authForm.username || !authForm.password) return alert("⚠️ Identity and Lock are required");
+    const res = await MandiService.login(authForm.username, authForm.password);
+    if (res.status === "SUCCESS") {
+      setLoggedIn(true);
+      setUser(res.data.user);
+    } else {
+      alert(`❌ LOGIN FAILED: ${res.message || "Invalid Credentials"}`);
+    }
+  };
+
+  const handleLogout = () => {
+    MandiService.logout();
+    setLoggedIn(false);
+    setUser(null);
+    setActiveSection("Dashboard");
+  };
 
   // --- FORM HANDLERS (BACKEND SYNC) ---
   const handleRegisterSupplier = async () => {
@@ -159,24 +191,28 @@ export default function App() {
     }
   };
 
-  // --- MENU CONFIG ---
-  const MENU = [
-    { id: "Dashboard", icon: "📊" },
-    { id: "User Roles", icon: "👥" },
-    { id: "Supplier Management", icon: "🏢" },
-    { id: "Buyer Management", icon: "💎" },
-    { id: "Inventory Intake", icon: "📥" },
-    { id: "Inventory Allocation", icon: "📤" },
-    { id: "Supplier Bill", icon: "🧾" },
-    { id: "Buyer Invoice", icon: "📑" },
-    { id: "Ledger System", icon: "📖" },
-    { id: "Payment Management", icon: "💳" },
-    { id: "Expense Management", icon: "💸" },
-    { id: "Verification & Compliance", icon: "🛡" },
-    { id: "Reports", icon: "📄" },
-    { id: "Search & Filters", icon: "🔍" },
-    { id: "Document Management", icon: "📂" }
+  // --- MENU CONFIG with RBAC ---
+  const ALL_MENU = [
+    { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "User Roles", icon: "👥", roles: ["Admin"] },
+    { id: "Supplier Management", icon: "🏢", roles: ["Admin", "Operations Staff"] },
+    { id: "Buyer Management", icon: "💎", roles: ["Admin", "Operations Staff"] },
+    { id: "Inventory Intake", icon: "📥", roles: ["Admin", "Operations Staff"] },
+    { id: "Inventory Allocation", icon: "📤", roles: ["Admin", "Operations Staff"] },
+    { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
+    { id: "Buyer Invoice", icon: "📑", roles: ["Admin", "Accountant"] },
+    { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant"] },
+    { id: "Payment Management", icon: "💳", roles: ["Admin", "Accountant"] },
+    { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "Verification & Compliance", icon: "🛡", roles: ["Admin"] },
+    { id: "Reports", icon: "📄", roles: ["Admin", "Accountant"] },
+    { id: "Search & Filters", icon: "🔍", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "Document Management", icon: "📂", roles: ["Admin"] }
   ];
+
+  const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
+
+  if (loading) return <div style={{ height: "100vh", background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", color: "#fff" }}><h1>⚡ Syncing Matrix...</h1></div>;
 
   if (!loggedIn) {
     return (
@@ -185,9 +221,21 @@ export default function App() {
           <span style={{ fontSize: "64px" }}>🥭</span>
           <h1 style={{ margin: "20px 0 10px", fontWeight: "900", color: "#0f172a" }}>Mandi ERP</h1>
           <p style={{ color: "#64748b", marginBottom: "40px" }}>Enterprise Logistics Portal</p>
-          <Input placeholder="Staff Identity" />
-          <Input type="password" placeholder="Access Lock" />
-          <Button onClick={() => setLoggedIn(true)} style={{ width: "100%", height: "56px", fontSize: "16px" }}>Initialize System</Button>
+          <Input 
+            placeholder="Staff Identity" 
+            value={authForm.username} 
+            onChange={(e) => setAuthForm({ ...authForm, username: e.target.value })} 
+          />
+          <Input 
+            type="password" 
+            placeholder="Access Lock" 
+            value={authForm.password} 
+            onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })} 
+          />
+          <Button onClick={handleLogin} style={{ width: "100%", height: "56px", fontSize: "16px" }}>Initialize System</Button>
+          <div style={{ marginTop: "20px", fontSize: "12px", color: "#94a3b8" }}>
+            v4.1.0 Secured by JWT & RBAC
+          </div>
         </Card>
       </div>
     );
@@ -199,11 +247,12 @@ export default function App() {
       {/* Sidebar Overlay */}
       <div style={{ width: "340px", background: COLORS.secondary, color: "#fff", display: "flex", flexDirection: "column", boxShadow: "10px 0 40px rgba(0,0,0,0.2)" }}>
         <div style={{ padding: "48px 32px" }}>
-          <h2 style={{ color: COLORS.primary, fontWeight: "900", fontSize: "28px", letterSpacing: "-1px" }}>SPV OPERATOR</h2>
+          <h2 style={{ color: COLORS.primary, fontWeight: "900", fontSize: "28px", letterSpacing: "-1px" }}>{user?.username?.toUpperCase() || "STAFF"}</h2>
           <div style={{ height: "4px", width: "40px", background: COLORS.primary, marginTop: "12px", borderRadius: "10px" }}></div>
+          <p style={{ color: "#94a3b8", fontSize: "14px", marginTop: "12px", fontWeight: "700" }}>{user?.role}</p>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 40px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 20px" }}>
           {MENU.map(item => (
             <div
               key={item.id}
@@ -220,6 +269,12 @@ export default function App() {
               <span style={{ fontWeight: activeSection === item.id ? "900" : "600", fontSize: "15px" }}>{item.id}</span>
             </div>
           ))}
+        </div>
+
+        <div style={{ padding: "20px 16px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <Button variant="danger" onClick={handleLogout} style={{ width: "100%", borderRadius: "16px", opacity: 0.8 }}>
+            🚪 Secure Logoff
+          </Button>
         </div>
       </div>
 
