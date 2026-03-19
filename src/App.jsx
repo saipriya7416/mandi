@@ -93,6 +93,8 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [authForm, setAuthForm] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
   // --- INITIALIZE SESSION ---
   useEffect(() => {
@@ -104,11 +106,6 @@ export default function App() {
     }
     setLoading(false);
   }, []);
-
-  const [activeSection, setActiveSection] = useState("Dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024); // Responsive Initial State
-  const [authForm, setAuthForm] = useState({ username: "", password: "" });
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
   // --- RESPONSIVE STATE MONITOR ---
   useEffect(() => {
