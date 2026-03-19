@@ -1,0 +1,65 @@
+const API_BASE = "http://localhost:5000/api";
+
+export const MandiService = {
+  // --- 4. SUPPLIERS ---
+  addSupplier: async (data) => {
+    const res = await fetch(`${API_BASE}/supplier`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  getSuppliers: async () => {
+    const res = await fetch(`${API_BASE}/suppliers`);
+    return res.json();
+  },
+
+  // --- 5. BUYERS ---
+  addBuyer: async (data) => {
+    const res = await fetch(`${API_BASE}/buyer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  getBuyers: async () => {
+    const res = await fetch(`${API_BASE}/buyers`);
+    return res.json();
+  },
+
+  // --- 6. INVENTORY INTAKE ---
+  createLot: async (data) => {
+    const res = await fetch(`${API_BASE}/lot/intake`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  getLots: async () => {
+    const res = await fetch(`${API_BASE}/lots`);
+    return res.json();
+  },
+
+  // --- 7. ALLOCATION ---
+  allocateLot: async (data) => {
+    const res = await fetch(`${API_BASE}/lot/allocate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // --- 8. FINANCIALS ---
+  generateBill: async (data) => {
+    const res = await fetch(`${API_BASE}/bill/supplier`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+};

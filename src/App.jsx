@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
+import { MandiService } from "./services/api";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -90,18 +91,77 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [loggedIn, setLoggedIn] = useState(false);
 
+  // --- FORM STATES ---
+  const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+  const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+  const [intakeForm, setIntakeForm] = useState({ supplierId: "", product: "", variety: "", quantity: "", unit: "KG", rate: "" });
+
+  // --- DATA SYNC WITH BACKEND ---
+  const fetchData = async () => {
+    try {
+      const sRes = await MandiService.getSuppliers();
+      if (sRes.status === "SUCCESS") setSuppliers(sRes.data);
+      
+      const bRes = await MandiService.getBuyers();
+      if (bRes.status === "SUCCESS") setBuyers(bRes.data);
+      
+      const lRes = await MandiService.getLots();
+      if (lRes.status === "SUCCESS") setLots(lRes.data);
+    } catch (err) {
+      console.error("API Connectivity Error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (loggedIn) fetchData();
+  }, [loggedIn, activeSection]);
+
+  // --- FORM HANDLERS (BACKEND SYNC) ---
+  const handleRegisterSupplier = async () => {
+    if (!supplierForm.name || !supplierForm.phone) return alert("⚠️ Name and Phone are required");
+    const res = await MandiService.addSupplier(supplierForm);
+    if (res.status === "SUCCESS") {
+      alert("💾 SUCCESS: Supplier saved to MongoDB!");
+      setSupplierForm({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+      fetchData();
+    }
+  };
+
+  const handleOnboardBuyer = async () => {
+    if (!buyerForm.name || !buyerForm.phone) return alert("⚠️ Name and Phone are required");
+    const res = await MandiService.addBuyer(buyerForm);
+    if (res.status === "SUCCESS") {
+      alert("💾 SUCCESS: Buyer details saved to MongoDB!");
+      setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+      fetchData();
+    }
+  };
+
+  const handleCreateLot = async () => {
+    if (!intakeForm.product || !intakeForm.quantity) return alert("⚠️ Product and Qty are required");
+    const res = await MandiService.createLot({
+       ...intakeForm,
+       supplier: intakeForm.supplierId || (suppliers[0]?._id) // Fallback to first if empty
+    });
+    if (res.status === "SUCCESS") {
+      alert("💾 SUCCESS: Inventory Lot recorded in Database!");
+      setIntakeForm({ supplierId: "", product: "", variety: "", quantity: "", unit: "KG", rate: "" });
+      fetchData();
+    }
+  };
+
   // --- MENU CONFIG ---
   const MENU = [
     { id: "Dashboard", icon: "📊" },
     { id: "User Roles", icon: "👥" },
     { id: "Supplier Management", icon: "🏢" },
-    { id: "Buyer Management", icon: "🛒" },
+    { id: "Buyer Management", icon: "💎" },
     { id: "Inventory Intake", icon: "📥" },
     { id: "Inventory Allocation", icon: "📤" },
     { id: "Supplier Bill", icon: "🧾" },
     { id: "Buyer Invoice", icon: "📑" },
     { id: "Ledger System", icon: "📖" },
-    { id: "Payment Management", icon: "💰" },
+    { id: "Payment Management", icon: "💳" },
     { id: "Expense Management", icon: "💸" },
     { id: "Verification & Compliance", icon: "🛡" },
     { id: "Reports", icon: "📄" },
@@ -221,18 +281,22 @@ export default function App() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: "32px" }}>
               <Card title="Supplier Directory" subtitle="Manage high-volume marketplace suppliers">
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "32px" }}>
-                  <Input label="Supplier Name" placeholder="Full Identity" />
-                  <Input label="Phone Number" placeholder="+91 xxxx..." />
-                  <Input label="Village / Address" placeholder="Source Origin" />
-                  <Input label="Government ID" placeholder="Gov ID Number" />
-                  <select style={{ height: "54px", background: "#f8fafc", borderRadius: "14px", border: "2.5px solid #f1f5f9", padding: "0 14px", fontWeight: "700" }}>
+                  <Input label="Supplier Name" placeholder="Full Identity" value={supplierForm.name} onChange={(e) => setSupplierForm({...supplierForm, name: e.target.value})} />
+                  <Input label="Phone Number" placeholder="+91 xxxx..." value={supplierForm.phone} onChange={(e) => setSupplierForm({...supplierForm, phone: e.target.value})} />
+                  <Input label="Village / Address" placeholder="Source Origin" value={supplierForm.address} onChange={(e) => setSupplierForm({...supplierForm, address: e.target.value})} />
+                  <Input label="Government ID" placeholder="Gov ID Number" value={supplierForm.govIdNumber} onChange={(e) => setSupplierForm({...supplierForm, govIdNumber: e.target.value})} />
+                  <select 
+                    style={{ height: "54px", background: "#f8fafc", borderRadius: "14px", border: "2.5px solid #f1f5f9", padding: "0 14px", fontWeight: "700" }}
+                    value={supplierForm.idType}
+                    onChange={(e) => setSupplierForm({...supplierForm, idType: e.target.value})}
+                  >
                     <option>Aadhaar</option><option>PAN Card</option><option>Voter ID</option>
                   </select>
-                  <Input label="Bank Details" placeholder="IFSC / ACC #" />
+                  <Input label="Bank Details" placeholder="IFSC / ACC #" value={supplierForm.bankDetails} onChange={(e) => setSupplierForm({...supplierForm, bankDetails: e.target.value})} />
                 </div>
-                <Input label="Admin Notes" placeholder="Trust level, quality history..." />
+                <Input label="Admin Notes" placeholder="Trust level, quality history..." value={supplierForm.notes} onChange={(e) => setSupplierForm({...supplierForm, notes: e.target.value})} />
                 <div style={{ display: "flex", gap: "12px" }}>
-                  <Button>➕ Register Supplier</Button>
+                  <Button onClick={handleRegisterSupplier} style={{ background: COLORS.success }}>💾 Save Supplier to Database</Button>
                 </div>
                 <table style={{ width: "100%", marginTop: "40px", borderCollapse: "collapse" }}>
                   <thead><tr style={{ background: "#f8fafc", textAlign: "left" }}><th>Name</th><th>Verification</th><th>Balance</th><th>Actions</th></tr></thead>
@@ -255,13 +319,13 @@ export default function App() {
           {activeSection === "Buyer Management" && (
             <Card title="Buyer Ecosystem" subtitle="Customer profiles and credit tracking">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
-                <Input label="Buyer Name" placeholder="Full Name" />
-                <Input label="Shop Name" placeholder="Business Entity" />
-                <Input label="Phone" placeholder="Mobile" />
-                <Input label="Credit Limit" placeholder="Max Debt" />
+                <Input label="Buyer Name" placeholder="Full Name" value={buyerForm.name} onChange={(e) => setBuyerForm({...buyerForm, name: e.target.value})} />
+                <Input label="Shop Name" placeholder="Business Entity" value={buyerForm.shopName} onChange={(e) => setBuyerForm({...buyerForm, shopName: e.target.value})} />
+                <Input label="Phone" placeholder="Mobile" value={buyerForm.phone} onChange={(e) => setBuyerForm({...buyerForm, phone: e.target.value})} />
+                <Input label="Credit Limit" placeholder="Max Debt" value={buyerForm.creditLimit} onChange={(e) => setBuyerForm({...buyerForm, creditLimit: e.target.value})} />
               </div>
               <div style={{ display: "flex", gap: "12px", marginBottom: "40px" }}>
-                <Button>➕ Onboard New Buyer</Button>
+                <Button onClick={handleOnboardBuyer} style={{ background: COLORS.success }}>💾 Save Buyer to Database</Button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
                 {[1, 2].map(i => (
@@ -285,23 +349,37 @@ export default function App() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "32px" }}>
               <Card title="📥 Intake Form">
                 <Input label="📅 Entry Date" type="date" value={new Date().toISOString().slice(0, 10)} />
-                <Input label="🏢 Supplier Select" placeholder="Search registered mapping..." />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                  <Input label="📦 Product" placeholder="Mango / Apple" />
-                  <Input label="🏷 Grade" placeholder="A+ / Export" />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                  <Input label="⚖️ Quantity" placeholder="e.g. 50" />
-                  <select style={{ height: "54px", width: "100%", background: "#f8fafc", borderRadius: "14px", border: "2.5px solid #f1f5f9", padding: "0 14px", fontWeight: "700" }}>
-                    <option>KG</option><option>Metric Ton</option><option>Boxes</option>
-                  </select>
-                </div>
-                <Input label="💰 Rate (Unit)" placeholder="Optional Market Rate" />
+                 <div style={{ marginBottom: "16px" }}>
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "800", color: COLORS.secondary, fontSize: "14px" }}>🏢 Select Supplier</label>
+                    <select 
+                      style={{ height: "54px", width: "100%", background: "#f8fafc", borderRadius: "14px", border: "2.5px solid #f1f5f9", padding: "0 14px", fontWeight: "700" }}
+                      value={intakeForm.supplierId}
+                      onChange={(e) => setIntakeForm({...intakeForm, supplierId: e.target.value})}
+                    >
+                      <option value="">-- Choose Registered Supplier --</option>
+                      {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} ({s.address})</option>)}
+                    </select>
+                 </div>
+                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                   <Input label="📦 Product" placeholder="Mango / Apple" value={intakeForm.product} onChange={(e) => setIntakeForm({...intakeForm, product: e.target.value})} />
+                   <Input label="🏷 Grade" placeholder="A+ / Export" value={intakeForm.variety} onChange={(e) => setIntakeForm({...intakeForm, variety: e.target.value})} />
+                 </div>
+                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                   <Input label="⚖️ Quantity" placeholder="e.g. 50" value={intakeForm.quantity} onChange={(e) => setIntakeForm({...intakeForm, quantity: e.target.value})} />
+                   <select 
+                      style={{ height: "54px", width: "100%", background: "#f8fafc", borderRadius: "14px", border: "2.5px solid #f1f5f9", padding: "0 14px", fontWeight: "700" }}
+                      value={intakeForm.unit}
+                      onChange={(e) => setIntakeForm({...intakeForm, unit: e.target.value})}
+                    >
+                      <option>KG</option><option>Metric Ton</option><option>Boxes</option>
+                    </select>
+                 </div>
+                 <Input label="💰 Rate (Unit)" placeholder="Optional Market Rate" value={intakeForm.rate} onChange={(e) => setIntakeForm({...intakeForm, rate: e.target.value})} />
                 <p style={{ color: COLORS.muted, fontSize: "12px" }}>Lot ID: <b style={{ color: COLORS.accent }}>LOT-{Date.now().toString().slice(-4)}</b> (Auto-Generated)</p>
                 <div style={{ padding: "20px", border: "2px dashed #e2e8f0", borderRadius: "16px", textAlign: "center", cursor: "pointer", marginBottom: "20px" }}>
                   📷 Drop Produce or Bill Photos
                 </div>
-                <Button style={{ width: "100%" }}>Create Inventory Records</Button>
+                <Button onClick={handleCreateLot} style={{ width: "100%" }}>Create Inventory Records</Button>
               </Card>
               <Card title="📦 Live Stock Intake" subtitle="Unallocated inventory awaiting buyer link">
                 {[1, 2, 3].map(i => (
@@ -336,7 +414,7 @@ export default function App() {
                     <Input label="Target Buyer" placeholder="Search buyer..." />
                     <Input label="Qty to Allocate" placeholder="0" />
                     <Input label="Agreed Rate" placeholder="₹" />
-                    <Button style={{ marginBottom: "20px" }}>Allocate</Button>
+                    <Button onClick={() => alert("📤 Allocation Mapping Sent to Matrix")} style={{ marginBottom: "20px" }}>Allocate</Button>
                   </div>
                   <table style={{ width: "100%", marginTop: "32px" }}>
                     <thead><tr style={{ textAlign: "left" }}><th>Lot ID</th><th>Buyer</th><th>Weight</th><th>Relationship</th></tr></thead>
