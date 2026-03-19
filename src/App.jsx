@@ -105,6 +105,23 @@ export default function App() {
     setLoading(false);
   }, []);
 
+  const [activeSection, setActiveSection] = useState("Dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024); // Responsive Initial State
+  const [authForm, setAuthForm] = useState({ username: "", password: "" });
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  // --- RESPONSIVE STATE MONITOR ---
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      if (!mobile) setSidebarOpen(true);
+      else setSidebarOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // --- FORM STATES ---
   const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
   const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
@@ -114,6 +131,8 @@ export default function App() {
   const [suppliers, setSuppliers] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [lots, setLots] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   // --- DATA SYNC WITH BACKEND ---
   const fetchData = async () => {
@@ -126,9 +145,36 @@ export default function App() {
 
       const lRes = await MandiService.getLots();
       if (lRes.status === "SUCCESS") setLots(lRes.data);
+
+      const dRes = await MandiService.getDocuments();
+      if (dRes.status === "SUCCESS") setDocuments(dRes.data);
     } catch (err) {
       console.error("API Connectivity Error:", err);
     }
+  };
+
+  const handleFileUpload = async (event, docType = "Other", relatedToType = "Other", relatedTo = null) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) return alert("❌ CLIP REACHED: Max size 10MB");
+
+    setUploading(true);
+    const res = await MandiService.uploadFile(file, docType, relatedToType, relatedTo);
+    setUploading(false);
+
+    if (res.status === "SUCCESS") {
+      alert("☁️ ARCHIVED: File secured in Vault");
+      fetchData();
+    } else {
+      alert(`❌ VAULT ERROR: ${res.message}`);
+    }
+  };
+
+  const handleDeleteDoc = async (id) => {
+    if (!window.confirm("Purge this document permanently?")) return;
+    const res = await MandiService.deleteDocument(id);
+    if (res.status === "SUCCESS") fetchData();
   };
 
   useEffect(() => {
@@ -242,44 +288,101 @@ export default function App() {
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: COLORS.bg }}>
-
-      {/* Sidebar Overlay */}
-      <div style={{ width: "340px", background: COLORS.secondary, color: "#fff", display: "flex", flexDirection: "column", boxShadow: "10px 0 40px rgba(0,0,0,0.2)" }}>
-        <div style={{ padding: "48px 32px" }}>
-          <h2 style={{ color: COLORS.primary, fontWeight: "900", fontSize: "28px", letterSpacing: "-1px" }}>{user?.username?.toUpperCase() || "STAFF"}</h2>
-          <div style={{ height: "4px", width: "40px", background: COLORS.primary, marginTop: "12px", borderRadius: "10px" }}></div>
-          <p style={{ color: "#94a3b8", fontSize: "14px", marginTop: "12px", fontWeight: "700" }}>{user?.role}</p>
+    <div style={{ 
+      minHeight: "100vh", 
+      background: COLORS.bg, 
+      display: "flex", 
+      flexDirection: isMobile ? "column" : "row",
+      fontFamily: "'Outfit', sans-serif" 
+    }}>
+      {/* MOBILE HEADER (Conditional) */}
+      {loggedIn && isMobile && (
+        <div style={{ 
+          background: "#0f172a", 
+          padding: "16px 20px", 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+        }}>
+          <h2 style={{ color: COLORS.primary, margin: 0, fontSize: "20px" }}>Mandi ERP</h2>
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}
+          >
+            {sidebarOpen ? "✕" : "☰"}
+          </button>
         </div>
+      )}
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 20px" }}>
-          {MENU.map(item => (
-            <div
-              key={item.id}
-              onClick={() => setActiveSection(item.id)}
-              style={{
-                padding: "18px 24px", borderRadius: "20px", marginBottom: "6px", cursor: "pointer",
-                display: "flex", alignItems: "center", gap: "18px", transition: "all 0.3s",
-                background: activeSection === item.id ? "rgba(250, 204, 21, 0.1)" : "transparent",
-                color: activeSection === item.id ? COLORS.primary : "#94a3b8",
-                borderLeft: activeSection === item.id ? `5px solid ${COLORS.primary}` : "5px solid transparent"
-              }}
-            >
-              <span style={{ fontSize: "22px" }}>{item.icon}</span>
-              <span style={{ fontWeight: activeSection === item.id ? "900" : "600", fontSize: "15px" }}>{item.id}</span>
-            </div>
-          ))}
-        </div>
+      {/* 1. SIDE NAVIGATION (Adaptive Drawer) */}
+      {loggedIn && (
+        <nav style={{ 
+          width: isMobile ? "280px" : "340px", 
+          background: COLORS.secondary, 
+          padding: "40px 24px", 
+          display: "flex", 
+          flexDirection: "column",
+          position: isMobile ? "fixed" : "relative",
+          left: isMobile && !sidebarOpen ? "-340px" : "0",
+          top: 0,
+          bottom: 0,
+          zIndex: 1100,
+          transition: "left 0.3s ease-in-out",
+          boxShadow: isMobile ? "12px 0 32px rgba(0,0,0,0.2)" : "10px 0 40px rgba(0,0,0,0.2)"
+        }}>
+          <div style={{ padding: "0 8px 32px 8px" }}>
+            <h2 style={{ color: COLORS.primary, fontWeight: "900", fontSize: "28px", letterSpacing: "-1px", margin: 0 }}>{user?.username?.toUpperCase() || "STAFF"}</h2>
+            <div style={{ height: "4px", width: "40px", background: COLORS.primary, marginTop: "12px", borderRadius: "10px" }}></div>
+            <p style={{ color: "#94a3b8", fontSize: "14px", marginTop: "12px", fontWeight: "700" }}>{user?.role}</p>
+          </div>
 
-        <div style={{ padding: "20px 16px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-          <Button variant="danger" onClick={handleLogout} style={{ width: "100%", borderRadius: "16px", opacity: 0.8 }}>
-            🚪 Secure Logoff
-          </Button>
-        </div>
-      </div>
+          <div style={{ flex: 1, overflowY: "auto", padding: "0 0 20px" }}>
+            {MENU.map(item => (
+              <div
+                key={item.id}
+                onClick={() => {
+                  setActiveSection(item.id);
+                  if (isMobile) setSidebarOpen(false);
+                }}
+                style={{
+                  padding: "18px 24px", borderRadius: "20px", marginBottom: "6px", cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: "18px", transition: "all 0.3s",
+                  background: activeSection === item.id ? "rgba(250, 204, 21, 0.1)" : "transparent",
+                  color: activeSection === item.id ? COLORS.primary : "#94a3b8",
+                  borderLeft: activeSection === item.id ? `5px solid ${COLORS.primary}` : "5px solid transparent"
+                }}
+              >
+                <span style={{ fontSize: "22px" }}>{item.icon}</span>
+                <span style={{ fontWeight: activeSection === item.id ? "900" : "600", fontSize: "15px" }}>{item.id}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: "auto", borderTop: "1px solid #1e293b", paddingTop: "24px" }}>
+             <Button variant="danger" style={{ width: "100%", padding: "12px" }} onClick={handleLogout}>Secure Logoff</Button>
+          </div>
+        </nav>
+      )}
+
+      {/* Sidebar Overlay for Mobile */}
+      {isMobile && sidebarOpen && loggedIn && (
+        <div 
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+        />
+      )}
 
       {/* Main Command Deck */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "60px", scrollBehavior: "smooth" }}>
+      <div style={{ 
+        flex: 1, 
+        overflowY: "auto", 
+        padding: isMobile ? "24px 16px" : "60px", 
+        scrollBehavior: "smooth" 
+      }}>
 
         <header style={{ marginBottom: "60px", display: "flex", justifyContent: "space-between", alignItems: "end" }}>
           <div>
@@ -297,21 +400,25 @@ export default function App() {
           {/* 14. Dashboard */}
           {activeSection === "Dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "24px" }}>
+              <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(200px, 1fr))", 
+                gap: isMobile ? "12px" : "24px" 
+              }}>
                 {[
-                  { label: "Intake Today", val: "12,400 KG", color: "#fef3c7", bg: "#f59e0b" },
-                  { label: "Sales Today", val: "₹ 8.24L", color: "#dcfce7", bg: "#16a34a" },
-                  { label: "Outstanding", val: "₹ 14.5L", color: "#fee2e2", bg: "#dc2626" },
-                  { label: "Payments rec.", val: "₹ 2.1L", color: "#dbeafe", bg: "#2563eb" },
-                  { label: "Expenses", val: "₹ 42K", color: "#f3e8ff", bg: "#7c3aed" }
-                ].map((m, i) => (
-                  <Card key={i} style={{ background: m.color, border: "none", textAlign: "center" }}>
-                    <p style={{ margin: 0, fontWeight: "800", color: m.bg, textTransform: "uppercase", fontSize: "12px" }}>{m.label}</p>
-                    <h2 style={{ fontSize: "28px", margin: "12px 0 0", color: "#1e293b" }}>{m.val}</h2>
+                  { label: "Intake Today", val: "12,400 KG", color: "#fef3c7", bg: "#f59e0b", roles: ["Admin", "Operations Staff"] },
+                  { label: "Sales Today", val: "₹ 8.24L", color: "#dcfce7", bg: "#16a34a", roles: ["Admin", "Accountant"] },
+                  { label: "Outstanding", val: "₹ 14.5L", color: "#fee2e2", bg: "#dc2626", roles: ["Admin", "Accountant"] },
+                  { label: "Payments rec.", val: "₹ 2.1L", color: "#dbeafe", bg: "#2563eb", roles: ["Admin", "Accountant"] },
+                  { label: "Expenses", val: "₹ 42K", color: "#f3e8ff", bg: "#7c3aed", roles: ["Admin", "Accountant"] }
+                ].filter(m => m.roles.includes(user.role)).map((m, i) => (
+                  <Card key={i} style={{ background: m.color, border: "none", textAlign: "center", padding: isMobile ? "16px" : "24px" }}>
+                    <p style={{ margin: 0, fontWeight: "800", color: m.bg, textTransform: "uppercase", fontSize: isMobile ? "10px" : "12px" }}>{m.label}</p>
+                    <h2 style={{ fontSize: isMobile ? "20px" : "28px", margin: "12px 0 0", color: "#1e293b" }}>{m.val}</h2>
                   </Card>
                 ))}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr", gap: "32px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "2fr 1.2fr", gap: "32px" }}>
                 <Card title="📈 Revenue Trajectory">
                   <div style={{ height: "350px" }}><Line data={{ labels: ["8AM", "10AM", "12PM", "2PM", "4PM", "6PM"], datasets: [{ label: "Sales", data: [1.2, 3.4, 5.1, 4.8, 6.2, 8.2], borderColor: COLORS.accent, tension: 0.4 }] }} options={{ maintainAspectRatio: false }} /></div>
                 </Card>
@@ -344,6 +451,9 @@ export default function App() {
           {activeSection === "Supplier Management" && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: "32px" }}>
               <Card title="Supplier Directory" subtitle="Manage high-volume marketplace suppliers">
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+                  <Button variant="secondary" onClick={() => MandiService.exportExcel('suppliers')}>📊 Export to Excel</Button>
+                </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "32px" }}>
                   <Input label="Supplier Name" placeholder="Full Identity" value={supplierForm.name} onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })} />
                   <Input label="Phone Number" placeholder="+91 xxxx..." value={supplierForm.phone} onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
@@ -383,6 +493,9 @@ export default function App() {
           {/* 5. Buyer Management */}
           {activeSection === "Buyer Management" && (
             <Card title="Buyer Ecosystem" subtitle="Customer profiles and credit tracking">
+               <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+                  <Button variant="secondary" onClick={() => MandiService.exportExcel('buyers')}>📊 Export to Excel</Button>
+                </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
                 <Input label="Buyer Name" placeholder="Full Name" value={buyerForm.name} onChange={(e) => setBuyerForm({ ...buyerForm, name: e.target.value })} />
                 <Input label="Shop Name" placeholder="Business Entity" value={buyerForm.shopName} onChange={(e) => setBuyerForm({ ...buyerForm, shopName: e.target.value })} />
@@ -448,6 +561,9 @@ export default function App() {
                 <Button onClick={handleCreateLot} style={{ width: "100%" }}>Create Inventory Records</Button>
               </Card>
               <Card title="📦 Live Stock Intake" subtitle="Unallocated inventory awaiting buyer link">
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+                  <Button variant="secondary" onClick={() => MandiService.exportExcel('inventory')} style={{ fontSize: "12px", padding: "8px 16px" }}>📊 Export Stock</Button>
+                </div>
                 {lots.map(lot => (
                   <div key={lot._id} style={{ padding: "20px", background: "#f8fafc", borderRadius: "16px", marginBottom: "16px", border: "1.5px solid #e2e8f0" }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -537,7 +653,9 @@ export default function App() {
                 </div>
               </Card>
               <div style={{ display: "flex", gap: "16px" }}>
-                <Button>💾 Save & PDF</Button><Button variant="success">📲 Share WhatsApp</Button><Button variant="secondary">🖨 Print</Button>
+                <Button onClick={() => alert("💾 Bill saved! Use backend IDs to test PDF download.")}>💾 Save Data</Button>
+                <Button variant="success" onClick={() => MandiService.downloadBillPDF('TEST_ID')} style={{ opacity: 0.6 }}>📄 Download PDF Bill</Button>
+                <Button variant="secondary">🖨 Print</Button>
               </div>
             </Card>
           )}
@@ -728,25 +846,44 @@ export default function App() {
           {activeSection === "Document Management" && (
             <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "32px" }}>
               <Card title="Repository Vault" subtitle="Archive for physical bill scans and KYC docs">
-                <div style={{ padding: "80px", border: "4px dashed #f1f5f9", borderRadius: "32px", textAlign: "center", color: COLORS.muted }}>
-                  <span style={{ fontSize: "80px" }}>📂</span>
-                  <h2>Sync New Records</h2>
-                  <p>Supports Batch Uploads for Daily Manifests</p>
-                  <Button style={{ marginTop: "24px" }}>Start File Selection</Button>
+                <div style={{ padding: "60px", border: "4px dashed #f1f5f9", borderRadius: "32px", textAlign: "center", color: COLORS.muted, position: "relative" }}>
+                  <span style={{ fontSize: "64px" }}>📂</span>
+                  <h3 style={{ color: "#0f172a" }}>{uploading ? "⚡ Syncing Entry..." : "Vault Archive Queue"}</h3>
+                  <p>Click to browse or drag documents into storage.</p>
+                  <input 
+                    type="file" 
+                    onChange={handleFileUpload} 
+                    style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} 
+                    disabled={uploading}
+                  />
+                  <Button style={{ marginTop: "24px", width: "100%" }}>
+                    {uploading ? "Synchronizing..." : "Initialize Batch Upload"}
+                  </Button>
                 </div>
               </Card>
-              <Card title="Attach to Active Link">
-                <p style={{ color: COLORS.muted, fontSize: "14px" }}>Select a transaction or Lot ID to bind document evidence.</p>
-                <Input placeholder="Enter TRX / Lot ID..." />
-                <Button variant="secondary" style={{ width: "100%" }}>Bink Document</Button>
-                <div style={{ marginTop: "32px" }}>
-                  <h4>Recent Uploads</h4>
-                  {[1, 2, 3].map(i => (
-                    <div key={i} style={{ display: "flex", gap: "14px", alignItems: "center", padding: "12px", background: "#f8fafc", borderRadius: "12px", marginBottom: "8px" }}>
-                      <span style={{ fontSize: "24px" }}>📄</span>
-                      <small>Scan_INV_00{i}.pdf <br /> <i style={{ color: COLORS.muted }}>Linked to LOT-9921</i></small>
-                    </div>
-                  ))}
+              <Card title="Vault Records feed">
+                <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+                  {documents.length === 0 ? (
+                    <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No documents in vault.</p>
+                  ) : (
+                    documents.map((doc) => (
+                      <div key={doc._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#f8fafc", borderRadius: "16px", marginBottom: "12px", border: "1px solid #e2e8f0" }}>
+                        <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                          <span style={{ fontSize: "28px" }}>{doc.docType === "Produce Photo" ? "🖼️" : "📄"}</span>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: "800", fontSize: "14px" }}>{doc.originalName}</p>
+                            <small style={{ color: COLORS.muted }}>{doc.docType} • {(doc.fileSize / 1024).toFixed(1)} KB</small>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <a href={doc.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
+                            <Button variant="secondary" style={{ padding: "8px 12px", fontSize: "12px" }}>View</Button>
+                          </a>
+                          <Button variant="danger" onClick={() => handleDeleteDoc(doc._id)} style={{ padding: "8px 12px", fontSize: "12px" }}>🗑️</Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </Card>
             </div>

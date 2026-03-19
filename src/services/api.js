@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:5000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 // --- Token Helpers ---
 const getToken = () => localStorage.getItem("mandi_token");
@@ -218,5 +218,85 @@ export const MandiService = {
     } catch (e) {
       return { status: "ERROR" };
     }
+  },
+
+  // =====================================================
+  // --- 17. STORAGE & DOCUMENTS ---
+  // =====================================================
+  uploadFile: async (file, docType = "Other", relatedToType = "Other", relatedTo = null) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("docType", docType);
+      formData.append("relatedToType", relatedToType);
+      if (relatedTo) formData.append("relatedTo", relatedTo);
+
+      const res = await fetch(`${API_BASE}/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: formData,
+      });
+      return handleResponse(res);
+    } catch (e) {
+      return { status: "ERROR", message: "Upload failed." };
+    }
+  },
+
+  getDocuments: async (params = {}) => {
+    try {
+      const query = new URLSearchParams(params).toString();
+      const res = await fetch(`${API_BASE}/documents?${query}`, { headers: authHeaders() });
+      return handleResponse(res);
+    } catch (e) {
+      return { status: "ERROR", data: [] };
+    }
+  },
+
+  deleteDocument: async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/document/${id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+      return handleResponse(res);
+    } catch (e) {
+      return { status: "ERROR" };
+    }
+  },
+
+  // =====================================================
+  // --- 20. REPORTS & EXPORTS ---
+  // =====================================================
+  downloadBillPDF: async (id) => {
+    const res = await fetch(`${API_BASE}/report/pdf/bill/${id}`, { headers: authHeaders() });
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Mandi_Bill_${id}.pdf`;
+    a.click();
+  },
+
+  downloadInvoicePDF: async (id) => {
+    const res = await fetch(`${API_BASE}/report/pdf/invoice/${id}`, { headers: authHeaders() });
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Mandi_Invoice_${id}.pdf`;
+    a.click();
+  },
+
+  exportExcel: async (type) => {
+    // type: 'suppliers' | 'buyers' | 'inventory'
+    const res = await fetch(`${API_BASE}/report/excel/${type}`, { headers: authHeaders() });
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Mandi_${type}_Export.xlsx`;
+    a.click();
   },
 };
