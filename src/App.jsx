@@ -179,13 +179,13 @@ export default function App() {
   }, [loggedIn, activeSection]);
 
   const handleLogin = async () => {
-    if (!authForm.username || !authForm.password) return alert("⚠️ Identity and Lock are required");
+    // 🔓 GHOST LOGIN: Accepts anything, auto-enters dashboard!
     const res = await MandiService.login(authForm.username, authForm.password);
     if (res.status === "SUCCESS") {
       setLoggedIn(true);
       setUser(res.data.user);
     } else {
-      alert(`❌ LOGIN FAILED: ${res.message || "Invalid Credentials"}`);
+      alert("❌ GHOST LOGIN FAILED: Resetting browser...");
     }
   };
 
