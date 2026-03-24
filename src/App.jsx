@@ -448,15 +448,50 @@ export default function App() {
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: "24px", marginTop: "0px" }}>
                 {/* Recent Orders */}
                 <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>View all &rarr;</span>} title="Recent Orders" style={{ padding: "24px 0 0 0" }}>
-                  <div style={{ marginTop: "20px" }}>
+                  <div className="menu-scroll" style={{ marginTop: "20px", maxHeight: "380px", overflowY: "auto", paddingRight: "8px" }}>
                     {[
                       { initials: "PR", name: "Priya Reddy", desc: "2 x Alphonso Box • Hyderabad", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
                       { initials: "SM", name: "Sanjay Mehta", desc: "5 x Kesar Box • Secunderabad", amount: "₹3,100", status: "In Transit", statusCol: "#3B82F6" },
                       { initials: "AK", name: "Ananya Kumar", desc: "1 x Langra Box • Banjara Hills", amount: "₹580", status: "Pending", statusCol: "#F59E0B" },
                       { initials: "VS", name: "Vikram Sharma", desc: "3 x Alphonso Box • Jubilee Hills", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "DM", name: "Deepa Menon", desc: "4 x Kesar Box • Madhapur", amount: "₹2,480", status: "In Transit", statusCol: "#3B82F6" }
+                      { initials: "DM", name: "Deepa Menon", desc: "4 x Kesar Box • Madhapur", amount: "₹2,480", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SR", name: "Srinivas Rao", desc: "1 x Alphonso Box • Gachibowli", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "LN", name: "Lakshmi Narayana", desc: "10 x Kesar Box • Kukatpally", amount: "₹6,200", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "VB", name: "Venkatesh Babu", desc: "3 x Langra Box • Ameerpet", amount: "₹1,740", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SK", name: "Sai Krishna", desc: "2 x Dasheri Box • Kondapur", amount: "₹1,100", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "BP", name: "Bhanu Prakash", desc: "5 x Alphonso Box • Miyapur", amount: "₹3,100", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "RS", name: "Ramya Sri", desc: "1 x Kesar Box • Dilsukhnagar", amount: "₹620", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "HN", name: "Harika Naidu", desc: "8 x Badami Box • SR Nagar", amount: "₹3,840", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "KV", name: "Karthik Varma", desc: "2 x Langra Box • RTC X Roads", amount: "₹1,160", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "PR", name: "Prasad Reddy", desc: "4 x Alphonso Box • LB Nagar", amount: "₹2,480", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SC", name: "Swapna Chowdary", desc: "3 x Kesar Box • KPHB", amount: "₹1,860", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "TG", name: "Tejaswini Goud", desc: "1 x Banganapalli Box • Begumpet", amount: "₹450", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SK", name: "Shiva Kumar", desc: "6 x Alphonso Box • Uppal", amount: "₹3,720", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "MB", name: "Mahesh Babu", desc: "2 x Kesar Box • Panjagutta", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "PA", name: "Pavani Akula", desc: "3 x Langra Box • Somajiguda", amount: "₹1,740", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "SD", name: "Sujatha Devi", desc: "1 x Alphonso Box • Tarnaka", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "MC", name: "Mohan Chandra", desc: "7 x Kesar Box • ECIL", amount: "₹4,340", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SG", name: "Suresh Goud", desc: "4 x Banganapalli Box • Bowenpally", amount: "₹1,800", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "DS", name: "Divya Sree", desc: "2 x Alphonso Box • Malkajgiri", amount: "₹1,240", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "RR", name: "Rajeshwar Rao", desc: "5 x Kesar Box • Alwal", amount: "₹3,100", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "AK", name: "Anil Kumar", desc: "1 x Langra Box • Tolichowki", amount: "₹580", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SN", name: "Surya Narayana", desc: "3 x Alphonso Box • Mehdipatnam", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "KR", name: "Kalyani Rani", desc: "2 x Kesar Box • Attapur", amount: "₹1,240", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "MY", name: "Manoj Yadav", desc: "4 x Banganapalli Box • Chandanagar", amount: "₹1,800", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "RR", name: "Rakesh Reddy", desc: "6 x Alphonso Box • Gachibowli", amount: "₹3,720", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SR", name: "Swathi Reddy", desc: "1 x Kesar Box • Hitech City", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "MC", name: "Mounika Chowdary", desc: "3 x Langra Box • Madhapur", amount: "₹1,740", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "NB", name: "Nani Babu", desc: "2 x Alphonso Box • Jubilee Hills", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "PK", name: "Praveen Kumar", desc: "5 x Kesar Box • Banjara Hills", amount: "₹3,100", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "KR", name: "Koteswara Rao", desc: "1 x Banganapalli Box • Nanakramguda", amount: "₹450", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "RN", name: "Ramesh Naidu", desc: "4 x Alphonso Box • Manikonda", amount: "₹2,480", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "NR", name: "Nagarjuna Raju", desc: "3 x Kesar Box • Gachibowli", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "GM", name: "Geetha Madhuri", desc: "2 x Langra Box • Kondapur", amount: "₹1,160", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "HK", name: "Hari Krishna", desc: "1 x Alphonso Box • Hafeezpet", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "VB", name: "Veera Babu", desc: "5 x Kesar Box • Miyapur", amount: "₹3,100", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "SV", name: "Sandeep Varma", desc: "4 x Banganapalli Box • Chandanagar", amount: "₹1,800", status: "Confirmed", statusCol: "#4CAF50" },
                     ].map((order, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", borderTop: "1px solid #EBE9E1", borderBottom: i === 4 ? "none" : "" }}>
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", borderTop: "1px solid #EBE9E1", borderBottom: i === 39 ? "none" : "" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                           <div style={{ background: "#F1F5EB", color: COLORS.sidebar, width: "36px", height: "36px", borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "700" }}>{order.initials}</div>
                           <div>
