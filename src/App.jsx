@@ -176,7 +176,9 @@ export default function App() {
   const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
   const [activeUserRoleTab, setActiveUserRoleTab] = useState("Supplier");
   const [dispatchProduct, setDispatchProduct] = useState("");
+  const [dispatchType, setDispatchType] = useState("Fruits");
   const [poProduct, setPoProduct] = useState("");
+  const [poType, setPoType] = useState("Fruits");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [authForm, setAuthForm] = useState({ username: "", password: "" });
@@ -744,8 +746,8 @@ export default function App() {
                       fields: [
                         { label: "Dispatch ID", disabled: true, value: "DSP-55921" },
                         { label: "Supplier Name", type: "select", options: ["Srinivas Rao", "Priya Reddy", "Mohan Chandra", "Harika Naidu"] },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"] },
-                        { label: "Product Name", list: "product-list", placeholder: "Type to search...", value: dispatchProduct, onChange: (e) => setDispatchProduct(e.target.value) },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
+                        { label: "Product Name", list: dispatchType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: dispatchProduct, onChange: (e) => setDispatchProduct(e.target.value) },
                         { label: "Variety", type: "select", options: getProductData(dispatchProduct).varieties },
                         { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes },
                         { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
@@ -945,8 +947,8 @@ export default function App() {
                       fields: [
                         { label: "Order ID", disabled: true, value: "ORD-PO-149" },
                         { label: "Buyer Name", type: "select", options: ["Reliance Retail", "Kisan Markets", "BigBasket", "More Supermarkets"] },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"] },
-                        { label: "Product Name", list: "product-list", placeholder: "Type to search...", value: poProduct, onChange: (e) => setPoProduct(e.target.value) },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"], value: poType, onChange: (e) => setPoType(e.target.value) },
+                        { label: "Product Name", list: poType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: poProduct, onChange: (e) => setPoProduct(e.target.value) },
                         { label: "Required Variety", type: "select", options: getProductData(poProduct).varieties },
                         { label: "Required Size", type: "select", options: getProductData(poProduct).sizes },
                         { label: "Required Color", type: "select", options: getProductData(poProduct).colors },
@@ -1460,8 +1462,10 @@ export default function App() {
         </div>
         
         {/* Global Datalist Injection for Autocomplete Fields */}
-        <datalist id="product-list">
+        <datalist id="fruit-list">
           {DB.Fruits.map(f => <option key={`f-${f}`} value={f} />)}
+        </datalist>
+        <datalist id="vegetable-list">
           {DB.Vegetables.map(v => <option key={`v-${v}`} value={v} />)}
         </datalist>
 
