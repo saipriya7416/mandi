@@ -1,88 +1,118 @@
 /**
- * ELITE GHOST SERVICE (Standalone Mode)
- * This is a high-speed, 100% Offline service that uses Browser Memory. 
- * NO BACKEND REQUIRED. ZERO ERRORS.
+ * MANDI ERP - Real Backend API Service
+ * Connects to: http://localhost:5000/api
  */
 
-const STORAGE = {
-  USERS: "mandi_users",
-  SUPPLIERS: "mandi_suppliers",
-  BUYERS: "mandi_buyers",
-  LOTS: "mandi_lots",
-  DOCS: "mandi_docs",
-  PAYMENTS: "mandi_payments",
-  BILLS: "mandi_bills",
-  INVOICES: "mandi_invoices"
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// --- Helper: Build headers with JWT token ---
+const getHeaders = () => {
+  const token = localStorage.getItem('mandi_token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 };
 
-const get = (key) => JSON.parse(localStorage.getItem(key) || "[]");
-const save = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+// --- Helper: Generic fetch wrapper ---
+const request = async (method, path, body = null) => {
+  try {
+    const options = {
+      method,
+      headers: getHeaders(),
+    };
+    if (body) options.body = JSON.stringify(body);
+
+    const res = await fetch(`${BASE_URL}${path}`, options);
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { status: "ERROR", message: data.message || "API Request Failed" };
+    }
+    return data;
+  } catch (err) {
+    console.error("API Error:", err);
+    return { status: "ERROR", message: err.message };
+  }
+};
 
 export const MandiService = {
   // --- AUTH ---
   login: async (username, password) => {
-    // ⚡ BYPASS LOGIN: Accepts anything!
-    console.log("🔓 GHOST LOGIN: Identity Verified Automatically.");
-    const user = { username: "admin", role: "Admin", name: "Elite Admin", staffId: "admin" };
-    localStorage.setItem("mandi_token", "GHOST_TOKEN_2026");
-    localStorage.setItem("mandi_user", JSON.stringify(user));
-    return { status: "SUCCESS", data: { user, token: "GHOST_TOKEN_2026" } };
+    const data = await request('POST', '/auth/login', { username, password });
+    if (data.status === 'SUCCESS') {
+      localStorage.setItem('mandi_token', data.data.token);
+      localStorage.setItem('mandi_user', JSON.stringify(data.data.user));
+    }
+    return data;
   },
 
-  logout: () => {
-    localStorage.removeItem("mandi_token");
-    localStorage.removeItem("mandi_user");
+  logout: async () => {
+    try { await request('POST', '/auth/logout'); } catch (_) {}
+    localStorage.removeItem('mandi_token');
+    localStorage.removeItem('mandi_user');
   },
 
-  getMe: async () => ({ status: "SUCCESS", data: JSON.parse(localStorage.getItem("mandi_user")) }),
+  getMe: async () => request('GET', '/auth/me'),
 
   // --- SUPPLIERS ---
-  getSuppliers: async () => ({ status: "SUCCESS", data: get(STORAGE.SUPPLIERS) }),
-  addSupplier: async (data) => {
-    const list = get(STORAGE.SUPPLIERS);
-    const newItem = { ...data, _id: Date.now().toString() };
-    list.push(newItem);
-    save(STORAGE.SUPPLIERS, list);
-    return { status: "SUCCESS", data: newItem };
-  },
+  getSuppliers: async () => request('GET', '/suppliers'),
+  addSupplier: async (data) => request('POST', '/supplier', data),
 
   // --- BUYERS ---
-  getBuyers: async () => ({ status: "SUCCESS", data: get(STORAGE.BUYERS) }),
-  addBuyer: async (data) => {
-    const list = get(STORAGE.BUYERS);
-    const newItem = { ...data, _id: Date.now().toString() };
-    list.push(newItem);
-    save(STORAGE.BUYERS, list);
-    return { status: "SUCCESS", data: newItem };
-  },
+  getBuyers: async () => request('GET', '/buyers'),
+  addBuyer: async (data) => request('POST', '/buyer', data),
 
   // --- INVENTORY ---
-  getLots: async () => ({ status: "SUCCESS", data: get(STORAGE.LOTS) }),
-  addLot: async (data, photos = []) => {
-     const list = get(STORAGE.LOTS);
-     const newItem = { ...data, photos, _id: Date.now().toString(), lotId: "LOT-"+Date.now().toString().slice(-4) };
-     list.push(newItem);
-     save(STORAGE.LOTS, list);
-     return { status: "SUCCESS", data: newItem };
-  },
+  getLots: async () => request('GET', '/lots'),
+  addLot: async (data) => request('POST', '/lot/intake', data),
+  allocateLot: async (data) => request('POST', '/lot/allocate', data),
 
   // --- DOCUMENTS ---
-  getDocuments: async () => ({ status: "SUCCESS", data: get(STORAGE.DOCS) }),
+  getDocuments: async () => request('GET', '/documents'),
   uploadFile: async (file, docType) => {
-     const list = get(STORAGE.DOCS);
-     const newItem = { _id: Date.now().toString(), originalName: file.name, docType, url: URL.createObjectURL(file), fileSize: file.size, createdAt: new Date() };
-     list.push(newItem);
-     save(STORAGE.DOCS, list);
-     return { status: "SUCCESS", data: newItem };
+    const token = localStorage.getItem('mandi_token');
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('docType', docType);
+    const res = await fetch(`${BASE_URL}/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message || 'Upload failed');
+    return json;
   },
-  deleteDocument: async (id) => {
-     let list = get(STORAGE.DOCS);
-     list = list.filter(d => d._id !== id);
-     save(STORAGE.DOCS, list);
-     return { status: "SUCCESS" };
-  },
+  deleteDocument: async (id) => request('DELETE', `/document/${id}`),
 
-  // --- FINANCE / REPORTS ---
-  downloadBillPDF: async (id) => alert("📄 Standalone Mode: PDF binary generated in-browser. Connect backend for cloud file storage."),
-  exportExcel: async (type) => alert(`📊 Standalone Mode: Exporting ${type} logic active.`),
+  // --- FINANCE ---
+  generateSupplierBill: async (data) => request('POST', '/bill/supplier', data),
+  generateBuyerInvoice: async (data) => request('POST', '/invoice/buyer', data),
+  recordPayment: async (data) => request('POST', '/payment', data),
+  recordExpense: async (data) => request('POST', '/expense', data),
+  getSupplierLedger: async (supplierId) => request('GET', `/ledger/supplier/${supplierId}`),
+
+  // --- REPORTS ---
+  downloadBillPDF: async (id) => {
+    const token = localStorage.getItem('mandi_token');
+    const res = await fetch(`${BASE_URL}/report/pdf/bill/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  },
+  exportExcel: async (type) => {
+    const token = localStorage.getItem('mandi_token');
+    const res = await fetch(`${BASE_URL}/report/excel/${type}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${type}-export.xlsx`;
+    a.click();
+  },
 };

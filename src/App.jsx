@@ -179,13 +179,12 @@ export default function App() {
   }, [loggedIn, activeSection]);
 
   const handleLogin = async () => {
-    // 🔓 GHOST LOGIN: Accepts anything, auto-enters dashboard!
     const res = await MandiService.login(authForm.username, authForm.password);
-    if (res.status === "SUCCESS") {
+    if (res?.status === "SUCCESS") {
       setLoggedIn(true);
       setUser(res.data.user);
     } else {
-      alert("❌ GHOST LOGIN FAILED: Resetting browser...");
+      alert(`❌ LOGIN FAILED: ${res?.message || 'Invalid Credentials'}`);
     }
   };
 
@@ -200,10 +199,12 @@ export default function App() {
   const handleRegisterSupplier = async () => {
     if (!supplierForm.name || !supplierForm.phone) return alert("⚠️ Name and Phone are required");
     const res = await MandiService.addSupplier(supplierForm);
-    if (res.status === "SUCCESS") {
+    if (res?.status === "SUCCESS") {
       alert("💾 SUCCESS: Supplier saved to MongoDB!");
       setSupplierForm({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
       fetchData();
+    } else {
+      alert(`❌ FAILED: ${res?.message || "Database Error"}`);
     }
   };
 
@@ -221,7 +222,7 @@ export default function App() {
 
   const handleCreateLot = async () => {
     if (!intakeForm.product || !intakeForm.quantity) return alert("⚠️ Product and Qty are required");
-    const res = await MandiService.createLot({
+    const res = await MandiService.addLot({
       ...intakeForm,
       supplier: intakeForm.supplierId || (suppliers[0]?._id) // Fallback to first if empty
     });
