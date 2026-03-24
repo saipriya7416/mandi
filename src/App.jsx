@@ -445,12 +445,106 @@ export default function App() {
                   </Card>
                 ))}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "2fr 1.2fr", gap: "32px" }}>
-                <Card title="📈 Revenue Trajectory">
-                  <div style={{ height: "350px" }}><Line data={{ labels: ["8AM", "10AM", "12PM", "2PM", "4PM", "6PM"], datasets: [{ label: "Sales", data: [1.2, 3.4, 5.1, 4.8, 6.2, 8.2], borderColor: COLORS.accent, tension: 0.4 }] }} options={{ maintainAspectRatio: false }} /></div>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: "24px", marginTop: "0px" }}>
+                {/* Recent Orders */}
+                <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>View all &rarr;</span>} title="Recent Orders" style={{ padding: "24px 0 0 0" }}>
+                  <div style={{ marginTop: "20px" }}>
+                    {[
+                      { initials: "PR", name: "Priya Reddy", desc: "2 x Alphonso Box • Hyderabad", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SM", name: "Sanjay Mehta", desc: "5 x Kesar Box • Secunderabad", amount: "₹3,100", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "AK", name: "Ananya Kumar", desc: "1 x Langra Box • Banjara Hills", amount: "₹580", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "VS", name: "Vikram Sharma", desc: "3 x Alphonso Box • Jubilee Hills", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "DM", name: "Deepa Menon", desc: "4 x Kesar Box • Madhapur", amount: "₹2,480", status: "In Transit", statusCol: "#3B82F6" }
+                    ].map((order, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", borderTop: "1px solid #EBE9E1", borderBottom: i === 4 ? "none" : "" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                          <div style={{ background: "#F1F5EB", color: COLORS.sidebar, width: "36px", height: "36px", borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "700" }}>{order.initials}</div>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: "600", color: COLORS.text, fontSize: "14px" }}>{order.name}</p>
+                            <p style={{ margin: "2px 0 0", color: COLORS.muted, fontSize: "12px" }}>{order.desc}</p>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <p style={{ margin: 0, fontWeight: "700", color: COLORS.text, fontSize: "14px" }}>{order.amount}</p>
+                          <p style={{ margin: "4px 0 0", color: order.statusCol, fontSize: "11px", fontWeight: "600" }}>{order.status}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </Card>
-                <Card title="📦 Category Weightage">
-                  <div style={{ height: "350px" }}><Pie data={{ labels: ["Mango", "Apple", "Grapes", "Citrus"], datasets: [{ data: [45, 25, 20, 10], backgroundColor: [COLORS.primary, COLORS.danger, COLORS.accent, COLORS.success] }] }} options={{ maintainAspectRatio: false }} /></div>
+
+                {/* Stall Inventory */}
+                <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>Manage &rarr;</span>} title="Stall Inventory">
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", marginTop: "16px" }}>
+                    {[
+                      { name: "Jubilee Hills", units: "142", border: "#EBE9E1", bar: COLORS.success, pct: "75%" },
+                      { name: "Banjara Hills", units: "89", border: "#EBE9E1", bar: COLORS.success, pct: "50%" },
+                      { name: "Madhapur", units: "203", border: "#EBE9E1", bar: COLORS.success, pct: "85%" },
+                      { name: "Secunderabad", units: "12", border: "#FAD8D8", bar: COLORS.danger, pct: "15%", bg: "#FFF5F5" }
+                    ].map((stall, i) => (
+                      <div key={i} style={{ border: `1px solid ${stall.border}`, background: stall.bg || "#FAFAF8", borderRadius: "8px", padding: "16px" }}>
+                        <p style={{ margin: 0, fontWeight: "700", color: COLORS.text, fontSize: "13px" }}>{stall.name}</p>
+                        <h2 style={{ margin: "10px 0 2px", fontWeight: "800", color: stall.border === "#FAD8D8" ? COLORS.danger : COLORS.sidebar, fontSize: "24px" }}>{stall.units}</h2>
+                        <p style={{ margin: "0 0 12px", color: COLORS.muted, fontSize: "11px", fontWeight: "500" }}>units remaining</p>
+                        <div style={{ height: "4px", background: "#E2E8F0", borderRadius: "2px", width: "100%", overflow: "hidden" }}>
+                          <div style={{ height: "100%", background: stall.bar, width: stall.pct, borderRadius: "2px" }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: "24px", marginTop: "-16px" }}>
+                {/* Boxes Sold Chart */}
+                <Card title="Boxes Sold — This Week">
+                  <div style={{ height: "200px", marginTop: "24px", width: "100%" }}>
+                    <Bar 
+                      data={{ 
+                        labels: ["", "", "", "", "", "", ""], 
+                        datasets: [{ 
+                          label: "Sales", 
+                          data: [65, 45, 80, 75, 120, 60, 40], 
+                          backgroundColor: ["#CDE09C", "#CDE09C", "#CDE09C", "#CDE09C", COLORS.sidebar, "#CDE09C", "#CDE09C"],
+                          borderRadius: 4,
+                          borderSkipped: false,
+                          barPercentage: 0.95,
+                          categoryPercentage: 0.95
+                        }] 
+                      }} 
+                      options={{ 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        scales: {
+                          x: { grid: { display: false }, border: { display: false }, ticks: { display: false } },
+                          y: { grid: { display: false }, border: { display: false }, ticks: { display: false } }
+                        }
+                      }} 
+                    />
+                  </div>
+                </Card>
+
+                {/* Today's Staff */}
+                <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>Schedule &rarr;</span>} title="Today's Staff">
+                  <div style={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: "28px" }}>
+                    {[
+                      { name: "Ravi Kumar", role: "Delivery Driver", time: "08:00–16:00" },
+                      { name: "Meera Devi", role: "Stall Manager", time: "09:00–17:00" },
+                      { name: "Sunil Varma", role: "Store keeper", time: "06:00–14:00" },
+                      { name: "Kiran Bhai", role: "Logistics", time: "10:00–18:00" }
+                    ].map((staff, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                          <div style={{ width: "8px", height: "8px", borderRadius: "4px", background: COLORS.accent }}></div>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: "600", color: COLORS.sidebar, fontSize: "13px" }}>{staff.name}</p>
+                            <p style={{ margin: "2px 0 0", color: COLORS.muted, fontSize: "11px" }}>{staff.role}</p>
+                          </div>
+                        </div>
+                        <p style={{ margin: 0, fontWeight: "500", color: COLORS.muted, fontSize: "12px" }}>{staff.time}</p>
+                      </div>
+                    ))}
+                  </div>
                 </Card>
               </div>
             </div>
