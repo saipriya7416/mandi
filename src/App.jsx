@@ -268,9 +268,9 @@ export default function App() {
       <div style={{ height: "100vh", background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <Card style={{ width: "420px", textAlign: "center", padding: "50px 40px" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-             <div style={{ background: COLORS.accent, width: "64px", height: "64px", borderRadius: "32px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", fontWeight: "800" }}>JM</div>
+             <div style={{ background: COLORS.accent, width: "64px", height: "64px", borderRadius: "32px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", fontWeight: "800" }}>SPV</div>
           </div>
-          <h1 style={{ margin: "10px 0 5px", fontWeight: "800", color: COLORS.secondary, fontSize: "28px", letterSpacing: "-0.5px" }}>JAMANGO</h1>
+          <h1 style={{ margin: "10px 0 5px", fontWeight: "800", color: COLORS.secondary, fontSize: "28px", letterSpacing: "-0.5px" }}>SPV FRUITS</h1>
           <p style={{ color: COLORS.muted, marginBottom: "40px", fontSize: "12px", letterSpacing: "1px", textTransform: "uppercase", fontWeight: "600" }}>Orchard Admin</p>
           <Input 
             placeholder="Staff Identity" 
@@ -342,7 +342,7 @@ export default function App() {
           <div style={{ padding: "0 24px 32px 24px", display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{ background: COLORS.accent, width: "36px", height: "36px", borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.secondary, fontSize: "14px", fontWeight: "800" }}>SPV</div>
             <div>
-              <h2 style={{ color: "#ffffff", fontWeight: "700", fontSize: "16px", letterSpacing: "0px", margin: 0 }}>JAMANGO</h2>
+              <h2 style={{ color: "#ffffff", fontWeight: "700", fontSize: "16px", letterSpacing: "0px", margin: 0 }}>SPV FRUITS</h2>
               <p style={{ color: COLORS.accent, fontSize: "10px", margin: "2px 0 0", fontWeight: "600", textTransform: "uppercase" }}>Orchard Admin</p>
             </div>
           </div>
