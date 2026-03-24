@@ -174,6 +174,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [activeSupplierTab, setActiveSupplierTab] = useState("Supplier Registration");
   const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
+  const [activeUserRoleTab, setActiveUserRoleTab] = useState("Supplier");
   const [dispatchProduct, setDispatchProduct] = useState("");
   const [poProduct, setPoProduct] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
@@ -326,8 +327,6 @@ export default function App() {
   const ALL_MENU = [
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "User Roles", icon: "👥", roles: ["Admin"] },
-    { id: "Supplier Role", icon: "🏢", roles: ["Admin", "Operations Staff"], isSub: true },
-    { id: "Buyer Role", icon: "💎", roles: ["Admin", "Operations Staff"], isSub: true },
     { id: "Inventory Intake", icon: "📥", roles: ["Admin", "Operations Staff"] },
     { id: "Inventory Allocation", icon: "📤", roles: ["Admin", "Operations Staff"] },
     { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
@@ -667,33 +666,28 @@ export default function App() {
             </div>
           )}
 
-          {/* 3. User Roles */}
+          {/* 3. Global Entity Roles Router */}
           {activeSection === "User Roles" && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px" }}>
-              {[
-                { r: "Admin / Owner", f: ["Full Access Control", "System Configuration", "Strategic Reports & Analytics"] },
-                { r: "Accountant", f: ["Manage Bills & Invoices", "Payment Processing", "Digital Ledger Reconciliation"] },
-                { r: "Operations Staff", f: ["Supplier Inventory Entry", "Buyer Invoice Creation", "Lot ID & Stock Updates"] }
-              ].map((role, i) => (
-                <Card key={i} title={role.r} subtitle="Assigned Privileges">
-                  <ul style={{ padding: 0, listStyle: "none" }}>
-                    {role.f.map((feat, j) => <li key={j} style={{ padding: "12px 0", borderBottom: "1px solid #f1f5f9", fontWeight: "600", color: COLORS.text }}>● {feat}</li>)}
-                  </ul>
-                  <Button variant="secondary" style={{ width: "100%", marginTop: "32px" }}>Edit Permissions</Button>
-                </Card>
-              ))}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
+               <div>
+                  <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Business Profile Ecosystem</h2>
+                  <div style={{ display: "flex", gap: "20px" }}>
+                    <div 
+                      onClick={() => setActiveUserRoleTab("Supplier")}
+                      style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Supplier" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Supplier" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
+                    >🏢 Supplier Pipeline</div>
+                    <div 
+                      onClick={() => setActiveUserRoleTab("Buyer")}
+                      style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Buyer" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Buyer" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
+                    >💎 Buyer Pipeline</div>
+                  </div>
+               </div>
             </div>
           )}
 
           {/* Supplier Role Module */}
-          {activeSection === "Supplier Role" && (
+          {activeSection === "User Roles" && activeUserRoleTab === "Supplier" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                <h2 style={{ fontSize: "24px", fontWeight: "800", color: COLORS.sidebar, margin: 0 }}>Supplier Module</h2>
-                <div style={{ display: "flex", gap: "12px" }}>
-                  <Button variant="secondary" onClick={() => MandiService.exportExcel('suppliers')}>Export Records</Button>
-                </div>
-              </div>
               
               <TabHeader tabs={["Supplier Registration", "Dispatch Entry", "Supplier Accounts"]} active={activeSupplierTab} set={setActiveSupplierTab} />
 
@@ -835,14 +829,8 @@ export default function App() {
           )}
 
           {/* Buyer Role Module */}
-          {activeSection === "Buyer Role" && (
+          {activeSection === "User Roles" && activeUserRoleTab === "Buyer" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                <h2 style={{ fontSize: "24px", fontWeight: "800", color: COLORS.sidebar, margin: 0 }}>Buyer Module</h2>
-                <div style={{ display: "flex", gap: "12px" }}>
-                  <Button variant="secondary" onClick={() => MandiService.exportExcel('buyers')}>Export Records</Button>
-                </div>
-              </div>
               
               <TabHeader tabs={["Buyer Registration", "Purchase Order", "Buyer Accounts"]} active={activeBuyerTab} set={setActiveBuyerTab} />
 
