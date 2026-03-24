@@ -17,32 +17,36 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
 
-// --- ELITE DESIGN SYSTEM ---
+// --- JAMANGO DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#facc15", // Gold
-  secondary: "#0f172a", // Navy
-  bg: "#f1f5f9",
-  card: "#ffffff",
-  text: "#334155",
-  muted: "#94a3b8",
-  success: "#22c55e",
-  danger: "#ef4444",
-  accent: "#6366f1"
+  primary: "#3D6B45", // Dark Forest Green (Active States, Buttons)
+  secondary: "#234a31", // Even Darker Green (Sidebar, Headers)
+  bg: "#FAF9F4", // Soft Warm Off-White (Main Background)
+  card: "#FFFFFF",
+  text: "#2C3E34", // Dark Green-Grey Text
+  muted: "#889D91", // Muted Light Green/Grey
+  success: "#4CAF50",
+  danger: "#E57373",
+  accent: "#8AB26C", // Light Olive Green
+  sidebar: "#25513A" // Sidebar Background
 };
 
-const Card = ({ children, title, subtitle, style = {} }) => (
+const Card = ({ children, title, subtitle, action, style = {} }) => (
   <div style={{
     background: COLORS.card,
-    borderRadius: "24px",
-    padding: "32px",
-    boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
-    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
+    padding: "24px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+    border: "1px solid #EBE9E1",
     ...style
   }}>
-    {title && (
-      <div style={{ marginBottom: "24px" }}>
-        <h3 style={{ margin: 0, fontSize: "22px", fontWeight: "900", color: COLORS.secondary }}>{title}</h3>
-        {subtitle && <p style={{ margin: "4px 0 0 0", color: COLORS.muted, fontSize: "14px" }}>{subtitle}</p>}
+    {(title || action) && (
+      <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          {title && <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: COLORS.secondary }}>{title}</h3>}
+          {subtitle && <p style={{ margin: "4px 0 0 0", color: COLORS.muted, fontSize: "12px", fontWeight: "500" }}>{subtitle}</p>}
+        </div>
+        {action && action}
       </div>
     )}
     {children}
@@ -50,34 +54,35 @@ const Card = ({ children, title, subtitle, style = {} }) => (
 );
 
 const Input = ({ label, placeholder, type = "text", value, onChange }) => (
-  <div style={{ marginBottom: "20px" }}>
-    {label && <label style={{ display: "block", marginBottom: "8px", fontWeight: "800", color: COLORS.secondary, fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</label>}
+  <div style={{ marginBottom: "16px" }}>
+    {label && <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: COLORS.secondary, fontSize: "12px" }}>{label}</label>}
     <input
       type={type}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
       style={{
-        width: "100%", padding: "14px 18px", borderRadius: "14px", border: "2.5px solid #f1f5f9",
-        background: "#fff", color: COLORS.text, outline: "none", fontWeight: "600", fontSize: "15px", transition: "all 0.2s"
+        width: "100%", padding: "12px 16px", borderRadius: "10px", border: "1px solid #EBE9E1",
+        background: "#F8F9FA", color: COLORS.text, outline: "none", fontWeight: "500", fontSize: "14px", transition: "all 0.2s"
       }}
       onFocus={(e) => (e.target.style.borderColor = COLORS.primary)}
-      onBlur={(e) => (e.target.style.borderColor = "#f1f5f9")}
+      onBlur={(e) => (e.target.style.borderColor = "#EBE9E1")}
     />
   </div>
 );
 
 const Button = ({ children, onClick, variant = "primary", style = {} }) => {
   const styles = {
-    primary: { background: COLORS.primary, color: COLORS.secondary },
-    secondary: { background: COLORS.secondary, color: "#fff" },
+    primary: { background: COLORS.primary, color: "#fff" },
+    secondary: { background: "#FFFFFF", color: COLORS.primary, border: `1px solid ${COLORS.primary}` },
     success: { background: COLORS.success, color: "#fff" },
-    danger: { background: COLORS.danger, color: "#fff" }
+    danger: { background: COLORS.danger, color: "#fff" },
+    outline: { background: "transparent", color: COLORS.text, border: "1px solid #EBE9E1" }
   };
   return (
     <button onClick={onClick} style={{
-      padding: "14px 28px", borderRadius: "14px", border: "none", fontWeight: "800", cursor: "pointer",
-      transition: "all 0.2s", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", ...styles[variant], ...style
+      padding: "10px 20px", borderRadius: "8px", border: "none", fontWeight: "600", cursor: "pointer",
+      transition: "all 0.2s", fontSize: "13px", ...styles[variant], ...style
     }}>
       {children}
     </button>
@@ -261,10 +266,12 @@ export default function App() {
   if (!loggedIn) {
     return (
       <div style={{ height: "100vh", background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Card style={{ width: "420px", textAlign: "center", padding: "60px 40px" }}>
-          <span style={{ fontSize: "64px" }}>🥭</span>
-          <h1 style={{ margin: "20px 0 10px", fontWeight: "900", color: "#0f172a" }}>Mandi ERP</h1>
-          <p style={{ color: "#64748b", marginBottom: "40px" }}>Enterprise Logistics Portal</p>
+        <Card style={{ width: "420px", textAlign: "center", padding: "50px 40px" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+             <div style={{ background: COLORS.accent, width: "64px", height: "64px", borderRadius: "32px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", fontWeight: "800" }}>JM</div>
+          </div>
+          <h1 style={{ margin: "10px 0 5px", fontWeight: "800", color: COLORS.secondary, fontSize: "28px", letterSpacing: "-0.5px" }}>JAMANGO</h1>
+          <p style={{ color: COLORS.muted, marginBottom: "40px", fontSize: "12px", letterSpacing: "1px", textTransform: "uppercase", fontWeight: "600" }}>Orchard Admin</p>
           <Input 
             placeholder="Staff Identity" 
             value={authForm.username} 
@@ -291,7 +298,7 @@ export default function App() {
       background: COLORS.bg, 
       display: "flex", 
       flexDirection: isMobile ? "column" : "row",
-      fontFamily: "'Outfit', sans-serif" 
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
     }}>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
@@ -316,29 +323,35 @@ export default function App() {
         </div>
       )}
 
-      {/* 1. SIDE NAVIGATION (Adaptive Drawer) */}
+      {/* 1. SIDE NAVIGATION (Jamango Style) */}
       {loggedIn && (
         <nav style={{ 
-          width: isMobile ? "280px" : "340px", 
-          background: COLORS.secondary, 
-          padding: "40px 24px", 
+          width: isMobile ? "280px" : "260px", 
+          background: COLORS.sidebar, 
+          padding: "24px 0", 
           display: "flex", 
           flexDirection: "column",
           position: isMobile ? "fixed" : "relative",
-          left: isMobile && !sidebarOpen ? "-340px" : "0",
+          left: isMobile && !sidebarOpen ? "-280px" : "0",
           top: 0,
           bottom: 0,
           zIndex: 1100,
           transition: "left 0.3s ease-in-out",
-          boxShadow: isMobile ? "12px 0 32px rgba(0,0,0,0.2)" : "10px 0 40px rgba(0,0,0,0.2)"
+          boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
         }}>
-          <div style={{ padding: "0 8px 32px 8px" }}>
-            <h2 style={{ color: COLORS.primary, fontWeight: "900", fontSize: "28px", letterSpacing: "-1px", margin: 0 }}>{user?.username?.toUpperCase() || "STAFF"}</h2>
-            <div style={{ height: "4px", width: "40px", background: COLORS.primary, marginTop: "12px", borderRadius: "10px" }}></div>
-            <p style={{ color: "#94a3b8", fontSize: "14px", marginTop: "12px", fontWeight: "700" }}>{user?.role}</p>
+          <div style={{ padding: "0 24px 32px 24px", display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ background: COLORS.accent, width: "36px", height: "36px", borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.secondary, fontSize: "14px", fontWeight: "800" }}>SPV</div>
+            <div>
+              <h2 style={{ color: "#ffffff", fontWeight: "700", fontSize: "16px", letterSpacing: "0px", margin: 0 }}>JAMANGO</h2>
+              <p style={{ color: COLORS.accent, fontSize: "10px", margin: "2px 0 0", fontWeight: "600", textTransform: "uppercase" }}>Orchard Admin</p>
+            </div>
+          </div>
+          
+          <div style={{ padding: "0 24px", marginBottom: "12px" }}>
+            <span style={{ fontSize: "10px", fontWeight: "700", color: "#548265", textTransform: "uppercase", letterSpacing: "1px" }}>Overview</span>
           </div>
 
-          <div style={{ flex: 1, overflowY: "auto", padding: "0 0 20px" }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "0 12px" }}>
             {MENU.map(item => (
               <div
                 key={item.id}
@@ -347,21 +360,26 @@ export default function App() {
                   if (isMobile) setSidebarOpen(false);
                 }}
                 style={{
-                  padding: "18px 24px", borderRadius: "20px", marginBottom: "6px", cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: "18px", transition: "all 0.3s",
-                  background: activeSection === item.id ? "rgba(250, 204, 21, 0.1)" : "transparent",
-                  color: activeSection === item.id ? COLORS.primary : "#94a3b8",
-                  borderLeft: activeSection === item.id ? `5px solid ${COLORS.primary}` : "5px solid transparent"
+                  padding: "10px 16px", borderRadius: "8px", marginBottom: "4px", cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: "12px", transition: "all 0.2s",
+                  background: activeSection === item.id ? "rgba(255, 255, 255, 0.1)" : "transparent",
+                  color: activeSection === item.id ? "#ffffff" : "#A6C0B1",
+                  borderLeft: activeSection === item.id ? `4px solid ${COLORS.accent}` : "4px solid transparent"
                 }}
               >
-                <span style={{ fontSize: "22px" }}>{item.icon}</span>
-                <span style={{ fontWeight: activeSection === item.id ? "900" : "600", fontSize: "15px" }}>{item.id}</span>
+                <span style={{ fontSize: "16px", opacity: activeSection === item.id ? 1 : 0.7 }}>{item.icon}</span>
+                <span style={{ fontWeight: activeSection === item.id ? "600" : "500", fontSize: "13px" }}>{item.id}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ marginTop: "auto", borderTop: "1px solid #1e293b", paddingTop: "24px" }}>
-             <Button variant="danger" style={{ width: "100%", padding: "12px" }} onClick={handleLogout}>Secure Logoff</Button>
+          <div style={{ marginTop: "auto", padding: "24px 24px 0", display: "flex", alignItems: "center", gap: "12px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+             <div style={{ background: COLORS.accent, width: "32px", height: "32px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.secondary, fontSize: "12px", fontWeight: "800" }}>{user?.username?.[0]?.toUpperCase() || "U"}</div>
+             <div style={{ flex: 1 }}>
+                <p style={{ color: "#ffffff", fontSize: "13px", margin: 0, fontWeight: "600" }}>{user?.username || "Staff"}</p>
+                <p style={{ color: "#A6C0B1", fontSize: "11px", margin: 0 }}>{user?.role}</p>
+             </div>
+             <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer" }}>🚪</button>
           </div>
         </nav>
       )}
@@ -383,12 +401,19 @@ export default function App() {
       }}>
 
         <header style={{ marginBottom: "60px", display: "flex", justifyContent: "space-between", alignItems: "end" }}>
-          <div>
-            <h1 style={{ fontSize: "42px", fontWeight: "900", color: COLORS.secondary, margin: 0 }}>{activeSection}</h1>
-            <p style={{ color: COLORS.muted, fontSize: "18px", marginTop: "4px" }}>Real-time Mandi Administration / {activeSection}</p>
-          </div>
-          <div style={{ background: "#fff", padding: "12px 24px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.05)", fontWeight: "900", color: COLORS.secondary }}>
-            📅 {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div>
+              <h1 style={{ fontSize: "24px", fontWeight: "700", color: COLORS.secondary, margin: 0 }}>Good morning, {user?.name?.split(' ')[0] || user?.username || 'Admin'}</h1>
+              <p style={{ color: COLORS.muted, fontSize: "14px", marginTop: "6px" }}>Here's what's happening at SPV Fruits today</p>
+            </div>
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <div style={{ background: "#EFECE0", padding: "8px 16px", borderRadius: "20px", fontSize: "13px", fontWeight: "600", color: COLORS.muted }}>
+                {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+              </div>
+              <div style={{ background: "#FFFFFF", border: "1px solid #EBE9E1", width: "36px", height: "36px", borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: COLORS.sidebar, boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                 🔔
+              </div>
+            </div>
           </div>
         </header>
 
@@ -400,19 +425,23 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
               <div style={{ 
                 display: "grid", 
-                gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(200px, 1fr))", 
-                gap: isMobile ? "12px" : "24px" 
+                gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", 
+                gap: "24px" 
               }}>
                 {[
-                  { label: "Intake Today", val: "12,400 KG", color: "#fef3c7", bg: "#f59e0b", roles: ["Admin", "Operations Staff"] },
-                  { label: "Sales Today", val: "₹ 8.24L", color: "#dcfce7", bg: "#16a34a", roles: ["Admin", "Accountant"] },
-                  { label: "Outstanding", val: "₹ 14.5L", color: "#fee2e2", bg: "#dc2626", roles: ["Admin", "Accountant"] },
-                  { label: "Payments rec.", val: "₹ 2.1L", color: "#dbeafe", bg: "#2563eb", roles: ["Admin", "Accountant"] },
-                  { label: "Expenses", val: "₹ 42K", color: "#f3e8ff", bg: "#7c3aed", roles: ["Admin", "Accountant"] }
-                ].filter(m => m.roles.includes(user.role)).map((m, i) => (
-                  <Card key={i} style={{ background: m.color, border: "none", textAlign: "center", padding: isMobile ? "16px" : "24px" }}>
-                    <p style={{ margin: 0, fontWeight: "800", color: m.bg, textTransform: "uppercase", fontSize: isMobile ? "10px" : "12px" }}>{m.label}</p>
-                    <h2 style={{ fontSize: isMobile ? "20px" : "28px", margin: "12px 0 0", color: "#1e293b" }}>{m.val}</h2>
+                  { label: "TOTAL REVENUE", val: "₹2,84,560", trend: "+12.4%", trendLabel: "vs last week", color: COLORS.success },
+                  { label: "BOXES SOLD", val: "1,347", trend: "+8.1%", trendLabel: "vs last week", color: COLORS.success },
+                  { label: "ORDERS TODAY", val: "218", subtitle: "34 pending", subLabel: "awaiting confirmation", color: "#F59E0B" },
+                  { label: "ACTIVE STALLS", val: "6 / 8", subtitle: "2 offline", subLabel: "inventory low", color: COLORS.danger }
+                ].map((m, i) => (
+                  <Card key={i} style={{ padding: "20px 24px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                    <p style={{ margin: 0, fontWeight: "600", color: COLORS.muted, fontSize: "11px", letterSpacing: "0.5px" }}>{m.label}</p>
+                    <h2 style={{ fontSize: "28px", margin: "12px 0 8px", color: COLORS.secondary, fontWeight: "800" }}>{m.val}</h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", fontWeight: "600" }}>
+                      {m.trend && <span style={{ background: "rgba(76, 175, 80, 0.1)", color: m.color, padding: "2px 6px", borderRadius: "4px" }}>{m.trend}</span>}
+                      {m.subtitle && <span style={{ color: m.color }}>{m.subtitle}</span>}
+                      <span style={{ color: COLORS.muted, fontWeight: "500" }}>{m.trendLabel || m.subLabel}</span>
+                    </div>
                   </Card>
                 ))}
               </div>
