@@ -91,9 +91,52 @@ const Button = ({ children, onClick, variant = "primary", style = {} }) => {
 
 const formatCurrency = (v) => "₹" + (Number(v) || 0).toLocaleString("en-IN");
 
+const DB = {
+  Fruits: ["Apple", "Apricot", "Avocado", "Banana", "Blackberry", "Blueberry", "Cherry", "Coconut", "Dragon Fruit", "Fig", "Grapes", "Guava", "Kiwi", "Lemon", "Mango", "Orange", "Papaya", "Peach", "Pear", "Pineapple", "Plum", "Pomegranate", "Strawberry", "Watermelon"],
+  Vegetables: ["Ash Gourd", "Beetroot", "Brinjal", "Broccoli", "Cabbage", "Capsicum", "Carrot", "Cauliflower", "Cucumber", "Drumstick", "Garlic", "Ginger", "Green Chilli", "Lady Finger", "Onion", "Potato", "Pumpkin", "Radish", "Spinach", "Sweet Corn", "Tomato"],
+  AppleVars: ["Fuji", "Gala", "Granny Smith", "Red Delicious", "Golden Delicious", "Honeycrisp", "Ambrosia", "Pink Lady", "McIntosh", "Empire"],
+  Sizes: ["Small", "Medium", "Large", "Extra Large"],
+  Colors: ["Dark Red", "Light Red", "Green", "Yellow", "Mixed"]
+};
+
+const TabHeader = ({ tabs, active, set }) => (
+  <div style={{ display: "flex", gap: "32px", borderBottom: "1px solid #EBE9E1", marginBottom: "32px", overflowX: "auto" }}>
+    {tabs.map(t => (
+      <div key={t} onClick={() => set(t)} style={{ padding: "0 0 12px 0", cursor: "pointer", fontWeight: "700", fontSize: "14px", color: active === t ? COLORS.sidebar : COLORS.muted, borderBottom: active === t ? `3px solid ${COLORS.accent}` : "3px solid transparent", transition: "all 0.2s", whiteSpace: "nowrap" }}>{t}</div>
+    ))}
+  </div>
+);
+
+const FormGrid = ({ sections }) => (
+  <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+    {sections.map((sec, i) => (
+      <div key={i} style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+        <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", marginTop: 0 }}>{sec.title}</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px" }}>
+          {sec.fields.map((f, j) => (
+            <div key={j} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>{f.label}</label>
+              {f.type === 'select' ? (
+                <select defaultValue={f.value} disabled={f.disabled} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: f.disabled ? "#FDFBF4" : "#FFFFFF", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", appearance: "none" }}>
+                  <option value="" disabled selected>Select {f.label}</option>
+                  {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ) : (
+                <input type={f.type || 'text'} list={f.list} placeholder={f.placeholder || ''} disabled={f.disabled} defaultValue={f.value} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: f.disabled ? "#FDFBF4" : "#FFFFFF", color: f.disabled ? COLORS.muted : COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 // --- MAIN ARCHITECTURE ---
 export default function App() {
   const [activeSection, setActiveSection] = useState("Dashboard");
+  const [activeSupplierTab, setActiveSupplierTab] = useState("Supplier Registration");
+  const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [authForm, setAuthForm] = useState({ username: "", password: "" });
@@ -244,8 +287,8 @@ export default function App() {
   const ALL_MENU = [
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "User Roles", icon: "👥", roles: ["Admin"] },
-    { id: "Supplier Management", icon: "🏢", roles: ["Admin", "Operations Staff"] },
-    { id: "Buyer Management", icon: "💎", roles: ["Admin", "Operations Staff"] },
+    { id: "Supplier Role", icon: "🏢", roles: ["Admin", "Operations Staff"], isSub: true },
+    { id: "Buyer Role", icon: "💎", roles: ["Admin", "Operations Staff"], isSub: true },
     { id: "Inventory Intake", icon: "📥", roles: ["Admin", "Operations Staff"] },
     { id: "Inventory Allocation", icon: "📤", roles: ["Admin", "Operations Staff"] },
     { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
@@ -360,15 +403,15 @@ export default function App() {
                   if (isMobile) setSidebarOpen(false);
                 }}
                 style={{
-                  padding: "10px 16px", borderRadius: "8px", marginBottom: "4px", cursor: "pointer",
+                  padding: item.isSub ? "8px 16px 8px 36px" : "10px 16px", borderRadius: "8px", marginBottom: "4px", cursor: "pointer",
                   display: "flex", alignItems: "center", gap: "12px", transition: "all 0.2s",
                   background: activeSection === item.id ? "rgba(255, 255, 255, 0.1)" : "transparent",
                   color: activeSection === item.id ? "#ffffff" : "#AEC4BB",
                   borderLeft: activeSection === item.id ? `4px solid ${COLORS.accent}` : "4px solid transparent"
                 }}
               >
-                <span style={{ fontSize: "16px", opacity: activeSection === item.id ? 1 : 0.7 }}>{item.icon}</span>
-                <span style={{ fontWeight: activeSection === item.id ? "600" : "500", fontSize: "13px" }}>{item.id}</span>
+                <span style={{ fontSize: item.isSub ? "14px" : "16px", opacity: activeSection === item.id ? 1 : 0.7 }}>{item.icon}</span>
+                <span style={{ fontWeight: activeSection === item.id ? "600" : "500", fontSize: item.isSub ? "12px" : "13px" }}>{item.id}</span>
               </div>
             ))}
           </div>
@@ -603,80 +646,282 @@ export default function App() {
             </div>
           )}
 
-          {/* 4. Supplier Management */}
-          {activeSection === "Supplier Management" && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: "32px" }}>
-              <Card title="Supplier Directory" subtitle="Manage high-volume marketplace suppliers">
-                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
-                  <Button variant="secondary" onClick={() => MandiService.exportExcel('suppliers')}>📊 Export to Excel</Button>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "32px" }}>
-                  <Input label="Supplier Name" placeholder="Full Identity" value={supplierForm.name} onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })} />
-                  <Input label="Phone Number" placeholder="+91 xxxx..." value={supplierForm.phone} onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
-                  <Input label="Village / Address" placeholder="Source Origin" value={supplierForm.address} onChange={(e) => setSupplierForm({ ...supplierForm, address: e.target.value })} />
-                  <Input label="Government ID" placeholder="Gov ID Number" value={supplierForm.govIdNumber} onChange={(e) => setSupplierForm({ ...supplierForm, govIdNumber: e.target.value })} />
-                  <select
-                    style={{ height: "54px", background: "#f8fafc", borderRadius: "14px", border: "2.5px solid #f1f5f9", padding: "0 14px", fontWeight: "700" }}
-                    value={supplierForm.idType}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, idType: e.target.value })}
-                  >
-                    <option>Aadhaar</option><option>PAN Card</option><option>Voter ID</option>
-                  </select>
-                  <Input label="Bank Details" placeholder="IFSC / ACC #" value={supplierForm.bankDetails} onChange={(e) => setSupplierForm({ ...supplierForm, bankDetails: e.target.value })} />
-                </div>
-                <Input label="Admin Notes" placeholder="Trust level, quality history..." value={supplierForm.notes} onChange={(e) => setSupplierForm({ ...supplierForm, notes: e.target.value })} />
+          {/* Supplier Role Module */}
+          {activeSection === "Supplier Role" && (
+            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h2 style={{ fontSize: "24px", fontWeight: "800", color: COLORS.sidebar, margin: 0 }}>Supplier Module</h2>
                 <div style={{ display: "flex", gap: "12px" }}>
-                  <Button onClick={handleRegisterSupplier} style={{ background: COLORS.success }}>💾 Save Supplier to Database</Button>
+                  <Button variant="secondary" onClick={() => MandiService.exportExcel('suppliers')}>Export Records</Button>
                 </div>
-                <table style={{ width: "100%", marginTop: "40px", borderCollapse: "collapse" }}>
-                  <thead><tr style={{ background: "#f8fafc", textAlign: "left" }}><th>Name</th><th>Verification</th><th>Balance</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {suppliers.map(s => (
-                      <tr key={s._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "20px 0" }}><b>{s.name}</b><br /><small>{s.address}</small></td>
-                        <td><span style={{ padding: "4px 10px", background: "#dcfce7", color: "#166534", borderRadius: "20px", fontSize: "12px", fontWeight: "800" }}>AUTHENTICATED</span></td>
-                        <td style={{ fontWeight: "900", color: COLORS.danger }}>₹ {s.balance || 0}</td>
-                        <td><Button variant="secondary" style={{ padding: "6px 14px" }}>📜 History</Button></td>
-                      </tr>
-                    ))}
-                    {suppliers.length === 0 && <tr><td colSpan="4" style={{ padding: "40px", textAlign: "center", color: COLORS.muted }}>No suppliers found. Add one above!</td></tr>}
-                  </tbody>
-                </table>
-              </Card>
+              </div>
+              
+              <TabHeader tabs={["Supplier Registration", "Dispatch Entry", "Supplier Accounts"]} active={activeSupplierTab} set={setActiveSupplierTab} />
+
+              {activeSupplierTab === "Supplier Registration" && (
+                <div>
+                  <FormGrid sections={[
+                    {
+                      title: "Basic Details",
+                      fields: [
+                        { label: "Supplier ID", disabled: true, value: "SUP-A2890" },
+                        { label: "Full Name", placeholder: "Enter name" },
+                        { label: "Mobile Number", type: "tel" },
+                        { label: "Alternate Mobile / Landline", type: "tel" },
+                        { label: "WhatsApp Number", type: "tel" },
+                        { label: "Email", type: "email" },
+                        { label: "Local / Non-Local", type: "select", options: ["Local", "Non-Local"] },
+                        { label: "Address", placeholder: "Street/Village" },
+                        { label: "City" },
+                        { label: "District" },
+                        { label: "Pincode" },
+                        { label: "State" },
+                        { label: "Country", value: "India" },
+                        { label: "GST Number" },
+                        { label: "Aadhaar / PAN Number" },
+                        { label: "Business Name" },
+                        { label: "Registration Date", type: "date", value: new Date().toISOString().slice(0, 10) }
+                      ]
+                    },
+                    {
+                      title: "Additional Business Details",
+                      fields: [
+                        { label: "Preferred Payment Method", type: "select", options: ["Bank Transfer (RTGS/NEFT)", "UPI", "Cash", "Cheque"] },
+                        { label: "Credit Limit (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Supplier Category", type: "select", options: ["Farmer", "Wholesaler", "Broker", "Agent"] },
+                        { label: "Transport Availability", type: "select", options: ["Yes - Own Transport", "No - Requires Pickup"] },
+                        { label: "Remarks / Notes" }
+                      ]
+                    }
+                  ]} />
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar }}>Submit Details</Button>
+                    <Button variant="secondary">Save Draft</Button>
+                    <Button variant="outline">Edit</Button>
+                    <Button variant="danger" style={{ background: "#F1F5F9", color: COLORS.danger, border: "none" }}>Cancel All</Button>
+                  </div>
+                </div>
+              )}
+
+              {activeSupplierTab === "Dispatch Entry" && (
+                <div>
+                  <FormGrid sections={[
+                    {
+                      title: "Product Identity & Dispatch",
+                      fields: [
+                        { label: "Dispatch ID", disabled: true, value: "DSP-55921" },
+                        { label: "Supplier Name", type: "select", options: ["Srinivas Rao", "Priya Reddy", "Mohan Chandra", "Harika Naidu"] },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"] },
+                        { label: "Product Name", list: "product-list", placeholder: "Type to search..." },
+                        { label: "Variety", list: "variety-list", placeholder: "Fuji, Alphonso..." },
+                        { label: "Size Grade", type: "select", options: DB.Sizes },
+                        { label: "Color Grade", type: "select", options: DB.Colors },
+                        { label: "Quality Grade", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] },
+                        { label: "Category", type: "select", options: ["Organic", "Inorganic"] }
+                      ]
+                    },
+                    {
+                      title: "Logistics & Commercials",
+                      fields: [
+                        { label: "Unit Cost (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Quantity", type: "number", placeholder: "0" },
+                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"] },
+                        { label: "Number of Trucks", type: "number", placeholder: "1" },
+                        { label: "Truck Number", placeholder: "TS 09 EU 1234" },
+                        { label: "Driver Name" },
+                        { label: "Driver Mobile", type: "tel" },
+                        { label: "Loading Date", type: "date", value: new Date().toISOString().slice(0, 10) },
+                        { label: "Destination" },
+                        { label: "Total Cost (₹)", type: "number", disabled: true, value: "Auto-calculated" },
+                        { label: "Tax (%)", type: "number", value: "5" },
+                        { label: "Extra Charges (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Net Total (₹)", type: "number", disabled: true, value: "Auto-calculated" },
+                        { label: "Remarks" }
+                      ]
+                    }
+                  ]} />
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar }}>Save Record</Button>
+                    <Button variant="secondary">Update Record</Button>
+                    <Button style={{ background: COLORS.success }}>Generate Invoice</Button>
+                    <Button variant="outline">Cancel Action</Button>
+                  </div>
+                  <datalist id="product-list">
+                    {DB.Fruits.map(f => <option key={f} value={f} />)}
+                    {DB.Vegetables.map(v => <option key={v} value={v} />)}
+                  </datalist>
+                  <datalist id="variety-list">
+                    {DB.AppleVars.map(a => <option key={a} value={a} />)}
+                    <option value="Alphonso" />
+                    <option value="Kesar" />
+                    <option value="Banganapalli" />
+                  </datalist>
+                </div>
+              )}
+
+              {activeSupplierTab === "Supplier Accounts" && (
+                <div>
+                  <FormGrid sections={[
+                    {
+                      title: "Account Overview",
+                      fields: [
+                        { label: "Supplier Name", type: "select", options: ["Srinivas Rao", "Sanjay Mehta"] },
+                        { label: "Total Amount (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Paid Amount (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Balance Amount (₹)", disabled: true, value: "Auto-calculated" },
+                        { label: "Credit Status", type: "select", options: ["Good Standing", "Overdue", "Locked"] }
+                      ]
+                    },
+                    {
+                      title: "Payment Processing",
+                      fields: [
+                        { label: "Payment Date", type: "date", value: new Date().toISOString().slice(0, 10) },
+                        { label: "Payment Method", type: "select", options: ["Bank Transfer (RTGS/NEFT)", "UPI", "Cash", "Cheque"] },
+                        { label: "Transaction ID", placeholder: "UTR or Txn Hash" },
+                        { label: "Pending Days", type: "number", placeholder: "0" },
+                        { label: "Last Payment Date", type: "date" },
+                        { label: "Next Due Date", type: "date", value: new Date(Date.now() + 86400000*30).toISOString().slice(0, 10) },
+                        { label: "Notes" }
+                      ]
+                    }
+                  ]} />
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar }}>Save Payment</Button>
+                    <Button variant="secondary">Update Details</Button>
+                    <Button variant="outline">Print Statement</Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* 5. Buyer Management */}
-          {activeSection === "Buyer Management" && (
-            <Card title="Buyer Ecosystem" subtitle="Customer profiles and credit tracking">
-               <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
-                  <Button variant="secondary" onClick={() => MandiService.exportExcel('buyers')}>📊 Export to Excel</Button>
+          {/* Buyer Role Module */}
+          {activeSection === "Buyer Role" && (
+            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h2 style={{ fontSize: "24px", fontWeight: "800", color: COLORS.sidebar, margin: 0 }}>Buyer Module</h2>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <Button variant="secondary" onClick={() => MandiService.exportExcel('buyers')}>Export Records</Button>
                 </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
-                <Input label="Buyer Name" placeholder="Full Name" value={buyerForm.name} onChange={(e) => setBuyerForm({ ...buyerForm, name: e.target.value })} />
-                <Input label="Shop Name" placeholder="Business Entity" value={buyerForm.shopName} onChange={(e) => setBuyerForm({ ...buyerForm, shopName: e.target.value })} />
-                <Input label="Phone" placeholder="Mobile" value={buyerForm.phone} onChange={(e) => setBuyerForm({ ...buyerForm, phone: e.target.value })} />
-                <Input label="Credit Limit" placeholder="Max Debt" value={buyerForm.creditLimit} onChange={(e) => setBuyerForm({ ...buyerForm, creditLimit: e.target.value })} />
               </div>
-              <div style={{ display: "flex", gap: "12px", marginBottom: "40px" }}>
-                <Button onClick={handleOnboardBuyer} style={{ background: COLORS.success }}>💾 Save Buyer to Database</Button>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-                {buyers.map(b => (
-                  <div key={b._id} style={{ padding: "24px", background: "#f8fafc", borderRadius: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #e2e8f0" }}>
-                    <div>
-                      <b style={{ fontSize: "18px" }}>{b.shopName || b.name}</b>
-                      <p style={{ margin: 0, color: COLORS.muted }}>Balance: <b style={{ color: COLORS.danger }}>{formatCurrency(b.outstanding)}</b></p>
-                    </div>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <Button variant="secondary" style={{ padding: "8px 14px", fontSize: "12px" }}>History</Button>
-                      <Button variant="secondary" style={{ padding: "8px 14px", fontSize: "12px" }}>Ledger</Button>
-                    </div>
+              
+              <TabHeader tabs={["Buyer Registration", "Purchase Order", "Buyer Accounts"]} active={activeBuyerTab} set={setActiveBuyerTab} />
+
+              {activeBuyerTab === "Buyer Registration" && (
+                <div>
+                  <FormGrid sections={[
+                    {
+                      title: "Buyer Basic Details",
+                      fields: [
+                        { label: "Buyer ID", disabled: true, value: "BUY-9042" },
+                        { label: "Buyer Name", placeholder: "Full Name" },
+                        { label: "Business Name", placeholder: "Company / Shop Name" },
+                        { label: "Buyer Type", type: "select", options: ["Wholesaler", "Retailer", "Exporter", "Supermarket Chain"] },
+                        { label: "Preferred Product Category", type: "select", options: ["Fruits Only", "Vegetables Only", "Mixed/Both"] },
+                        { label: "Mobile Number", type: "tel" },
+                        { label: "Alternate Number", type: "tel" },
+                        { label: "WhatsApp Number", type: "tel" },
+                        { label: "Email", type: "email" }
+                      ]
+                    },
+                    {
+                      title: "Location & Compliance",
+                      fields: [
+                        { label: "Address", placeholder: "Primary location" },
+                        { label: "City" },
+                        { label: "District" },
+                        { label: "State" },
+                        { label: "Pincode" },
+                        { label: "GST Number" },
+                        { label: "Credit Limit (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Registration Date", type: "date", value: new Date().toISOString().slice(0, 10) }
+                      ]
+                    }
+                  ]} />
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar }}>Submit Details</Button>
+                    <Button variant="secondary">Save Draft</Button>
+                    <Button variant="outline">Edit</Button>
+                    <Button variant="danger" style={{ background: "#F1F5F9", color: COLORS.danger, border: "none" }}>Cancel All</Button>
                   </div>
-                ))}
-                {buyers.length === 0 && <p style={{ color: COLORS.muted }}>No buyers onboarded.</p>}
-              </div>
-            </Card>
+                </div>
+              )}
+
+              {activeBuyerTab === "Purchase Order" && (
+                <div>
+                  <FormGrid sections={[
+                    {
+                      title: "Order Requirements",
+                      fields: [
+                        { label: "Order ID", disabled: true, value: "ORD-PO-149" },
+                        { label: "Buyer Name", type: "select", options: ["Reliance Retail", "Kisan Markets", "BigBasket", "More Supermarkets"] },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"] },
+                        { label: "Product Name", list: "product-list", placeholder: "Type to search..." },
+                        { label: "Required Variety", list: "variety-list", placeholder: "Fuji, Alphonso..." },
+                        { label: "Required Size", type: "select", options: DB.Sizes },
+                        { label: "Required Color", type: "select", options: DB.Colors },
+                        { label: "Required Quality", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] }
+                      ]
+                    },
+                    {
+                      title: "Fulfillment Details",
+                      fields: [
+                        { label: "Required Quantity", type: "number", placeholder: "0" },
+                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"] },
+                        { label: "Number of Trucks Required", type: "number", placeholder: "1" },
+                        { label: "Packing Type", type: "select", options: ["Standard Corrugated", "Plastic Crates", "Wooden Boxes", "Loose Loads"] },
+                        { label: "Delivery Date", type: "date", value: new Date().toISOString().slice(0, 10) },
+                        { label: "Delivery Location", placeholder: "Destination Hub" },
+                        { label: "Preferred Rate (₹)", type: "number", placeholder: "Target max price" },
+                        { label: "Urgency Level", type: "select", options: ["Normal", "High", "Critical (Same Day)"] },
+                        { label: "Notes" }
+                      ]
+                    }
+                  ]} />
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar }}>Save Order</Button>
+                    <Button variant="secondary">Edit Order</Button>
+                    <Button style={{ background: COLORS.success }}>Generate Order Slip</Button>
+                    <Button variant="outline">Cancel Order</Button>
+                  </div>
+                </div>
+              )}
+
+              {activeBuyerTab === "Buyer Accounts" && (
+                <div>
+                  <FormGrid sections={[
+                    {
+                      title: "Billing Cycle",
+                      fields: [
+                        { label: "Buyer Name", type: "select", options: ["Reliance Retail", "Kisan Markets"] },
+                        { label: "Rate per Unit (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Quantity", type: "number", placeholder: "0" },
+                        { label: "Total Amount (₹)", disabled: true, value: "Auto-calculated" },
+                        { label: "Tax (%)", type: "number", placeholder: "5" },
+                        { label: "Discount (₹)", type: "number", placeholder: "0.00" }
+                      ]
+                    },
+                    {
+                      title: "Payment Receipts",
+                      fields: [
+                        { label: "Paid Amount (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Payment Mode", type: "select", options: ["Bank Transfer (RTGS/NEFT)", "UPI", "Cash", "Cheque", "Credit Account"] },
+                        { label: "Transaction ID", placeholder: "UTR or Txn" },
+                        { label: "Due Date", type: "date", value: new Date(Date.now() + 86400000*30).toISOString().slice(0, 10) },
+                        { label: "Outstanding Amount (₹)", disabled: true, value: "Auto-calculated" },
+                        { label: "Balance Amount (₹)", disabled: true, value: "Auto-calculated" },
+                        { label: "Remarks" }
+                      ]
+                    }
+                  ]} />
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar }}>Save Record</Button>
+                    <Button variant="secondary">Update File</Button>
+                    <Button variant="outline">Print Invoice</Button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {/* 6. Inventory Intake */}
