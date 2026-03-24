@@ -818,12 +818,6 @@ export default function App() {
                     {DB.Fruits.map(f => <option key={f} value={f} />)}
                     {DB.Vegetables.map(v => <option key={v} value={v} />)}
                   </datalist>
-                  <datalist id="variety-list">
-                    {DB.AppleVars.map(a => <option key={a} value={a} />)}
-                    <option value="Alphonso" />
-                    <option value="Kesar" />
-                    <option value="Banganapalli" />
-                  </datalist>
                 </div>
               )}
 
@@ -980,6 +974,49 @@ export default function App() {
                     <Button style={{ background: COLORS.success }}>Generate Order Slip</Button>
                     <Button variant="outline">Cancel Order</Button>
                   </div>
+
+                  <div style={{ marginTop: "40px" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "16px", borderBottom: "1px solid #EBE9E1", paddingBottom: "12px" }}>Recent Purchase Orders</h3>
+                    <div style={{ overflowX: "auto", background: "#FFFFFF", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                        <thead>
+                          <tr style={{ background: "#FDFBF4", textAlign: "left", color: COLORS.muted }}>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Order ID</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Buyer</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Product Info</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Qty</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Estimated Rate</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Urgency</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { id: "ORD-PO-148", buyer: "Reliance Retail", product: "Apple (Fuji) • Grade A", qty: "500 KG", rate: "₹120/KG", urgency: "High" },
+                            { id: "ORD-PO-147", buyer: "Kisan Markets", product: "Mango (Alphonso) • Premium", qty: "100 Box", rate: "₹650/Box", urgency: "Normal" },
+                            { id: "ORD-PO-146", buyer: "BigBasket", product: "Tomato (Grape) • Standard", qty: "2 Ton", rate: "₹15/KG", urgency: "Critical" }
+                          ].map((o, i) => (
+                            <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
+                              <td style={{ padding: "16px", fontWeight: "600", color: COLORS.sidebar }}>{o.id}</td>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{o.buyer}</td>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{o.product}</td>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{o.qty}</td>
+                              <td style={{ padding: "16px", fontWeight: "700", color: COLORS.sidebar }}>{o.rate}</td>
+                              <td style={{ padding: "16px" }}>
+                                <span style={{ 
+                                  padding: "4px 8px", 
+                                  borderRadius: "6px", 
+                                  fontSize: "11px", 
+                                  fontWeight: "700", 
+                                  background: o.urgency === 'Critical' ? '#FAD8D8' : o.urgency === 'High' ? '#FEF3C7' : '#DCFCE7', 
+                                  color: o.urgency === 'Critical' ? COLORS.danger : o.urgency === 'High' ? '#92400E' : '#166534' 
+                                }}>{o.urgency}</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1014,6 +1051,40 @@ export default function App() {
                     <Button style={{ background: COLORS.sidebar }}>Save Record</Button>
                     <Button variant="secondary">Update File</Button>
                     <Button variant="outline">Print Invoice</Button>
+                  </div>
+
+                  <div style={{ marginTop: "40px" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "16px", borderBottom: "1px solid #EBE9E1", paddingBottom: "12px" }}>Recent Buyer Transactions</h3>
+                    <div style={{ overflowX: "auto", background: "#FFFFFF", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                        <thead>
+                          <tr style={{ background: "#FDFBF4", textAlign: "left", color: COLORS.muted }}>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Date</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Buyer Name</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Inv / Order ID</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Total Amount</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Paid Amount</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Outstanding</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { date: "Oct 25, 2026", buyer: "Reliance Retail", inv: "INV-2024-001", total: "₹2,50,000", paid: "₹2,00,000", balance: "₹50,000" },
+                            { date: "Oct 23, 2026", buyer: "More Supermarkets", inv: "INV-2024-002", total: "₹85,000", paid: "₹85,000", balance: "₹0" },
+                            { date: "Oct 21, 2026", buyer: "BigBasket", inv: "INV-2024-003", total: "₹1,20,000", paid: "₹50,000", balance: "₹70,000" }
+                          ].map((b, i) => (
+                            <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{b.date}</td>
+                              <td style={{ padding: "16px", fontWeight: "600", color: COLORS.sidebar }}>{b.buyer}</td>
+                              <td style={{ padding: "16px", color: COLORS.muted }}>{b.inv}</td>
+                              <td style={{ padding: "16px", fontWeight: "700", color: COLORS.sidebar }}>{b.total}</td>
+                              <td style={{ padding: "16px", color: COLORS.success, fontWeight: "600" }}>{b.paid}</td>
+                              <td style={{ padding: "16px", color: COLORS.danger, fontWeight: "700" }}>{b.balance}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1387,6 +1458,12 @@ export default function App() {
           )}
 
         </div>
+        
+        {/* Global Datalist Injection for Autocomplete Fields */}
+        <datalist id="product-list">
+          {DB.Fruits.map(f => <option key={`f-${f}`} value={f} />)}
+          {DB.Vegetables.map(v => <option key={`v-${v}`} value={v} />)}
+        </datalist>
 
       </div>
     </div>
