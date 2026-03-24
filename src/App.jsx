@@ -19,16 +19,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 // --- JAMANGO DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#3D6B45", // Dark Forest Green (Active States, Buttons)
-  secondary: "#234a31", // Even Darker Green (Sidebar, Headers)
-  bg: "#FAF9F4", // Soft Warm Off-White (Main Background)
+  primary: "#345344", // Dark Forest Green from SPV text
+  secondary: "#2B4538", // Slightly Darker Dark Forest Green
+  bg: "#FDFBF4", // Very pleasant warm cream background from the logo
   card: "#FFFFFF",
-  text: "#2C3E34", // Dark Green-Grey Text
-  muted: "#889D91", // Muted Light Green/Grey
-  success: "#4CAF50",
-  danger: "#E57373",
-  accent: "#8AB26C", // Light Olive Green
-  sidebar: "#25513A" // Sidebar Background
+  text: "#345344", // Matching logo text color
+  muted: "#8E9E95", // Muted light green-grey
+  success: "#A0B763",
+  danger: "#E96A6A",
+  accent: "#A0B763", // Light Olive/Mango Green from graphic
+  sidebar: "#345344" // Exact Logo SPV Dark Green for the left menu
 };
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -363,7 +363,7 @@ export default function App() {
                   padding: "10px 16px", borderRadius: "8px", marginBottom: "4px", cursor: "pointer",
                   display: "flex", alignItems: "center", gap: "12px", transition: "all 0.2s",
                   background: activeSection === item.id ? "rgba(255, 255, 255, 0.1)" : "transparent",
-                  color: activeSection === item.id ? "#ffffff" : "#A6C0B1",
+                  color: activeSection === item.id ? "#ffffff" : "#AEC4BB",
                   borderLeft: activeSection === item.id ? `4px solid ${COLORS.accent}` : "4px solid transparent"
                 }}
               >
@@ -377,7 +377,7 @@ export default function App() {
              <div style={{ background: COLORS.accent, width: "32px", height: "32px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.secondary, fontSize: "12px", fontWeight: "800" }}>{user?.username?.[0]?.toUpperCase() || "U"}</div>
              <div style={{ flex: 1 }}>
                 <p style={{ color: "#ffffff", fontSize: "13px", margin: 0, fontWeight: "600" }}>{user?.username || "Staff"}</p>
-                <p style={{ color: "#A6C0B1", fontSize: "11px", margin: 0 }}>{user?.role}</p>
+                <p style={{ color: "#AEC4BB", fontSize: "11px", margin: 0 }}>{user?.role}</p>
              </div>
              <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer" }}>🚪</button>
           </div>
