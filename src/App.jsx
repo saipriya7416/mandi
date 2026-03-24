@@ -93,11 +93,48 @@ const formatCurrency = (v) => "₹" + (Number(v) || 0).toLocaleString("en-IN");
 
 const DB = {
   Fruits: ["Apple", "Apricot", "Avocado", "Banana", "Blackberry", "Blueberry", "Cherry", "Coconut", "Dragon Fruit", "Fig", "Grapes", "Guava", "Kiwi", "Lemon", "Mango", "Orange", "Papaya", "Peach", "Pear", "Pineapple", "Plum", "Pomegranate", "Strawberry", "Watermelon"],
-  Vegetables: ["Ash Gourd", "Beetroot", "Brinjal", "Broccoli", "Cabbage", "Capsicum", "Carrot", "Cauliflower", "Cucumber", "Drumstick", "Garlic", "Ginger", "Green Chilli", "Lady Finger", "Onion", "Potato", "Pumpkin", "Radish", "Spinach", "Sweet Corn", "Tomato"],
-  AppleVars: ["Fuji", "Gala", "Granny Smith", "Red Delicious", "Golden Delicious", "Honeycrisp", "Ambrosia", "Pink Lady", "McIntosh", "Empire"],
-  Sizes: ["Small", "Medium", "Large", "Extra Large"],
-  Colors: ["Dark Red", "Light Red", "Green", "Yellow", "Mixed"]
+  Vegetables: ["Ash Gourd", "Beetroot", "Brinjal", "Broccoli", "Cabbage", "Capsicum", "Carrot", "Cauliflower", "Cucumber", "Drumstick", "Garlic", "Ginger", "Green Chilli", "Lady Finger", "Onion", "Potato", "Pumpkin", "Radish", "Spinach", "Sweet Corn", "Tomato"]
 };
+
+const PRODUCT_DATA = {
+  "Apple": {
+    varieties: ["Fuji", "Gala", "Granny Smith", "Red Delicious", "Golden Delicious", "Honeycrisp", "Ambrosia", "Pink Lady", "McIntosh", "Empire"],
+    sizes: ["Small", "Medium", "Large", "Extra Large"],
+    colors: ["Dark Red", "Light Red", "Green", "Yellow", "Mixed"]
+  },
+  "Mango": {
+    varieties: ["Alphonso", "Kesar", "Banganapalli", "Langra", "Dasheri", "Totapuri", "Sindhura", "Neelam"],
+    sizes: ["Small (150g)", "Medium (250g)", "Large (350g+)", "Jumbo"],
+    colors: ["Yellow", "Orange", "Light Green", "Green", "Reddish"]
+  },
+  "Banana": {
+    varieties: ["Cavendish", "Robusta", "Red Banana", "Poovan", "Nendran"],
+    sizes: ["Small", "Medium", "Large", "Extra Large (Hands)"],
+    colors: ["Green", "Yellow", "Yellow-Green", "Red"]
+  },
+  "Tomato": {
+    varieties: ["Roma", "Cherry", "Beefsteak", "Heirloom", "Grape"],
+    sizes: ["Small", "Medium", "Large"],
+    colors: ["Red", "Orange", "Yellow", "Green"]
+  },
+  "Onion": {
+    varieties: ["Red Onion", "White Onion", "Yellow Onion", "Sweet Onion", "Shallot"],
+    sizes: ["Small (< 40mm)", "Medium (40-60mm)", "Large (60-80mm)", "Jumbo (> 80mm)"],
+    colors: ["Red", "White", "Yellow", "Brown"]
+  },
+  "Grapes": {
+    varieties: ["Thompson Seedless", "Flame Seedless", "Sharad Seedless", "Crimson", "Black Globe"],
+    sizes: ["Small Berry", "Medium Berry", "Large Berry"],
+    colors: ["Green", "Black", "Red", "Mixed"]
+  },
+  "default": {
+    varieties: ["Standard", "Premium", "Local", "Hybrid"],
+    sizes: ["Small", "Medium", "Large", "Extra Large"],
+    colors: ["Standard", "Mixed", "Green", "Red", "Yellow", "Orange"]
+  }
+};
+
+const getProductData = (productName) => PRODUCT_DATA[productName] || PRODUCT_DATA["default"];
 
 const TabHeader = ({ tabs, active, set }) => (
   <div style={{ display: "flex", gap: "32px", borderBottom: "1px solid #EBE9E1", marginBottom: "32px", overflowX: "auto" }}>
@@ -117,12 +154,12 @@ const FormGrid = ({ sections }) => (
             <div key={j} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>{f.label}</label>
               {f.type === 'select' ? (
-                <select defaultValue={f.value} disabled={f.disabled} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: f.disabled ? "#FDFBF4" : "#FFFFFF", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", appearance: "none" }}>
-                  <option value="" disabled selected>Select {f.label}</option>
+                <select value={f.value} defaultValue={f.value === undefined ? f.defaultValue : undefined} onChange={f.onChange} disabled={f.disabled} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: f.disabled ? "#FDFBF4" : "#FFFFFF", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", appearance: "none" }}>
+                  <option value="" disabled selected={f.value === undefined}>Select {f.label}</option>
                   {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
               ) : (
-                <input type={f.type || 'text'} list={f.list} placeholder={f.placeholder || ''} disabled={f.disabled} defaultValue={f.value} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: f.disabled ? "#FDFBF4" : "#FFFFFF", color: f.disabled ? COLORS.muted : COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                <input type={f.type || 'text'} list={f.list} placeholder={f.placeholder || ''} disabled={f.disabled} value={f.value} defaultValue={f.value === undefined ? f.defaultValue : undefined} onChange={f.onChange} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: f.disabled ? "#FDFBF4" : "#FFFFFF", color: f.disabled ? COLORS.muted : COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
               )}
             </div>
           ))}
@@ -137,6 +174,8 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [activeSupplierTab, setActiveSupplierTab] = useState("Supplier Registration");
   const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
+  const [dispatchProduct, setDispatchProduct] = useState("");
+  const [poProduct, setPoProduct] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [authForm, setAuthForm] = useState({ username: "", password: "" });
@@ -712,10 +751,10 @@ export default function App() {
                         { label: "Dispatch ID", disabled: true, value: "DSP-55921" },
                         { label: "Supplier Name", type: "select", options: ["Srinivas Rao", "Priya Reddy", "Mohan Chandra", "Harika Naidu"] },
                         { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"] },
-                        { label: "Product Name", list: "product-list", placeholder: "Type to search..." },
-                        { label: "Variety", list: "variety-list", placeholder: "Fuji, Alphonso..." },
-                        { label: "Size Grade", type: "select", options: DB.Sizes },
-                        { label: "Color Grade", type: "select", options: DB.Colors },
+                        { label: "Product Name", list: "product-list", placeholder: "Type to search...", value: dispatchProduct, onChange: (e) => setDispatchProduct(e.target.value) },
+                        { label: "Variety", type: "select", options: getProductData(dispatchProduct).varieties },
+                        { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes },
+                        { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
                         { label: "Quality Grade", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] },
                         { label: "Category", type: "select", options: ["Organic", "Inorganic"] }
                       ]
@@ -856,10 +895,10 @@ export default function App() {
                         { label: "Order ID", disabled: true, value: "ORD-PO-149" },
                         { label: "Buyer Name", type: "select", options: ["Reliance Retail", "Kisan Markets", "BigBasket", "More Supermarkets"] },
                         { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"] },
-                        { label: "Product Name", list: "product-list", placeholder: "Type to search..." },
-                        { label: "Required Variety", list: "variety-list", placeholder: "Fuji, Alphonso..." },
-                        { label: "Required Size", type: "select", options: DB.Sizes },
-                        { label: "Required Color", type: "select", options: DB.Colors },
+                        { label: "Product Name", list: "product-list", placeholder: "Type to search...", value: poProduct, onChange: (e) => setPoProduct(e.target.value) },
+                        { label: "Required Variety", type: "select", options: getProductData(poProduct).varieties },
+                        { label: "Required Size", type: "select", options: getProductData(poProduct).sizes },
+                        { label: "Required Color", type: "select", options: getProductData(poProduct).colors },
                         { label: "Required Quality", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] }
                       ]
                     },
