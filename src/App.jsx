@@ -779,6 +779,41 @@ export default function App() {
                     <Button style={{ background: COLORS.success }}>Generate Invoice</Button>
                     <Button variant="outline">Cancel Action</Button>
                   </div>
+
+                  <div style={{ marginTop: "40px" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "16px", borderBottom: "1px solid #EBE9E1", paddingBottom: "12px" }}>Recent Dispatches</h3>
+                    <div style={{ overflowX: "auto", background: "#FFFFFF", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                        <thead>
+                          <tr style={{ background: "#FDFBF4", textAlign: "left", color: COLORS.muted }}>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Dispatch ID</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Supplier</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Product Info</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Logistics</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Net Total</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { id: "DSP-55920", supplier: "Priya Reddy", product: "Apple (Fuji) • Premium", logistics: "20 Box • TS09 EU 1234", amount: "₹45,000", status: "In Transit" },
+                            { id: "DSP-55919", supplier: "Srinivas Rao", product: "Mango (Alphonso) • A Grade", logistics: "50 Box • AP28 BW 9091", amount: "₹82,500", status: "Delivered" },
+                            { id: "DSP-55918", supplier: "Mohan Chandra", product: "Tomato (Roma) • Standard", logistics: "15 Ton • TS07 CD 4455", amount: "₹18,000", status: "Delivered" }
+                          ].map((d, i) => (
+                            <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
+                              <td style={{ padding: "16px", fontWeight: "600", color: COLORS.sidebar }}>{d.id}</td>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{d.supplier}</td>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{d.product}</td>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{d.logistics}</td>
+                              <td style={{ padding: "16px", fontWeight: "700", color: COLORS.sidebar }}>{d.amount}</td>
+                              <td style={{ padding: "16px" }}><span style={{ padding: "4px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: "700", background: d.status === 'Delivered' ? '#DCFCE7' : '#FEF3C7', color: d.status === 'Delivered' ? '#166534' : '#92400E' }}>{d.status}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
                   <datalist id="product-list">
                     {DB.Fruits.map(f => <option key={f} value={f} />)}
                     {DB.Vegetables.map(v => <option key={v} value={v} />)}
@@ -822,6 +857,40 @@ export default function App() {
                     <Button style={{ background: COLORS.sidebar }}>Save Payment</Button>
                     <Button variant="secondary">Update Details</Button>
                     <Button variant="outline">Print Statement</Button>
+                  </div>
+
+                  <div style={{ marginTop: "40px" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "16px", borderBottom: "1px solid #EBE9E1", paddingBottom: "12px" }}>Recent Transactions</h3>
+                    <div style={{ overflowX: "auto", background: "#FFFFFF", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                        <thead>
+                          <tr style={{ background: "#FDFBF4", textAlign: "left", color: COLORS.muted }}>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Date</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Supplier</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Transaction ID</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Method</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Amount Paid</th>
+                            <th style={{ padding: "16px", fontWeight: "700", borderBottom: "1px solid #EBE9E1" }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { date: "Oct 24, 2026", supplier: "Srinivas Rao", txn: "UTR-SBIN00489912", method: "Bank Transfer (RTGS)", amount: "₹1,50,000", status: "Completed" },
+                            { date: "Oct 22, 2026", supplier: "Sanjay Mehta", txn: "TXN-UPI-992011", method: "UPI", amount: "₹25,000", status: "Completed" },
+                            { date: "Oct 20, 2026", supplier: "Harika Naidu", txn: "CHQ-009212", method: "Cheque", amount: "₹80,000", status: "Pending Clearance" }
+                          ].map((t, i) => (
+                            <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{t.date}</td>
+                              <td style={{ padding: "16px", fontWeight: "600", color: COLORS.sidebar }}>{t.supplier}</td>
+                              <td style={{ padding: "16px", color: COLORS.muted }}>{t.txn}</td>
+                              <td style={{ padding: "16px", color: COLORS.text }}>{t.method}</td>
+                              <td style={{ padding: "16px", fontWeight: "700", color: COLORS.danger }}>{t.amount}</td>
+                              <td style={{ padding: "16px" }}><span style={{ padding: "4px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: "700", background: t.status === 'Completed' ? '#DCFCE7' : '#F1F5F9', color: t.status === 'Completed' ? '#166534' : '#475569' }}>{t.status}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
