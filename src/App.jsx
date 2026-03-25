@@ -248,6 +248,7 @@ export default function App() {
   const [lots, setLots] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [invMode, setInvMode] = useState("Allocation"); // "Intake" or "Allocation"
 
   // --- DATA SYNC WITH BACKEND ---
   const fetchData = async () => {
@@ -387,8 +388,7 @@ export default function App() {
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "User Roles", icon: "👥", roles: ["Admin"] },
     { id: "Inventory Dashboard", icon: "📈", roles: ["Admin", "Operations Staff", "Accountant"] },
-    { id: "Inventory Intake", icon: "📥", roles: ["Admin", "Operations Staff"] },
-    { id: "Inventory Allocation", icon: "📤", roles: ["Admin", "Operations Staff"] },
+    { id: "Inventory Management", icon: "🔄", roles: ["Admin", "Operations Staff"] },
     { id: "Product Intel", icon: "🔍", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
     { id: "Buyer Invoice", icon: "📑", roles: ["Admin", "Accountant"] },
@@ -1222,371 +1222,273 @@ export default function App() {
             </div>
           )}
 
-          {/* 6. Inventory Intake (Production Lot Creation) */}
-          {activeSection === "Inventory Intake" && (
+          {/* 6 & 7. UNIFIED INVENTORY MANAGEMENT MODULE */}
+          {activeSection === "Inventory Management" &&
             <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
-                <Card title="📋 Lot Creation Form" subtitle="Auto-generated sequantial lot system">
-                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                      <Input label="📅 Arrival Date & Time" type="datetime-local" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
-                      <div style={{ marginBottom: "16px" }}>
-                        <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: COLORS.secondary, fontSize: "12px" }}>👨‍🌾 Farmer Selection</label>
-                        <select 
-                          style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #EBE9E1" }}
-                          value={intakeForm.supplierId}
-                          onChange={e => setIntakeForm({...intakeForm, supplierId: e.target.value})}
-                        >
-                          <option value="">Search Farmer...</option>
-                          {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} - {s.address}</option>)}
-                        </select>
-                      </div>
-                   </div>
-                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                      <Input label="🚛 Vehicle Number" placeholder="TS 09 EU 1234" value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
-                      <Input label="👷 Driver Name" placeholder="Ravi" value={intakeForm.driverName} onChange={e => setIntakeForm({...intakeForm, driverName: e.target.value})} />
-                      <Input label="📍 Origin / Source" placeholder="Guntur / Farm" value={intakeForm.origin} onChange={e => setIntakeForm({...intakeForm, origin: e.target.value})} />
-                   </div>
-                   <Input label="📝 Notes / Remarks" placeholder="Extra information..." value={intakeForm.notes} onChange={e => setIntakeForm({...intakeForm, notes: e.target.value})} />
-                   
-                   <div style={{ marginTop: "20px" }}>
-                      <h4 style={{ color: COLORS.secondary, marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        📦 Produce Line Items
-                        <Button variant="secondary" onClick={() => setIntakeForm({...intakeForm, lineItems: [...intakeForm.lineItems, { product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]})} style={{ padding: "4px 12px", fontSize: "11px" }}>+ Add Item</Button>
-                      </h4>
-                      {intakeForm.lineItems.map((item, idx) => (
-                        <div key={idx} style={{ padding: "16px", background: "#f8fafc", borderRadius: "12px", marginBottom: "12px", border: "1px solid #e2e8f0" }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-                            <div>
-                               <label style={{ fontSize: "10px", fontWeight: "700" }}>Product</label>
-                               <select 
-                                  style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
-                                  value={item.product}
-                                  onChange={e => {
-                                    const newList = [...intakeForm.lineItems];
-                                    newList[idx].product = e.target.value;
-                                    newList[idx].variety = "";
-                                    newList[idx].grade = "";
-                                    setIntakeForm({...intakeForm, lineItems: newList});
-                                  }}
-                               >
-                                  <option value="">Select...</option>
-                                  {[...DB.Fruits, ...DB.Vegetables].map(p => <option key={p} value={p}>{p}</option>)}
-                               </select>
-                            </div>
-                            <div>
-                               <label style={{ fontSize: "10px", fontWeight: "700" }}>Variety</label>
-                               <select 
-                                  style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
-                                  value={item.variety}
-                                  onChange={e => {
+               <div style={{ display: "flex", gap: "10px", background: "#fff", padding: "8px", borderRadius: "20px", border: "1.5px solid #EBE9E1", width: "fit-content", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
+                  <button 
+                    onClick={() => setInvMode("Allocation")} 
+                    style={{ padding: "12px 28px", borderRadius: "14px", border: "none", background: invMode === "Allocation" ? COLORS.primary : "transparent", color: invMode === "Allocation" ? "#fff" : COLORS.text, fontWeight: "800", cursor: "pointer", transition: "all 0.2s" }}
+                  >
+                    📤 Live Stock & Allocation
+                  </button>
+                  <button 
+                    onClick={() => setInvMode("Intake")} 
+                    style={{ padding: "12px 28px", borderRadius: "14px", border: "none", background: invMode === "Intake" ? COLORS.primary : "transparent", color: invMode === "Intake" ? "#fff" : COLORS.text, fontWeight: "800", cursor: "pointer", transition: "all 0.2s" }}
+                  >
+                    📥 Register New Farmer Arrival
+                  </button>
+               </div>
+
+               {invMode === "Intake" ? (
+                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", animation: "fadeIn 0.4s ease" }}>
+                    <Card title="📋 Lot Creation Engine" subtitle="Record new produce arrivals immediately">
+                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                          <Input label="📅 Arrival Date & Time" type="datetime-local" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
+                          <div style={{ marginBottom: "16px" }}>
+                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>👨‍🌾 Farmer Selection</label>
+                            <select 
+                              style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc" }}
+                              value={intakeForm.supplierId}
+                              onChange={e => setIntakeForm({...intakeForm, supplierId: e.target.value})}
+                            >
+                              <option value="">Search Farmer...</option>
+                              {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} - {s.village}</option>)}
+                            </select>
+                          </div>
+                       </div>
+                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+                          <Input label="🚛 Vehicle Number" placeholder="Ex: TS 09..." value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
+                          <Input label="📍 Origin Point" placeholder="Ex: Guntur" value={intakeForm.origin} onChange={e => setIntakeForm({...intakeForm, origin: e.target.value})} />
+                          <Input label="👷 Driver Contact" placeholder="Optional" value={intakeForm.driverName} onChange={e => setIntakeForm({...intakeForm, driverName: e.target.value})} />
+                       </div>
+                       <div style={{ marginTop: "24px" }}>
+                          <h4 style={{ color: COLORS.secondary, marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            📦 Produce Breakdown
+                            <Button variant="secondary" onClick={() => setIntakeForm({...intakeForm, lineItems: [...intakeForm.lineItems, { product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]})} style={{ padding: "6px 16px", fontSize: "12px" }}>+ Add Variant</Button>
+                          </h4>
+                          {intakeForm.lineItems.map((item, idx) => (
+                            <div key={idx} style={{ padding: "20px", background: "#f8FAF8", borderRadius: "16px", marginBottom: "16px", border: "1px solid #E2E8F0" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                                 <select 
+                                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ddd" }}
+                                    value={item.product}
+                                    onChange={e => {
+                                      const newList = [...intakeForm.lineItems];
+                                      newList[idx].product = e.target.value;
+                                      setIntakeForm({...intakeForm, lineItems: newList});
+                                    }}
+                                 >
+                                    <option value="">Choose Fruit/Veg...</option>
+                                    {[...DB.Fruits, ...DB.Vegetables].map(p => <option key={p} value={p}>{p}</option>)}
+                                 </select>
+                                 <Input placeholder="Variety" value={item.variety} onChange={e => {
                                     const newList = [...intakeForm.lineItems];
                                     newList[idx].variety = e.target.value;
                                     setIntakeForm({...intakeForm, lineItems: newList});
-                                  }}
-                               >
-                                  <option value="">Select...</option>
-                                  {(PRODUCT_DATA[item.product] || PRODUCT_DATA.default).varieties.map(v => <option key={v} value={v}>{v}</option>)}
-                               </select>
-                            </div>
-                            <div>
-                               <label style={{ fontSize: "10px", fontWeight: "700" }}>Grade</label>
-                               <select 
-                                  style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
-                                  value={item.grade}
-                                  onChange={e => {
+                                 }} />
+                                 <Input placeholder="Qty (Gross KG)" type="number" value={item.grossWeight} onChange={e => {
                                     const newList = [...intakeForm.lineItems];
-                                    newList[idx].grade = e.target.value;
+                                    newList[idx].grossWeight = e.target.value;
                                     setIntakeForm({...intakeForm, lineItems: newList});
-                                  }}
-                               >
-                                  <option value="">Select...</option>
-                                  {["A Grade", "B Grade", "C Grade"].map(g => <option key={g} value={g}>{g}</option>)}
-                               </select>
-                            </div>
-                          </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", marginTop: "10px" }}>
-                             <div>
-                                <label style={{ fontSize: "10px", fontWeight: "700" }}>Gross (KG)</label>
-                                <input style={{ width: "100%", padding: "8px" }} value={item.grossWeight} onChange={e => {
-                                   const newList = [...intakeForm.lineItems];
-                                   newList[idx].grossWeight = e.target.value;
-                                   setIntakeForm({...intakeForm, lineItems: newList});
-                                }} />
-                             </div>
-                             <div>
-                                <label style={{ fontSize: "10px", fontWeight: "700" }}>Deduct (KG)</label>
-                                <input style={{ width: "100%", padding: "8px" }} value={item.deductions} onChange={e => {
-                                   const newList = [...intakeForm.lineItems];
-                                   newList[idx].deductions = e.target.value;
-                                   setIntakeForm({...intakeForm, lineItems: newList});
-                                }} />
-                             </div>
-                             <div>
-                                <label style={{ fontSize: "10px", fontWeight: "700" }}>Net: <b style={{ color: COLORS.primary }}>{(Number(item.grossWeight) - Number(item.deductions)) || 0}</b></label>
-                                <input disabled style={{ width: "100%", padding: "8px", background: "#eee" }} value={(Number(item.grossWeight) - Number(item.deductions)) || 0} />
-                             </div>
-                             <div>
-                                <label style={{ fontSize: "10px", fontWeight: "700" }}>Boxes</label>
-                                <input style={{ width: "100%", padding: "8px" }} value={item.boxes} onChange={e => {
-                                   const newList = [...intakeForm.lineItems];
-                                   newList[idx].boxes = e.target.value;
-                                   setIntakeForm({...intakeForm, lineItems: newList});
-                                }} />
-                             </div>
-                          </div>
-                        </div>
-                      ))}
-                   </div>
-
-                   <div style={{ marginTop: "24px", border: "2px dashed #e2e8f0", padding: "20px", textAlign: "center", borderRadius: "12px" }}>
-                      📸 Attached Bill Photo
-                   </div>
-
-                   <Button style={{ width: "100%", height: "54px", fontSize: "16px", marginTop: "20px" }} onClick={handleCreateLot}>Save Lot & Generate ID</Button>
-                </Card>
-
-                <Card title="Live Inventory Feed" subtitle="Track stock status in real-time">
-                   <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-                      <Input placeholder="Search Lot ID..." style={{ flex: 1 }} />
-                      <Button variant="outline">Filter</Button>
-                   </div>
-                   <div style={{ maxHeight: "600px", overflowY: "auto" }} className="menu-scroll">
-                      {lots.map(lot => (
-                        <div key={lot._id} style={{ border: "1px solid #EBE9E1", borderRadius: "12px", background: "#FFFFFF", marginBottom: "16px", overflow: "hidden" }}>
-                           <div style={{ background: "#F8FAF8", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #EBE9E1" }}>
-                              <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{lot.lotId}</b>
-                              <span style={{ 
-                                padding: "4px 10px", 
-                                borderRadius: "20px", 
-                                fontSize: "11px", 
-                                fontWeight: "800", 
-                                background: lot.status === 'Fully Sold' ? '#DCFCE7' : lot.status === 'Partially Sold' ? '#FEF3C7' : '#F1F5F9',
-                                color: lot.status === 'Fully Sold' ? '#166534' : lot.status === 'Partially Sold' ? '#92400E' : '#475569'
-                              }}>{lot.status}</span>
-                           </div>
-                           <div style={{ padding: "16px 20px" }}>
-                              <p style={{ margin: "0 0 10px 0", fontSize: "13px" }}>Farmer: <b>{lot.supplier?.name}</b> • {lot.origin}</p>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                 {lot.lineItems.map((item, i) => (
-                                   <div key={i} style={{ fontSize: "12px", display: "flex", justifyContent: "space-between", background: "#f8fafc", padding: "8px 12px", borderRadius: "8px" }}>
-                                      <span>{item.product} ({item.variety})</span>
-                                      <span><b>{item.remainingQuantity} / {item.netWeight} KG</b> Left</span>
-                                   </div>
-                                 ))}
+                                 }} />
                               </div>
-                              <Button variant="outline" style={{ width: "100%", marginTop: "16px", fontSize: "12px" }} onClick={() => alert(`🔍 Opening Detailed Inspector for ${lot.lotId}\nFarmer: ${lot.supplier?.name}\nItems: ${lot.lineItems.length}\nDate: ${new Date(lot.entryDate).toLocaleString()}`)}>View Full Details</Button>
-                           </div>
-                        </div>
-                      ))}
-                   </div>
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {/* 7. Inventory Allocation (Production Engine) */}
-          {activeSection === "Inventory Allocation" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-               <Card title="📤 Enterprise Allocation Engine" subtitle="Live matching with color-coded status awareness">
-                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.5fr", gap: "32px", minHeight: "600px" }}>
-                     <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: "32px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                           <h4 style={{ margin: 0 }}>Step 1: Choose Inventory</h4>
-                           <span style={{ fontSize: "10px", background: "#eee", padding: "4px 8px", borderRadius: "10px" }}>{lots.length} LOTS</span>
-                        </div>
-                        <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
-                           <input placeholder="Filter Lot/Product..." style={{ flex: 1, padding: "8px", borderRadius: "8px", border: "1px solid #ddd" }} />
-                        </div>
-                        <div style={{ maxHeight: "700px", overflowY: "auto" }}>
-                           {lots.map(lot => (
-                             <div key={lot._id} style={{ marginBottom: "24px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                                   <span style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted }}>{lot.lotId}</span>
-                                   <span style={{ fontSize: "10px", color: COLORS.primary }}>{lot.supplier?.name}</span>
-                                </div>
-                                {lot.lineItems.map((item, i) => {
-                                  const isSelected = selection.item?._id === item._id;
-                                  // Color coding logic
-                                  let statusColor = "#10B981"; // Green (Available)
-                                  if (item.status === 'Partially Sold') statusColor = "#F59E0B"; // Orange
-                                  if (item.status === 'Fully Sold') statusColor = "#EF4444"; // Red
-
-                                  return (
-                                    <div 
-                                      key={i} 
-                                      onClick={() => setSelection({ ...selection, item: item, lot: lot })}
-                                      style={{ 
-                                        padding: "16px", 
-                                        borderRadius: "14px", 
-                                        background: isSelected ? COLORS.primary : "#fff", 
-                                        color: isSelected ? "#fff" : COLORS.text, 
-                                        cursor: item.status === 'Fully Sold' ? "not-allowed" : "pointer", 
-                                        marginTop: "8px", 
-                                        border: isSelected ? `2px solid ${COLORS.primary}` : `1.5px solid #EBE9E1`,
-                                        opacity: item.status === 'Fully Sold' && !isSelected ? 0.5 : 1,
-                                        transition: "all 0.2s ease"
-                                      }}
-                                    >
-                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                                          <div style={{ display: "flex", flexDirection: "column" }}>
-                                             <b style={{ fontSize: "14px" }}>{item.product}</b>
-                                             <span style={{ fontSize: "11px", opacity: 0.8 }}>{item.variety} • {item.grade}</span>
-                                          </div>
-                                          <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: statusColor }}></div>
-                                       </div>
-                                       <div style={{ marginTop: "12px", fontSize: "12px", display: "flex", justifyContent: "space-between", opacity: 0.8 }}>
-                                          <span>Avail: <b>{item.remainingQuantity} KG</b></span>
-                                          <span>Total: {item.netWeight} KG</span>
-                                       </div>
+                              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                 <Input placeholder="Deductions" style={{ width: "120px" }} value={item.deductions} onChange={e => {
+                                    const newList = [...intakeForm.lineItems];
+                                    newList[idx].deductions = e.target.value;
+                                    setIntakeForm({...intakeForm, lineItems: newList});
+                                 }} />
+                                 <span style={{ fontSize: "12px", color: COLORS.muted }}>Net Calculation: <b style={{ color: COLORS.primary }}>{(Number(item.grossWeight) - Number(item.deductions)) || 0} KG</b></span>
+                              </div>
+                            </div>
+                          ))}
+                       </div>
+                       <Button style={{ width: "100%", height: "54px", marginTop: "24px" }} onClick={handleCreateLot}>Create Inventory Lot & QR</Button>
+                    </Card>
+                    <Card title="Incoming Live Stream" subtitle="Queue of inventory pending allocation">
+                       <div style={{ maxHeight: "700px", overflowY: "auto" }} className="menu-scroll">
+                          {lots.slice(0, 10).map(lot => (
+                            <div key={lot._id} style={{ border: "1px solid #EBE9E1", borderRadius: "16px", background: "#FFFFFF", marginBottom: "16px", overflow: "hidden" }}>
+                               <div style={{ background: "#F8FAF8", padding: "14px 20px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid #EBE9E1" }}>
+                                  <b style={{ color: COLORS.sidebar }}>{lot.lotId}</b>
+                                  <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.primary }}>{lot.supplier?.name}</span>
+                               </div>
+                               <div style={{ padding: "16px 20px" }}>
+                                  {lot.lineItems.map((item, i) => (
+                                    <div key={i} style={{ fontSize: "13px", color: COLORS.text, marginBottom: "4px", display: "flex", justifyContent: "space-between" }}>
+                                       <span>{item.product} ({item.variety})</span>
+                                       <b>{item.remainingQuantity} KG</b>
                                     </div>
-                                  );
-                                })}
-                             </div>
-                           ))}
-                        </div>
-                     </div>
-
-                     <div style={{ paddingLeft: "8px" }}>
-                        <h4 style={{ marginBottom: "20px" }}>Step 2: Split Allocation Form</h4>
-                        {selection.item ? (
-                          <div style={{ animation: "fadeIn 0.3s ease" }}>
-                             <div style={{ background: COLORS.secondary, color: "#fff", padding: "24px", borderRadius: "20px", marginBottom: "32px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
-                                <label style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "1px", opacity: 0.7 }}>Inventory Point</label>
-                                <h2 style={{ margin: "4px 0", fontSize: "20px" }}>{selection.lot.lotId} » {selection.item.product}</h2>
-                                <p style={{ margin: "8px 0 0", fontSize: "14px" }}>Available Stock: <b style={{ fontSize: "18px" }}>{selection.item.remainingQuantity} KG</b> / {selection.item.netWeight} KG</p>
-                             </div>
-
-                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                                <div style={{ marginBottom: "16px" }}>
-                                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: COLORS.secondary, fontSize: "12px" }}>Target Buyer</label>
-                                  <select 
-                                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #EBE9E1" }}
-                                    value={selection.buyerId}
-                                    onChange={e => setSelection({...selection, buyerId: e.target.value})}
-                                  >
-                                    <option value="">Select Buyer...</option>
-                                    {buyers.map(b => <option key={b._id} value={b._id}>{b.name} ({b.shopName})</option>)}
-                                  </select>
+                                  ))}
+                                  <button onClick={() => setInvMode("Allocation")} style={{ width: "100%", marginTop: "12px", padding: "8px", borderRadius: "8px", border: `1px solid ${COLORS.primary}`, color: COLORS.primary, background: "transparent", cursor: "pointer", fontWeight: "700" }}>Execute Allocation »</button>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </Card>
+                 </div>
+               ) : (
+                 <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "fadeIn 0.4s ease" }}>
+                    <Card title="📤 Enterprise Allocation Engine" subtitle="Precision matching of stock to buyer invoices">
+                        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.5fr", gap: "32px", minHeight: "700px" }}>
+                          <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: "32px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                                <label style={{ fontSize: "12px", fontWeight: "800", opacity: 0.6 }}>ACTIVE INVENTORY QUEUE</label>
+                                <span style={{ fontSize: "10px", background: COLORS.sidebar, color: "#fff", padding: "4px 10px", borderRadius: "20px" }}>{lots.length} UNITS</span>
+                              </div>
+                              <div style={{ maxHeight: "800px", overflowY: "auto" }} className="menu-scroll">
+                                {lots.map(lot => (
+                                  <div key={lot._id} style={{ marginBottom: "28px" }}>
+                                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", alignItems: "center" }}>
+                                        <span style={{ fontSize: "12px", fontWeight: "900", color: COLORS.sidebar }}>{lot.lotId}</span>
+                                        <span style={{ fontSize: "10px", background: "#f8fafc", padding: "2px 8px", borderRadius: "4px" }}>{lot.supplier?.name}</span>
+                                      </div>
+                                      {lot.lineItems.map((item, i) => {
+                                        const isSelected = selection.item?._id === item._id;
+                                        let statusColor = "#10B981";
+                                        if (item.status === 'Partially Sold') statusColor = "#F59E0B";
+                                        if (item.status === 'Fully Sold') statusColor = "#EF4444";
+                                        return (
+                                          <div 
+                                            key={i} 
+                                            onClick={() => setSelection({ ...selection, item, lot })}
+                                            style={{ 
+                                              padding: "16px", borderRadius: "16px", background: isSelected ? COLORS.primary : "#fff", 
+                                              color: isSelected ? "#fff" : COLORS.text, cursor: item.status === 'Fully Sold' ? "not-allowed" : "pointer", 
+                                              marginTop: "10px", border: isSelected ? `2px solid ${COLORS.primary}` : `1.5px solid #EBE9E1`,
+                                              opacity: item.status === 'Fully Sold' && !isSelected ? 0.4 : 1, transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                                            }}
+                                          >
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                <b>{item.product}</b>
+                                                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: statusColor }}></div>
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontSize: "11px", opacity: 0.8 }}>
+                                                <span>STOCK: <b>{item.remainingQuantity} KG</b></span>
+                                                <span>{item.variety}</span>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                  </div>
+                                ))}
+                              </div>
+                          </div>
+                          <div style={{ paddingLeft: "12px" }}>
+                              {selection.item ? (
+                                <div style={{ animation: "fadeIn 0.4s ease" }}>
+                                  <div style={{ background: COLORS.secondary, color: "#fff", padding: "28px", borderRadius: "24px", marginBottom: "32px", boxShadow: "0 12px 20px -5px rgba(0,0,0,0.2)" }}>
+                                      <label style={{ fontSize: "11px", textTransform: "uppercase", opacity: 0.7 }}>EXECUTING ALLOCATION FOR</label>
+                                      <h2 style={{ margin: "4px 0", fontSize: "24px" }}>{selection.lot.lotId} » {selection.item.product}</h2>
+                                      <div style={{ display: "flex", gap: "20px", marginTop: "16px", borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: "16px" }}>
+                                        <div><small style={{ opacity: 0.8 }}>AVL</small><br /><b>{selection.item.remainingQuantity} KG</b></div>
+                                        <div><small style={{ opacity: 0.8 }}>FARMER</small><br /><b>{selection.lot.supplier?.name}</b></div>
+                                      </div>
+                                  </div>
+                                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                                      <div style={{ marginBottom: "20px" }}>
+                                        <label style={{ display: "block", marginBottom: "8px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>🏙 Target Buyer</label>
+                                        <select 
+                                          style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc" }}
+                                          value={allocationForm.buyerId}
+                                          onChange={e => setAllocationForm({...allocationForm, buyerId: e.target.value})}
+                                        >
+                                            <option value="">Choose registered buyer...</option>
+                                            {buyers.map(b => <option key={b._id} value={b._id}>{b.name} - {b.shopName}</option>)}
+                                        </select>
+                                      </div>
+                                      <Input label="⚖️ Quantity (KG)" type="number" value={allocationForm.quantity} onChange={e => setAllocationForm({...allocationForm, quantity: e.target.value})} />
+                                      <Input label="💰 Sale Rate (₹/KG)" type="number" value={allocationForm.saleRate} onChange={e => setAllocationForm({...allocationForm, saleRate: e.target.value})} />
+                                      <Input label="📝 Transfer Memo" placeholder="Notes..." value={allocationForm.notes} onChange={e => setAllocationForm({...allocationForm, notes: e.target.value})} />
+                                  </div>
+                                  <div style={{ background: "#FDFBF4", padding: "24px", borderRadius: "20px", border: "1.5px dashed #D4B106", marginTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <div><p style={{ margin: 0, fontSize: "12px", color: "#856404" }}>EST VALUE</p><h2 style={{ margin: 0, color: COLORS.secondary }}>{formatCurrency((allocationForm.quantity * allocationForm.saleRate) || 0)}</h2></div>
+                                      <div style={{ textAlign: "right" }}><p style={{ margin: 0, fontSize: "12px", color: "#856404" }}>REMAINING</p><h4>{selection.item.remainingQuantity - allocationForm.quantity} KG</h4></div>
+                                  </div>
+                                  <Button style={{ width: "100%", height: "60px", marginTop: "32px", fontSize: "18px" }} onClick={handleAllocate}>Authorize & Generate Invoice</Button>
                                 </div>
-                                <Input label="Quantity to Allocate (KG)" placeholder="0.00" value={selection.qty} onChange={e => setSelection({...selection, qty: e.target.value})} />
-                             </div>
-                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                                <Input label="Agreed Sale Rate (₹/KG)" placeholder="0.00" value={selection.rate} onChange={e => setSelection({...selection, rate: e.target.value})} />
-                                <Input label="Invoice Reference #" placeholder="INV/2026/..." value={selection.inv} onChange={e => setSelection({...selection, inv: e.target.value})} />
-                             </div>
-
-                             <div style={{ marginTop: "20px", padding: "16px", background: "#f0fdf4", borderRadius: "12px", border: "1px solid #bbf7d0", color: "#166534" }}>
-                                <p style={{ margin: "0", fontSize: "13px" }}>Total Deal Value: <b style={{ fontSize: "16px" }}>₹{(Number(selection.qty) * Number(selection.rate)).toLocaleString()}</b></p>
-                             </div>
-
-                             <Button 
-                                onClick={async () => {
-                                  if (!selection.buyerId || !selection.qty || !selection.rate) return alert("Please fill all fields");
-                                  if (Number(selection.qty) > selection.item.remainingQuantity) return alert("Cannot allocate more than available stock");
-                                  
-                                  const res = await MandiService.allocateLot({
-                                    lotId: selection.lot._id,
-                                    lineItemId: selection.item._id,
-                                    buyerId: selection.buyerId,
-                                    quantity: selection.qty,
-                                    rate: selection.rate,
-                                    invoiceNumber: selection.inv
-                                  });
-                                  if (res.status === "SUCCESS") {
-                                    alert("✅ Success: Inventory Allocated & Status Updated!");
-                                    setSelection({ lot: null, item: null, buyerId: "", qty: "", rate: "", inv: "" });
-                                    fetchData();
-                                  } else {
-                                    alert(res.message);
-                                  }
-                                }} 
-                                style={{ width: "100%", marginTop: "24px", height: "54px" }}
-                             >Confirm Allocation Mapping</Button>
+                              ) : (
+                                <div style={{ padding: "100px 40px", textAlign: "center", background: "#f8fafc", borderRadius: "24px", border: "2px dashed #e2e8f0" }}>
+                                  <div style={{ fontSize: "64px", marginBottom: "20px" }}>📦</div>
+                                  <h3>Ready for Allocation</h3>
+                                  <p style={{ color: COLORS.muted }}>Select an item from the left queue to begin.</p>
+                                </div>
+                              )}
                           </div>
-                        ) : (
-                          <div style={{ height: "400px", display: "flex", alignItems: "center", justifyContent: "center", border: "2px dashed #EBE9E1", borderRadius: "20px", color: COLORS.muted }}>
-                             👈 Select a line item from the left to begin allocation
-                          </div>
-                        )}
-                     </div>
-                  </div>
-               </Card>
+                        </div>
+                    </Card>
 
-               <Card title="📦 Live Stock Status Engine" subtitle="Real-time tracking of allocations and holdings">
-                  <div style={{ overflowX: "auto" }}>
-                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                        <thead>
-                           <tr style={{ background: "#f8fafc", textAlign: "left" }}>
-                              <th style={{ padding: "16px" }}>Lot / Item</th>
-                              <th style={{ padding: "16px" }}>Farmer</th>
-                              <th style={{ padding: "16px" }}>Total Recv.</th>
-                              <th style={{ padding: "16px" }}>Sold</th>
-                              <th style={{ padding: "16px" }}>Remaining</th>
-                              <th style={{ padding: "16px" }}>Status</th>
-                           </tr>
-                        </thead>
-                        <tbody>
-                           {lots.map(lot => lot.lineItems.map((item, idx) => (
-                             <tr key={`${lot._id}-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                <td style={{ padding: "16px" }}>
-                                   <b style={{ color: COLORS.primary }}>{lot.lotId}</b><br />
-                                   <small>{item.product} ({item.variety})</small>
-                                </td>
-                                <td style={{ padding: "16px" }}>{lot.supplier?.name}</td>
-                                <td style={{ padding: "16px" }}>{item.netWeight} KG</td>
-                                <td style={{ padding: "16px", color: COLORS.success, fontWeight: "700" }}>{item.soldQuantity} KG</td>
-                                <td style={{ padding: "16px", fontWeight: "700" }}>{item.remainingQuantity} KG</td>
-                                <td style={{ padding: "16px" }}>
-                                   <span style={{ 
-                                      padding: "4px 8px", 
-                                      borderRadius: "6px", 
-                                      fontSize: "10px", 
-                                      fontWeight: "800",
-                                      background: item.status === 'Fully Sold' ? '#DCFCE7' : item.status === 'Partially Sold' ? '#FEF3C7' : '#F1F5F9',
-                                      color: item.status === 'Fully Sold' ? '#166534' : item.status === 'Partially Sold' ? '#92400E' : '#475569'
-                                   }}>{item.status}</span>
-                                </td>
-                             </tr>
-                           )))}
-                        </tbody>
-                     </table>
-                  </div>
-               </Card>
+                    <Card title="📦 Live Stock Status Engine" subtitle="Real-time tracking of allocations">
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                              <thead>
+                                <tr style={{ background: "#f8fafc", textAlign: "left" }}>
+                                    <th style={{ padding: "16px" }}>Lot / Item</th>
+                                    <th style={{ padding: "16px" }}>Farmer</th>
+                                    <th style={{ padding: "16px" }}>Total</th>
+                                    <th style={{ padding: "16px" }}>Sold</th>
+                                    <th style={{ padding: "16px" }}>Remaining</th>
+                                    <th style={{ padding: "16px" }}>Status</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {lots.map(lot => lot.lineItems.map((item, idx) => (
+                                  <tr key={`${lot._id}-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                      <td style={{ padding: "16px" }}><b>{lot.lotId}</b><br /><small>{item.product}</small></td>
+                                      <td style={{ padding: "16px" }}>{lot.supplier?.name}</td>
+                                      <td style={{ padding: "16px" }}>{item.netWeight} KG</td>
+                                      <td style={{ padding: "16px", color: COLORS.success, fontWeight: "700" }}>{item.soldQuantity} KG</td>
+                                      <td style={{ padding: "16px", fontWeight: "700" }}>{item.remainingQuantity} KG</td>
+                                      <td style={{ padding: "16px" }}>
+                                        <span style={{ 
+                                            padding: "4px 8px", borderRadius: "6px", fontSize: "10px", fontWeight: "800",
+                                            background: item.status === 'Fully Sold' ? '#DCFCE7' : item.status === 'Partially Sold' ? '#FEF3C7' : '#F1F5F9',
+                                            color: item.status === 'Fully Sold' ? '#166534' : item.status === 'Partially Sold' ? '#92400E' : '#475569'
+                                        }}>{item.status}</span>
+                                      </td>
+                                  </tr>
+                                )))}
+                              </tbody>
+                          </table>
+                        </div>
+                    </Card>
 
-               <Card title="🤝 Holding Tracker" subtitle="Track undelivered produce currently held by buyers">
-                  <div style={{ overflowX: "auto" }}>
-                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                        <thead>
-                           <tr style={{ background: "#FDFBF4", textAlign: "left" }}>
-                              <th style={{ padding: "16px" }}>Current Holder (Buyer)</th>
-                              <th style={{ padding: "16px" }}>Invoice #</th>
-                              <th style={{ padding: "16px" }}>Lot ID</th>
-                              <th style={{ padding: "16px" }}>Allocated Date</th>
-                              <th style={{ padding: "16px" }}>Qty Reserved</th>
-                              <th style={{ padding: "16px" }}>Action</th>
-                           </tr>
-                        </thead>
-                        <tbody>
-                           {/* This would normally come from a list of allocations */}
-                           {lots.map(lot => lot.lineItems.filter(i => i.soldQuantity > i.deliveredQuantity).map((item, idx) => (
-                             <tr key={`${lot._id}-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                <td style={{ padding: "16px" }}><b>Reliance Retail</b></td>
-                                <td style={{ padding: "16px" }}>INV-2026-001</td>
-                                <td style={{ padding: "16px" }}>{lot.lotId}</td>
-                                <td style={{ padding: "16px" }}>{new Date(lot.createdAt).toLocaleDateString()}</td>
-                                <td style={{ padding: "16px", color: COLORS.danger, fontWeight: "700" }}>{item.soldQuantity - item.deliveredQuantity} KG</td>
-                                <td style={{ padding: "16px" }}>
-                                   <Button variant="outline" style={{ padding: "4px 8px", fontSize: "11px" }}>Mark Delivered</Button>
-                                </td>
-                             </tr>
-                           )))}
-                           {lots.length === 0 && <tr><td colSpan="6" style={{ padding: "20px", textAlign: "center", color: COLORS.muted }}>No pending deliveries.</td></tr>}
-                        </tbody>
-                     </table>
-                  </div>
-               </Card>
+                    <Card title="🤝 Holding Tracker" subtitle="Track undelivered produce currently held by buyers">
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                              <thead>
+                                <tr style={{ background: "#FDFBF4", textAlign: "left" }}>
+                                    <th style={{ padding: "16px" }}>Current Holder (Buyer)</th>
+                                    <th style={{ padding: "16px" }}>Invoice #</th>
+                                    <th style={{ padding: "16px" }}>Lot ID</th>
+                                    <th style={{ padding: "16px" }}>Allocated Date</th>
+                                    <th style={{ padding: "16px" }}>Qty Reserved</th>
+                                    <th style={{ padding: "16px" }}>Action</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {lots.map(lot => lot.lineItems.filter(i => i.soldQuantity > i.deliveredQuantity).map((item, idx) => (
+                                  <tr key={`${lot._id}-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                      <td style={{ padding: "16px" }}><b>Reliance Retail</b></td>
+                                      <td style={{ padding: "16px" }}>INV-2026-001</td>
+                                      <td style={{ padding: "16px" }}>{lot.lotId}</td>
+                                      <td style={{ padding: "16px" }}>{new Date(lot.createdAt).toLocaleDateString()}</td>
+                                      <td style={{ padding: "16px", color: COLORS.danger, fontWeight: "700" }}>{item.soldQuantity - item.deliveredQuantity} KG</td>
+                                      <td style={{ padding: "16px" }}>
+                                        <Button variant="outline" style={{ padding: "4px 8px", fontSize: "11px" }}>Mark Delivered</Button>
+                                      </td>
+                                  </tr>
+                                )))}
+                                {lots.length === 0 && <tr><td colSpan="6" style={{ padding: "20px", textAlign: "center", color: COLORS.muted }}>No pending deliveries.</td></tr>}
+                              </tbody>
+                          </table>
+                        </div>
+                    </Card>
+                 </div>
+               )}
             </div>
-          )}
+          }
 
           {/* 8. Product Intelligence / Traceability Screen */}
           {activeSection === "Product Intel" && (
@@ -2135,7 +2037,7 @@ export default function App() {
           )}
 
           {/* 15. Reports */}
-          {activeSection === "Reports" && (
+          {activeSection === "Reports" &&
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
               {[
                 { t: "Supplier Transaction Report", i: "🚚", d: "Deep dive into intake history & payouts" },
@@ -2152,7 +2054,7 @@ export default function App() {
                 </Card>
               ))}
             </div>
-          )}
+          }
 
           {/* 16. Search & Filters */}
           {activeSection === "Search & Filters" && (
