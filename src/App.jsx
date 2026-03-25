@@ -433,8 +433,11 @@ export default function App() {
     { timestamp: "2026-03-25 09:30", user: "Admin", action: "Database Backup Initiated", status: "SUCCESS" }
   ]);
 
-  
-
+  // --- CONNECTION MODULE STATES ---
+  const [connSearchQuery, setConnSearchQuery] = useState("");
+  const [selectedConnFarmer, setSelectedConnFarmer] = useState(null);
+  const [connSelectedBuyer, setConnSelectedBuyer] = useState(null);
+  const [connFilters, setConnFilters] = useState({ dateRange: "All", product: "All", paymentMode: "All" });
 
   // --- DATA SYNC WITH BACKEND ---
   // --- DATA SYNC WITH BACKEND ---
@@ -467,17 +470,19 @@ export default function App() {
 
     try {
       const sRes = await MandiService.getSuppliers();
-      setSuppliers(sRes.status === "SUCCESS" && sRes.data.length > 0 ? sRes.data : dummySuppliers);
+      setSuppliers(sRes.status === "SUCCESS" ? sRes.data : dummySuppliers);
 
       const bRes = await MandiService.getBuyers();
-      setBuyers(bRes.status === "SUCCESS" && bRes.data.length > 0 ? bRes.data : dummyBuyers);
+      setBuyers(bRes.status === "SUCCESS" ? bRes.data : dummyBuyers);
 
       const lRes = await MandiService.getLots();
-      setLots(lRes.status === "SUCCESS" && lRes.data.length > 0 ? lRes.data : dummyLots);
+      setLots(lRes.status === "SUCCESS" ? lRes.data : dummyLots);
 
       const dRes = await MandiService.getDocuments();
       if (dRes.status === "SUCCESS") {
-         setDocuments(dRes.data.length > 0 ? dRes.data : [
+         setDocuments(dRes.data);
+      } else {
+         setDocuments([
            { _id: 'd-1', originalName: 'Land-Patta-Vikram.pdf', docType: 'KYC', fileSize: 1024 * 500, url: '#' },
            { _id: 'd-2', originalName: 'Aadhaar-Sandhya.jpg', docType: 'KYC', fileSize: 1024 * 200, url: '#' }
          ]);
@@ -751,6 +756,7 @@ export default function App() {
     { id: "Farmer Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant", "Viewer"] },
+    { id: "CONNECTION", icon: "🔗", roles: ["Admin", "Accountant", "Viewer"] },
     { id: "Payment & Settlement Management", icon: "💳", roles: ["Admin", "Accountant"] },
     { id: "Transportation Tracking", icon: "🚚", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
@@ -1042,26 +1048,7 @@ export default function App() {
                   </div>
                 </Card>
 
-                {/* Stall Inventory */}
-                <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>Manage &rarr;</span>} title="Stall Inventory">
-                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", marginTop: "16px" }}>
-                    {[
-                      { name: "Jubilee Hills", units: "142", border: `${COLORS.secondary}15`, bar: COLORS.success, pct: "75%" },
-                      { name: "Banjara Hills", units: "89", border: `${COLORS.secondary}15`, bar: COLORS.primary, pct: "50%" },
-                      { name: "Madhapur", units: "203", border: `${COLORS.secondary}15`, bar: COLORS.success, pct: "85%" },
-                      { name: "Secunderabad", units: "12", border: `${COLORS.danger}30`, bar: COLORS.danger, pct: "15%", bg: "rgba(239, 68, 68, 0.05)" }
-                    ].map((stall, i) => (
-                      <div key={i} style={{ border: `1.5px solid ${stall.border}`, background: stall.bg || "rgba(0,0,0,0.02)", borderRadius: "20px", padding: "24px", transition: "0.3s" }} onMouseOver={e=>e.currentTarget.style.transform="translateY(-4px)"} onMouseOut={e=>e.currentTarget.style.transform="none"}>
-                        <p style={{ margin: 0, fontWeight: "850", color: COLORS.muted, fontSize: "11px", letterSpacing: "1px", textTransform: "uppercase" }}>{stall.name}</p>
-                        <h2 style={{ margin: "14px 0 4px", fontWeight: "1000", color: stall.bar === COLORS.danger ? COLORS.danger : COLORS.secondary, fontSize: "32px", letterSpacing: "-1px" }}>{stall.units}</h2>
-                        <p style={{ margin: "0 0 16px", color: COLORS.muted, fontSize: "12px", fontWeight: "700", opacity: 0.7 }}>UNITS HELD</p>
-                        <div style={{ height: "6px", background: "rgba(0,0,0,0.05)", borderRadius: "3px", width: "100%", overflow: "hidden" }}>
-                          <div style={{ height: "100%", background: stall.bar, width: stall.pct, borderRadius: "3px", boxShadow: `0 0 12px ${stall.bar}40` }}></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
+
               </div>
 
               {/* Bottom analytics row */}
