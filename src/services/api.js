@@ -61,6 +61,7 @@ export const MandiService = {
   // --- BUYERS ---
   getBuyers: async () => request('GET', '/buyers'),
   addBuyer: async (data) => request('POST', '/buyer', data),
+  getBuyerIntelligence: async (id) => request('GET', `/buyer/${id}/intelligence`),
 
   // --- INVENTORY ---
   getLots: async () => request('GET', '/lots'),
