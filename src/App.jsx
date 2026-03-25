@@ -265,7 +265,7 @@ export default function App() {
     driverName: "",
     routeNotes: "",
     items: [{ productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }],
-    charges: { commission: 0, handling: 0, transport: 0, other: [] },
+    charges: { commission: 0, handling: 0, transport: 0, other: [], otherLabel: "Other Misc Charges" },
     subTotal: 0,
     totalCharges: 0,
     grandTotal: 0,
@@ -472,9 +472,23 @@ export default function App() {
     return { ...form, subTotal, totalCharges, grandTotal, balanceDue, status };
   };
 
+  const checkForDuplicateInvoice = (buyerId, items) => {
+    // Simple logic for Demo: check if same buyer + same day + same quantity
+    // In a real app, this would involve checking against actual invoice records
+    if (!buyerId || items.length === 0) {
+      setDuplicateWarning(false);
+      return;
+    }
+    // Mocking a duplicate check: if buyerId is 'b-1' (Harsha Wholesale) and date is today, trigger warning
+    const today = new Date().toISOString().slice(0, 10);
+    const isDuplicate = buyerId === 'b-1' && buyerInvoiceForm.date === today; 
+    setDuplicateWarning(isDuplicate);
+  };
+
   const addInvoiceItem = () => {
     setBuyerInvoiceForm(prev => {
        const newForm = { ...prev, items: [...prev.items, { productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }] };
+       checkForDuplicateInvoice(newForm.buyerId, newForm.items); // Re-check on item add
        return newForm;
     });
   };
@@ -482,7 +496,9 @@ export default function App() {
   const removeInvoiceItem = (index) => {
     setBuyerInvoiceForm(prev => {
        const newItems = prev.items.filter((_, i) => i !== index);
-       return calculateInvoiceTotals({ ...prev, items: newItems.length ? newItems : [{ productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }] });
+       const updatedForm = calculateInvoiceTotals({ ...prev, items: newItems.length ? newItems : [{ productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }] });
+       checkForDuplicateInvoice(updatedForm.buyerId, updatedForm.items); // Re-check on item remove
+       return updatedForm;
     });
   };
 
@@ -499,7 +515,9 @@ export default function App() {
           newItems[index].amount = newItems[index].netWeight * r;
        }
        
-       return calculateInvoiceTotals({ ...prev, items: newItems });
+       const updatedForm = calculateInvoiceTotals({ ...prev, items: newItems });
+       checkForDuplicateInvoice(updatedForm.buyerId, updatedForm.items); // Re-check on item update
+       return updatedForm;
     });
   };
 
@@ -1632,12 +1650,15 @@ export default function App() {
                                  <h2 style={{ margin: 0, fontWeight: "900", letterSpacing: "-0.5px" }}>BUYER INVOICE</h2>
                               </div>
                               <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Mandi Dispatch & Traceability Document</p>
+                              {duplicateWarning && (
+                                <div style={{ background: "#FEF2F2", color: "#991B1B", padding: "8px 16px", borderRadius: "8px", border: "1px solid #FEE2E2", fontSize: "12px", fontWeight: "700", marginTop: "12px", display: "inline-block" }}>⚠️ Possible duplicate invoice detected (Same buyer/day)</div>
+                              )}
                            </div>
                            <div style={{ textAlign: "right" }}>
                               <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.5, textTransform: "uppercase", display: "block" }}>Invoice Identity</label>
                               <h2 style={{ margin: 0, color: COLORS.secondary }}>{buyerInvoiceForm.invoiceNo}</h2>
                               <div style={{ marginTop: "10px", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                                 <div style={{ background: "#f8fafc", padding: "4px 12px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}><b>DATE:</b> {buyerInvoiceForm.date}</div>
+                                 <div style={{ background: "#f8fafc", padding: "4px 12px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px" }}><b>DATE:</b> <input type="date" value={buyerInvoiceForm.date} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, date: e.target.value})} style={{ border: "none", background: "none", fontSize: "11px", fontWeight: "700", outline: "none" }} /></div>
                                  <div style={{ background: "#f8fafc", padding: "4px 12px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}><b>TIME:</b> {buyerInvoiceForm.time}</div>
                               </div>
                            </div>
@@ -1713,21 +1734,29 @@ export default function App() {
                                  {buyerInvoiceForm.items.map((item, idx) => (
                                    <tr key={idx} style={{ background: "#f8fafc", transition: "all 0.2s" }}>
                                       <td style={{ padding: "16px", borderRadius: "14px 0 0 14px", width: "250px" }}>
-                                         <div style={{ display: "flex", gap: "8px" }}>
-                                            <input 
-                                               list="fruit-list"
-                                               placeholder="Product" 
-                                               style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }}
-                                               value={item.productLabel}
-                                               onChange={e => handleUpdateInvoiceItem(idx, "productLabel", e.target.value)}
-                                            />
-                                            <input 
-                                               placeholder="Grade" 
-                                               style={{ width: "50px", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }}
-                                               value={item.grade}
-                                               onChange={e => handleUpdateInvoiceItem(idx, "grade", e.target.value)}
-                                            />
-                                         </div>
+                                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                             <div style={{ display: "flex", gap: "8px" }}>
+                                                <input 
+                                                   list="fruit-list"
+                                                   placeholder="Product" 
+                                                   style={{ flex: 1.5, padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }}
+                                                   value={item.productLabel}
+                                                   onChange={e => handleUpdateInvoiceItem(idx, "productLabel", e.target.value)}
+                                                />
+                                                <input 
+                                                   placeholder="Grd" 
+                                                   style={{ width: "45px", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0", fontSize: "11px" }}
+                                                   value={item.grade}
+                                                   onChange={e => handleUpdateInvoiceItem(idx, "grade", e.target.value)}
+                                                />
+                                             </div>
+                                             <input 
+                                                placeholder="Variety (Ex: Alphonso)" 
+                                                style={{ width: "100%", padding: "6px 8px", borderRadius: "6px", border: "1px solid #e2e8f0", fontSize: "11px", background: "#f1f5f9" }}
+                                                value={item.variety}
+                                                onChange={e => handleUpdateInvoiceItem(idx, "variety", e.target.value)}
+                                             />
+                                          </div>
                                       </td>
                                       <td style={{ padding: "16px" }}>
                                          <select 
@@ -1783,10 +1812,44 @@ export default function App() {
                                     <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.6 }}>HAMALI / HANDLING</label>
                                     <input type="number" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}}))} />
                                  </div>
-                                 <div style={{ background: "#fcf6f0", padding: "16px", borderRadius: "16px", border: "1px solid #feeac8" }}>
-                                    <label style={{ fontSize: "11px", fontWeight: "900", color: "#856404" }}>OTHER MISC CHARGES</label>
-                                    <input type="number" placeholder="₹ 0.00" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} />
-                                 </div>
+                                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                     {buyerInvoiceForm.charges.other.map((c, ci) => (
+                                       <div key={ci} style={{ background: "#fcf6f0", padding: "12px 16px", borderRadius: "16px", border: "1px solid #feeac8" }}>
+                                          <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                             <input 
+                                                style={{ fontSize: "10px", fontWeight: "900", color: "#856404", background: "none", border: "none", outline: "none", width: "70%" }} 
+                                                value={c.label}
+                                                onChange={e => {
+                                                   const no = [...buyerInvoiceForm.charges.other];
+                                                   no[ci].label = e.target.value;
+                                                   setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}});
+                                                }}
+                                             />
+                                             <button onClick={() => {
+                                                const no = buyerInvoiceForm.charges.other.filter((_, i) => i !== ci);
+                                                setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}}));
+                                             }} style={{ background: "none", border: "none", color: COLORS.danger, cursor: "pointer", fontSize: "10px" }}>✕</button>
+                                          </div>
+                                          <input 
+                                             type="number" 
+                                             style={{ width: "100%", background: "none", border: "none", fontSize: "16px", fontWeight: "800", outline: "none" }} 
+                                             value={c.amount}
+                                             onChange={e => {
+                                                const no = [...buyerInvoiceForm.charges.other];
+                                                no[ci].amount = Number(e.target.value);
+                                                setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}}));
+                                             }}
+                                          />
+                                       </div>
+                                     ))}
+                                     <button 
+                                       onClick={() => {
+                                          const no = [...buyerInvoiceForm.charges.other, { label: "NEW CHARGE", amount: 0 }];
+                                          setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}});
+                                       }}
+                                       style={{ padding: "10px", borderRadius: "12px", border: "1.5px dashed #feeac8", background: "none", color: "#856404", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
+                                     >+ Add Custom Charge</button>
+                                  </div>
                               </div>
                            </div>
 
@@ -1830,9 +1893,18 @@ export default function App() {
                      </div>
                   </Card>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
-                     <Button style={{ height: "72px", fontSize: "20px", borderRadius: "24px" }} onClick={() => alert("✅ INVOICE GENERATED & LEDGER SYNCED")}>🚀 FINAL AUTHORIZE & PRINT INVOICE</Button>
-                     <Button variant="outline" style={{ height: "72px", borderRadius: "24px", border: "2px solid #e2e8f0" }}>💾 SAVE AS DRAFT</Button>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
+                     <Button style={{ height: "72px", fontSize: "18px", borderRadius: "24px" }} onClick={() => alert("✅ INVOICE AUTHORIZED & PRINTING...")}>🚀 AUTHORIZE & PRINT (A4/A5)</Button>
+                     <Button variant="secondary" style={{ height: "72px", borderRadius: "24px", background: "#25D366" }}>📱 SHARE ON WHATSAPP</Button>
+                     <Button variant="outline" style={{ height: "72px", borderRadius: "24px", border: "2px solid #e2e8f0" }}>💾 SAVE DRAFT</Button>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", padding: "40px", border: "2px dashed #e2e8f0", borderRadius: "24px" }}>
+                     <div style={{ textAlign: "center", width: "200px" }}>
+                        <div style={{ height: "60px" }}></div>
+                        <div style={{ borderTop: "2px solid #0f172a / 70", paddingTop: "10px", fontWeight: "900", fontSize: "12px", color: COLORS.secondary }}>RECEIVER SIGNATURE</div>
+                        <small style={{ color: COLORS.muted, fontSize: "10px" }}>For M/s {buyerIntelligence?.shopName || "---"}</small>
+                     </div>
                   </div>
 
                   {/* Traceability Panel Footer */}
@@ -1878,33 +1950,61 @@ export default function App() {
                         <span style={{ fontSize: "10px", background: COLORS.secondary, color: "#fff", padding: "4px 10px", borderRadius: "10px" }}>LIVE</span>
                      </h3>
                      {buyerHistory ? (
-                       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                          <Card style={{ padding: "20px", background: COLORS.secondary, color: "#fff", border: "none" }}>
-                             <label style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900" }}>CURRENT LEDGER BALANCE</label>
-                             <h2 style={{ margin: "5px 0", color: COLORS.accent }}>{formatCurrency(buyerHistory.pendingBalance || 145000)}</h2>
-                             <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>Last Activity: {buyerHistory.lastActivityDate || "Today"}</p>
-                          </Card>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                             <div style={{ background: "#fff", padding: "16px", borderRadius: "20px", border: "1px solid #f1f5f9" }}>
-                                <small style={{ fontWeight: "800", opacity: 0.5, fontSize: "9px" }}>LIFETIME VOL.</small>
-                                <h4 style={{ margin: "4px 0" }}>{(buyerHistory.totalWeight || 24500).toLocaleString()} KG</h4>
-                             </div>
-                             <div style={{ background: "#fff", padding: "16px", borderRadius: "20px", border: "1px solid #f1f5f9" }}>
-                                <small style={{ fontWeight: "800", opacity: 0.5, fontSize: "9px" }}>RETURN RATE</small>
-                                <h4 style={{ margin: "4px 0", color: COLORS.success }}>94% High</h4>
-                             </div>
-                          </div>
-                          {[
-                             { l: "Top Variety", v: "Mango Alphonso", i: "🥭" },
-                             { l: "Preferred Grading", v: "A Grade / Export", i: "💎" },
-                             { l: "Payment Behavior", v: "Regular / 15-Day", i: "⏳" }
-                          ].map((x, i) => (
-                             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "14px", background: "#fff", borderRadius: "16px", border: "1px solid #f1f5f9" }}>
-                                <span style={{ fontSize: "11px", fontWeight: "700" }}>{x.i} {x.l}</span>
-                                <b style={{ fontSize: "12px" }}>{x.v}</b>
-                             </div>
-                          ))}
-                       </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+                           <Card style={{ padding: "24px", background: COLORS.secondary, color: "#fff", border: "none", borderRadius: "24px" }}>
+                              <small style={{ fontSize: "10px", opacity: 0.6, fontWeight: "900", letterSpacing: "1px" }}>CURRENT LEDGER BALANCE</small>
+                              <h1 style={{ margin: "5px 0", color: COLORS.accent, fontSize: "32px" }}>{formatCurrency(buyerHistory.pendingBalance || 145000)}</h1>
+                              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontSize: "11px", opacity: 0.8 }}>
+                                 <span>Last activity: {buyerHistory.lastActivityDate || "24/03/2026"}</span>
+                                 <b style={{ color: COLORS.accent }}>{buyerHistory.paymentBehavior}</b>
+                              </div>
+                           </Card>
+
+                           <div>
+                              <h4 style={{ color: COLORS.secondary, marginBottom: "12px", fontSize: "12px", opacity: 0.6 }}>🌾 HISTORICAL FARMER PURCHASE TRACE</h4>
+                              <div style={{ overflowX: "auto", background: "#fff", borderRadius: "20px", border: "1px solid #f1f5f9" }}>
+                                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
+                                    <thead>
+                                       <tr style={{ textAlign: "left", background: "#f8fafc", color: COLORS.muted }}>
+                                          <th style={{ padding: "10px" }}>FARMER</th>
+                                          <th style={{ padding: "10px" }}>LOT</th>
+                                          <th style={{ padding: "10px" }}>PROD</th>
+                                          <th style={{ padding: "10px", textAlign: "right" }}>QTY</th>
+                                          <th style={{ padding: "10px", textAlign: "right" }}>RATE</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>
+                                       {(buyerHistory.history || [
+                                          { farmer: "Vikram Reddy", lot: "LOT-X11", product: "Mango", variety: "Alphonso", grade: "A", qty: 1200, rate: 45, date: "24/03" },
+                                          { farmer: "Sandhya Devi", lot: "LOT-X12", product: "Banana", variety: "Yelakki", grade: "B", qty: 850, rate: 32, date: "23/03" }
+                                       ]).map((h, i) => (
+                                         <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                            <td style={{ padding: "10px" }}><b>{h.farmer.split(' ')[0]}</b></td>
+                                            <td style={{ padding: "10px" }}>{h.lot}</td>
+                                            <td style={{ padding: "10px" }}>{h.product}</td>
+                                            <td style={{ padding: "10px", textAlign: "right" }}>{h.qty}</td>
+                                            <td style={{ padding: "10px", textAlign: "right", color: COLORS.success, fontWeight: "700" }}>₹{h.rate}</td>
+                                         </tr>
+                                       ))}
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </div>
+
+                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                              {[
+                                 { l: "Total Weight", v: `${(buyerHistory.totalWeight || 32400).toLocaleString()} KG`, i: "📈" },
+                                 { l: "Total Lifetime", v: formatCurrency((buyerHistory.totalWeight || 32400) * 45), i: "💰" },
+                                 { l: "Pref. Product", v: "Mango Alphonso", i: "🥭" },
+                                 { l: "Trust Status", v: "Very High", i: "🎯", col: COLORS.success }
+                              ].map((x, i) => (
+                                 <div key={i} style={{ background: "#fff", padding: "16px", borderRadius: "16px", border: "1px solid #f1f5f9" }}>
+                                    <small style={{ fontWeight: "800", opacity: 0.5, fontSize: "9px", display: "block", marginBottom: "4px" }}>{x.i} {x.l}</small>
+                                    <b style={{ fontSize: "12px", color: x.col }}>{x.v}</b>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
                      ) : <p style={{ textAlign: "center", opacity: 0.5, padding: "40px" }}>Link a buyer to view historical purchase intelligence.</p>}
                   </div>
 
