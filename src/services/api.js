@@ -67,6 +67,9 @@ export const MandiService = {
   addLot: async (data) => request('POST', '/lot/intake', data),
   allocateLot: async (data) => request('POST', '/lot/allocate', data),
   getInventoryDashboard: async () => request('GET', '/inventory/dashboard'),
+  getLotTraceability: async (lotId) => request('GET', `/traceability/lot/${lotId}`),
+  getBuyerTraceability: async (allocationId) => request('GET', `/traceability/allocation/${allocationId}`),
+  getProductIntelligence: async (query) => request('GET', `/intelligence/product?query=${query}`),
 
   // --- DOCUMENTS ---
   getDocuments: async () => request('GET', '/documents'),

@@ -236,6 +236,10 @@ export default function App() {
     rate: "", 
     inv: "" 
   });
+  const [intelData, setIntelData] = useState([]);
+  const [intelQuery, setIntelQuery] = useState("");
+  const [lotTraceability, setLotTraceability] = useState([]);
+  const [allocationTraceability, setAllocationTraceability] = useState(null);
 
   // --- DATA STORAGE STATES ---
   const [suppliers, setSuppliers] = useState([]);
@@ -365,6 +369,7 @@ export default function App() {
     { id: "Inventory Dashboard", icon: "📈", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Inventory Intake", icon: "📥", roles: ["Admin", "Operations Staff"] },
     { id: "Inventory Allocation", icon: "📤", roles: ["Admin", "Operations Staff"] },
+    { id: "Product Intel", icon: "🔍", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
     { id: "Buyer Invoice", icon: "📑", roles: ["Admin", "Accountant"] },
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant"] },
@@ -1361,51 +1366,73 @@ export default function App() {
           {/* 7. Inventory Allocation (Production Engine) */}
           {activeSection === "Inventory Allocation" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-               <Card title="📤 Powerful Allocation Engine" subtitle="Live matching of buyer orders with lot line items">
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "32px" }}>
+               <Card title="📤 Enterprise Allocation Engine" subtitle="Live matching with color-coded status awareness">
+                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.5fr", gap: "32px", minHeight: "600px" }}>
                      <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: "32px" }}>
-                        <h4 style={{ marginBottom: "20px" }}>1. Select Available Produce</h4>
-                        <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-                           {lots.filter(l => l.status !== 'Fully Sold').map(lot => (
-                             <div key={lot._id} style={{ marginBottom: "20px" }}>
-                                <p style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted }}>{lot.lotId} • {lot.supplier?.name}</p>
-                                {lot.lineItems.filter(i => i.remainingQuantity > 0).map((item, i) => (
-                                  <div 
-                                    key={i} 
-                                    onClick={() => setSelection({ ...selection, item: item, lot: lot })}
-                                    style={{ 
-                                      padding: "16px", 
-                                      borderRadius: "12px", 
-                                      background: selection.item?._id === item._id ? COLORS.primary : "#f8fafc", 
-                                      color: selection.item?._id === item._id ? "#fff" : COLORS.text, 
-                                      cursor: "pointer", 
-                                      marginTop: "8px", 
-                                      border: "1px solid #e2e8f0" 
-                                    }}
-                                  >
-                                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                        <b>{item.product} - {item.variety}</b>
-                                        <span>{item.grade}</span>
-                                     </div>
-                                     <div style={{ marginTop: "4px", fontSize: "12px", display: "flex", justifyContent: "space-between", opacity: 0.8 }}>
-                                        <span>Available: {item.remainingQuantity} KG</span>
-                                        <span>Rate: ₹{item.estimatedRate}/KG</span>
-                                     </div>
-                                  </div>
-                                ))}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                           <h4 style={{ margin: 0 }}>Step 1: Choose Inventory</h4>
+                           <span style={{ fontSize: "10px", background: "#eee", padding: "4px 8px", borderRadius: "10px" }}>{lots.length} LOTS</span>
+                        </div>
+                        <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+                           <input placeholder="Filter Lot/Product..." style={{ flex: 1, padding: "8px", borderRadius: "8px", border: "1px solid #ddd" }} />
+                        </div>
+                        <div style={{ maxHeight: "700px", overflowY: "auto" }}>
+                           {lots.map(lot => (
+                             <div key={lot._id} style={{ marginBottom: "24px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                                   <span style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted }}>{lot.lotId}</span>
+                                   <span style={{ fontSize: "10px", color: COLORS.primary }}>{lot.supplier?.name}</span>
+                                </div>
+                                {lot.lineItems.map((item, i) => {
+                                  const isSelected = selection.item?._id === item._id;
+                                  // Color coding logic
+                                  let statusColor = "#10B981"; // Green (Available)
+                                  if (item.status === 'Partially Sold') statusColor = "#F59E0B"; // Orange
+                                  if (item.status === 'Fully Sold') statusColor = "#EF4444"; // Red
+
+                                  return (
+                                    <div 
+                                      key={i} 
+                                      onClick={() => setSelection({ ...selection, item: item, lot: lot })}
+                                      style={{ 
+                                        padding: "16px", 
+                                        borderRadius: "14px", 
+                                        background: isSelected ? COLORS.primary : "#fff", 
+                                        color: isSelected ? "#fff" : COLORS.text, 
+                                        cursor: item.status === 'Fully Sold' ? "not-allowed" : "pointer", 
+                                        marginTop: "8px", 
+                                        border: isSelected ? `2px solid ${COLORS.primary}` : `1.5px solid #EBE9E1`,
+                                        opacity: item.status === 'Fully Sold' && !isSelected ? 0.5 : 1,
+                                        transition: "all 0.2s ease"
+                                      }}
+                                    >
+                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                                          <div style={{ display: "flex", flexDirection: "column" }}>
+                                             <b style={{ fontSize: "14px" }}>{item.product}</b>
+                                             <span style={{ fontSize: "11px", opacity: 0.8 }}>{item.variety} • {item.grade}</span>
+                                          </div>
+                                          <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: statusColor }}></div>
+                                       </div>
+                                       <div style={{ marginTop: "12px", fontSize: "12px", display: "flex", justifyContent: "space-between", opacity: 0.8 }}>
+                                          <span>Avail: <b>{item.remainingQuantity} KG</b></span>
+                                          <span>Total: {item.netWeight} KG</span>
+                                       </div>
+                                    </div>
+                                  );
+                                })}
                              </div>
                            ))}
                         </div>
                      </div>
 
-                     <div>
-                        <h4 style={{ marginBottom: "20px" }}>2. Allocate to Buyer</h4>
+                     <div style={{ paddingLeft: "8px" }}>
+                        <h4 style={{ marginBottom: "20px" }}>Step 2: Split Allocation Form</h4>
                         {selection.item ? (
                           <div style={{ animation: "fadeIn 0.3s ease" }}>
-                             <div style={{ background: COLORS.secondary, color: "#fff", padding: "20px", borderRadius: "16px", marginBottom: "24px" }}>
-                                <label style={{ fontSize: "11px", opacity: 0.8 }}>Allocating From:</label>
-                                <h3 style={{ margin: "4px 0" }}>{selection.lot.lotId} • {selection.item.product} ({selection.item.variety})</h3>
-                                <p style={{ margin: 0, fontSize: "13px" }}>Net Available: <b>{selection.item.remainingQuantity} KG</b></p>
+                             <div style={{ background: COLORS.secondary, color: "#fff", padding: "24px", borderRadius: "20px", marginBottom: "32px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
+                                <label style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "1px", opacity: 0.7 }}>Inventory Point</label>
+                                <h2 style={{ margin: "4px 0", fontSize: "20px" }}>{selection.lot.lotId} » {selection.item.product}</h2>
+                                <p style={{ margin: "8px 0 0", fontSize: "14px" }}>Available Stock: <b style={{ fontSize: "18px" }}>{selection.item.remainingQuantity} KG</b> / {selection.item.netWeight} KG</p>
                              </div>
 
                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
@@ -1540,7 +1567,55 @@ export default function App() {
             </div>
           )}
 
-          {/* 8. Supplier Bill */}
+          {/* 8. Product Intelligence / Traceability Screen */}
+          {activeSection === "Product Intel" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+               <Card title="🔍 Advanced Product Intelligence" subtitle="Track 'Farm to Fork' movement across all trades">
+                  <div style={{ display: "flex", gap: "10px", marginBottom: "24px" }}>
+                     <Input 
+                        placeholder="Search product (e.g. Mango, Apple, Alphonso)..." 
+                        style={{ flex: 1 }} 
+                        value={intelQuery}
+                        onChange={e => setIntelQuery(e.target.value)}
+                     />
+                     <Button onClick={async () => {
+                        const res = await MandiService.getProductIntelligence(intelQuery);
+                        if (res.status === "SUCCESS") setIntelData(res.data);
+                     }}>Search Traceability</Button>
+                  </div>
+
+                  <div style={{ overflowX: "auto" }}>
+                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                        <thead>
+                           <tr style={{ background: "#f8fafc", textAlign: "left" }}>
+                              <th style={{ padding: "16px" }}>Farmer (Source)</th>
+                              <th style={{ padding: "16px" }}>Lot ID</th>
+                              <th style={{ padding: "16px" }}>Arrival Date</th>
+                              <th style={{ padding: "16px" }}>Buyer (Destination)</th>
+                              <th style={{ padding: "16px" }}>Sale Qty</th>
+                              <th style={{ padding: "16px" }}>Sale Rate</th>
+                              <th style={{ padding: "16px" }}>Trade Date</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {intelData.map((row, i) => (
+                             <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                <td style={{ padding: "16px" }}><b>{row.farmerName}</b></td>
+                                <td style={{ padding: "16px" }}><span style={{ color: COLORS.sidebar, fontWeight: "700" }}>{row.lotId}</span></td>
+                                <td style={{ padding: "16px" }}>{new Date(row.arrivalDate).toLocaleDateString()}</td>
+                                <td style={{ padding: "16px" }}><b>{row.buyerName}</b></td>
+                                <td style={{ padding: "16px" }}>{row.quantity} KG</td>
+                                <td style={{ padding: "16px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
+                                <td style={{ padding: "16px" }}>{new Date(row.date).toLocaleDateString()}</td>
+                             </tr>
+                           ))}
+                           {intelData.length === 0 && <tr><td colSpan="7" style={{ padding: "40px", textAlign: "center", color: COLORS.muted }}>Use search to find product traceability across the supply chain.</td></tr>}
+                        </tbody>
+                     </table>
+                  </div>
+               </Card>
+            </div>
+          )}
           {activeSection === "Supplier Bill" && (
             <Card title="🧾 Digital Bill Composer" subtitle="Automatic calculations for physical mandi bills">
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginBottom: "32px" }}>
@@ -1581,11 +1656,46 @@ export default function App() {
                   </div>
                 </div>
               </Card>
-              <div style={{ display: "flex", gap: "16px" }}>
+              <div style={{ display: "flex", gap: "16px", marginBottom: "32px" }}>
                 <Button onClick={() => alert("💾 Bill saved! Use backend IDs to test PDF download.")}>💾 Save Data</Button>
                 <Button variant="success" onClick={() => MandiService.downloadBillPDF('TEST_ID')} style={{ opacity: 0.6 }}>📄 Download PDF Bill</Button>
                 <Button variant="secondary">🖨 Print</Button>
               </div>
+
+              {/* Farmer View: Traceability */}
+              <Card title="🤝 WHERE MY PRODUCE WENT" subtitle="Buyer-wise traceability for this lot/bill">
+                 <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                       <thead>
+                          <tr style={{ background: "#FDFBF4", textAlign: "left" }}>
+                             <th style={{ padding: "12px" }}>Buyer</th>
+                             <th style={{ padding: "12px" }}>Qty Allocated</th>
+                             <th style={{ padding: "12px" }}>Sale Rate</th>
+                             <th style={{ padding: "12px" }}>Sale Amount</th>
+                             <th style={{ padding: "12px" }}>Invoice #</th>
+                             <th style={{ padding: "12px" }}>Sale Date</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                          {/* Sample Traceability Data */}
+                          {[
+                            { name: "Suri Traders", qty: "300", rate: "52", amt: "15,600", inv: "INV-1023", date: "25/03/2026" },
+                            { name: "Kalyan Wholesale", qty: "250", rate: "55", amt: "13,750", inv: "INV-1024", date: "25/03/2026" },
+                            { name: "Reliance Retail", qty: "450", rate: "50", amt: "22,500", inv: "INV-1025", date: "25/03/2026" }
+                          ].map((row, i) => (
+                            <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                               <td style={{ padding: "12px" }}><b>{row.name}</b></td>
+                               <td style={{ padding: "12px" }}>{row.qty} KG</td>
+                               <td style={{ padding: "12px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
+                               <td style={{ padding: "12px" }}>₹{row.amt}</td>
+                               <td style={{ padding: "12px" }}>{row.inv}</td>
+                               <td style={{ padding: "12px" }}>{row.date}</td>
+                            </tr>
+                          ))}
+                       </tbody>
+                    </table>
+                 </div>
+              </Card>
             </Card>
           )}
 
@@ -1605,10 +1715,33 @@ export default function App() {
                   <Input label="Handling/Misc" placeholder="₹ 0.00" />
                 </div>
               </div>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginBottom: "32px" }}>
                 <Button variant="outline">Discard Draft</Button>
                 <Button>Generate Invoice PDF</Button>
               </div>
+
+              {/* Buyer View: Traceability */}
+              <Card title="🌾 SOURCE OF THIS PRODUCE" subtitle="Trace back to farmer lot arrivals">
+                 <div style={{ padding: "24px", background: "#f8fafc", borderRadius: "16px", border: "1.5px solid #e2e8f0" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px" }}>
+                       <div>
+                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>FARMER (SOURCE)</label>
+                          <h4 style={{ margin: "4px 0" }}>Ramesh Farmer</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Madanapalle, Chittoor</p>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>LOT IDENTITY</label>
+                          <h4 style={{ margin: "4px 0", color: COLORS.primary }}>LOT-20260325-001</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Arrival: 25/03/2026 09:12 AM</p>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>PRODUCT DETAILS</label>
+                          <h4 style={{ margin: "4px 0" }}>Mango Alphonso</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Grade: A Grade | Boxes: 24</p>
+                       </div>
+                    </div>
+                 </div>
+              </Card>
             </Card>
           )}
 
