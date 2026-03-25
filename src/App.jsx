@@ -240,7 +240,7 @@ export default function App() {
   const [intelQuery, setIntelQuery] = useState("");
   const [lotTraceability, setLotTraceability] = useState([]);
   const [allocationTraceability, setAllocationTraceability] = useState(null);
-  const [buyerIntel, setBuyerIntel] = useState(null);
+  const [buyerIQ, setBuyerIQ] = useState(null);
 
   // --- DATA STORAGE STATES ---
   const [suppliers, setSuppliers] = useState([]);
@@ -373,6 +373,7 @@ export default function App() {
     { id: "Product Intel", icon: "🔍", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
     { id: "Buyer Invoice", icon: "📑", roles: ["Admin", "Accountant"] },
+    { id: "Buyer Intel Dashboard", icon: "🧠", roles: ["Admin", "Accountant"] },
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant"] },
     { id: "Payment Management", icon: "💳", roles: ["Admin", "Accountant"] },
     { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
@@ -1700,230 +1701,201 @@ export default function App() {
             </Card>
           )}
 
-          {/* 9. Buyer Invoice (High-End Enterprise Edition) */}
+          {/* 9. Buyer Invoice */}
           {activeSection === "Buyer Invoice" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-              {/* Top Smart Summary Card */}
-              {buyerIntel && (
-                <div style={{ 
-                  background: COLORS.secondary, 
-                  color: "white", 
-                  padding: "24px 32px", 
-                  borderRadius: "24px", 
-                  display: "flex", 
-                  justifyContent: "space-between", 
-                  alignItems: "center",
-                  boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
-                  animation: "slideDown 0.4s ease" 
-                }}>
-                   <div>
-                      <label style={{ fontSize: "10px", opacity: 0.7, textTransform: "uppercase" }}>High-Value Buyer Profile</label>
-                      <h2 style={{ margin: "4px 0", fontSize: "28px" }}>{buyerIntel.buyer.name} <small style={{ fontSize: "14px", opacity: 0.8 }}>({buyerIntel.buyer.shopName})</small></h2>
-                      <div style={{ display: "flex", gap: "20px", marginTop: "12px" }}>
-                         <span style={{ fontSize: "13px" }}>📞 {buyerIntel.buyer.phone}</span>
-                         <span style={{ fontSize: "13px" }}>📍 {buyerIntel.buyer.address}</span>
-                      </div>
-                   </div>
-                   <div style={{ display: "flex", gap: "40px", textAlign: "right" }}>
-                      <div>
-                        <p style={{ margin: 0, fontSize: "11px", opacity: 0.8 }}>TOTAL PURCHASES</p>
-                        <b style={{ fontSize: "22px" }}>{formatCurrency(buyerIntel.stats.totalBillAmount)}</b>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: "11px", opacity: 0.8 }}>CURRENT PENDING</p>
-                        <b style={{ fontSize: "22px", color: buyerIntel.stats.creditRiskStatus === 'RED' ? '#FCA5A5' : '#FCD34D' }}>{formatCurrency(buyerIntel.stats.pendingBalance)}</b>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: "11px", opacity: 0.8 }}>FAVORITE FRUIT</p>
-                        <b style={{ fontSize: "22px" }}>{buyerIntel.stats.mostPurchasedProduct}</b>
-                      </div>
-                   </div>
+            <Card title="📑 Buyer Dispatch Invoice" subtitle="Commission-integrated sales billing">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "32px" }}>
+                <Input label="Invoice ID" value="INV-9921" />
+                <Input label="Dispatch Date" type="date" value={new Date().toISOString().slice(0, 10)} />
+                <Input label="Buyer Mapping" placeholder="Search active buyers..." />
+              </div>
+              <div style={{ padding: "24px", background: "#f8fafc", borderRadius: "20px", marginBottom: "32px" }}>
+                <h4 style={{ margin: "0 0 16px 0" }}>Additional Dispatch Charges</h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+                  <Input label="Commission (%)" placeholder="e.g. 5" />
+                  <Input label="Transport" placeholder="₹ 0.00" />
+                  <Input label="Handling/Misc" placeholder="₹ 0.00" />
                 </div>
-              )}
-
-              <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "32px" }}>
-                 {/* Left: Invoice Generator */}
-                 <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                    <Card title="📑 Digital Dispatch Invoice" subtitle="Transaction-safe automatic billing">
-                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
-                          <Input label="Invoice ID" value={`INV-${new Date().getFullYear()}-${Math.floor(Math.random()*9000)+1000}`} />
-                          <Input label="Invoice Date & Time" type="datetime-local" value={new Date().toISOString().slice(0, 16)} />
-                       </div>
-                       
-                       <div style={{ marginBottom: "20px" }}>
-                          <label style={{ display: "block", marginBottom: "8px", fontWeight: "800", color: COLORS.secondary, fontSize: "12px" }}>Select Buyer</label>
-                          <select 
-                            style={{ width: "100%", padding: "14px", borderRadius: "14px", border: "2px solid #f1f5f9", background: "#f8fafc", fontWeight: "700" }}
-                            onChange={async (e) => {
-                               const rid = e.target.value;
-                               if (!rid) return setBuyerIntel(null);
-                               const res = await MandiService.getBuyerIntelligence(rid);
-                               if (res.status === "SUCCESS") setBuyerIntel(res.data);
-                            }}
-                          >
-                            <option value="">-- Search Enterprise Buyers --</option>
-                            {buyers.map(b => <option key={b._id} value={b._id}>{b.name} ({b.shopName})</option>)}
-                          </select>
-                       </div>
-
-                       {buyerIntel && buyerIntel.stats.pendingBalance > 50000 && (
-                         <div style={{ background: "#FEF2F2", color: "#B91C1C", padding: "16px", borderRadius: "12px", border: "1px solid #FCA5A5", marginBottom: "20px", fontSize: "13px", fontWeight: "700" }}>
-                           ⚠️ ALERT: Outstanding balance of {formatCurrency(buyerIntel.stats.pendingBalance)} detected. Proceed with caution.
-                         </div>
-                       )}
-
-                       <div style={{ border: "2px solid #f1f5f9", borderRadius: "16px", padding: "24px", background: "#fff" }}>
-                          <h4 style={{ marginBottom: "16px" }}>Purchase Summary (from Allocations)</h4>
-                          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                             <thead>
-                                <tr style={{ textAlign: "left", fontSize: "11px", color: COLORS.muted }}>
-                                   <th style={{ padding: "8px" }}>Item / Source</th>
-                                   <th style={{ padding: "8px" }}>Qty</th>
-                                   <th style={{ padding: "8px" }}>Rate</th>
-                                   <th style={{ padding: "8px" }}>Amt</th>
-                                </tr>
-                             </thead>
-                             <tbody>
-                                {buyerIntel ? (
-                                  buyerIntel.history.slice(0, 2).map((h, i) => (
-                                    <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                       <td style={{ padding: "12px 0" }}>
-                                          <b>{h.product}</b><br />
-                                          <small>From {h.farmerName} ({h.lotId})</small>
-                                       </td>
-                                       <td>{h.quantity} KG</td>
-                                       <td>₹{h.rate}</td>
-                                       <td style={{ fontWeight: "700" }}>₹{(h.quantity * h.rate).toLocaleString()}</td>
-                                    </tr>
-                                  ))
-                                ) : (
-                                  <tr><td colSpan="4" style={{ padding: "40px", textAlign: "center", color: COLORS.muted }}>Select a buyer to load allocations</td></tr>
-                                )}
-                             </tbody>
-                          </table>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "24px" }}>
-                             <Input label="Commission (%)" value="5" />
-                             <Input label="Transport Chg." placeholder="₹ 0.00" />
-                          </div>
-                       </div>
-                       
-                       <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
-                          <Button style={{ flex: 1, height: "54px" }} onClick={() => alert("✅ Invoice Generated & Traceability Sealed.")}>Save & Sync Ledger</Button>
-                          <Button variant="outline" style={{ flex: 1 }}>Print Thermal Receipt</Button>
-                       </div>
-                    </Card>
-
-                    <Card title="🌾 SOURCE TRACEABILITY" subtitle="Real-time farm-origin verification">
-                        {buyerIntel ? (
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                             {buyerIntel.history.slice(0, 2).map((h, i) => (
-                               <div key={i} style={{ padding: "16px", background: "#F8FAF8", borderRadius: "12px", border: "1.5px solid #DCFCE7" }}>
-                                  <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.success }}>CERTIFIED SOURCE</label>
-                                  <h4 style={{ margin: "4px 0" }}>{h.farmerName}</h4>
-                                  <p style={{ margin: 0, fontSize: "12px" }}>Lot: {h.lotId} | Arrival: {new Date(h.date).toLocaleDateString()}</p>
-                               </div>
-                             ))}
-                          </div>
-                        ) : <p style={{ color: COLORS.muted, textAlign: "center" }}>Traceability data will load with buyer profile</p>}
-                    </Card>
-                 </div>
-
-                 {/* Right: Intelligence Panel */}
-                 <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                    <Card title="🧠 Buyer Intelligence" subtitle="Buying habits & patterns">
-                       {buyerIntel ? (
-                         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                               <div style={{ padding: "16px", background: "#f8fafc", borderRadius: "16px", textAlign: "center" }}>
-                                  <p style={{ margin: 0, fontSize: "11px", fontWeight: "800", color: COLORS.muted }}>AVG BUYING RATE</p>
-                                  <h3 style={{ margin: "8px 0 0" }}>₹{Math.round(buyerIntel.stats.avgBuyingRate)}/KG</h3>
-                               </div>
-                               <div style={{ padding: "16px", background: "#f8fafc", borderRadius: "16px", textAlign: "center" }}>
-                                  <p style={{ margin: 0, fontSize: "11px", fontWeight: "800", color: COLORS.muted }}>TOTAL VISITS</p>
-                                  <h3 style={{ margin: "8px 0 0" }}>{buyerIntel.stats.totalInvoices}</h3>
-                               </div>
-                            </div>
-
-                            <div>
-                               <h5 style={{ margin: "0 0 12px 0", color: COLORS.secondary }}>Favourite Products</h5>
-                               {buyerIntel.products.map((p, i) => (
-                                 <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", background: "#FDFBF4", padding: "12px 16px", borderRadius: "12px" }}>
-                                    <div>
-                                       <b>{p.name}</b><br />
-                                       <small>Range: ₹{p.lowRate} - ₹{p.highRate}</small>
-                                    </div>
-                                    <span style={{ fontWeight: "800", color: COLORS.primary }}>{p.totalQty.toLocaleString()} KG</span>
-                                 </div>
-                               ))}
-                            </div>
-
-                            <div style={{ background: "#F1F5F9", padding: "20px", borderRadius: "20px" }}>
-                               <h5 style={{ margin: "0 0 12px 0" }}>Financial Health</h5>
-                               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Total Bill:</span> <b>{formatCurrency(buyerIntel.stats.totalBillAmount)}</b></div>
-                               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Total Paid:</span> <b>{formatCurrency(buyerIntel.stats.totalPaid)}</b></div>
-                               <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", borderTop: "1.5px solid #cbd5e1", paddingTop: "12px" }}>
-                                  <span>Pending:</span> 
-                                  <b style={{ color: buyerIntel.stats.creditRiskStatus === 'RED' ? COLORS.danger : COLORS.success, fontSize: "18px" }}>{formatCurrency(buyerIntel.stats.pendingBalance)}</b>
-                                </div>
-                            </div>
-                         </div>
-                       ) : <p style={{ color: COLORS.muted, textAlign: "center", padding: "40px" }}>Select a buyer to unlock AI intelligence</p>}
-                    </Card>
-
-                    <Card title="⏰ Purchase Habit (Timing)" subtitle="Identifying buying windows">
-                       {buyerIntel ? (
-                         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                            {buyerIntel.history.slice(0, 5).map((h, i) => (
-                              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: "#fff", border: "1px solid #eee", borderRadius: "12px", fontSize: "13px" }}>
-                                  <span>{new Date(h.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                                  <span style={{ fontWeight: "700" }}>{h.time}</span>
-                                  <span style={{ color: COLORS.muted }}>{new Date(h.date).toLocaleDateString('en-GB', { weekday: 'long' })}</span>
-                              </div>
-                            ))}
-                         </div>
-                       ) : <p style={{ color: COLORS.muted, textAlign: "center" }}>Waiting for profile...</p>}
-                    </Card>
-                 </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginBottom: "32px" }}>
+                <Button variant="outline">Discard Draft</Button>
+                <Button>Generate Invoice PDF</Button>
               </div>
 
-              {/* Bottom: Historical Transaction Table */}
-              <Card title="📊 Historical Buyer Allocation Archive" subtitle="Full historical traceability filterable by criteria">
-                 <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
-                    <Input placeholder="Filter by Fruit..." style={{ flex: 1 }} />
-                    <Input placeholder="Filter by Farmer..." style={{ flex: 1 }} />
-                    <Button variant="outline">Advanced Filters</Button>
-                 </div>
-                 <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                       <thead>
-                          <tr style={{ background: "#F8FAF8", textAlign: "left" }}>
-                             <th style={{ padding: "16px" }}>Date</th>
-                             <th style={{ padding: "16px" }}>Source Farmer</th>
-                             <th style={{ padding: "16px" }}>Fruit / Variety</th>
-                             <th style={{ padding: "16px" }}>Qty (KG)</th>
-                             <th style={{ padding: "16px" }}>Rate Paid</th>
-                             <th style={{ padding: "16px" }}>Status</th>
-                          </tr>
-                       </thead>
-                       <tbody>
-                          {buyerIntel ? (
-                            buyerIntel.history.map((row, i) => (
-                              <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                 <td style={{ padding: "16px" }}>{new Date(row.date).toLocaleDateString()}</td>
-                                 <td style={{ padding: "16px" }}><b>{row.farmerName}</b></td>
-                                 <td style={{ padding: "16px" }}>{row.product}</td>
-                                 <td style={{ padding: "16px" }}>{row.quantity} KG</td>
-                                 <td style={{ padding: "16px", fontWeight: "700" }}>₹{row.rate}/KG</td>
-                                 <td style={{ padding: "16px" }}><span style={{ color: COLORS.success }}>● Delivered</span></td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr><td colSpan="6" style={{ padding: "40px", textAlign: "center", color: COLORS.muted }}>No analytical data to display</td></tr>
-                          )}
-                       </tbody>
-                    </table>
+              {/* Buyer View: Traceability */}
+              <Card title="🌾 SOURCE OF THIS PRODUCE" subtitle="Trace back to farmer lot arrivals">
+                 <div style={{ padding: "24px", background: "#f8fafc", borderRadius: "16px", border: "1.5px solid #e2e8f0" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px" }}>
+                       <div>
+                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>FARMER (SOURCE)</label>
+                          <h4 style={{ margin: "4px 0" }}>Ramesh Farmer</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Madanapalle, Chittoor</p>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>LOT IDENTITY</label>
+                          <h4 style={{ margin: "4px 0", color: COLORS.primary }}>LOT-20260325-001</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Arrival: 25/03/2026 09:12 AM</p>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>PRODUCT DETAILS</label>
+                          <h4 style={{ margin: "4px 0" }}>Mango Alphonso</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Grade: A Grade | Boxes: 24</p>
+                       </div>
+                    </div>
                  </div>
               </Card>
+            </Card>
+          )}
+
+          {/* 9b. High-End Buyer Intelligence & Invoice (The "Buyer Decision System") */}
+          {activeSection === "Buyer Intel Dashboard" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+               <Card style={{ padding: "0", overflow: "hidden" }}>
+                  <div style={{ background: COLORS.sidebar, padding: "32px", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", gap: "32px", color: "#fff", alignItems: "center" }}>
+                     <div>
+                        <label style={{ fontSize: "10px", opacity: 0.7, textTransform: "uppercase" }}>Active Buyer Profile</label>
+                        <select 
+                           style={{ width: "100%", background: "transparent", color: "#fff", border: "none", borderBottom: "2px solid rgba(255,255,255,0.2)", fontSize: "24px", fontWeight: "700", outline: "none", padding: "8px 0" }}
+                           value={user.selectedBuyerIQId || ""}
+                           onChange={async (e) => {
+                             const bid = e.target.value;
+                             setUser({...user, selectedBuyerIQId: bid});
+                             if (bid) {
+                               const res = await MandiService.getBuyerIntelligence(bid);
+                               if (res.status === "SUCCESS") setBuyerIQ(res.data);
+                             }
+                           }}
+                        >
+                           <option value="" style={{ color: "#000" }}>Select Buyer to Analyze...</option>
+                           {buyers.map(b => <option key={b._id} value={b._id} style={{ color: "#000" }}>{b.name} ({b.shopName})</option>)}
+                        </select>
+                     </div>
+                     {buyerIQ ? (
+                       <>
+                         <div>
+                            <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>TOTAL PURCHASES</p>
+                            <h2 style={{ margin: "4px 0" }}>{buyerIQ.summary.totalPurchasedKg.toLocaleString()} <small>KG</small></h2>
+                         </div>
+                         <div>
+                            <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>OUTSTANDING BAL</p>
+                            <h2 style={{ margin: "4px 0", color: buyerIQ.summary.riskLevel === 'Red' ? '#FFA39E' : '#95de64' }}>{formatCurrency(buyerIQ.summary.outstandingBalance)}</h2>
+                         </div>
+                         <div>
+                            <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>FAVORITE PRODUCT</p>
+                            <h2 style={{ margin: "4px 0" }}>{buyerIQ.summary.mostPurchasedProduct}</h2>
+                         </div>
+                       </>
+                     ) : (
+                       <div style={{ gridColumn: "span 3", opacity: 0.5 }}>⚡ Select a buyer to load historical decision metrics</div>
+                     )}
+                  </div>
+               </Card>
+
+               {buyerIQ && (
+                 <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "32px", animation: "fadeIn 0.5s ease" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                       <Card title="📑 High-End Invoicing Console" subtitle="Transaction-safe entry with auto-fetch sources">
+                          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "16px", marginBottom: "20px" }}>
+                             <Input label="Invoice Number" value={`INV-${Date.now().toString().slice(-6)}`} disabled />
+                             <Input label="Date & Time" type="datetime-local" value={new Date().toISOString().slice(0, 16)} />
+                          </div>
+                          
+                          <h4 style={{ margin: "24px 0 16px 0", color: COLORS.secondary }}>📦 Item Entries</h4>
+                          <div style={{ background: "#f8fafc", padding: "12px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                                <thead>
+                                   <tr style={{ textAlign: "left", borderBottom: "1px solid #ddd" }}>
+                                      <th style={{ padding: "8px" }}>Product</th>
+                                      <th style={{ padding: "8px" }}>Source Lot</th>
+                                      <th style={{ padding: "8px" }}>Qty</th>
+                                      <th style={{ padding: "8px" }}>Rate</th>
+                                      <th style={{ padding: "8px" }}>Amount</th>
+                                   </tr>
+                                </thead>
+                                <tbody>
+                                   <tr style={{ borderBottom: "1px solid #eee" }}>
+                                      <td style={{ padding: "12px 8px" }}>🥭 Mango (Alphonso)</td>
+                                      <td><span style={{ color: COLORS.accent }}>LOT-2026-001</span></td>
+                                      <td>300 KG</td>
+                                      <td>₹ 52.00</td>
+                                      <td style={{ fontWeight: "700" }}>₹ 15,600.00</td>
+                                   </tr>
+                                </tbody>
+                             </table>
+                             <Button variant="secondary" style={{ width: "100%", marginTop: "12px", fontSize: "11px", height: "32px" }}>+ Add product from Allocation History</Button>
+                          </div>
+                          
+                          <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+                             <Button style={{ flex: 2 }}>Generate & Print Final Invoice</Button>
+                             <Button variant="outline" style={{ flex: 1 }}>Save as Draft</Button>
+                          </div>
+                       </Card>
+
+                       <Card title="📜 History of Farmer Purchases" subtitle={`Direct source traceability for ${buyerIQ.summary.mostPurchasedProduct}`}>
+                          <div style={{ overflowX: "auto" }}>
+                             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                                <thead>
+                                   <tr style={{ background: "#f8fafc", textAlign: "left" }}>
+                                      <th style={{ padding: "12px" }}>Date / Time</th>
+                                      <th style={{ padding: "12px" }}>Farmer Source</th>
+                                      <th style={{ padding: "12px" }}>Product Detail</th>
+                                      <th style={{ padding: "12px" }}>Qty (KG)</th>
+                                      <th style={{ padding: "12px" }}>Rate</th>
+                                   </tr>
+                                </thead>
+                                <tbody>
+                                   {buyerIQ.farmerRelationship.map((row, i) => (
+                                      <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                         <td style={{ padding: "12px" }}>
+                                            <b>{new Date(row.date).toLocaleDateString()}</b><br />
+                                            <small style={{ color: COLORS.muted }}>{row.day} | {row.time}</small>
+                                         </td>
+                                         <td style={{ padding: "12px" }}>
+                                            <b>{row.farmerName}</b><br />
+                                            <span style={{ fontSize: "10px", color: COLORS.accent }}>{row.lotId}</span>
+                                         </td>
+                                         <td style={{ padding: "12px" }}>{row.product} ({row.variety})</td>
+                                         <td style={{ padding: "12px" }}>{row.quantity} KG</td>
+                                         <td style={{ padding: "12px", fontWeight: "700" }}>₹{row.rate}</td>
+                                      </tr>
+                                   ))}
+                                </tbody>
+                             </table>
+                          </div>
+                       </Card>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                        <Card title="💰 Credit Profile Registry">
+                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: "#f8fafc", borderRadius: "10px" }}>
+                                 <span>Lifetime Bill Value</span>
+                                 <b>{formatCurrency(buyerIQ.paymentHistory.totalBillAmount)}</b>
+                              </div>
+                              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: "#f8fafc", borderRadius: "10px" }}>
+                                 <span>Lifetime Total Paid</span>
+                                 <b style={{ color: COLORS.success }}>{formatCurrency(buyerIQ.paymentHistory.totalPaid)}</b>
+                              </div>
+                              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: buyerIQ.summary.riskLevel === 'Red' ? '#fff1f0' : '#f6ffed', borderRadius: "10px", border: `1px solid ${buyerIQ.summary.riskLevel === 'Red' ? '#ffa39e' : '#b7eb8f'}` }}>
+                                 <span>Current Standing</span>
+                                 <b style={{ color: buyerIQ.summary.riskLevel === 'Red' ? COLORS.danger : COLORS.success }}>{buyerIQ.summary.riskLevel === 'Red' ? 'High Overdue' : 'Good Standing'}</b>
+                              </div>
+                           </div>
+                        </Card>
+
+                        <Card title="⏰ Market Timing Habits">
+                           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                              {buyerIQ.farmerRelationship.slice(0, 5).map((visit, i) => (
+                                <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", padding: "8px 0", borderBottom: "1px dashed #eee" }}>
+                                   <span>{new Date(visit.date).toLocaleDateString()} | <b>{visit.day}</b></span>
+                                   <span style={{ color: COLORS.primary, fontWeight: "700" }}>{visit.time}</span>
+                                </div>
+                              ))}
+                           </div>
+                        </Card>
+                    </div>
+                 </div>
+               )}
             </div>
           )}
 
