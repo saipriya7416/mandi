@@ -1793,40 +1793,39 @@ export default function App() {
                         </div>
 
                         {/* Financials & Charges Block */}
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "48px", borderTop: "2px solid #f1f5f9", paddingTop: "48px" }}>
-                           <div style={{ width: "100%", maxWidth: "400px", background: "#0f172a", color: "#fff", padding: "48px", borderRadius: "40px", boxShadow: "0 30px 60px rgba(0,0,0,0.15)" }}>
-                              <h4 style={{ margin: "0 0 32px 0", color: COLORS.accent, letterSpacing: "2px" }}>INVOICE SUMMARY</h4>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                                 <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.6 }}><span>SUB-TOTAL AMOUNT</span><b>{formatCurrency(buyerInvoiceForm.subTotal)}</b></div>
-                                 
-                                 <div style={{ borderTop: "1.5px solid rgba(255,255,255,0.12)", paddingTop: "24px", display: "flex", justifyContent: "space-between", fontSize: "32px", fontWeight: "900" }}>
-                                    <span style={{ color: COLORS.accent }}>GRAND TOTAL</span>
-                                    <span>{formatCurrency(buyerInvoiceForm.grandTotal)}</span>
+                        <div style={{ marginTop: "48px", borderTop: "2px solid #f1f5f9", paddingTop: "48px" }}>
+                           <div style={{ background: "#FDFBF4", border: "1.5px dashed #D4B106", color: COLORS.secondary, padding: "32px", borderRadius: "24px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px", alignItems: "center" }}>
+                              <div>
+                                 <h4 style={{ margin: "0 0 16px 0", color: COLORS.primary, letterSpacing: "1px" }}>INVOICE SUMMARY</h4>
+                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", opacity: 0.7, fontWeight: "600", fontSize: "14px" }}><span>Sub-Total</span><b>{formatCurrency(buyerInvoiceForm.subTotal)}</b></div>
+                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "28px", fontWeight: "900", borderTop: "2px solid rgba(0,0,0,0.1)", paddingTop: "12px", marginTop: "12px" }}>
+                                    <span>GRAND TOTAL</span>
+                                    <span style={{ color: COLORS.primary }}>{formatCurrency(buyerInvoiceForm.grandTotal)}</span>
                                  </div>
+                              </div>
+                              
+                              <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" }}>
+                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                                    <span style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", fontWeight: "800" }}>Amount Received</span>
+                                    <input 
+                                       type="number" 
+                                       style={{ width: "110px", background: "#f8fafc", border: "1.5px solid #e2e8f0", padding: "10px", borderRadius: "10px", textAlign: "right", fontWeight: "900", fontSize: "16px", outline: "none" }}
+                                       value={buyerInvoiceForm.amountReceived}
+                                       onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, amountReceived: e.target.value}))}
+                                    />
+                                 </div>
+                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: "14px", fontWeight: "700" }}>Payer Status</span>
+                                    <span style={{ 
+                                       padding: "6px 16px", borderRadius: "40px", fontSize: "11px", fontWeight: "900", color: "#fff",
+                                       background: buyerInvoiceForm.status === 'Fully Paid' ? '#22c55e' : buyerInvoiceForm.status === 'Partially Paid' ? '#f59e0b' : '#ef4444'
+                                    }}>{buyerInvoiceForm.status.toUpperCase()}</span>
+                                 </div>
+                              </div>
 
-                                 <div style={{ background: "rgba(255,255,255,0.06)", padding: "24px", borderRadius: "24px", marginTop: "12px" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                                       <span style={{ fontSize: "12px", opacity: 0.5, textTransform: "uppercase", fontWeight: "800" }}>Amount Received (Cash/UPI)</span>
-                                       <input 
-                                          type="number" 
-                                          style={{ width: "120px", background: "#fff", color: "#000", border: "none", padding: "12px", borderRadius: "12px", textAlign: "right", fontWeight: "900", fontSize: "18px" }}
-                                          value={buyerInvoiceForm.amountReceived}
-                                          onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, amountReceived: e.target.value}))}
-                                       />
-                                    </div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                       <span style={{ fontSize: "14px", fontWeight: "600" }}>Payer Status</span>
-                                       <span style={{ 
-                                          padding: "6px 16px", borderRadius: "40px", fontSize: "11px", fontWeight: "900",
-                                          background: buyerInvoiceForm.status === 'Fully Paid' ? '#22c55e' : buyerInvoiceForm.status === 'Partially Paid' ? '#f59e0b' : '#ef4444'
-                                       }}>{buyerInvoiceForm.status.toUpperCase()}</span>
-                                    </div>
-                                 </div>
-
-                                 <div style={{ background: COLORS.accent, color: COLORS.secondary, padding: "24px", borderRadius: "24px", textAlign: "center" }}>
-                                    <small style={{ fontWeight: "900", opacity: 0.6, letterSpacing: "1px" }}>OUTSTANDING ON THIS INVOICE</small>
-                                    <h1 style={{ margin: "5px 0", fontSize: "40px", fontWeight: "900" }}>{formatCurrency(buyerInvoiceForm.balanceDue)}</h1>
-                                 </div>
+                              <div style={{ background: COLORS.secondary, color: "#fff", padding: "24px", borderRadius: "16px", textAlign: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}>
+                                 <small style={{ fontWeight: "800", opacity: 0.7, letterSpacing: "1px" }}>OUTSTANDING BALANCE</small>
+                                 <h1 style={{ margin: "10px 0 0 0", fontSize: "40px", fontWeight: "900", color: COLORS.accent }}>{formatCurrency(buyerInvoiceForm.balanceDue)}</h1>
                               </div>
                            </div>
                         </div>
