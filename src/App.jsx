@@ -253,10 +253,29 @@ export default function App() {
   const fetchData = async () => {
     try {
       const sRes = await MandiService.getSuppliers();
-      if (sRes.status === "SUCCESS") setSuppliers(sRes.data);
+      if (sRes.status === "SUCCESS") {
+         setSuppliers(sRes.data.length > 0 ? sRes.data : [
+           "Vikram Reddy", "Sandhya Devi", "Anwar Pasha", "Gopal Krishnan", "Srinivasa Rao",
+           "Ramachandra Murthy", "Lakshmi Kanth", "Venkata Raman", "Satyavati Garu", "Rajesh Kumar",
+           "Suresh Babu", "Manisha Singh", "Vijay Bhaskar", "Anil Reddy", "Kavita Rao",
+           "Shiva Prasad", "Naveen Kumar", "Santosh Hegde", "Padmaja Devi", "Ravi Teja",
+           "Mohan Babu", "Girish Gupta", "Aruna Kumari", "Harish Shetty", "Bhaskar Rao",
+           "Chandra Mohan", "Durga Prasad", "Eshwar Rao", "Fatima Begum", "Ganapathi Bhat",
+           "Himamshu Roy", "Indrani Sharma", "Jagadish Murthy", "Karthik Raja", "Lalitha Goud",
+           "Murali Krishna", "Nirmala Devi", "Om Prakash", "Parvathi Amma", "Qasim Khan"
+         ].map((n, i) => ({ _id: `s-${i}`, name: n, village: 'Madanapalle', mobile: `98480${10000+i}` })));
+      }
 
       const bRes = await MandiService.getBuyers();
-      if (bRes.status === "SUCCESS") setBuyers(bRes.data);
+      if (bRes.status === "SUCCESS") {
+         setBuyers(bRes.data.length > 0 ? bRes.data : [
+            "Harsha Wholesale", "Reliance Fresh", "BigBasket Depot", "Heritage Foods", "Anand Foodworld",
+            "Heritage Depot", "BigBasket Hub", "Metro Cash & Carry", "More Retail", "Spencer's Market",
+            "Nilgiris Supermarket", "Star Bazaar", "DMart Depot", "Safal Mandi", "Nature's Basket",
+            "Amazon Fresh Hub", "Daily Delight", "FreshDirect", "GreenWay Traders", "Quality First",
+            "Tasty Trends", "Urban Organic", "Value Mart", "Wholesale Wonders", "Zenith Exports"
+         ].map((n, i) => ({ _id: `b-${i}`, name: n, shopName: n, mobile: `99590${10000+i}` })));
+      }
 
       const lRes = await MandiService.getLots();
       if (lRes.status === "SUCCESS") setLots(lRes.data);
@@ -1616,7 +1635,10 @@ export default function App() {
                                {[
                                  { farmerName: "Vikram Reddy", lotId: "LOT-2026-X11", arrivalDate: "2026-03-20", buyerName: "Harsha Wholesale", quantity: 1200, rate: 48, date: "2026-03-21" },
                                  { farmerName: "Sandhya Devi", lotId: "LOT-2026-X12", arrivalDate: "2026-03-21", buyerName: "Reliance Fresh", quantity: 850, rate: 52, date: "2026-03-22" },
-                                 { farmerName: "Anwar Pasha", lotId: "LOT-2026-X13", arrivalDate: "2026-03-22", buyerName: "BigBasket Depot", quantity: 2000, rate: 45, date: "2026-03-23" }
+                                 { farmerName: "Anwar Pasha", lotId: "LOT-2026-X13", arrivalDate: "2026-03-22", buyerName: "BigBasket Depot", quantity: 2000, rate: 45, date: "2026-03-23" },
+                                 { farmerName: "Gopal Krishnan", lotId: "LOT-2026-X14", arrivalDate: "2026-03-23", buyerName: "Heritage Foods", quantity: 1500, rate: 50, date: "2026-03-24" },
+                                 { farmerName: "Srinivasa Rao", lotId: "LOT-2026-X15", arrivalDate: "2026-03-24", buyerName: "Anand Foodworld", quantity: 3000, rate: 42, date: "2026-03-25" },
+                                 { farmerName: "Lakshmi Kanth", lotId: "LOT-2026-X16", arrivalDate: "2026-03-25", buyerName: "Metro Cash", quantity: 1800, rate: 55, date: "2026-03-26" }
                                ].map((row, i) => (
                                  <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
                                   <td style={{ padding: "16px" }}><b>{row.farmerName}</b></td>
@@ -1698,6 +1720,41 @@ export default function App() {
                        </div>
                      </div>
                    </div>
+
+                    {/* NEW: PAYMENT SETTLEMENT CONSOLE */}
+                    <div style={{ marginTop: "32px", borderTop: "1px dashed #cbd5e1", paddingTop: "32px" }}>
+                       <h3 style={{ margin: "0 0 20px 0" }}>💰 Payment Settlement Console</h3>
+                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px", alignItems: "end" }}>
+                          <Input label="Actual Amount Paid" placeholder="Enter amount..." type="number" />
+                          <div>
+                             <label style={{ display: "block", fontSize: "12px", fontWeight: "700", marginBottom: "8px", color: COLORS.secondary }}>Transaction Mode</label>
+                             <select style={{ width: "100%", height: "48px", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "0 16px", background: "#f8fafc" }}>
+                                <option>💵 Cash</option>
+                                <option>📲 UPI / Scan</option>
+                                <option>🏦 Bank Transfer</option>
+                             </select>
+                          </div>
+                          <div>
+                             <label style={{ display: "block", fontSize: "12px", fontWeight: "700", marginBottom: "8px", color: COLORS.secondary }}>Settlement Status</label>
+                             <div style={{ padding: "12px 16px", background: "#f0fdf4", color: "#166534", borderRadius: "10px", border: "1px solid #dcfce7", fontSize: "13px", fontWeight: "700", textAlign: "center" }}>
+                                ✅ Fully Paid
+                             </div>
+                          </div>
+                       </div>
+                       
+                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "24px" }}>
+                          <div style={{ background: "#fff1f0", padding: "20px", borderRadius: "16px", border: "1px solid #ffa39e" }}>
+                             <label style={{ fontSize: "11px", opacity: 0.6, fontWeight: "800" }}>PENDING BALANCE</label>
+                             <h2 style={{ margin: 0, color: COLORS.danger }}>₹ 0.00</h2>
+                             <p style={{ margin: 0, fontSize: "12px" }}>Total remaining to be paid</p>
+                          </div>
+                          <div style={{ background: "#f6ffed", padding: "20px", borderRadius: "16px", border: "1px solid #b7eb8f" }}>
+                             <label style={{ fontSize: "11px", opacity: 0.6, fontWeight: "800" }}>TOTAL PAID TILL DATE</label>
+                             <h2 style={{ margin: 0, color: COLORS.success }}>₹ 1,05,500</h2>
+                             <p style={{ margin: 0, fontSize: "12px" }}>Including current transaction</p>
+                          </div>
+                       </div>
+                    </div>
                  </Card>
                  <div style={{ display: "flex", gap: "16px", marginBottom: "32px" }}>
                    <Button onClick={() => alert("💾 Bill saved! Use backend IDs to test PDF download.")}>💾 Save Data</Button>
@@ -1725,7 +1782,10 @@ export default function App() {
                                { name: "Harsha Wholesale", qty: "300", rate: "52", amt: "15,600", inv: "INV-1023", date: "25/03/2026" },
                                { name: "Anand Foodworld", qty: "250", rate: "55", amt: "13,750", inv: "INV-1024", date: "25/03/2026" },
                                { name: "Heritage Depot", qty: "450", rate: "50", amt: "22,500", inv: "INV-1025", date: "25/03/2026" },
-                               { name: "BigBasket Hub", qty: "200", rate: "58", amt: "11,600", inv: "INV-1026", date: "25/03/2026" }
+                               { name: "BigBasket Hub", qty: "200", rate: "58", amt: "11,600", inv: "INV-1026", date: "25/03/2026" },
+                               { name: "Metro Cash & Carry", qty: "600", rate: "45", amt: "27,000", inv: "INV-1027", date: "26/03/2026" },
+                               { name: "More Retail", qty: "400", rate: "48", amt: "19,200", inv: "INV-1028", date: "26/03/2026" },
+                               { name: "Spencer's Market", qty: "150", rate: "62", amt: "9,300", inv: "INV-1029", date: "26/03/2026" }
                              ].map((row, i) => (
                                <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
                                   <td style={{ padding: "12px" }}><b>{row.name}</b></td>
@@ -2050,7 +2110,13 @@ export default function App() {
                      { name: "Srinivasa Rao", role: "Supplier", status: "VERIFIED" },
                      { name: "Mahesh Traders", role: "Buyer", status: "VERIFIED" },
                      { name: "Green Valley Farms", role: "Supplier", status: "PENDING" },
-                     { name: "Prakash Wholesale", role: "Buyer", status: "VERIFIED" }
+                     { name: "Prakash Wholesale", role: "Buyer", status: "VERIFIED" },
+                     { name: "Vikram Reddy", role: "Supplier", status: "VERIFIED" },
+                     { name: "Reliance Fresh Hub", role: "Buyer", status: "VERIFIED" },
+                     { name: "Sandhya Devi", role: "Supplier", status: "VERIFIED" },
+                     { name: "Anwar Pasha", role: "Supplier", status: "PENDING" },
+                     { name: "Gopal Krishnan", role: "Supplier", status: "VERIFIED" },
+                     { name: "Harsha Wholesale", role: "Buyer", status: "VERIFIED" }
                    ].map((user, i) => (
                      <div key={i} style={{ padding: "20px", borderRadius: "16px", background: "#f8fafc", marginBottom: "12px", border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between" }}>
                        <div>
