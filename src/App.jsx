@@ -583,14 +583,14 @@ export default function App() {
      setFarmerBillForm({ ...farmerBillForm, expenses: ex });
   };
 
-  // --- MENU CONFIG with RBAC ---
+  // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "User Role", icon: "👥", roles: ["Admin"] },
     { id: "Supplier", icon: "👨‍🌾", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
     { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant"] },
-    { id: "Farmer Billing (Settlement Bill)", icon: "⚖️", roles: ["Admin", "Accountant"] },
+    { id: "Farmer Billing", icon: "⚖️", roles: ["Admin", "Accountant"] }, // Linked to Settlement Bill rendering
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant"] },
     { id: "Payment Management", icon: "💳", roles: ["Admin", "Accountant"] },
     { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
@@ -925,10 +925,10 @@ export default function App() {
           )}
 
           {/* 3. Global Entity Roles Router */}
-          {activeSection === "User Roles" && (
+          {activeSection === "User Role" && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
                <div>
-                  <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Business Profile Ecosystem</h2>
+                  <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>System User Matrix</h2>
                   <div style={{ display: "flex", gap: "20px" }}>
                     <div 
                       onClick={() => setActiveUserRoleTab("Supplier")}
@@ -943,8 +943,8 @@ export default function App() {
             </div>
           )}
 
-          {/* Supplier Role Module */}
-          {activeSection === "User Roles" && activeUserRoleTab === "Supplier" && (
+          {/* Supplier Role Module (Handles both direct "Supplier" and nested "User Role") */}
+          {(activeSection === "Supplier" || (activeSection === "User Role" && activeUserRoleTab === "Supplier")) && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
               
               <TabHeader tabs={["Supplier Registration", "Dispatch Entry", "Supplier Accounts"]} active={activeSupplierTab} set={setActiveSupplierTab} />
@@ -1150,7 +1150,7 @@ export default function App() {
           )}
 
           {/* Buyer Role Module */}
-          {activeSection === "User Roles" && activeUserRoleTab === "Buyer" && (
+          {((activeSection === "User Role" && activeUserRoleTab === "Buyer")) && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
               
               <TabHeader tabs={["Buyer Registration", "Purchase Order", "Buyer Accounts"]} active={activeBuyerTab} set={setActiveBuyerTab} />
@@ -1346,75 +1346,6 @@ export default function App() {
                   </div>
                 </div>
               )}
-            </div>
-          )}
-
-          {/* New Inventory Dashboard */}
-          {activeSection === "Inventory Dashboard" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "20px" }}>
-                {[
-                  { label: "LOTS TODAY", val: inventoryStats.totalLotsToday, icon: "📋", color: COLORS.primary },
-                  { label: "INCOMING KG", val: inventoryStats.incomingKgToday.toLocaleString(), icon: "📥", color: COLORS.success },
-                  { label: "SOLD KG", val: inventoryStats.totalSoldKg.toLocaleString(), icon: "📤", color: "#3B82F6" },
-                  { label: "REMAINING", val: inventoryStats.remainingStockKg.toLocaleString(), icon: "⚖️", color: "#F59E0B" },
-                  { label: "PENDING DELIV.", val: inventoryStats.pendingDeliveryKg.toLocaleString(), icon: "🚚", color: COLORS.danger }
-                ].map((s, i) => (
-                  <Card key={i} style={{ padding: "20px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                      <span style={{ fontSize: "20px" }}>{s.icon}</span>
-                      <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>{s.label}</span>
-                    </div>
-                    <h2 style={{ margin: "12px 0 0", fontSize: "24px", color: s.color }}>{s.val} <small style={{ fontSize: "12px", color: COLORS.muted }}>KG</small></h2>
-                  </Card>
-                ))}
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "24px" }}>
-                <Card title="Farmer-wise Inventory Summary">
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr style={{ textAlign: "left", background: "#f8fafc" }}>
-                          <th style={{ padding: "12px" }}>Farmer</th>
-                          <th style={{ padding: "12px" }}>Lots</th>
-                          <th style={{ padding: "12px" }}>Total KG</th>
-                          <th style={{ padding: "12px" }}>Remaining</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {suppliers.slice(0, 5).map((s, i) => {
-                          const farmerLots = lots.filter(l => l.supplier?._id === s._id);
-                          const totalKg = farmerLots.reduce((acc, l) => acc + l.lineItems.reduce((s, i) => s + i.netWeight, 0), 0);
-                          const remKg = farmerLots.reduce((acc, l) => acc + l.lineItems.reduce((s, i) => s + i.remainingQuantity, 0), 0);
-                          return (
-                            <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                              <td style={{ padding: "12px" }}>{s.name}</td>
-                              <td style={{ padding: "12px" }}>{farmerLots.length}</td>
-                              <td style={{ padding: "12px" }}>{totalKg.toLocaleString()} KG</td>
-                              <td style={{ padding: "12px", fontWeight: "700" }}>{remKg.toLocaleString()} KG</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </Card>
-                <Card title="Product-wise Stock Summary">
-                   <div style={{ height: "250px" }}>
-                      <Pie 
-                        data={{
-                          labels: ["Mango", "Banana", "Apple", "Other"],
-                          datasets: [{
-                            data: [45, 25, 20, 10],
-                            backgroundColor: [COLORS.primary, COLORS.accent, "#3B82F6", COLORS.muted]
-                          }]
-                        }}
-                        options={{ maintainAspectRatio: false }}
-                      />
-                   </div>
-                </Card>
-              </div>
             </div>
           )}
 
@@ -1685,222 +1616,6 @@ export default function App() {
                )}
             </div>
           }
-
-          {/* 8. Product Intelligence / Traceability Screen */}
-          {activeSection === "Product Intel" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-               <Card title="🔍 Advanced Product Intelligence" subtitle="Track 'Farm to Fork' movement across all trades">
-                  <div style={{ display: "flex", gap: "10px", marginBottom: "24px" }}>
-                     <Input 
-                        placeholder="Search product (e.g. Mango, Apple, Alphonso)..." 
-                        style={{ flex: 1 }} 
-                        value={intelQuery}
-                        onChange={e => setIntelQuery(e.target.value)}
-                     />
-                     <Button onClick={async () => {
-                        const res = await MandiService.getProductIntelligence(intelQuery);
-                        if (res.status === "SUCCESS") setIntelData(res.data);
-                     }}>Search Traceability</Button>
-                  </div>
-
-                  <div style={{ overflowX: "auto" }}>
-                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                        <thead>
-                           <tr style={{ background: "#f8fafc", textAlign: "left" }}>
-                              <th style={{ padding: "16px" }}>Farmer (Source)</th>
-                              <th style={{ padding: "16px" }}>Lot ID</th>
-                              <th style={{ padding: "16px" }}>Arrival Date</th>
-                              <th style={{ padding: "16px" }}>Buyer (Destination)</th>
-                              <th style={{ padding: "16px" }}>Sale Qty</th>
-                              <th style={{ padding: "16px" }}>Sale Rate</th>
-                              <th style={{ padding: "16px" }}>Trade Date</th>
-                           </tr>
-                        </thead>
-                        <tbody>
-                           {intelData.map((row, i) => (
-                             <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                <td style={{ padding: "16px" }}><b>{row.farmerName}</b></td>
-                                <td style={{ padding: "16px" }}><span style={{ color: COLORS.sidebar, fontWeight: "700" }}>{row.lotId}</span></td>
-                                <td style={{ padding: "16px" }}>{new Date(row.arrivalDate).toLocaleDateString()}</td>
-                                <td style={{ padding: "16px" }}><b>{row.buyerName}</b></td>
-                                <td style={{ padding: "16px" }}>{row.quantity} KG</td>
-                                <td style={{ padding: "16px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
-                                <td style={{ padding: "16px" }}>{new Date(row.date).toLocaleDateString()}</td>
-                             </tr>
-                           ))}
-                           {intelData.length === 0 && (
-                             <>
-                               {[
-                                 { farmerName: "Vikram Reddy", lotId: "LOT-2026-X11", arrivalDate: "2026-03-20", buyerName: "Harsha Wholesale", quantity: 1200, rate: 48, date: "2026-03-21" },
-                                 { farmerName: "Sandhya Devi", lotId: "LOT-2026-X12", arrivalDate: "2026-03-21", buyerName: "Reliance Fresh", quantity: 850, rate: 52, date: "2026-03-22" },
-                                 { farmerName: "Anwar Pasha", lotId: "LOT-2026-X13", arrivalDate: "2026-03-22", buyerName: "BigBasket Depot", quantity: 2000, rate: 45, date: "2026-03-23" },
-                                 { farmerName: "Gopal Krishnan", lotId: "LOT-2026-X14", arrivalDate: "2026-03-23", buyerName: "Heritage Foods", quantity: 1500, rate: 50, date: "2026-03-24" },
-                                 { farmerName: "Srinivasa Rao", lotId: "LOT-2026-X15", arrivalDate: "2026-03-24", buyerName: "Anand Foodworld", quantity: 3000, rate: 42, date: "2026-03-25" },
-                                 { farmerName: "Lakshmi Kanth", lotId: "LOT-2026-X16", arrivalDate: "2026-03-25", buyerName: "Metro Cash", quantity: 1800, rate: 55, date: "2026-03-26" }
-                               ].map((row, i) => (
-                                 <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                  <td style={{ padding: "16px" }}><b>{row.farmerName}</b></td>
-                                  <td style={{ padding: "16px" }}><span style={{ color: COLORS.sidebar, fontWeight: "700" }}>{row.lotId}</span></td>
-                                  <td style={{ padding: "16px" }}>{row.arrivalDate}</td>
-                                  <td style={{ padding: "16px" }}><b>{row.buyerName}</b></td>
-                                  <td style={{ padding: "16px" }}>{row.quantity} KG</td>
-                                  <td style={{ padding: "16px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
-                                  <td style={{ padding: "16px" }}>{row.date}</td>
-                                 </tr>
-                               ))}
-                             </>
-                           )}
-                        </tbody>
-                     </table>
-                  </div>
-               </Card>
-            </div>
-          )}
-          {activeSection === "Supplier Bill" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", marginBottom: "40px" }}>
-                  <Card style={{ background: COLORS.sidebar, color: "#fff" }}>
-                     <p style={{ opacity: 0.7, fontSize: "14px" }}>Today's Intake</p>
-                     <h1 style={{ margin: "10px 0" }}>14,250 <small style={{ fontSize: "16px" }}>KG</small></h1>
-                     <p style={{ color: COLORS.success, fontSize: "12px" }}>↑ 18% vs Yesterday</p>
-                  </Card>
-                  <Card>
-                     <p style={{ color: COLORS.muted, fontSize: "14px" }}>Outstanding (Suppliers)</p>
-                     <h1 style={{ margin: "10px 0" }}>₹ 8,42,000</h1>
-                     <p style={{ color: COLORS.danger, fontSize: "12px" }}>Next Payout: 28/03</p>
-                  </Card>
-                  <Card>
-                     <p style={{ color: COLORS.muted, fontSize: "14px" }}>Active Lots</p>
-                     <h1 style={{ margin: "10px 0" }}>24</h1>
-                     <p style={{ color: COLORS.primary, fontSize: "12px" }}>8 Pending Auction</p>
-                  </Card>
-                  <Card style={{ background: COLORS.secondary, color: "#fff" }}>
-                     <p style={{ opacity: 0.7, fontSize: "14px" }}>Daily Turnover</p>
-                     <h1 style={{ margin: "10px 0" }}>₹ 22.4L</h1>
-                     <p style={{ color: "#95de64", fontSize: "12px" }}>↑ Record day</p>
-                  </Card>
-               </div>
-               <Card title="🧾 Digital Bill Composer" subtitle="Automatic calculations for physical mandi bills">
-                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginBottom: "32px" }}>
-                   <Input label="Bill Number" value="BL-00441" />
-                   <Input label="Entry Date" type="date" value={new Date().toISOString().slice(0, 10)} />
-                   <Input label="Supplier Identity" placeholder="Select registered supplier" />
-                 </div>
-                 <Card style={{ border: "2px solid #0f172a", marginBottom: "32px", padding: "40px" }}>
-                   <h2 style={{ textAlign: "center", textDecoration: "underline" }}>MANDI BILL STATEMENT</h2>
-                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", borderBottom: "2px solid #eee", paddingBottom: "10px", marginBottom: "20px", fontWeight: "900" }}>
-                     <div>Product</div><div>Qty</div><div>Rate</div><div>Amt</div>
-                   </div>
-                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "32px" }}>
-                     <div>🥭 Mango</div><div>1250</div><div>₹ 110</div><div>₹ 1,37,500</div>
-                   </div>
-                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px" }}>
-                     <div>
-                       <h4>Expense Deductions</h4>
-                       {[
-                         { l: "Transport / Freight", v: 4200 },
-                         { l: "Marketing Fees", v: 500 },
-                         { l: "Labour / Coolie", v: 1200 },
-                         { l: "Packing", v: 800 },
-                         { l: "Miscellaneous", v: 300 }
-                       ].map((ex, i) => (
-                         <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px" }}>
-                           <span>{ex.l}</span><b style={{ color: COLORS.danger }}>- {formatCurrency(ex.v)}</b>
-                         </div>
-                       ))}
-                     </div>
-                     <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "16px" }}>
-                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Gross Sale:</span> <b>{formatCurrency(137500)}</b></div>
-                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Total Exp:</span> <b style={{ color: COLORS.danger }}>- {formatCurrency(7000)}</b></div>
-                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Advance:</span> <b>- {formatCurrency(25000)}</b></div>
-                       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "16px", borderTop: "2px solid #334155", paddingTop: "12px", fontSize: "20px", fontWeight: "900", color: COLORS.success }}>
-                         <span>Payable Net:</span> <span>{formatCurrency(105500)}</span>
-                       </div>
-                     </div>
-                   </div>
-
-                    {/* NEW: PAYMENT SETTLEMENT CONSOLE */}
-                    <div style={{ marginTop: "32px", borderTop: "1px dashed #cbd5e1", paddingTop: "32px" }}>
-                       <h3 style={{ margin: "0 0 20px 0" }}>💰 Payment Settlement Console</h3>
-                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px", alignItems: "end" }}>
-                          <Input label="Actual Amount Paid" placeholder="Enter amount..." type="number" />
-                          <div>
-                             <label style={{ display: "block", fontSize: "12px", fontWeight: "700", marginBottom: "8px", color: COLORS.secondary }}>Transaction Mode</label>
-                             <select style={{ width: "100%", height: "48px", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "0 16px", background: "#f8fafc" }}>
-                                <option>💵 Cash</option>
-                                <option>📲 UPI / Scan</option>
-                                <option>🏦 Bank Transfer</option>
-                             </select>
-                          </div>
-                          <div>
-                             <label style={{ display: "block", fontSize: "12px", fontWeight: "700", marginBottom: "8px", color: COLORS.secondary }}>Settlement Status</label>
-                             <div style={{ padding: "12px 16px", background: "#f0fdf4", color: "#166534", borderRadius: "10px", border: "1px solid #dcfce7", fontSize: "13px", fontWeight: "700", textAlign: "center" }}>
-                                ✅ Fully Paid
-                             </div>
-                          </div>
-                       </div>
-                       
-                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "24px" }}>
-                          <div style={{ background: "#fff1f0", padding: "20px", borderRadius: "16px", border: "1px solid #ffa39e" }}>
-                             <label style={{ fontSize: "11px", opacity: 0.6, fontWeight: "800" }}>PENDING BALANCE</label>
-                             <h2 style={{ margin: 0, color: COLORS.danger }}>₹ 0.00</h2>
-                             <p style={{ margin: 0, fontSize: "12px" }}>Total remaining to be paid</p>
-                          </div>
-                          <div style={{ background: "#f6ffed", padding: "20px", borderRadius: "16px", border: "1px solid #b7eb8f" }}>
-                             <label style={{ fontSize: "11px", opacity: 0.6, fontWeight: "800" }}>TOTAL PAID TILL DATE</label>
-                             <h2 style={{ margin: 0, color: COLORS.success }}>₹ 1,05,500</h2>
-                             <p style={{ margin: 0, fontSize: "12px" }}>Including current transaction</p>
-                          </div>
-                       </div>
-                    </div>
-                 </Card>
-                 <div style={{ display: "flex", gap: "16px", marginBottom: "32px" }}>
-                   <Button onClick={() => alert("💾 Bill saved! Use backend IDs to test PDF download.")}>💾 Save Data</Button>
-                   <Button variant="success" onClick={() => MandiService.downloadBillPDF('TEST_ID')} style={{ opacity: 0.6 }}>📄 Download PDF Bill</Button>
-                   <Button variant="secondary">🖨 Print</Button>
-                 </div>
-
-                 {/* Farmer View: Traceability */}
-                 <Card title="🤝 WHERE MY PRODUCE WENT" subtitle="Buyer-wise traceability for this lot/bill">
-                    <div style={{ overflowX: "auto" }}>
-                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                          <thead>
-                             <tr style={{ background: "#FDFBF4", textAlign: "left" }}>
-                                <th style={{ padding: "12px" }}>Buyer</th>
-                                <th style={{ padding: "12px" }}>Qty Allocated</th>
-                                <th style={{ padding: "12px" }}>Sale Rate</th>
-                                <th style={{ padding: "12px" }}>Sale Amount</th>
-                                <th style={{ padding: "12px" }}>Invoice #</th>
-                                <th style={{ padding: "12px" }}>Sale Date</th>
-                             </tr>
-                          </thead>
-                          <tbody>
-                             {/* Sample Traceability Data */}
-                             {[
-                               { name: "Harsha Wholesale", qty: "300", rate: "52", amt: "15,600", inv: "INV-1023", date: "25/03/2026" },
-                               { name: "Anand Foodworld", qty: "250", rate: "55", amt: "13,750", inv: "INV-1024", date: "25/03/2026" },
-                               { name: "Heritage Depot", qty: "450", rate: "50", amt: "22,500", inv: "INV-1025", date: "25/03/2026" },
-                               { name: "BigBasket Hub", qty: "200", rate: "58", amt: "11,600", inv: "INV-1026", date: "25/03/2026" },
-                               { name: "Metro Cash & Carry", qty: "600", rate: "45", amt: "27,000", inv: "INV-1027", date: "26/03/2026" },
-                               { name: "More Retail", qty: "400", rate: "48", amt: "19,200", inv: "INV-1028", date: "26/03/2026" },
-                               { name: "Spencer's Market", qty: "150", rate: "62", amt: "9,300", inv: "INV-1029", date: "26/03/2026" }
-                             ].map((row, i) => (
-                               <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                  <td style={{ padding: "12px" }}><b>{row.name}</b></td>
-                                  <td style={{ padding: "12px" }}>{row.qty} KG</td>
-                                  <td style={{ padding: "12px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
-                                  <td style={{ padding: "12px" }}>₹{row.amt}</td>
-                                  <td style={{ padding: "12px" }}>{row.inv}</td>
-                                  <td style={{ padding: "12px" }}>{row.date}</td>
-                                </tr>
-                             ))}
-                          </tbody>
-                       </table>
-                    </div>
-                 </Card>
-               </Card>
-            </div>
-          )}
 
           {/* 9. PRODUCTION-GRADE BUYER INVOICING (DISPATCH CONSOLE) */}
           {activeSection === "Buyer Invoicing" && (
@@ -2219,7 +1934,7 @@ export default function App() {
           )}
 
           {/* 9b. PRODUCTION-GRADE FARMER BILLING (SETTLEMENT COMMAND CENTER) */}
-          {activeSection === "Farmer Billing (Settlement Bill)" && (
+          {activeSection === "Farmer Billing" && (
             <div style={{ display: "grid", gridTemplateColumns: "2.8fr 1.2fr", gap: "32px", animation: "slideUp 0.6s ease-out" }}>
                {/* LEFT COLUMN: THE SETTLEMENT ENGINE */}
                <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
