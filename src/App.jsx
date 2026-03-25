@@ -1901,8 +1901,8 @@ export default function App() {
                   <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", padding: "40px", border: "2px dashed #e2e8f0", borderRadius: "24px" }}>
                      <div style={{ textAlign: "center", width: "200px" }}>
                         <div style={{ height: "60px" }}></div>
-                        <div style={{ borderTop: "2px solid #0f172a / 70", paddingTop: "10px", fontWeight: "900", fontSize: "12px", color: COLORS.secondary }}>RECEIVER SIGNATURE</div>
-                        <small style={{ color: COLORS.muted, fontSize: "10px" }}>For M/s {buyerIntelligence?.shopName || "---"}</small>
+                        <div style={{ borderTop: "2px solid rgba(15, 23, 42, 0.7)", paddingTop: "10px", fontWeight: "900", fontSize: "12px", color: COLORS.secondary }}>RECEIVER SIGNATURE</div>
+                        <small style={{ color: COLORS.muted, fontSize: "10px" }}>For M/s {buyerHistory?.shopName || buyerHistory?.name || "---"}</small>
                      </div>
                   </div>
 
