@@ -244,8 +244,50 @@ export default function App() {
   }, []);
 
   // --- FORM STATES ---
+  // --- FORM STATES & HANDLERS ---
   const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
   const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+
+  const handleRegisterSupplier = async () => {
+    if(!supplierForm.name || !supplierForm.phone) return alert("Name and phone are required!");
+    const payload = {
+      name: supplierForm.name,
+      phone: supplierForm.phone,
+      address: supplierForm.address || "unknown",
+      govIdNumber: supplierForm.govIdNumber || "N/A",
+      idType: supplierForm.idType || "Aadhaar",
+      notes: "Registered via Unified Dashboard",
+    };
+    try {
+      const res = await MandiService.addSupplier(payload);
+      if(res.status === "ERROR") return alert("Error adding supplier: " + res.message);
+      alert("✅ Supplier successfully stored in the Database!");
+      setSupplierForm({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+    } catch(err) {
+      alert("Registration Failed.");
+    }
+  };
+
+  const handleRegisterBuyer = async () => {
+    if(!buyerForm.name || !buyerForm.phone) return alert("Name and phone are required!");
+    const payload = {
+      name: buyerForm.name,
+      phone: buyerForm.phone,
+      address: buyerForm.address || "unknown",
+      shopName: buyerForm.shopName || buyerForm.name,
+      govIdNumber: buyerForm.govIdNumber || "N/A",
+      creditLimit: Number(buyerForm.creditLimit) || 0,
+      notes: "Registered via Unified Dashboard",
+    };
+    try {
+      const res = await MandiService.addBuyer(payload);
+      if(res.status === "ERROR") return alert("Error adding buyer: " + res.message);
+      alert("✅ Buyer successfully stored in the Database!");
+      setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+    } catch(err) {
+      alert("Registration Failed.");
+    }
+  };
   const [intakeForm, setIntakeForm] = useState({ 
     supplierId: "", 
     entryDate: new Date().toISOString().slice(0, 10),
@@ -557,31 +599,8 @@ export default function App() {
     setActiveSection("Dashboard");
   };
 
-  // --- FORM HANDLERS (BACKEND SYNC) ---
-  const handleRegisterSupplier = async () => {
-    if (!supplierForm.name || !supplierForm.phone) return alert("⚠️ Name and Phone are required");
-    const res = await MandiService.addSupplier(supplierForm);
-    if (res?.status === "SUCCESS") {
-      alert("💾 SUCCESS: Supplier saved to MongoDB!");
-      setSupplierForm({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
-      fetchData();
-    } else {
-      alert(`❌ FAILED: ${res?.message || "Database Error"}`);
-    }
-  };
-
-  const handleOnboardBuyer = async () => {
-    if (!buyerForm.name || !buyerForm.phone) return alert("⚠️ Name and Phone are required");
-    const res = await MandiService.addBuyer(buyerForm);
-    if (res.status === "SUCCESS") {
-      alert("💾 SUCCESS: Buyer details saved to MongoDB!");
-      setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
-      fetchData();
-    } else {
-      alert(`❌ FAILED: ${res.message || "Database Error"}`);
-    }
-  };
-
+  // --- DATA REFRESH CAPABILITY (BACKEND SYNC) ---
+  // Form handlers handled separately at the top.
   const handleBuyerSelectionForInvoice = async (buyerId) => {
     const buyer = buyers.find(b => b._id === buyerId);
     if (!buyer) return;
@@ -1163,14 +1182,14 @@ export default function App() {
                     {
                       title: "Basic Details",
                       fields: [
-                        { label: "Supplier ID", disabled: true, value: "SUP-A2890" },
-                        { label: "Full Name", placeholder: "Enter name" },
-                        { label: "Mobile Number", type: "tel" },
+                        { label: "Supplier ID", disabled: true, value: "SUP-" + Math.floor(Math.random()*90000 + 10000) },
+                        { label: "Full Name", placeholder: "Enter name", value: supplierForm.name, onChange: e => setSupplierForm({...supplierForm, name: e.target.value}) },
+                        { label: "Mobile Number", type: "tel", value: supplierForm.phone, onChange: e => setSupplierForm({...supplierForm, phone: e.target.value}) },
                         { label: "Alternate Mobile / Landline", type: "tel" },
                         { label: "WhatsApp Number", type: "tel" },
                         { label: "Email", type: "email" },
                         { label: "Local / Non-Local", type: "select", options: ["Local", "Non-Local"] },
-                        { label: "Address", placeholder: "Street/Village" },
+                        { label: "Address", placeholder: "Street/Village", value: supplierForm.address, onChange: e => setSupplierForm({...supplierForm, address: e.target.value}) },
                         { label: "City" },
                         { label: "District" },
                         { label: "Pincode" },
@@ -1194,7 +1213,7 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }}>Submit Details</Button>
+                    <Button style={{ background: COLORS.sidebar }} onClick={handleRegisterSupplier}>Submit Details</Button>
                     <Button variant="secondary">Save Draft</Button>
                     <Button variant="outline">Edit</Button>
                     <Button variant="danger" style={{ background: "#F1F5F9", color: COLORS.danger, border: "none" }}>Cancel All</Button>
@@ -1369,12 +1388,12 @@ export default function App() {
                     {
                       title: "Buyer Basic Details",
                       fields: [
-                        { label: "Buyer ID", disabled: true, value: "BUY-9042" },
-                        { label: "Buyer Name", placeholder: "Full Name" },
-                        { label: "Business Name", placeholder: "Company / Shop Name" },
+                        { label: "Buyer ID", disabled: true, value: "BUY-" + Math.floor(Math.random()*9000 + 1000) },
+                        { label: "Buyer Name", placeholder: "Full Name", value: buyerForm.name, onChange: e => setBuyerForm({...buyerForm, name: e.target.value}) },
+                        { label: "Business Name", placeholder: "Company / Shop Name", value: buyerForm.shopName, onChange: e => setBuyerForm({...buyerForm, shopName: e.target.value}) },
                         { label: "Buyer Type", type: "select", options: ["Wholesaler", "Retailer", "Exporter", "Supermarket Chain"] },
                         { label: "Preferred Product Category", type: "select", options: ["Fruits Only", "Vegetables Only", "Mixed/Both"] },
-                        { label: "Mobile Number", type: "tel" },
+                        { label: "Mobile Number", type: "tel", value: buyerForm.phone, onChange: e => setBuyerForm({...buyerForm, phone: e.target.value}) },
                         { label: "Alternate Number", type: "tel" },
                         { label: "WhatsApp Number", type: "tel" },
                         { label: "Email", type: "email" }
@@ -1383,7 +1402,7 @@ export default function App() {
                     {
                       title: "Location & Compliance",
                       fields: [
-                        { label: "Address", placeholder: "Primary location" },
+                        { label: "Address", placeholder: "Primary location", value: buyerForm.address, onChange: e => setBuyerForm({...buyerForm, address: e.target.value}) },
                         { label: "City" },
                         { label: "District" },
                         { label: "State" },
@@ -1395,7 +1414,7 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }}>Submit Details</Button>
+                    <Button style={{ background: COLORS.sidebar }} onClick={handleRegisterBuyer}>Submit Details</Button>
                     <Button variant="secondary">Save Draft</Button>
                     <Button variant="outline">Edit</Button>
                     <Button variant="danger" style={{ background: "#F1F5F9", color: COLORS.danger, border: "none" }}>Cancel All</Button>
