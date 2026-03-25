@@ -49,7 +49,7 @@ const Card = ({ children, title, subtitle, action, style = {} }) => (
         {action && action}
       </div>
     )}
-    <div style={{ color: COLORS.text }}>
+    <div style={{ color: style.color || "inherit" }}>
       {children}
     </div>
   </div>
@@ -919,20 +919,20 @@ export default function App() {
       }}>
 
         <header style={{ marginBottom: "60px", display: "flex", justifyContent: "space-between", alignItems: "end" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div>
-              <h1 style={{ fontSize: "24px", fontWeight: "700", color: COLORS.secondary, margin: 0 }}>Good morning, {user?.name?.split(' ')[0] || user?.username || 'Admin'}</h1>
-              <p style={{ color: COLORS.muted, fontSize: "14px", marginTop: "6px" }}>Here's what's happening at SPV Fruits today</p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+               <div>
+                  <h1 style={{ fontSize: "32px", fontWeight: "900", color: COLORS.secondary, margin: 0, letterSpacing: "-1px" }}>Salutations, {user?.name?.split(' ')[0] || user?.username || 'Admin'}</h1>
+                  <p style={{ color: COLORS.muted, fontSize: "15px", marginTop: "8px", fontWeight: "650", opacity: 0.8 }}>Orchard & Mandi Operations Command Center</p>
+               </div>
+               <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                  <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "10px 20px", borderRadius: "24px", fontSize: "14px", fontWeight: "850", color: COLORS.primary, border: `1px solid ${COLORS.primary}20` }}>
+                    📅 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  </div>
+                  <div style={{ background: "#FFFFFF", border: `1.5px solid ${COLORS.secondary}15`, width: "48px", height: "48px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: COLORS.primary, boxShadow: "0 8px 15px rgba(0,0,0,0.04)", position: "relative" }}>
+                     🔔 <div style={{ position: "absolute", top: "12px", right: "12px", width: "8px", height: "8px", background: COLORS.danger, borderRadius: "4px", border: "2px solid #fff" }}></div>
+                  </div>
+               </div>
             </div>
-            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-              <div style={{ background: "#EFECE0", padding: "8px 16px", borderRadius: "20px", fontSize: "13px", fontWeight: "600", color: COLORS.muted }}>
-                {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
-              </div>
-              <div style={{ background: "#FFFFFF", border: "1px solid #EBE9E1", width: "36px", height: "36px", borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: COLORS.sidebar, boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                 🔔
-              </div>
-            </div>
-          </div>
         </header>
 
         {/* --- MODULE DISPATCHER --- */}
@@ -947,10 +947,10 @@ export default function App() {
                 gap: "24px" 
               }}>
                 {[
-                  { label: "TOTAL REVENUE", val: "₹2,84,560", trend: "+12.4%", trendLabel: "vs last week", color: COLORS.success },
-                  { label: "BOXES SOLD", val: "1,347", trend: "+8.1%", trendLabel: "vs last week", color: COLORS.success },
-                  { label: "ORDERS TODAY", val: "218", subtitle: "34 pending", subLabel: "awaiting confirmation", color: "#F59E0B" },
-                  { label: "ACTIVE STALLS", val: "6 / 8", subtitle: "2 offline", subLabel: "inventory low", color: COLORS.danger }
+                  { label: "NET REVENUE (MONTH)", val: "₹2,84,560", trend: "+12.4%", trendLabel: "vs last cycle", color: COLORS.success },
+                  { label: "INVENTORY VOLUME", val: "1,347 KG", trend: "+8.1%", trendLabel: "vs yesterday", color: COLORS.success },
+                  { label: "PENDING SETTLEMENTS", val: "15 Bills", subtitle: "₹45,200", subLabel: "awaiting audit", color: COLORS.primary },
+                  { label: "ACTIVE PROCUREMENT", val: "6 / 8 Lots", subtitle: "2 stalls low", subLabel: "restock alert", color: COLORS.danger }
                 ].map((m, i) => (
                   <Card key={i} style={{ padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRadius: "28px" }}>
                     <p style={{ margin: 0, fontWeight: "850", color: COLORS.muted, fontSize: "11px", letterSpacing: "1.2px", textTransform: "uppercase" }}>{m.label}</p>
@@ -1030,17 +1030,17 @@ export default function App() {
                 <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>Manage &rarr;</span>} title="Stall Inventory">
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                     {[
-                      { name: "Jubilee Hills", units: "142", border: "#EBE9E1", bar: COLORS.success, pct: "75%" },
-                      { name: "Banjara Hills", units: "89", border: "#EBE9E1", bar: COLORS.success, pct: "50%" },
-                      { name: "Madhapur", units: "203", border: "#EBE9E1", bar: COLORS.success, pct: "85%" },
-                      { name: "Secunderabad", units: "12", border: "#FAD8D8", bar: COLORS.danger, pct: "15%", bg: "#FFF5F5" }
+                      { name: "Jubilee Hills", units: "142", border: `${COLORS.secondary}15`, bar: COLORS.success, pct: "75%" },
+                      { name: "Banjara Hills", units: "89", border: `${COLORS.secondary}15`, bar: COLORS.primary, pct: "50%" },
+                      { name: "Madhapur", units: "203", border: `${COLORS.secondary}15`, bar: COLORS.success, pct: "85%" },
+                      { name: "Secunderabad", units: "12", border: `${COLORS.danger}30`, bar: COLORS.danger, pct: "15%", bg: "rgba(239, 68, 68, 0.05)" }
                     ].map((stall, i) => (
-                      <div key={i} style={{ border: `1px solid ${stall.border}`, background: stall.bg || "#FAFAF8", borderRadius: "8px", padding: "16px" }}>
-                        <p style={{ margin: 0, fontWeight: "700", color: COLORS.text, fontSize: "13px" }}>{stall.name}</p>
-                        <h2 style={{ margin: "10px 0 2px", fontWeight: "800", color: stall.border === "#FAD8D8" ? COLORS.danger : COLORS.sidebar, fontSize: "24px" }}>{stall.units}</h2>
-                        <p style={{ margin: "0 0 12px", color: COLORS.muted, fontSize: "11px", fontWeight: "500" }}>units remaining</p>
-                        <div style={{ height: "4px", background: "#E2E8F0", borderRadius: "2px", width: "100%", overflow: "hidden" }}>
-                          <div style={{ height: "100%", background: stall.bar, width: stall.pct, borderRadius: "2px" }}></div>
+                      <div key={i} style={{ border: `1.5px solid ${stall.border}`, background: stall.bg || "rgba(0,0,0,0.02)", borderRadius: "20px", padding: "24px", transition: "0.3s" }} onMouseOver={e=>e.currentTarget.style.transform="translateY(-4px)"} onMouseOut={e=>e.currentTarget.style.transform="none"}>
+                        <p style={{ margin: 0, fontWeight: "850", color: COLORS.muted, fontSize: "11px", letterSpacing: "1px", textTransform: "uppercase" }}>{stall.name}</p>
+                        <h2 style={{ margin: "14px 0 4px", fontWeight: "1000", color: stall.bar === COLORS.danger ? COLORS.danger : COLORS.secondary, fontSize: "32px", letterSpacing: "-1px" }}>{stall.units}</h2>
+                        <p style={{ margin: "0 0 16px", color: COLORS.muted, fontSize: "12px", fontWeight: "700", opacity: 0.7 }}>UNITS HELD</p>
+                        <div style={{ height: "6px", background: "rgba(0,0,0,0.05)", borderRadius: "3px", width: "100%", overflow: "hidden" }}>
+                          <div style={{ height: "100%", background: stall.bar, width: stall.pct, borderRadius: "3px", boxShadow: `0 0 12px ${stall.bar}40` }}></div>
                         </div>
                       </div>
                     ))}
@@ -1058,11 +1058,10 @@ export default function App() {
                         datasets: [{ 
                           label: "Sales", 
                           data: [65, 45, 80, 75, 120, 60, 40], 
-                          backgroundColor: ["#CDE09C", "#CDE09C", "#CDE09C", "#CDE09C", COLORS.sidebar, "#CDE09C", "#CDE09C"],
-                          borderRadius: 4,
+                          backgroundColor: ["rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)", COLORS.primary, "rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)"],
+                          borderRadius: 8,
                           borderSkipped: false,
-                          barPercentage: 0.95,
-                          categoryPercentage: 0.95
+                          barThickness: 32,
                         }] 
                       }} 
                       options={{ 
@@ -2190,21 +2189,21 @@ export default function App() {
                {/* LEFT COLUMN: THE SETTLEMENT ENGINE */}
                <div className="printable-area" style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
                   <div style={{ 
-                     background: "#FFFBE6", // Light yellow bill paper color
-                     borderRadius: "16px", 
-                     boxShadow: "0 10px 30px rgba(0,0,0,0.1)", 
-                     border: "2px solid #FAD331",
+                     background: "#ffffff", 
+                     borderRadius: "24px", 
+                     boxShadow: "0 25px 50px -12px rgba(0,0,0,0.1)", 
+                     border: `2px solid ${COLORS.secondary}30`,
                      overflow: "hidden",
                      position: "relative"
                   }}>
                      {/* Bill Header Section - Inspired by the physical bill */}
-                     <div style={{ padding: "40px", borderBottom: "1.5px dashed #FAD331" }}>
+                     <div style={{ padding: "40px", borderBottom: `1.5px dashed ${COLORS.secondary}40` }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "30px" }}>
                            <div style={{ display: "flex", gap: "20px" }}>
-                              <div style={{ background: "#e11d48", color: "#fff", padding: "10px", borderRadius: "50%", width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900", fontSize: "12px", textAlign: "center", boxShadow: "0 4px 10px rgba(225, 29, 72, 0.3)" }}>K.F.C.</div>
+                              <div style={{ background: COLORS.primary, color: "#fff", padding: "10px", borderRadius: "50%", width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900", fontSize: "12px", textAlign: "center", boxShadow: "0 4px 10px rgba(225, 29, 72, 0.3)" }}>K.F.C.</div>
                               <div>
-                                 <h4 style={{ margin: 0, fontSize: "11px", fontWeight: "800", color: "#454545" }}>Trade Mark: <span style={{ color: "#e11d48" }}>K.F.C.</span></h4>
-                                 <h1 style={{ margin: "5px 0", fontSize: "36px", fontWeight: "900", color: "#e11d48", letterSpacing: "1px" }}>SPV FRUITS</h1>
+                                 <h4 style={{ margin: 0, fontSize: "11px", fontWeight: "800", color: "#454545" }}>Trade Mark: <span style={{ color: COLORS.primary }}>K.F.C.</span></h4>
+                                 <h1 style={{ margin: "5px 0", fontSize: "36px", fontWeight: "900", color: COLORS.primary, letterSpacing: "1px" }}>SPV FRUITS</h1>
                                  <p style={{ margin: 0, fontSize: "12px", color: "#666", maxWidth: "400px", lineHeight: "1.4" }}>
                                     Shop No. 29, Mango Market Yard, Thanapalli Cross, Tiruchanoor Road, TIRUPATI.<br />
                                     <span style={{ fontWeight: "700" }}>Cell:</span> 9440765810, 9491980099
@@ -2213,9 +2212,9 @@ export default function App() {
                            </div>
                            <div style={{ textAlign: "right" }}>
                               {isBillLocked && (
-                                <div style={{ background: "#22c55e", color: "#fff", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "900", marginBottom: "15px", display: "inline-block" }}>FINALIZED</div>
+                                <div style={{ background: COLORS.success, color: "#fff", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "900", marginBottom: "15px", display: "inline-block" }}>FINALIZED</div>
                               )}
-                              <h2 style={{ margin: 0, color: "#e11d48", fontSize: "24px" }}>No. {farmerBillForm.billNo}</h2>
+                              <h2 style={{ margin: 0, color: COLORS.primary, fontSize: "24px" }}>No. {farmerBillForm.billNo}</h2>
                               <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-end" }}>
                                  <div style={{ fontSize: "14px", fontWeight: "700" }}>Date: <input type="date" value={farmerBillForm.date} onChange={e => setFarmerBillForm({...farmerBillForm, date: e.target.value})} style={{ border: "none", background: "rgba(255,255,255,0.5)", padding: "4px 8px", borderRadius: "4px", fontSize: "13px", fontWeight: "700", outline: "none" }} disabled={isBillLocked} /></div>
                               </div>
@@ -2225,7 +2224,7 @@ export default function App() {
                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                            <label style={{ fontSize: "16px", fontWeight: "800", whiteSpace: "nowrap" }}>M/s.</label>
                            <select 
-                              style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1.5px solid #FAD331", background: "rgba(255,255,255,0.8)", fontSize: "16px", fontWeight: "700", outline: "none" }}
+                              style={{ flex: 1, padding: "12px", borderRadius: "8px", border: `1.5px solid ${COLORS.secondary}20`, background: "rgba(255,255,255,0.8)", fontSize: "16px", fontWeight: "700", outline: "none" }}
                               value={farmerBillForm.farmerId}
                               onChange={e => handleFarmerSelectionForSettlement(e.target.value)}
                               disabled={isBillLocked}
@@ -2241,100 +2240,100 @@ export default function App() {
                         <div style={{ marginTop: "30px" }}>
                            <table style={{ width: "100%", borderCollapse: "collapse" }}>
                               <thead>
-                                 <tr style={{ textAlign: "left", background: "rgba(250, 211, 49, 0.2)" }}>
-                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", width: "100px" }}>QTY.</th>
-                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331" }}>ITEM</th>
-                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", textAlign: "right" }}>KGS.</th>
-                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", textAlign: "right" }}>RATE</th>
-                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", textAlign: "right", width: "180px" }}>AMOUNT (₹)</th>
+                                 <tr style={{ textAlign: "left", background: "rgba(6, 78, 59, 0.05)" }}>
+                                    <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, width: "100px", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>QTY.</th>
+                                    <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>ITEM DESCRIPTION</th>
+                                    <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, textAlign: "right", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>WEIGHT (KG)</th>
+                                    <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, textAlign: "right", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>UNIT RATE</th>
+                                    <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, textAlign: "right", width: "180px", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>NET AMOUNT (₹)</th>
                                  </tr>
                               </thead>
                               <tbody>
                                  {settlementData.length > 0 ? settlementData.map((item, idx) => (
                                    <tr key={idx}>
-                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "center" }}>-</td>
-                                      <td style={{ padding: "15px", border: "1px solid #FAD331" }}>
-                                         <b style={{ textTransform: "uppercase" }}>{item.lineItem?.product}</b>
-                                         <div style={{ fontSize: "11px", color: "#666" }}>{item.lineItem?.variety} • Lot: {item.lotRef?.lotId}</div>
+                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>-</td>
+                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10` }}>
+                                         <b style={{ textTransform: "uppercase", color: COLORS.secondary }}>{item.lineItem?.product}</b>
+                                         <div style={{ fontSize: "11px", color: COLORS.muted, fontWeight: "600" }}>{item.lineItem?.variety} • Lot Reference: {item.lotRef?.lotId}</div>
                                       </td>
-                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "right", fontWeight: "700" }}>{item.quantity.toLocaleString()}</td>
-                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "right" }}>{item.saleRate.toFixed(2)}</td>
-                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "right", fontWeight: "800" }}>{formatCurrency(item.quantity * item.saleRate)}</td>
+                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", fontWeight: "850", color: COLORS.text }}>{item.quantity.toLocaleString()}</td>
+                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", color: COLORS.muted }}>{item.saleRate.toFixed(2)}</td>
+                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", fontWeight: "900", color: COLORS.secondary }}>{formatCurrency(item.quantity * item.saleRate)}</td>
                                    </tr>
                                  )) : (
                                    <tr><td colSpan="5" style={{ padding: "80px", textAlign: "center", opacity: 0.5, fontStyle: "italic" }}>No entries selected for settlement...</td></tr>
                                  )}
                                  
-                                 {/* Filler rows to match physical bill look */}
+                                 {/* Filler rows for consistent printable output */}
                                  {settlementData.length < 3 && Array.from({ length: 3 - settlementData.length }).map((_, i) => (
-                                    <tr key={`filler-${i}`} style={{ height: "50px" }}>
-                                       <td style={{ border: "1px solid #FAD331" }}></td>
-                                       <td style={{ border: "1px solid #FAD331" }}></td>
-                                       <td style={{ border: "1px solid #FAD331" }}></td>
-                                       <td style={{ border: "1px solid #FAD331" }}></td>
-                                       <td style={{ border: "1px solid #FAD331" }}></td>
+                                    <tr key={`filler-${i}`} style={{ height: "60px" }}>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
                                     </tr>
                                  ))}
                               </tbody>
                            </table>
                         </div>
 
-                        {/* Deductions & Finalization Section */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", marginTop: "30px", gap: "40px" }}>
-                           {/* Expenses Sidebar */}
-                           <div>
-                              <div style={{ background: "rgba(250, 211, 49, 0.1)", border: "2.5px solid #FAD331", borderRadius: "12px", padding: "20px" }}>
-                                 <h4 style={{ margin: "0 0 15px 0", color: "#e11d48", fontWeight: "900", textAlign: "center", borderBottom: "2px solid #FAD331", paddingBottom: "10px" }}>EXPENSES</h4>
-                                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                                    {farmerBillForm.expenses.map((exp, i) => (
-                                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                         {exp.isCustom ? (
-                                            <input 
-                                              placeholder="Label" 
-                                              value={exp.label} 
+                         {/* Deductions & Finalization Section */}
+                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", marginTop: "40px", gap: "40px" }}>
+                            {/* Expenses Sidebar */}
+                            <div>
+                               <div style={{ background: "rgba(6, 78, 59, 0.03)", border: `2px solid ${COLORS.secondary}20`, borderRadius: "20px", padding: "28px" }}>
+                                  <h4 style={{ margin: "0 0 20px 0", color: COLORS.secondary, fontWeight: "900", textAlign: "center", borderBottom: `2px solid ${COLORS.secondary}40`, paddingBottom: "12px", letterSpacing: "1px" }}>DEDUCTIONS & EXPENSES</h4>
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                                     {farmerBillForm.expenses.map((exp, i) => (
+                                       <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                          {exp.isCustom ? (
+                                             <input 
+                                               placeholder="Label" 
+                                               value={exp.label} 
+                                               onChange={e => {
+                                                 const ex = [...farmerBillForm.expenses];
+                                                 ex[i].label = e.target.value;
+                                                 setFarmerBillForm({...farmerBillForm, expenses: ex});
+                                               }}
+                                               style={{ border: "none", background: "none", fontSize: "13px", fontWeight: "750", borderBottom: "1.5px solid #cbd5e1", outline: "none", width: "120px", color: COLORS.text }}
+                                             />
+                                          ) : <span style={{ fontSize: "14px", fontWeight: "750", color: COLORS.secondary }}>{exp.label}:</span>}
+                                          <input 
+                                              type="number"
+                                              value={exp.value}
                                               onChange={e => {
-                                                const ex = [...farmerBillForm.expenses];
-                                                ex[i].label = e.target.value;
-                                                setFarmerBillForm({...farmerBillForm, expenses: ex});
+                                                 const ex = [...farmerBillForm.expenses];
+                                                 ex[i].value = Number(e.target.value);
+                                                 setFarmerBillForm({...farmerBillForm, expenses: ex});
                                               }}
-                                              style={{ border: "none", background: "none", fontSize: "13px", fontWeight: "700", borderBottom: "1px solid #ccc", outline: "none", width: "120px" }}
-                                            />
-                                         ) : <span style={{ fontSize: "13px", fontWeight: "700" }}>{exp.label}:</span>}
-                                         <input 
-                                             type="number"
-                                             value={exp.value}
-                                             onChange={e => {
-                                                const ex = [...farmerBillForm.expenses];
-                                                ex[i].value = Number(e.target.value);
-                                                setFarmerBillForm({...farmerBillForm, expenses: ex});
-                                             }}
-                                             style={{ width: "80px", textAlign: "right", border: "none", background: "#fff", padding: "5px", borderRadius: "4px", borderBottom: "2px solid #FAD331", fontWeight: "800", color: "#e11d48" }}
-                                             disabled={isBillLocked}
-                                          />
-                                      </div>
-                                    ))}
-                                    <button onClick={addCustomExpense} style={{ marginTop: "10px", background: "none", border: "1px dashed #e11d48", color: "#e11d48", cursor: "pointer", fontSize: "11px", fontWeight: "800", padding: "5px", borderRadius: "5px" }}>+ CUSTOM</button>
-                                    
-                                    <div style={{ borderTop: "2px solid #FAD331", marginTop: "10px", paddingTop: "10px", display: "flex", justifyContent: "space-between", fontWeight: "900", fontSize: "16px" }}>
-                                       <span>TOTAL:</span>
-                                       <span style={{ color: "#e11d48" }}>{formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</span>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
+                                              style={{ width: "90px", textAlign: "right", border: "none", background: "#fff", padding: "8px", borderRadius: "8px", borderBottom: `2px solid ${COLORS.primary}`, fontWeight: "850", color: COLORS.text }}
+                                              disabled={isBillLocked}
+                                           />
+                                       </div>
+                                     ))}
+                                     <button onClick={addCustomExpense} style={{ marginTop: "12px", background: "none", border: `1.5px dashed ${COLORS.primary}`, color: COLORS.primary, cursor: "pointer", fontSize: "12px", fontWeight: "850", padding: "8px", borderRadius: "10px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.background="rgba(16, 185, 129, 0.05)"} onMouseOut={e=>e.currentTarget.style.background="transparent"}>+ ADD CUSTOM DEDUCTION</button>
+                                     
+                                     <div style={{ borderTop: `2px solid ${COLORS.secondary}40`, marginTop: "15px", paddingTop: "15px", display: "flex", justifyContent: "space-between", fontWeight: "900", fontSize: "18px", color: COLORS.secondary }}>
+                                        <span>TOTAL EXPENSES:</span>
+                                        <span>{formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</span>
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
 
                            {/* Summary Right Side */}
                            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #FAD331", paddingBottom: "10px" }}>
+                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: `1.5px solid ${COLORS.secondary}20`, paddingBottom: "12px" }}>
                                     <span style={{ fontWeight: "700" }}>GROSS SALE:</span>
                                     <b style={{ fontSize: "20px" }}>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0))}</b>
                                  </div>
-                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #FAD331", paddingBottom: "10px" }}>
+                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: `1.5px solid ${COLORS.secondary}20`, paddingBottom: "12px" }}>
                                     <span style={{ fontWeight: "700" }}>EXPENSES (-):</span>
-                                    <b style={{ fontSize: "18px", color: "#e11d48" }}>{formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</b>
+                                    <b style={{ fontSize: "18px", color: COLORS.primary }}>{formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</b>
                                  </div>
-                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #e11d48", paddingBottom: "10px" }}>
+                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: `2.5px solid ${COLORS.secondary}`, paddingBottom: "12px" }}>
                                     <span style={{ fontWeight: "800", color: "#0f172a" }}>NET SALE:</span>
                                     <b style={{ fontSize: "24px", color: "#0f172a" }}>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0) - farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</b>
                                  </div>
@@ -2349,7 +2348,7 @@ export default function App() {
                                     />
                                  </div>
                                  
-                                 <div style={{ background: "#e11d48", color: "#fff", padding: "20px", borderRadius: "12px", textAlign: "center", boxShadow: "0 10px 20px rgba(225, 29, 72, 0.2)", position: "relative", overflow: "hidden" }}>
+                                 <div style={{ background: COLORS.secondary, color: "#fff", padding: "24px", borderRadius: "18px", textAlign: "center", boxShadow: `0 15px 35px ${COLORS.secondary}40`, position: "relative", overflow: "hidden", backgroundImage: `linear-gradient(135deg, ${COLORS.secondary} 0%, ${COLORS.primary} 100%)` }}>
                                     <span style={{ fontSize: "12px", fontWeight: "900", letterSpacing: "1px", opacity: 0.8 }}>BALANCE TO PAY</span>
                                     <h1 style={{ margin: "5px 0", fontSize: "40px", fontWeight: "900" }}>
                                        {formatCurrency(
@@ -2367,7 +2366,7 @@ export default function App() {
                                  </div>
                                  <div style={{ textAlign: "center" }}>
                                     <div style={{ height: "40px" }}></div>
-                                    <div style={{ borderTop: "2px solid #e11d48", width: "180px", fontWeight: "900", fontSize: "11px", paddingTop: "5px", color: "#e11d48" }}>For SPV Fruits</div>
+                                    <div style={{ borderTop: `1.5px solid ${COLORS.primary}`, width: "180px", fontWeight: "900", fontSize: "11px", paddingTop: "5px", color: COLORS.primary }}>For SPV FRUITS, TIRUPATI</div>
                                  </div>
                               </div>
                            </div>
@@ -2377,7 +2376,7 @@ export default function App() {
 
                   <div style={{ display: "flex", gap: "20px" }}>
                      {!isBillLocked ? (
-                       <Button style={{ flex: 2, height: "72px", fontSize: "22px", borderRadius: "20px", background: "#e11d48", boxShadow: "0 8px 25px rgba(225, 29, 72, 0.3)" }} onClick={handleCreateFarmerBill}>🔥 Finalize & Issue Settlement Bill</Button>
+                       <Button style={{ flex: 2, height: "72px", fontSize: "22px", borderRadius: "20px", background: COLORS.primary, boxShadow: "0 8px 25px rgba(225, 29, 72, 0.3)" }} onClick={handleCreateFarmerBill}>🔥 Finalize & Issue Settlement Bill</Button>
                      ) : (
                        <div style={{ display: "flex", gap: "16px", flex: 3 }}>
                           <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "64px", fontSize: "16px", borderRadius: "18px" }}>🖨 Print Bill (Voucher)</Button>
@@ -2573,7 +2572,7 @@ export default function App() {
                                 <th style={{ padding: "16px", textAlign: "right", color: "#86efac" }}>Net Sale (₹)</th>
                                 <th style={{ padding: "16px", textAlign: "right", background: "rgba(255,255,255,0.05)" }}>Advance (₹)</th>
                                 <th style={{ padding: "16px", textAlign: "right", background: "rgba(255,255,255,0.1)" }}>Payment Made (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: "rgba(250, 204, 21, 0.2)", color: "#facc15" }}>Running Balance (₹)</th>
+                                <th style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: COLORS.secondary+ "20", color: COLORS.secondary }}>Running Balance (₹)</th>
                              </tr>
                           </thead>
                           <tbody>
@@ -2593,7 +2592,7 @@ export default function App() {
                                   <td style={{ padding: "16px", textAlign: "right", color: "#166534", fontWeight: "700" }}>{row.net !== 0 ? row.net.toLocaleString() : "-"}</td>
                                   <td style={{ padding: "16px", textAlign: "right", background: "#f8fafc" }}>{row.adv > 0 ? row.adv.toLocaleString() : "-"}</td>
                                   <td style={{ padding: "16px", textAlign: "right", background: "#f1f5f9", color: "#059669", fontWeight: "800" }}>{row.pmt > 0 ? row.pmt.toLocaleString() : "-"}</td>
-                                  <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: "#fefce8", color: "#854d0e", fontSize: "14px" }}>{formatCurrency(row.bal)}</td>
+                                  <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: COLORS.secondary + "05", color: "#854d0e", fontSize: "14px" }}>{formatCurrency(row.bal)}</td>
                                </tr>
                              ))}
                           </tbody>
@@ -3126,29 +3125,40 @@ export default function App() {
           {/* 15. Reports */}
           {activeSection === "Reports" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "slideUp 0.5s ease-out" }}>
-               {/* 📊 Intelligence Metric Cards */}
-               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
-                  <Card style={{ background: COLORS.primary, color: "#fff" }}>
-                     <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "800" }}>Today's Intake</p>
-                     <h2 style={{ margin: "5px 0 0" }}>4,250 <span style={{ fontSize: "14px", opacity: 0.6 }}>KG</span></h2>
-                     <p style={{ fontSize: "10px", marginTop: "8px", opacity: 0.8 }}>Mango: 2.1t | Banana: 1.8t | Others: 350kg</p>
-                  </Card>
-                  <Card style={{ background: COLORS.secondary, color: "#fff" }}>
-                     <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "800" }}>Today's Sales</p>
-                     <h2 style={{ margin: "5px 0 0" }}>{formatCurrency(185400)}</h2>
-                     <p style={{ fontSize: "10px", marginTop: "8px", opacity: 0.8 }}>Total 18 Invoices Dispatch</p>
-                  </Card>
-                  <Card style={{ background: "#0f172a", color: "#fff" }}>
-                     <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "800" }}>Pending Auctions</p>
-                     <h2 style={{ margin: "5px 0 0" }}>07 Lots</h2>
-                     <p style={{ fontSize: "10px", marginTop: "8px", opacity: 0.8 }}>Unallocated stock in storage</p>
-                  </Card>
-                  <Card style={{ background: "#fff", border: "2px solid #ef4444" }}>
-                     <p style={{ margin: 0, fontSize: "11px", color: "#ef4444", textTransform: "uppercase", fontWeight: "800" }}>Total Farmer Outstanding</p>
-                     <h2 style={{ margin: "5px 0 0", color: "#991b1b" }}>{formatCurrency(845000)}</h2>
-                     <p style={{ fontSize: "10px", marginTop: "8px", color: COLORS.muted }}>Across 42 active supplier profiles</p>
-                  </Card>
-               </div>
+                {/* 📊 Intelligence Metric Cards */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
+                   <Card style={{ background: COLORS.secondary, color: "#fff", border: "none" }}>
+                      <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "850", letterSpacing: "1px" }}>Today's Total Intake</p>
+                      <h2 style={{ margin: "8px 0 0", fontSize: "36px", fontWeight: "900" }}>4,250 <span style={{ fontSize: "16px", opacity: 0.6 }}>KG</span></h2>
+                      <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "8px", fontSize: "11px", fontWeight: "600", color: COLORS.accent }}>
+                        Mango (2.5t) | Banana (1.2t) | Tomato (550kg)
+                      </div>
+                   </Card>
+                   
+                   <Card style={{ background: COLORS.primary, color: "#fff", border: "none" }}>
+                      <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "850", letterSpacing: "1px" }}>Total Sales (Invoiced)</p>
+                      <h2 style={{ margin: "8px 0 0", fontSize: "36px", fontWeight: "900" }}>{formatCurrency(185400)}</h2>
+                      <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "8px", fontSize: "11px", fontWeight: "500" }}>
+                        Across 18 Registered Buyer Invoices (Today)
+                      </div>
+                   </Card>
+
+                   <Card style={{ background: "#1e293b", color: "#fff", border: "none" }}>
+                      <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "850", letterSpacing: "1px" }}>Pending Auctions</p>
+                      <h2 style={{ margin: "8px 0 0", fontSize: "36px", fontWeight: "900" }}>07 Lots</h2>
+                      <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "8px", fontSize: "11px", fontWeight: "500", opacity: 0.7 }}>
+                        Unallocated stock awaiting buyer confirmation
+                      </div>
+                   </Card>
+
+                   <Card style={{ background: "#ffffff", border: `2px solid ${COLORS.secondary}15`, boxShadow: "0 15px 35px rgba(0,0,0,0.05)" }}>
+                      <p style={{ margin: 0, fontSize: "11px", color: COLORS.muted, textTransform: "uppercase", fontWeight: "900", letterSpacing: "1px" }}>Total Farmer Outstanding</p>
+                      <h2 style={{ margin: "8px 0 0", color: "#991b1b", fontSize: "36px", fontWeight: "900" }}>{formatCurrency(845000)}</h2>
+                      <div style={{ marginTop: "12px", borderTop: `1px solid ${COLORS.secondary}10`, paddingTop: "8px", fontSize: "11px", fontWeight: "800", color: "#ef4444" }}>
+                         🛑 42 Suppliers with pending settlement balances
+                      </div>
+                   </Card>
+                </div>
 
                <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr", gap: "32px" }}>
                   {/* Generated Reports & Exports */}
