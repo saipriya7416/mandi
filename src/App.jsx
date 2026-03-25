@@ -947,26 +947,36 @@ export default function App() {
           {/* 14. Dashboard */}
           {activeSection === "Dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-              <div style={{ 
-                display: "grid", 
-                gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", 
-                gap: "24px" 
-              }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: "20px" }}>
                 {[
-                  { label: "NET REVENUE (MONTH)", val: "₹2,84,560", trend: "+12.4%", trendLabel: "vs last cycle", color: COLORS.success },
-                  { label: "INVENTORY VOLUME", val: "1,347 KG", trend: "+8.1%", trendLabel: "vs yesterday", color: COLORS.success },
-                  { label: "PENDING SETTLEMENTS", val: "15 Bills", subtitle: "₹45,200", subLabel: "awaiting audit", color: COLORS.primary },
-                  { label: "ACTIVE PROCUREMENT", val: "6 / 8 Lots", subtitle: "2 stalls low", subLabel: "restock alert", color: COLORS.danger }
+                  { icon: "💰", label: "Net Revenue", period: "This Month", val: "₹2,84,560", trend: "+12.4%", trendUp: true, sub: "vs last cycle", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
+                  { icon: "📦", label: "Inventory", period: "Live Stock", val: "1,347 KG", trend: "+8.1%", trendUp: true, sub: "vs yesterday", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
+                  { icon: "📋", label: "Settlements", period: "Pending Audit", val: "15 Bills", trend: "₹45,200", trendUp: null, sub: "awaiting review", gradFrom: "#9fb443", gradTo: "#7a8d34", sparkW: "40%" },
+                  { icon: "🏪", label: "Procurement", period: "Active Lots", val: "6 / 8", trend: "2 Low", trendUp: false, sub: "restock alert", gradFrom: "#c0392b", gradTo: "#a93226", sparkW: "25%" }
                 ].map((m, i) => (
-                  <Card key={i} style={{ padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRadius: "28px" }}>
-                    <p style={{ margin: 0, fontWeight: "850", color: COLORS.muted, fontSize: "11px", letterSpacing: "1.2px", textTransform: "uppercase" }}>{m.label}</p>
-                    <h2 style={{ fontSize: "36px", margin: "16px 0 12px", color: COLORS.secondary, fontWeight: "900", letterSpacing: "-1px" }}>{m.val}</h2>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", fontWeight: "700" }}>
-                      {m.trend && <span style={{ background: "rgba(22, 101, 52, 0.1)", color: m.color, padding: "4px 10px", borderRadius: "8px" }}>{m.trend}</span>}
-                      {m.subtitle && <span style={{ color: m.color, fontWeight: "850" }}>{m.subtitle}</span>}
-                      <span style={{ color: COLORS.muted, fontWeight: "600", opacity: 0.7 }}>{m.trendLabel || m.subLabel}</span>
+                  <div key={i} style={{ background: `linear-gradient(145deg, ${m.gradFrom} 0%, ${m.gradTo} 100%)`, borderRadius: "28px", padding: "28px 26px", position: "relative", overflow: "hidden", boxShadow: `0 16px 40px ${m.gradFrom}35`, cursor: "default", transition: "transform 0.25s, box-shadow 0.25s" }}
+                    onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 24px 50px ${m.gradFrom}50`; }}
+                    onMouseOut={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = `0 16px 40px ${m.gradFrom}35`; }}
+                  >
+                    {/* Background orb */}
+                    <div style={{ position:"absolute", top:"-30px", right:"-30px", width:"100px", height:"100px", borderRadius:"50%", background:"rgba(255,255,255,0.07)" }} />
+                    <div style={{ position:"absolute", bottom:"-20px", left:"-20px", width:"70px", height:"70px", borderRadius:"50%", background:"rgba(255,255,255,0.05)" }} />
+                    {/* Icon badge */}
+                    <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", background:"rgba(255,255,255,0.15)", backdropFilter:"blur(4px)", borderRadius:"14px", width:"44px", height:"44px", fontSize:"20px", marginBottom:"18px" }}>{m.icon}</div>
+                    <p style={{ margin:"0 0 4px", fontSize:"11px", fontWeight:"800", color:"rgba(255,255,255,0.65)", textTransform:"uppercase", letterSpacing:"1.5px" }}>{m.label}</p>
+                    <p style={{ margin:"0 0 12px", fontSize:"10px", color:"rgba(255,255,255,0.45)", fontWeight:"600", letterSpacing:"0.5px" }}>{m.period}</p>
+                    <h2 style={{ fontSize:"32px", margin:"0 0 16px", color:"#ffffff", fontWeight:"900", letterSpacing:"-1.5px", lineHeight:1 }}>{m.val}</h2>
+                    {/* Spark bar */}
+                    <div style={{ height:"3px", background:"rgba(255,255,255,0.15)", borderRadius:"2px", marginBottom:"14px", overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:m.sparkW, background:"rgba(255,255,255,0.5)", borderRadius:"2px" }} />
                     </div>
-                  </Card>
+                    <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
+                      <span style={{ background:"rgba(255,255,255,0.18)", color:"#fff", padding:"3px 10px", borderRadius:"20px", fontSize:"11px", fontWeight:"900" }}>
+                        {m.trendUp !== null ? (m.trendUp ? "▲" : "▼") : "●"} {m.trend}
+                      </span>
+                      <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.55)", fontWeight:"600" }}>{m.sub}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: "24px", marginTop: "0px" }}>
@@ -1054,33 +1064,60 @@ export default function App() {
                 </Card>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: "24px", marginTop: "-16px" }}>
-                {/* Boxes Sold Chart */}
-                <Card title="Boxes Sold — This Week">
-                  <div style={{ height: "200px", marginTop: "24px", width: "100%" }}>
-                    <Bar 
-                      data={{ 
-                        labels: ["", "", "", "", "", "", ""], 
-                        datasets: [{ 
-                          label: "Sales", 
-                          data: [65, 45, 80, 75, 120, 60, 40], 
-                          backgroundColor: ["rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)", COLORS.primary, "rgba(16, 185, 129, 0.2)", "rgba(16, 185, 129, 0.2)"],
-                          borderRadius: 8,
+              {/* Bottom analytics row */}
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.6fr 1fr", gap: "24px" }}>
+
+                {/* Sales Analytics Panel */}
+                <div style={{ background: "#ffffff", borderRadius: "28px", padding: "32px", boxShadow: "0 10px 30px rgba(55,81,68,0.06)", border: "1.5px solid rgba(159,180,67,0.12)" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"28px" }}>
+                    <div>
+                      <h3 style={{ margin:"0 0 4px", fontSize:"18px", fontWeight:"900", color:"#375144", letterSpacing:"-0.5px" }}>Sales Performance</h3>
+                      <p style={{ margin:0, fontSize:"12px", color:COLORS.muted, fontWeight:"600" }}>Boxes dispatched this week · Mon–Sun</p>
+                    </div>
+                    <div style={{ display:"flex", gap:"8px" }}>
+                      {["Week","Month","Season"].map((t,i) => (
+                        <button key={t} style={{ padding:"6px 14px", borderRadius:"10px", border:"none", fontSize:"11px", fontWeight:"800", cursor:"pointer", background: i===0 ? "#375144" : "rgba(55,81,68,0.08)", color: i===0 ? "#fff" : "#375144", transition:"0.2s" }}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ height: "200px", width: "100%" }}>
+                    <Bar
+                      data={{
+                        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                        datasets: [{
+                          label: "Boxes Sold",
+                          data: [65, 45, 80, 75, 120, 60, 40],
+                          backgroundColor: ["rgba(55,81,68,0.12)","rgba(55,81,68,0.12)","rgba(55,81,68,0.12)","rgba(55,81,68,0.12)","#375144","rgba(55,81,68,0.12)","rgba(55,81,68,0.12)"],
+                          hoverBackgroundColor: "#9fb443",
+                          borderRadius: 10,
                           borderSkipped: false,
                           barThickness: 32,
-                        }] 
-                      }} 
-                      options={{ 
-                        maintainAspectRatio: false, 
-                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        }]
+                      }}
+                      options={{
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { backgroundColor:"#375144", padding:12, cornerRadius:10, callbacks: { label: ctx => ` ${ctx.raw} boxes` } } },
                         scales: {
-                          x: { grid: { display: false }, border: { display: false }, ticks: { display: false } },
-                          y: { grid: { display: false }, border: { display: false }, ticks: { display: false } }
+                          x: { grid: { display: false }, border: { display: false }, ticks: { color:"#64748b", font:{ weight:"700", size:11 }, padding:6 } },
+                          y: { grid: { color:"rgba(0,0,0,0.04)" }, border: { display: false }, ticks: { color:"#94a3b8", font:{ size:10 }, padding:6 } }
                         }
-                      }} 
+                      }}
                     />
                   </div>
-                </Card>
+                  <div style={{ display:"flex", gap:"24px", marginTop:"20px", paddingTop:"18px", borderTop:"1.5px solid rgba(55,81,68,0.08)" }}>
+                    {[
+                      { label:"Peak Day", val:"Friday", icon:"🏆" },
+                      { label:"Total Boxes", val:"485", icon:"📦" },
+                      { label:"Avg Daily", val:"69.3", icon:"📊" },
+                      { label:"Best Sale", val:"₹74,400", icon:"💰" }
+                    ].map((s,i) => (
+                      <div key={i}>
+                        <p style={{ margin:"0 0 3px", fontSize:"10px", fontWeight:"800", color:COLORS.muted, textTransform:"uppercase", letterSpacing:"1px" }}>{s.icon} {s.label}</p>
+                        <p style={{ margin:0, fontSize:"17px", fontWeight:"900", color:"#375144", letterSpacing:"-0.5px" }}>{s.val}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Today's Staff */}
                 <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>Schedule &rarr;</span>} title="Today's Staff">
