@@ -296,63 +296,62 @@ export default function App() {
 
 
   // --- DATA SYNC WITH BACKEND ---
+  // --- DATA SYNC WITH BACKEND ---
   const fetchData = async () => {
+    // Robust fallbacks for Demo/Offline consistency
+    const dummySuppliers = [
+      "Vikram Reddy", "Sandhya Devi", "Anwar Pasha", "Gopal Krishnan", "Srinivasa Rao",
+      "Ramachandra Murthy", "Lakshmi Kanth", "Venkata Raman", "Satyavati Garu", "Rajesh Kumar",
+      "Suresh Babu", "Manisha Singh", "Vijay Bhaskar", "Anil Reddy", "Kavita Rao",
+      "Shiva Prasad", "Naveen Kumar", "Santosh Hegde", "Padmaja Devi", "Ravi Teja",
+      "Mohan Babu", "Girish Gupta", "Aruna Kumari", "Harish Shetty", "Bhaskar Rao",
+      "Chandra Mohan", "Durga Prasad", "Eshwar Rao", "Fatima Begum", "Ganapathi Bhat",
+      "Himamshu Roy", "Indrani Sharma", "Jagadish Murthy", "Karthik Raja", "Lalitha Goud",
+      "Murali Krishna", "Nirmala Devi", "Om Prakash", "Parvathi Amma", "Qasim Khan"
+    ].map((n, i) => ({ _id: `s-${i}`, name: n, village: 'Madanapalle', mobile: `98480${10000+i}` }));
+
+    const dummyBuyers = [
+       "Harsha Wholesale", "Reliance Fresh", "BigBasket Depot", "Heritage Foods", "Anand Foodworld",
+       "Heritage Depot", "BigBasket Hub", "Metro Cash & Carry", "More Retail", "Spencer's Market",
+       "Nilgiris Supermarket", "Star Bazaar", "DMart Depot", "Safal Mandi", "Nature's Basket",
+       "Amazon Fresh Hub", "Daily Delight", "FreshDirect", "GreenWay Traders", "Quality First",
+       "Tasty Trends", "Urban Organic", "Value Mart", "Wholesale Wonders", "Zenith Exports"
+    ].map((n, i) => ({ _id: `b-${i}`, name: n, shopName: n, phone: `99590${10000+i}`, mobile: `99590${10000+i}`, address: `Stall #${100+i}, Madanapalle Market` }));
+
+    const dummyLots = [
+      { _id: 'l-1', lotId: 'LOT-2026-001', supplier: { name: 'Vikram Reddy' }, entryDate: '2026-03-20', origin: 'Madanapalle', status: 'Partially Sold', totalQuantity: 1500, remainingQuantity: 400, lineItems: [{ product: "Mango", variety: "Alphonso", grade: "A", grossWeight: 500, deductions: 20, netWeight: 480, amount: 20000, rate: 45 }] },
+      { _id: 'l-2', lotId: 'LOT-2026-002', supplier: { name: 'Sandhya Devi' }, entryDate: '2026-03-21', origin: 'Guntur', status: 'Pending Auction', totalQuantity: 2000, remainingQuantity: 2000, lineItems: [] },
+      { _id: 'l-3', lotId: 'LOT-2026-003', supplier: { name: 'Anwar Pasha' }, entryDate: '2026-03-22', origin: 'Nellore', status: 'Fully Sold', totalQuantity: 1200, remainingQuantity: 0, lineItems: [] }
+    ];
+
     try {
       const sRes = await MandiService.getSuppliers();
-      if (sRes.status === "SUCCESS") {
-         setSuppliers(sRes.data.length > 0 ? sRes.data : [
-           "Vikram Reddy", "Sandhya Devi", "Anwar Pasha", "Gopal Krishnan", "Srinivasa Rao",
-           "Ramachandra Murthy", "Lakshmi Kanth", "Venkata Raman", "Satyavati Garu", "Rajesh Kumar",
-           "Suresh Babu", "Manisha Singh", "Vijay Bhaskar", "Anil Reddy", "Kavita Rao",
-           "Shiva Prasad", "Naveen Kumar", "Santosh Hegde", "Padmaja Devi", "Ravi Teja",
-           "Mohan Babu", "Girish Gupta", "Aruna Kumari", "Harish Shetty", "Bhaskar Rao",
-           "Chandra Mohan", "Durga Prasad", "Eshwar Rao", "Fatima Begum", "Ganapathi Bhat",
-           "Himamshu Roy", "Indrani Sharma", "Jagadish Murthy", "Karthik Raja", "Lalitha Goud",
-           "Murali Krishna", "Nirmala Devi", "Om Prakash", "Parvathi Amma", "Qasim Khan"
-         ].map((n, i) => ({ _id: `s-${i}`, name: n, village: 'Madanapalle', mobile: `98480${10000+i}` })));
-      }
+      setSuppliers(sRes.status === "SUCCESS" && sRes.data.length > 0 ? sRes.data : dummySuppliers);
 
       const bRes = await MandiService.getBuyers();
-      if (bRes.status === "SUCCESS") {
-         setBuyers(bRes.data.length > 0 ? bRes.data : [
-            "Harsha Wholesale", "Reliance Fresh", "BigBasket Depot", "Heritage Foods", "Anand Foodworld",
-            "Heritage Depot", "BigBasket Hub", "Metro Cash & Carry", "More Retail", "Spencer's Market",
-            "Nilgiris Supermarket", "Star Bazaar", "DMart Depot", "Safal Mandi", "Nature's Basket",
-            "Amazon Fresh Hub", "Daily Delight", "FreshDirect", "GreenWay Traders", "Quality First",
-            "Tasty Trends", "Urban Organic", "Value Mart", "Wholesale Wonders", "Zenith Exports"
-         ].map((n, i) => ({ _id: `b-${i}`, name: n, shopName: n, mobile: `99590${10000+i}` })));
-      }
+      setBuyers(bRes.status === "SUCCESS" && bRes.data.length > 0 ? bRes.data : dummyBuyers);
 
       const lRes = await MandiService.getLots();
-      if (lRes.status === "SUCCESS") {
-         setLots(lRes.data.length > 0 ? lRes.data : [
-           { _id: 'l-1', lotId: 'LOT-2026-001', supplier: { name: 'Vikram Reddy' }, entryDate: '2026-03-20', origin: 'Madanapalle', status: 'Partially Sold', totalQuantity: 1500, remainingQuantity: 400 },
-           { _id: 'l-2', lotId: 'LOT-2026-002', supplier: { name: 'Sandhya Devi' }, entryDate: '2026-03-21', origin: 'Guntur', status: 'Pending Auction', totalQuantity: 2000, remainingQuantity: 2000 },
-           { _id: 'l-3', lotId: 'LOT-2026-003', supplier: { name: 'Anwar Pasha' }, entryDate: '2026-03-22', origin: 'Nellore', status: 'Fully Sold', totalQuantity: 1200, remainingQuantity: 0 }
-         ]);
-      }
+      setLots(lRes.status === "SUCCESS" && lRes.data.length > 0 ? lRes.data : dummyLots);
 
       const dRes = await MandiService.getDocuments();
       if (dRes.status === "SUCCESS") {
          setDocuments(dRes.data.length > 0 ? dRes.data : [
            { _id: 'd-1', originalName: 'Land-Patta-Vikram.pdf', docType: 'KYC', fileSize: 1024 * 500, url: '#' },
-           { _id: 'd-2', originalName: 'Aadhaar-Sandhya.jpg', docType: 'KYC', fileSize: 1024 * 200, url: '#' },
-           { _id: 'd-3', originalName: 'Bank-Details-Anwar.pdf', docType: 'Financial', fileSize: 1024 * 300, url: '#' }
+           { _id: 'd-2', originalName: 'Aadhaar-Sandhya.jpg', docType: 'KYC', fileSize: 1024 * 200, url: '#' }
          ]);
       }
 
       const statsRes = await MandiService.getInventoryDashboard();
-      if (statsRes.status === "SUCCESS") {
-         setInventoryStats(statsRes.data.totalLotsToday > 0 ? statsRes.data : {
-            totalLotsToday: 14,
-            incomingKgToday: 8500,
-            totalSoldKg: 12400,
-            remainingStockKg: 3200,
-            pendingDeliveryKg: 850
-         });
-      }
+      if (statsRes.status === "SUCCESS") setInventoryStats(statsRes.data);
+      else setInventoryStats({ totalLotsToday: 14, incomingKgToday: 8500, totalSoldKg: 12400, remainingStockKg: 3200, pendingDeliveryKg: 850 });
+
     } catch (err) {
-      console.error("API Connectivity Error:", err);
+      console.warn("Backend Unreachable - Using Local Data Engine:", err.message);
+      setSuppliers(dummySuppliers);
+      setBuyers(dummyBuyers);
+      setLots(dummyLots);
+      setInventoryStats({ totalLotsToday: 14, incomingKgToday: 8500, totalSoldKg: 12400, remainingStockKg: 3200, pendingDeliveryKg: 850 });
     }
   };
 
@@ -1974,12 +1973,12 @@ export default function App() {
                                        </tr>
                                     </thead>
                                     <tbody>
-                                       {(buyerHistory.history || [
+                                       {(buyerHistory?.history || [
                                           { farmer: "Vikram Reddy", lot: "LOT-X11", product: "Mango", variety: "Alphonso", grade: "A", qty: 1200, rate: 45, date: "24/03" },
                                           { farmer: "Sandhya Devi", lot: "LOT-X12", product: "Banana", variety: "Yelakki", grade: "B", qty: 850, rate: 32, date: "23/03" }
                                        ]).map((h, i) => (
                                          <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                            <td style={{ padding: "10px" }}><b>{h.farmer.split(' ')[0]}</b></td>
+                                            <td style={{ padding: "10px" }}><b>{h?.farmer?.split(' ')[0] || "Unknown"}</b></td>
                                             <td style={{ padding: "10px" }}>{h.lot}</td>
                                             <td style={{ padding: "10px" }}>{h.product}</td>
                                             <td style={{ padding: "10px", textAlign: "right" }}>{h.qty}</td>
