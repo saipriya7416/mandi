@@ -254,6 +254,28 @@ export default function App() {
   const [settlementData, setSettlementData] = useState([]);
   const [isBillLocked, setIsBillLocked] = useState(false);
   const [farmerHistory, setFarmerHistory] = useState(null);
+  const [buyerInvoiceForm, setBuyerInvoiceForm] = useState({
+    invoiceNo: "INV-2026-0001",
+    date: new Date().toISOString().slice(0, 10),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    buyerId: "",
+    buyerPhone: "",
+    buyerAddress: "",
+    vehicleNumber: "",
+    driverName: "",
+    routeNotes: "",
+    items: [{ productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }],
+    charges: { commission: 0, handling: 0, transport: 0, other: [] },
+    subTotal: 0,
+    totalCharges: 0,
+    grandTotal: 0,
+    amountReceived: 0,
+    balanceDue: 0,
+    status: "Unpaid"
+  });
+  const [buyerHistory, setBuyerHistory] = useState(null);
+  const [weightDisplayMode, setWeightDisplayMode] = useState("COMPREHENSIVE"); // or "MINIMAL"
+  const [duplicateWarning, setDuplicateWarning] = useState(false);
   const [farmerBillsList, setFarmerBillsList] = useState([]);
   const [farmerBillForm, setFarmerBillForm] = useState({
      _id: null,
@@ -415,6 +437,72 @@ export default function App() {
     }
   };
 
+  const handleBuyerSelectionForInvoice = async (buyerId) => {
+    const buyer = buyers.find(b => b._id === buyerId);
+    if (!buyer) return;
+    
+    setBuyerInvoiceForm(prev => ({ 
+      ...prev, 
+      buyerId, 
+      buyerPhone: buyer.phone || "", 
+      buyerAddress: buyer.address || "" 
+    }));
+
+    // Fetch buyer history/intel
+    const res = await MandiService.getBuyerIntel(buyerId);
+    if (res.status === "SUCCESS") {
+       setBuyerHistory(res.data);
+       if (res.data.pendingBalance > 0) {
+          alert(`⚠️ ALERT: Buyer has a pending balance of ${formatCurrency(res.data.pendingBalance)}`);
+       }
+    }
+  };
+
+  const calculateInvoiceTotals = (form) => {
+    const subTotal = form.items.reduce((acc, item) => acc + (item.netWeight * item.rate), 0);
+    const miscCharges = form.charges.other.reduce((acc, c) => acc + (c.amount || 0), 0);
+    const totalCharges = Number(form.charges.commission || 0) + Number(form.charges.handling || 0) + Number(form.charges.transport || 0) + miscCharges;
+    const grandTotal = subTotal + totalCharges;
+    const balanceDue = grandTotal - Number(form.amountReceived || 0);
+    
+    let status = "Unpaid";
+    if (form.amountReceived >= grandTotal) status = "Fully Paid";
+    else if (form.amountReceived > 0) status = "Partially Paid";
+    
+    return { ...form, subTotal, totalCharges, grandTotal, balanceDue, status };
+  };
+
+  const addInvoiceItem = () => {
+    setBuyerInvoiceForm(prev => {
+       const newForm = { ...prev, items: [...prev.items, { productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }] };
+       return newForm;
+    });
+  };
+
+  const removeInvoiceItem = (index) => {
+    setBuyerInvoiceForm(prev => {
+       const newItems = prev.items.filter((_, i) => i !== index);
+       return calculateInvoiceTotals({ ...prev, items: newItems.length ? newItems : [{ productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }] });
+    });
+  };
+
+  const handleUpdateInvoiceItem = (index, field, value) => {
+    setBuyerInvoiceForm(prev => {
+       const newItems = [...prev.items];
+       newItems[index][field] = value;
+       
+       if (field === 'grossWeight' || field === 'deductions' || field === 'rate') {
+          const g = Number(newItems[index].grossWeight);
+          const d = Number(newItems[index].deductions);
+          const r = Number(newItems[index].rate);
+          newItems[index].netWeight = Math.max(0, g - d);
+          newItems[index].amount = newItems[index].netWeight * r;
+       }
+       
+       return calculateInvoiceTotals({ ...prev, items: newItems });
+    });
+  };
+
   const handleCreateLot = async () => {
     if (!intakeForm.supplierId) return alert("⚠️ Supplier is required");
     if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
@@ -498,19 +586,15 @@ export default function App() {
   // --- MENU CONFIG with RBAC ---
   const ALL_MENU = [
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "User Roles", icon: "👥", roles: ["Admin"] },
-    { id: "Inventory Dashboard", icon: "📈", roles: ["Admin", "Operations Staff", "Accountant"] },
-    { id: "Inventory Management", icon: "🔄", roles: ["Admin", "Operations Staff"] },
-    { id: "Product Intel", icon: "🔍", roles: ["Admin", "Operations Staff", "Accountant"] },
-    { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
-    { id: "Buyer Invoice", icon: "📑", roles: ["Admin", "Accountant"] },
+    { id: "User Role", icon: "👥", roles: ["Admin"] },
+    { id: "Supplier", icon: "👨‍🌾", roles: ["Admin", "Operations Staff", "Accountant"] },
+    { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
+    { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant"] },
     { id: "Farmer Billing (Settlement Bill)", icon: "⚖️", roles: ["Admin", "Accountant"] },
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant"] },
     { id: "Payment Management", icon: "💳", roles: ["Admin", "Accountant"] },
     { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "Verification & Compliance", icon: "🛡", roles: ["Admin"] },
     { id: "Reports", icon: "📄", roles: ["Admin", "Accountant"] },
-    { id: "Search & Filters", icon: "🔍", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Document Management", icon: "📂", roles: ["Admin"] }
   ];
 
@@ -1335,7 +1419,7 @@ export default function App() {
           )}
 
           {/* 6 & 7. UNIFIED INVENTORY MANAGEMENT MODULE */}
-          {activeSection === "Inventory Management" &&
+          {activeSection === "Inventory Allocation" &&
             <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
                <div style={{ display: "flex", gap: "10px", background: "#fff", padding: "8px", borderRadius: "20px", border: "1.5px solid #EBE9E1", width: "fit-content", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
                   <button 
@@ -1808,7 +1892,7 @@ export default function App() {
                                   <td style={{ padding: "12px" }}>₹{row.amt}</td>
                                   <td style={{ padding: "12px" }}>{row.inv}</td>
                                   <td style={{ padding: "12px" }}>{row.date}</td>
-                               </tr>
+                                </tr>
                              ))}
                           </tbody>
                        </table>
@@ -1818,50 +1902,320 @@ export default function App() {
             </div>
           )}
 
-          {/* 9. Buyer Invoice */}
-          {activeSection === "Buyer Invoice" && (
-            <Card title="📑 Buyer Dispatch Invoice" subtitle="Commission-integrated sales billing">
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "32px" }}>
-                <Input label="Invoice ID" value="INV-9921" />
-                <Input label="Dispatch Date" type="date" value={new Date().toISOString().slice(0, 10)} />
-                <Input label="Buyer Mapping" placeholder="Search active buyers..." />
-              </div>
-              <div style={{ padding: "24px", background: "#f8fafc", borderRadius: "20px", marginBottom: "32px" }}>
-                <h4 style={{ margin: "0 0 16px 0" }}>Additional Dispatch Charges</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                  <Input label="Commission (%)" placeholder="e.g. 5" />
-                  <Input label="Transport" placeholder="₹ 0.00" />
-                  <Input label="Handling/Misc" placeholder="₹ 0.00" />
-                </div>
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginBottom: "32px" }}>
-                <Button variant="outline">Discard Draft</Button>
-                <Button>Generate Invoice PDF</Button>
-              </div>
+          {/* 9. PRODUCTION-GRADE BUYER INVOICING (DISPATCH CONSOLE) */}
+          {activeSection === "Buyer Invoicing" && (
+            <div style={{ display: "grid", gridTemplateColumns: "2.8fr 1.2fr", gap: "32px", animation: "slideUp 0.6s ease-out" }}>
+               {/* LEFT COLUMN: THE BILLING ENGINE */}
+               <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                  <Card style={{ padding: "0", border: "none", overflow: "hidden", borderRadius: "24px", boxShadow: "0 20px 40px rgba(0,0,0,0.08)" }}>
+                     {/* Invoice Header Section */}
+                     <div style={{ background: "#fff", padding: "40px", borderBottom: "1.5px solid #f1f5f9" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "40px" }}>
+                           <div>
+                              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+                                 <div style={{ background: COLORS.accent, width: "40px", height: "40px", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.secondary, fontWeight: "900" }}>SPV</div>
+                                 <h2 style={{ margin: 0, fontWeight: "900", letterSpacing: "-0.5px" }}>BUYER INVOICE</h2>
+                              </div>
+                              <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Mandi Dispatch & Traceability Document</p>
+                           </div>
+                           <div style={{ textAlign: "right" }}>
+                              <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.5, textTransform: "uppercase", display: "block" }}>Invoice Identity</label>
+                              <h2 style={{ margin: 0, color: COLORS.secondary }}>{buyerInvoiceForm.invoiceNo}</h2>
+                              <div style={{ marginTop: "10px", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                                 <div style={{ background: "#f8fafc", padding: "4px 12px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}><b>DATE:</b> {buyerInvoiceForm.date}</div>
+                                 <div style={{ background: "#f8fafc", padding: "4px 12px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}><b>TIME:</b> {buyerInvoiceForm.time}</div>
+                              </div>
+                           </div>
+                        </div>
 
-              {/* Buyer View: Traceability */}
-              <Card title="🌾 SOURCE OF THIS PRODUCE" subtitle="Trace back to farmer lot arrivals">
-                 <div style={{ padding: "24px", background: "#f8fafc", borderRadius: "16px", border: "1.5px solid #e2e8f0" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px" }}>
-                       <div>
-                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>FARMER (SOURCE)</label>
-                          <h4 style={{ margin: "4px 0" }}>Vikram Reddy</h4>
-                          <p style={{ margin: 0, fontSize: "12px" }}>Guntur, Andhra Pradesh</p>
+                        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr", gap: "32px" }}>
+                           <div>
+                              <label style={{ fontSize: "11px", fontWeight: "900", color: COLORS.secondary, marginBottom: "8px", display: "block" }}>BUYER NAME (M/s)</label>
+                              <select 
+                                 style={{ width: "100%", padding: "14px", borderRadius: "14px", border: "2px solid #0f172a", background: "#f8fafc", fontWeight: "700", outline: "none" }}
+                                 value={buyerInvoiceForm.buyerId}
+                                 onChange={e => handleBuyerSelectionForInvoice(e.target.value)}
+                              >
+                                 <option value="">-- SEARCH REGISTERED BUYERS --</option>
+                                 {buyers.map(b => <option key={b._id} value={b._id}>{b.shopName || b.name}</option>)}
+                              </select>
+                              <div style={{ marginTop: "16px", display: "flex", gap: "20px" }}>
+                                 <div><small style={{ fontWeight: "800", opacity: 0.5 }}>PHONE:</small> <span style={{ fontWeight: "700" }}>{buyerInvoiceForm.buyerPhone || "---"}</span></div>
+                                 <div><small style={{ fontWeight: "800", opacity: 0.5 }}>ADDRESS:</small> <span style={{ fontWeight: "700" }}>{buyerInvoiceForm.buyerAddress || "---"}</span></div>
+                              </div>
+                           </div>
+                           <div>
+                              <label style={{ fontSize: "11px", fontWeight: "900", color: COLORS.secondary, marginBottom: "8px", display: "block" }}>VEHICLE / TRASNPORT</label>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                                 <input 
+                                    placeholder="Lorry #" 
+                                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0" }}
+                                    value={buyerInvoiceForm.vehicleNumber}
+                                    onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, vehicleNumber: e.target.value})}
+                                 />
+                                 <input 
+                                    placeholder="Driver" 
+                                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #e2e8f0" }}
+                                    value={buyerInvoiceForm.driverName}
+                                    onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, driverName: e.target.value})}
+                                 />
+                              </div>
+                           </div>
+                           <div style={{ background: "#FDFBF4", padding: "16px", borderRadius: "16px", border: "1.5px dashed #D4B106" }}>
+                              <label style={{ fontSize: "10px", fontWeight: "900", opacity: 0.6, display: "block", marginBottom: "8px" }}>WEIGHT DISPLAY MODE</label>
+                              <div style={{ display: "flex", gap: "8px" }}>
+                                 <button 
+                                    onClick={() => setWeightDisplayMode("COMPREHENSIVE")}
+                                    style={{ flex: 1, padding: "8px", borderRadius: "8px", border: "none", fontSize: "10px", fontWeight: "800", background: weightDisplayMode === "COMPREHENSIVE" ? COLORS.primary : "#eee", color: weightDisplayMode === "COMPREHENSIVE" ? "#fff" : "#000", cursor: "pointer" }}
+                                 >FULL</button>
+                                 <button 
+                                    onClick={() => setWeightDisplayMode("MINIMAL")}
+                                    style={{ flex: 1, padding: "8px", borderRadius: "8px", border: "none", fontSize: "10px", fontWeight: "800", background: weightDisplayMode === "MINIMAL" ? COLORS.primary : "#eee", color: weightDisplayMode === "MINIMAL" ? "#fff" : "#000", cursor: "pointer" }}
+                                 >NET ONLY</button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Item Selection Table */}
+                     <div style={{ padding: "40px" }}>
+                        <h4 style={{ margin: "0 0 24px 0", color: COLORS.secondary }}>🛒 PRODUCE DISPATCH LIST</h4>
+                        <div style={{ overflowX: "auto" }}>
+                           <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 12px" }}>
+                              <thead>
+                                 <tr style={{ textAlign: "left", color: COLORS.muted, fontSize: "12px", fontWeight: "900" }}>
+                                    <th style={{ padding: "0 12px" }}>PRODUCT + VARIETY + GRADE</th>
+                                    <th style={{ padding: "0 12px" }}>LINKED LOT</th>
+                                    {weightDisplayMode === "COMPREHENSIVE" && <th style={{ padding: "0 12px", textAlign: "right" }}>GROSS</th>}
+                                    {weightDisplayMode === "COMPREHENSIVE" && <th style={{ padding: "0 12px", textAlign: "right" }}>DED. (KG)</th>}
+                                    <th style={{ padding: "0 12px", textAlign: "right" }}>NET QTY</th>
+                                    <th style={{ padding: "0 12px", textAlign: "right" }}>RATE (₹)</th>
+                                    <th style={{ padding: "0 12px", textAlign: "right" }}>AMOUNT</th>
+                                    <th style={{ padding: "0 12px" }}></th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 {buyerInvoiceForm.items.map((item, idx) => (
+                                   <tr key={idx} style={{ background: "#f8fafc", transition: "all 0.2s" }}>
+                                      <td style={{ padding: "16px", borderRadius: "14px 0 0 14px", width: "250px" }}>
+                                         <div style={{ display: "flex", gap: "8px" }}>
+                                            <input 
+                                               list="fruit-list"
+                                               placeholder="Product" 
+                                               style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }}
+                                               value={item.productLabel}
+                                               onChange={e => handleUpdateInvoiceItem(idx, "productLabel", e.target.value)}
+                                            />
+                                            <input 
+                                               placeholder="Grade" 
+                                               style={{ width: "50px", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }}
+                                               value={item.grade}
+                                               onChange={e => handleUpdateInvoiceItem(idx, "grade", e.target.value)}
+                                            />
+                                         </div>
+                                      </td>
+                                      <td style={{ padding: "16px" }}>
+                                         <select 
+                                            style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }}
+                                            value={item.lotId}
+                                            onChange={e => handleUpdateInvoiceItem(idx, "lotId", e.target.value)}
+                                         >
+                                            <option value="">Link Lot...</option>
+                                            {lots.map(l => <option key={l._id} value={l.lotId}>{l.lotId} - {l.supplier?.name}</option>)}
+                                         </select>
+                                      </td>
+                                      {weightDisplayMode === "COMPREHENSIVE" && (
+                                         <td style={{ padding: "16px", textAlign: "right" }}>
+                                            <input type="number" style={{ width: "80px", textAlign: "right", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }} value={item.grossWeight} onChange={e => handleUpdateInvoiceItem(idx, "grossWeight", e.target.value)} />
+                                         </td>
+                                      )}
+                                      {weightDisplayMode === "COMPREHENSIVE" && (
+                                         <td style={{ padding: "16px", textAlign: "right" }}>
+                                            <input type="number" style={{ width: "60px", textAlign: "right", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0" }} value={item.deductions} onChange={e => handleUpdateInvoiceItem(idx, "deductions", e.target.value)} />
+                                         </td>
+                                      )}
+                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "700" }}>{item.netWeight.toLocaleString()} KG</td>
+                                      <td style={{ padding: "16px", textAlign: "right" }}>
+                                         <input type="number" style={{ width: "80px", textAlign: "right", padding: "8px", borderRadius: "6px", border: "1px solid #e2e8f0", background: "rgba(34, 197, 94, 0.05)", color: COLORS.success, fontWeight: "800" }} value={item.rate} onChange={e => handleUpdateInvoiceItem(idx, "rate", e.target.value)} />
+                                      </td>
+                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "800", color: COLORS.secondary }}>{formatCurrency(item.amount)}</td>
+                                      <td style={{ padding: "16px", borderRadius: "0 14px 14px 0", textAlign: "center" }}>
+                                         <button onClick={() => removeInvoiceItem(idx)} style={{ background: "none", border: "none", color: COLORS.danger, cursor: "pointer", fontSize: "16px" }}>✕</button>
+                                      </td>
+                                   </tr>
+                                 ))}
+                              </tbody>
+                           </table>
+                           <button onClick={addInvoiceItem} style={{ width: "100%", padding: "16px", border: "2px dashed #cbd5e1", background: "#f8fafc", color: COLORS.primary, fontWeight: "800", borderRadius: "20px", marginTop: "12px", cursor: "pointer" }}>+ ADD PRODUCT LINE ITEM</button>
+                        </div>
+
+                        {/* Financials & Charges Block */}
+                        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "64px", marginTop: "48px", borderTop: "2px solid #f1f5f9", paddingTop: "48px" }}>
+                           <div>
+                              <h4 style={{ color: COLORS.secondary, marginBottom: "24px" }}>💸 ADDITIONAL CHARGES</h4>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                                 <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "16px" }}>
+                                    <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.6 }}>COMMISSION (₹)</label>
+                                    <input type="number" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}}))} />
+                                 </div>
+                                 <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "16px" }}>
+                                    <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.6 }}>FREIGHT / TRANSPORT</label>
+                                    <input type="number" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}}))} />
+                                 </div>
+                              </div>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
+                                 <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "16px" }}>
+                                    <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.6 }}>HAMALI / HANDLING</label>
+                                    <input type="number" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}}))} />
+                                 </div>
+                                 <div style={{ background: "#fcf6f0", padding: "16px", borderRadius: "16px", border: "1px solid #feeac8" }}>
+                                    <label style={{ fontSize: "11px", fontWeight: "900", color: "#856404" }}>OTHER MISC CHARGES</label>
+                                    <input type="number" placeholder="₹ 0.00" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} />
+                                 </div>
+                              </div>
+                           </div>
+
+                           <div style={{ background: "#0f172a", color: "#fff", padding: "48px", borderRadius: "40px", boxShadow: "0 30px 60px rgba(0,0,0,0.15)" }}>
+                              <h4 style={{ margin: "0 0 32px 0", color: COLORS.accent, letterSpacing: "2px" }}>INVOICE SUMMARY</h4>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                                 <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.6 }}><span>SUB-TOTAL AMOUNT</span><b>{formatCurrency(buyerInvoiceForm.subTotal)}</b></div>
+                                 <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.6 }}><span>TOTAL ADDL. CHARGES</span><b>{formatCurrency(buyerInvoiceForm.totalCharges)}</b></div>
+                                 
+                                 <div style={{ borderTop: "1.5px solid rgba(255,255,255,0.12)", paddingTop: "24px", display: "flex", justifyContent: "space-between", fontSize: "32px", fontWeight: "900" }}>
+                                    <span style={{ color: COLORS.accent }}>GRAND TOTAL</span>
+                                    <span>{formatCurrency(buyerInvoiceForm.grandTotal)}</span>
+                                 </div>
+
+                                 <div style={{ background: "rgba(255,255,255,0.06)", padding: "24px", borderRadius: "24px", marginTop: "12px" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                                       <span style={{ fontSize: "12px", opacity: 0.5, textTransform: "uppercase", fontWeight: "800" }}>Amount Received (Cash/UPI)</span>
+                                       <input 
+                                          type="number" 
+                                          style={{ width: "120px", background: "#fff", color: "#000", border: "none", padding: "12px", borderRadius: "12px", textAlign: "right", fontWeight: "900", fontSize: "18px" }}
+                                          value={buyerInvoiceForm.amountReceived}
+                                          onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, amountReceived: e.target.value}))}
+                                       />
+                                    </div>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                       <span style={{ fontSize: "14px", fontWeight: "600" }}>Payer Status</span>
+                                       <span style={{ 
+                                          padding: "6px 16px", borderRadius: "40px", fontSize: "11px", fontWeight: "900",
+                                          background: buyerInvoiceForm.status === 'Fully Paid' ? '#22c55e' : buyerInvoiceForm.status === 'Partially Paid' ? '#f59e0b' : '#ef4444'
+                                       }}>{buyerInvoiceForm.status.toUpperCase()}</span>
+                                    </div>
+                                 </div>
+
+                                 <div style={{ background: COLORS.accent, color: COLORS.secondary, padding: "24px", borderRadius: "24px", textAlign: "center" }}>
+                                    <small style={{ fontWeight: "900", opacity: 0.6, letterSpacing: "1px" }}>OUTSTANDING ON THIS INVOICE</small>
+                                    <h1 style={{ margin: "5px 0", fontSize: "40px", fontWeight: "900" }}>{formatCurrency(buyerInvoiceForm.balanceDue)}</h1>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </Card>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
+                     <Button style={{ height: "72px", fontSize: "20px", borderRadius: "24px" }} onClick={() => alert("✅ INVOICE GENERATED & LEDGER SYNCED")}>🚀 FINAL AUTHORIZE & PRINT INVOICE</Button>
+                     <Button variant="outline" style={{ height: "72px", borderRadius: "24px", border: "2px solid #e2e8f0" }}>💾 SAVE AS DRAFT</Button>
+                  </div>
+
+                  {/* Traceability Panel Footer */}
+                  <Card title="📜 INVOICE TRACEABILITY AUDIT" subtitle="Link every product line back to its farmer arrival">
+                     <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" }}>
+                           <thead>
+                              <tr style={{ background: "#f8fafc", textAlign: "left", fontSize: "11px", opacity: 0.6 }}>
+                                 <th style={{ padding: "12px" }}>PRODUCT</th>
+                                 <th style={{ padding: "12px" }}>FARMER SOURCE</th>
+                                 <th style={{ padding: "12px" }}>LOT IDENTITY</th>
+                                 <th style={{ padding: "12px" }}>MANDI ORIGIN</th>
+                                 <th style={{ padding: "12px", textAlign: "right" }}>VOLUME (%)</th>
+                              </tr>
+                           </thead>
+                           <tbody style={{ fontSize: "13px" }}>
+                              {buyerInvoiceForm.items.map((item, idx) => (
+                                <tr key={idx} style={{ background: "#fff", borderBottom: "1px solid #f1f5f9" }}>
+                                   <td style={{ padding: "12px" }}><b>{item.productLabel || "---"}</b></td>
+                                   <td style={{ padding: "12px" }}>{lots.find(l => l.lotId === item.lotId)?.supplier?.name || "Multiple Sources"}</td>
+                                   <td style={{ padding: "12px" }}><span style={{ color: COLORS.primary, fontWeight: "700" }}>{item.lotId || "N/A"}</span></td>
+                                   <td style={{ padding: "12px" }}>{lots.find(l => l.lotId === item.lotId)?.origin || "South Region"}</td>
+                                   <td style={{ padding: "12px", textAlign: "right" }}>100%</td>
+                                </tr>
+                              ))}
+                           </tbody>
+                        </table>
+                     </div>
+                  </Card>
+               </div>
+
+               {/* RIGHT COLUMN: BUYER INTEL & REGISTER */}
+               <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                  <div style={{ 
+                     background: "rgba(255,255,255,0.7)", 
+                     backdropFilter: "blur(20px)", 
+                     borderRadius: "32px", 
+                     padding: "32px", 
+                     border: "1px solid rgba(255,255,255,0.4)"
+                  }}>
+                     <h3 style={{ margin: "0 0 24px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        Buyer Intelligence
+                        <span style={{ fontSize: "10px", background: COLORS.secondary, color: "#fff", padding: "4px 10px", borderRadius: "10px" }}>LIVE</span>
+                     </h3>
+                     {buyerHistory ? (
+                       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                          <Card style={{ padding: "20px", background: COLORS.secondary, color: "#fff", border: "none" }}>
+                             <label style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900" }}>CURRENT LEDGER BALANCE</label>
+                             <h2 style={{ margin: "5px 0", color: COLORS.accent }}>{formatCurrency(buyerHistory.pendingBalance || 145000)}</h2>
+                             <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>Last Activity: {buyerHistory.lastActivityDate || "Today"}</p>
+                          </Card>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                             <div style={{ background: "#fff", padding: "16px", borderRadius: "20px", border: "1px solid #f1f5f9" }}>
+                                <small style={{ fontWeight: "800", opacity: 0.5, fontSize: "9px" }}>LIFETIME VOL.</small>
+                                <h4 style={{ margin: "4px 0" }}>{(buyerHistory.totalWeight || 24500).toLocaleString()} KG</h4>
+                             </div>
+                             <div style={{ background: "#fff", padding: "16px", borderRadius: "20px", border: "1px solid #f1f5f9" }}>
+                                <small style={{ fontWeight: "800", opacity: 0.5, fontSize: "9px" }}>RETURN RATE</small>
+                                <h4 style={{ margin: "4px 0", color: COLORS.success }}>94% High</h4>
+                             </div>
+                          </div>
+                          {[
+                             { l: "Top Variety", v: "Mango Alphonso", i: "🥭" },
+                             { l: "Preferred Grading", v: "A Grade / Export", i: "💎" },
+                             { l: "Payment Behavior", v: "Regular / 15-Day", i: "⏳" }
+                          ].map((x, i) => (
+                             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "14px", background: "#fff", borderRadius: "16px", border: "1px solid #f1f5f9" }}>
+                                <span style={{ fontSize: "11px", fontWeight: "700" }}>{x.i} {x.l}</span>
+                                <b style={{ fontSize: "12px" }}>{x.v}</b>
+                             </div>
+                          ))}
                        </div>
-                       <div>
-                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>LOT IDENTITY</label>
-                          <h4 style={{ margin: "4px 0", color: COLORS.primary }}>LOT-2026-X11</h4>
-                          <p style={{ margin: 0, fontSize: "12px" }}>Arrival: 20/03/2026 06:15 AM</p>
-                       </div>
-                       <div>
-                          <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>PRODUCT DETAILS</label>
-                          <h4 style={{ margin: "4px 0" }}>Mango Alphonso</h4>
-                          <p style={{ margin: 0, fontSize: "12px" }}>Grade: A Grade | Boxes: 24</p>
-                       </div>
-                    </div>
-                 </div>
-              </Card>
-            </Card>
+                     ) : <p style={{ textAlign: "center", opacity: 0.5, padding: "40px" }}>Link a buyer to view historical purchase intelligence.</p>}
+                  </div>
+
+                  <Card title="📑 Recent Invoices" subtitle="History of past 30 days">
+                     <div className="menu-scroll" style={{ maxHeight: "500px", overflowY: "auto" }}>
+                        {[
+                           { no: "INV-2026-X01", buyer: "Harsha Wholesale", amt: 125400, date: "24/03", status: "Paid" },
+                           { no: "INV-2026-X02", buyer: "BigBasket Depot", amt: 84500, date: "23/03", status: "Partial" },
+                           { no: "INV-2026-X03", buyer: "Reliance Fresh", amt: 210000, date: "22/03", status: "Unpaid" }
+                        ].map((hv, i) => (
+                           <div key={i} style={{ padding: "16px", background: "#f8fafc", borderRadius: "16px", marginBottom: "12px", border: "1px solid transparent" }} onMouseOver={e => e.currentTarget.style.borderColor=COLORS.primary} onMouseOut={e => e.currentTarget.style.borderColor="transparent"}>
+                              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                                 <b style={{ fontSize: "13px" }}>{hv.no}</b>
+                                 <span style={{ fontSize: "10px", opacity: 0.5 }}>{hv.date}</span>
+                              </div>
+                              <div style={{ fontSize: "12px", fontWeight: "700", color: COLORS.secondary }}>{hv.buyer}</div>
+                              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", alignItems: "flex-end" }}>
+                                 <h4 style={{ margin: 0 }}>{formatCurrency(hv.amt)}</h4>
+                                 <span style={{ fontSize: "9px", background: hv.status === 'Paid' ? '#e6f4ea' : '#fff1f0', color: hv.status === 'Paid' ? '#1e7e34' : '#cf1322', padding: "2px 8px", borderRadius: "10px", fontWeight: "900" }}>{hv.status}</span>
+                              </div>
+                           </div>
+                        ))}
+                     </div>
+                  </Card>
+               </div>
+            </div>
           )}
 
           {/* 9b. PRODUCTION-GRADE FARMER BILLING (SETTLEMENT COMMAND CENTER) */}
