@@ -1945,194 +1945,208 @@ export default function App() {
           )}
 
           {/* 9b. PRODUCTION-GRADE FARMER BILLING (SETTLEMENT COMMAND CENTER) */}
+
           {activeSection === "Farmer Billing" && (
-            <div style={{ display: "grid", gridTemplateColumns: "2.8fr 1.2fr", gap: "32px", animation: "slideUp 0.6s ease-out" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: "32px", animation: "slideUp 0.6s ease-out" }}>
                {/* LEFT COLUMN: THE SETTLEMENT ENGINE */}
                <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                  <Card style={{ padding: "0", border: "none", overflow: "hidden", borderRadius: "24px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)" }}>
-                     {/* Bill Header Section - Dark Ledger Theme */}
-                     <div style={{ background: "#0f172a", color: "#fff", padding: "48px", position: "relative" }}>
-                        {isBillLocked && (
-                          <div style={{ position: "absolute", top: "30px", right: "30px", background: COLORS.accent, color: COLORS.secondary, padding: "10px 24px", borderRadius: "40px", fontWeight: "900", zIndex: 10, fontSize: "14px", boxShadow: "0 10px 20px rgba(0,0,0,0.3)" }}>🔒 FINALIZED SETTLEMENT</div>
-                        )}
-                        
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "32px" }}>
-                           <div>
-                              <h4 style={{ margin: 0, letterSpacing: "6px", opacity: 0.5, fontSize: "12px", textTransform: "uppercase" }}>Audit Provenance</h4>
-                              <h1 style={{ margin: "4px 0", fontSize: "42px", fontWeight: "900", letterSpacing: "-1px" }}>SPV <span style={{ color: COLORS.accent }}>FRUITS</span></h1>
-                              <p style={{ margin: 0, opacity: 0.7, fontSize: "13px" }}>Mandi HQ, Market Street, Guntur - 522001 | GST: 37AAEFG1234F1Z5</p>
+                  <div style={{ 
+                     background: "#FFFBE6", // Light yellow bill paper color
+                     borderRadius: "16px", 
+                     boxShadow: "0 10px 30px rgba(0,0,0,0.1)", 
+                     border: "2px solid #FAD331",
+                     overflow: "hidden",
+                     position: "relative"
+                  }}>
+                     {/* Bill Header Section - Inspired by the physical bill */}
+                     <div style={{ padding: "40px", borderBottom: "1.5px dashed #FAD331" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "30px" }}>
+                           <div style={{ display: "flex", gap: "20px" }}>
+                              <div style={{ background: "#e11d48", color: "#fff", padding: "10px", borderRadius: "50%", width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900", fontSize: "12px", textAlign: "center", boxShadow: "0 4px 10px rgba(225, 29, 72, 0.3)" }}>K.F.C.</div>
+                              <div>
+                                 <h4 style={{ margin: 0, fontSize: "11px", fontWeight: "800", color: "#454545" }}>Trade Mark: <span style={{ color: "#e11d48" }}>K.F.C.</span></h4>
+                                 <h1 style={{ margin: "5px 0", fontSize: "36px", fontWeight: "900", color: "#e11d48", letterSpacing: "1px" }}>SPV FRUITS</h1>
+                                 <p style={{ margin: 0, fontSize: "12px", color: "#666", maxWidth: "400px", lineHeight: "1.4" }}>
+                                    Shop No. 29, Mango Market Yard, Thanapalli Cross, Tiruchanoor Road, TIRUPATI.<br />
+                                    <span style={{ fontWeight: "700" }}>Cell:</span> 9440765810, 9491980099
+                                 </p>
+                              </div>
                            </div>
                            <div style={{ textAlign: "right" }}>
-                              <p style={{ margin: 0, opacity: 0.6, fontSize: "11px", fontWeight: "800", textTransform: "uppercase" }}>Settlement Document</p>
-                              <h2 style={{ margin: 0, color: COLORS.accent, fontSize: "28px" }}>#{farmerBillForm.billNo}</h2>
-                              <span style={{ fontSize: "12px" }}>Cycle: {new Date().getFullYear()} - {new Date().getFullYear()+1}</span>
+                              {isBillLocked && (
+                                <div style={{ background: "#22c55e", color: "#fff", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "900", marginBottom: "15px", display: "inline-block" }}>FINALIZED</div>
+                              )}
+                              <h2 style={{ margin: 0, color: "#e11d48", fontSize: "24px" }}>No. {farmerBillForm.billNo}</h2>
+                              <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-end" }}>
+                                 <div style={{ fontSize: "14px", fontWeight: "700" }}>Date: <input type="date" value={farmerBillForm.date} onChange={e => setFarmerBillForm({...farmerBillForm, date: e.target.value})} style={{ border: "none", background: "rgba(255,255,255,0.5)", padding: "4px 8px", borderRadius: "4px", fontSize: "13px", fontWeight: "700", outline: "none" }} disabled={isBillLocked} /></div>
+                              </div>
                            </div>
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "40px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "32px" }}>
-                           <div>
-                              <label style={{ fontSize: "10px", fontWeight: "900", opacity: 0.5, display: "block", marginBottom: "8px" }}>FARMER IDENTIFICATION</label>
-                              <select 
-                                 style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)", color: "#fff", fontWeight: "700", outline: "none" }}
-                                 value={farmerBillForm.farmerId}
-                                 onChange={e => handleFarmerSelectionForSettlement(e.target.value)}
-                                 disabled={isBillLocked}
-                              >
-                                 <option value="" style={{ color: "#000" }}>-- Locate Farmer --</option>
-                                 {suppliers.map(s => <option key={s._id} value={s._id} style={{ color: "#000" }}>{s.name} ({s.village})</option>)}
-                              </select>
-                           </div>
-                           <div>
-                              <label style={{ fontSize: "10px", fontWeight: "900", opacity: 0.5, display: "block", marginBottom: "8px" }}>CLOSURE DATE</label>
-                              <input type="date" value={farmerBillForm.date} onChange={e => setFarmerBillForm({...farmerBillForm, date: e.target.value})} style={{ width: "100%", padding: "14px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)", color: "#fff", borderRadius: "12px", outline: "none" }} disabled={isBillLocked} />
-                           </div>
-                           <div style={{ background: "rgba(255,255,255,0.05)", padding: "14px", borderRadius: "12px" }}>
-                              <label style={{ fontSize: "10px", fontWeight: "900", opacity: 0.5, display: "block", marginBottom: "4px" }}>LINKED ARRIVALS</label>
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                                 {settlementData.length > 0 ? Array.from(new Set(settlementData.map(s => s.lotRef?.lotId))).map(lotId => (
-                                   <span key={lotId} style={{ background: COLORS.primary, padding: "4px 10px", borderRadius: "6px", fontSize: "11px", fontWeight: "700" }}>{lotId}</span>
-                                 )) : <span style={{ opacity: 0.3, fontSize: "11px" }}>No lots linked</span>}
-                              </div>
-                           </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                           <label style={{ fontSize: "16px", fontWeight: "800", whiteSpace: "nowrap" }}>M/s.</label>
+                           <select 
+                              style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1.5px solid #FAD331", background: "rgba(255,255,255,0.8)", fontSize: "16px", fontWeight: "700", outline: "none" }}
+                              value={farmerBillForm.farmerId}
+                              onChange={e => handleFarmerSelectionForSettlement(e.target.value)}
+                              disabled={isBillLocked}
+                           >
+                              <option value="">-- Choose Farmer Name --</option>
+                              {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} ({s.village})</option>)}
+                           </select>
                         </div>
                      </div>
 
                      {/* Main Ledger Content */}
-                     <div style={{ padding: "48px", background: "#fff" }}>
-                        <div style={{ marginBottom: "40px" }}>
-                           <h4 style={{ color: COLORS.secondary, marginBottom: "16px", letterSpacing: "1px" }}>📦 PRODUCE & ALLOCATION DETAILS</h4>
-                           <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 12px" }}>
+                     <div style={{ padding: "0 40px 40px" }}>
+                        <div style={{ marginTop: "30px" }}>
+                           <table style={{ width: "100%", borderCollapse: "collapse" }}>
                               <thead>
-                                 <tr style={{ textAlign: "left", color: COLORS.muted }}>
-                                    <th style={{ padding: "12px 20px" }}>DESCRIPTION / VARIETY</th>
-                                    <th style={{ padding: "12px", textAlign: "right" }}>QUANTITY</th>
-                                    <th style={{ padding: "12px", textAlign: "right" }}>UNIT PRICE (AVG)</th>
-                                    <th style={{ padding: "12px 20px", textAlign: "right" }}>TOTAL PROCEEDS</th>
+                                 <tr style={{ textAlign: "left", background: "rgba(250, 211, 49, 0.2)" }}>
+                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", width: "100px" }}>QTY.</th>
+                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331" }}>ITEM</th>
+                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", textAlign: "right" }}>KGS.</th>
+                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", textAlign: "right" }}>RATE</th>
+                                    <th style={{ padding: "15px", border: "1.5px solid #FAD331", textAlign: "right", width: "180px" }}>AMOUNT (₹)</th>
                                  </tr>
                               </thead>
                               <tbody>
                                  {settlementData.length > 0 ? settlementData.map((item, idx) => (
-                                   <tr key={idx} style={{ background: "#f8fafc", transition: "transform 0.2s" }}>
-                                      <td style={{ padding: "20px", borderRadius: "16px 0 0 16px" }}>
-                                         <b style={{ fontSize: "16px" }}>{item.lineItem?.product}</b><br />
-                                         <small style={{ color: COLORS.muted, fontWeight: "600" }}>{item.lineItem?.variety} • Ref: {item.lotRef?.lotId}</small>
+                                   <tr key={idx}>
+                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "center" }}>-</td>
+                                      <td style={{ padding: "15px", border: "1px solid #FAD331" }}>
+                                         <b style={{ textTransform: "uppercase" }}>{item.lineItem?.product}</b>
+                                         <div style={{ fontSize: "11px", color: "#666" }}>{item.lineItem?.variety} • Lot: {item.lotRef?.lotId}</div>
                                       </td>
-                                      <td style={{ padding: "20px", textAlign: "right", fontWeight: "700" }}>{item.quantity.toLocaleString()} KG</td>
-                                      <td style={{ padding: "20px", textAlign: "right", color: COLORS.success, fontWeight: "800" }}>₹ {item.saleRate.toFixed(2)}</td>
-                                      <td style={{ padding: "20px", textAlign: "right", fontWeight: "900", borderRadius: "0 16px 16px 0", fontSize: "18px" }}>{formatCurrency(item.quantity * item.saleRate)}</td>
+                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "right", fontWeight: "700" }}>{item.quantity.toLocaleString()}</td>
+                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "right" }}>{item.saleRate.toFixed(2)}</td>
+                                      <td style={{ padding: "15px", border: "1px solid #FAD331", textAlign: "right", fontWeight: "800" }}>{formatCurrency(item.quantity * item.saleRate)}</td>
                                    </tr>
                                  )) : (
-                                   <tr><td colSpan="4" style={{ padding: "60px", textAlign: "center", opacity: 0.3, background: "#f8fafc", borderRadius: "20px" }}>Select a farmer to generate settlement ledger</td></tr>
+                                   <tr><td colSpan="5" style={{ padding: "80px", textAlign: "center", opacity: 0.5, fontStyle: "italic" }}>No entries selected for settlement...</td></tr>
                                  )}
+                                 
+                                 {/* Filler rows to match physical bill look */}
+                                 {settlementData.length < 3 && Array.from({ length: 3 - settlementData.length }).map((_, i) => (
+                                    <tr key={`filler-${i}`} style={{ height: "50px" }}>
+                                       <td style={{ border: "1px solid #FAD331" }}></td>
+                                       <td style={{ border: "1px solid #FAD331" }}></td>
+                                       <td style={{ border: "1px solid #FAD331" }}></td>
+                                       <td style={{ border: "1px solid #FAD331" }}></td>
+                                       <td style={{ border: "1px solid #FAD331" }}></td>
+                                    </tr>
+                                 ))}
                               </tbody>
-                              <tfoot>
-                                 <tr style={{ fontWeight: "900" }}>
-                                    <td style={{ padding: "32px 20px" }}>GROSS SALE REALIZATION</td>
-                                    <td style={{ padding: "32px", textAlign: "right", color: COLORS.secondary }}>{(settlementData.reduce((acc, i) => acc + i.quantity, 0)).toLocaleString()} KG</td>
-                                    <td></td>
-                                    <td style={{ padding: "32px 20px", textAlign: "right", fontSize: "24px", color: COLORS.secondary }}>
-                                       {formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0))}
-                                    </td>
-                                 </tr>
-                              </tfoot>
                            </table>
                         </div>
 
-                        {/* Deductions & Finalization Grid */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "64px", borderTop: "2.5px solid #f1f5f9", paddingTop: "48px" }}>
+                        {/* Deductions & Finalization Section */}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", marginTop: "30px", gap: "40px" }}>
+                           {/* Expenses Sidebar */}
                            <div>
-                              <h4 style={{ color: COLORS.danger, marginBottom: "24px", letterSpacing: "1px" }}>📉 MANDI DEDUCTIONS (EXPENSES)</h4>
-                              <div style={{ background: "#FDFDFD", borderRadius: "20px", padding: "24px", border: "1px solid #e2e8f0" }}>
-                                 {farmerBillForm.expenses.map((exp, i) => (
-                                   <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: i === farmerBillForm.expenses.length - 1 ? "none" : "1px solid #f1f5f9" }}>
-                                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                         <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: exp.value > 0 ? COLORS.danger : '#ccc' }} />
+                              <div style={{ background: "rgba(250, 211, 49, 0.1)", border: "2.5px solid #FAD331", borderRadius: "12px", padding: "20px" }}>
+                                 <h4 style={{ margin: "0 0 15px 0", color: "#e11d48", fontWeight: "900", textAlign: "center", borderBottom: "2px solid #FAD331", paddingBottom: "10px" }}>EXPENSES</h4>
+                                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    {farmerBillForm.expenses.map((exp, i) => (
+                                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                          {exp.isCustom ? (
                                             <input 
-                                              placeholder="Expense Label" 
+                                              placeholder="Label" 
                                               value={exp.label} 
                                               onChange={e => {
                                                 const ex = [...farmerBillForm.expenses];
                                                 ex[i].label = e.target.value;
                                                 setFarmerBillForm({...farmerBillForm, expenses: ex});
                                               }}
-                                              style={{ border: "none", fontSize: "14px", fontWeight: "700", width: "150px", outline: "none" }}
+                                              style={{ border: "none", background: "none", fontSize: "13px", fontWeight: "700", borderBottom: "1px solid #ccc", outline: "none", width: "120px" }}
                                             />
-                                         ) : <span style={{ fontSize: "14px", fontWeight: "700", color: COLORS.secondary }}>{exp.label}</span>}
-                                      </div>
-                                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                         <span style={{ fontSize: "12px", opacity: 0.5 }}>₹</span>
+                                         ) : <span style={{ fontSize: "13px", fontWeight: "700" }}>{exp.label}:</span>}
                                          <input 
-                                            type="number"
-                                            value={exp.value}
-                                            onChange={e => {
-                                               const ex = [...farmerBillForm.expenses];
-                                               ex[i].value = Number(e.target.value);
-                                               setFarmerBillForm({...farmerBillForm, expenses: ex});
-                                            }}
-                                            style={{ width: "100px", textAlign: "right", border: "none", background: "transparent", padding: "4px", fontWeight: "900", fontSize: "16px", color: COLORS.danger }}
-                                            disabled={isBillLocked}
-                                         />
+                                             type="number"
+                                             value={exp.value}
+                                             onChange={e => {
+                                                const ex = [...farmerBillForm.expenses];
+                                                ex[i].value = Number(e.target.value);
+                                                setFarmerBillForm({...farmerBillForm, expenses: ex});
+                                             }}
+                                             style={{ width: "80px", textAlign: "right", border: "none", background: "#fff", padding: "5px", borderRadius: "4px", borderBottom: "2px solid #FAD331", fontWeight: "800", color: "#e11d48" }}
+                                             disabled={isBillLocked}
+                                          />
                                       </div>
-                                   </div>
-                                 ))}
-                                 <button onClick={addCustomExpense} style={{ marginTop: "20px", background: "#f8fafc", border: "1px dashed #cbd5e1", color: COLORS.primary, cursor: "pointer", fontSize: "12px", fontWeight: "800", width: "100%", padding: "10px", borderRadius: "10px" }}>+ Add Custom Deduction Category</button>
+                                    ))}
+                                    <button onClick={addCustomExpense} style={{ marginTop: "10px", background: "none", border: "1px dashed #e11d48", color: "#e11d48", cursor: "pointer", fontSize: "11px", fontWeight: "800", padding: "5px", borderRadius: "5px" }}>+ CUSTOM</button>
+                                    
+                                    <div style={{ borderTop: "2px solid #FAD331", marginTop: "10px", paddingTop: "10px", display: "flex", justifyContent: "space-between", fontWeight: "900", fontSize: "16px" }}>
+                                       <span>TOTAL:</span>
+                                       <span style={{ color: "#e11d48" }}>{formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</span>
+                                    </div>
+                                 </div>
                               </div>
                            </div>
 
-                           <div style={{ background: "#0f172a", color: "#fff", padding: "40px", borderRadius: "32px", boxShadow: "0 20px 40px rgba(0,0,0,0.2)" }}>
-                              <h4 style={{ margin: "0 0 24px 0", color: COLORS.accent, letterSpacing: "2px" }}>SETTLEMENT ABSTRACT</h4>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                                 <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.6, fontSize: "14px" }}><span>TOTAL REALIZATION</span><b>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0))}</b></div>
-                                 <div style={{ display: "flex", justifyContent: "space-between", color: "#FFA39E", fontSize: "14px" }}><span>TOTAL DEDUCTIONS (-)</span><b>{formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</b></div>
-                                 
-                                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px", display: "flex", justifyContent: "space-between", fontSize: "20px", fontWeight: "900" }}>
-                                    <span style={{ color: COLORS.accent }}>NET PROCEEDS</span>
-                                    <span>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0) - farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</span>
+                           {/* Summary Right Side */}
+                           <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #FAD331", paddingBottom: "10px" }}>
+                                    <span style={{ fontWeight: "700" }}>GROSS SALE:</span>
+                                    <b style={{ fontSize: "20px" }}>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0))}</b>
                                  </div>
-
-                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)", padding: "16px", borderRadius: "16px", marginTop: "12px" }}>
-                                    <div>
-                                       <span style={{ fontSize: "11px", opacity: 0.5, textTransform: "uppercase" }}>Advance Paid Already</span>
-                                       <div style={{ fontSize: "18px", fontWeight: "700" }}>{formatCurrency(farmerBillForm.advance)}</div>
-                                    </div>
+                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #FAD331", paddingBottom: "10px" }}>
+                                    <span style={{ fontWeight: "700" }}>EXPENSES (-):</span>
+                                    <b style={{ fontSize: "18px", color: "#e11d48" }}>{formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</b>
+                                 </div>
+                                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #e11d48", paddingBottom: "10px" }}>
+                                    <span style={{ fontWeight: "800", color: "#0f172a" }}>NET SALE:</span>
+                                    <b style={{ fontSize: "24px", color: "#0f172a" }}>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0) - farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</b>
+                                 </div>
+                                 <div style={{ display: "flex", justifyContent: "space-between", background: "#f1f5f9", padding: "10px", borderRadius: "8px" }}>
+                                    <span style={{ fontSize: "12px", fontWeight: "700" }}>ADVANCE PAYMENT already given:</span>
                                     <input 
-                                      type="number" 
-                                      placeholder="Edit..."
-                                      value={farmerBillForm.advance} 
-                                      onChange={e => setFarmerBillForm({...farmerBillForm, advance: Number(e.target.value)})} 
-                                      style={{ width: "90px", background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", padding: "10px", borderRadius: "8px", textAlign: "right", outline: "none" }}
-                                      disabled={isBillLocked}
+                                       type="number" 
+                                       value={farmerBillForm.advance} 
+                                       onChange={e => setFarmerBillForm({...farmerBillForm, advance: Number(e.target.value)})} 
+                                       style={{ width: "100px", fontWeight: "800", textAlign: "right", border: "none", background: "none", borderBottom: "2px solid #666", outline: "none" }}
+                                       disabled={isBillLocked}
                                     />
                                  </div>
-
-                                 <div style={{ background: COLORS.accent, color: COLORS.secondary, padding: "24px", borderRadius: "20px", marginTop: "16px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-                                    <div style={{ position: "absolute", top: "-10px", right: "-10px", fontSize: "60px", opacity: 0.1, color: "#000" }}>💸</div>
-                                    <label style={{ fontSize: "12px", fontWeight: "900", letterSpacing: "1px", opacity: 0.7 }}>FINAL PAYABLE BALANCE</label>
-                                    <h1 style={{ margin: "8px 0", fontSize: "42px", fontWeight: "900" }}>
+                                 
+                                 <div style={{ background: "#e11d48", color: "#fff", padding: "20px", borderRadius: "12px", textAlign: "center", boxShadow: "0 10px 20px rgba(225, 29, 72, 0.2)", position: "relative", overflow: "hidden" }}>
+                                    <span style={{ fontSize: "12px", fontWeight: "900", letterSpacing: "1px", opacity: 0.8 }}>BALANCE TO PAY</span>
+                                    <h1 style={{ margin: "5px 0", fontSize: "40px", fontWeight: "900" }}>
                                        {formatCurrency(
                                           (settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0) - farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0)) - farmerBillForm.advance
                                        )}
                                     </h1>
-                                    <div style={{ fontSize: "11px", fontWeight: "800", opacity: 0.6 }}>Cleared via Mandi Commission Engine</div>
+                                    <div style={{ padding: "5px 10px", background: "rgba(255,255,255,0.2)", display: "inline-block", borderRadius: "40px", fontSize: "10px", fontWeight: "800" }}>AUTHORIZATION PENDING SIGNATURE</div>
+                                 </div>
+                              </div>
+
+                              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "30px" }}>
+                                 <div style={{ textAlign: "center" }}>
+                                    <div style={{ height: "40px" }}></div>
+                                    <div style={{ borderTop: "2px solid #333", width: "150px", fontWeight: "900", fontSize: "11px", paddingTop: "5px" }}>Party Signature</div>
+                                 </div>
+                                 <div style={{ textAlign: "center" }}>
+                                    <div style={{ height: "40px" }}></div>
+                                    <div style={{ borderTop: "2px solid #e11d48", width: "180px", fontWeight: "900", fontSize: "11px", paddingTop: "5px", color: "#e11d48" }}>For SPV Fruits</div>
                                  </div>
                               </div>
                            </div>
                         </div>
                      </div>
-                  </Card>
+                  </div>
 
                   <div style={{ display: "flex", gap: "20px" }}>
                      {!isBillLocked ? (
-                       <Button style={{ flex: 2, height: "72px", fontSize: "20px", borderRadius: "20px", background: COLORS.primary }} onClick={handleCreateFarmerBill}>🔥 Authorize Final Settlement & Lock Bill</Button>
+                       <Button style={{ flex: 2, height: "72px", fontSize: "22px", borderRadius: "20px", background: "#e11d48", boxShadow: "0 8px 25px rgba(225, 29, 72, 0.3)" }} onClick={handleCreateFarmerBill}>🔥 Finalize & Issue Settlement Bill</Button>
                      ) : (
                        <div style={{ display: "flex", gap: "16px", flex: 3 }}>
-                          <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "64px", fontSize: "16px", borderRadius: "18px" }}>🖨 Print Invoice (A4/A5)</Button>
-                          <Button onClick={() => alert("Connecting to Cloud SMS Gateway...")} style={{ flex: 1, background: "#25D366", borderRadius: "18px" }}>📱 WhatsApp Details</Button>
-                          <Button variant="danger" onClick={() => handleVoidBill(farmerBillForm._id)} style={{ flex: 0.8, borderRadius: "18px" }}>🗑 Void Document</Button>
+                          <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "64px", fontSize: "16px", borderRadius: "18px" }}>🖨 Print Bill (Voucher)</Button>
+                          <Button onClick={() => alert("Sending WhatsApp...")} style={{ flex: 1, background: "#25D366", borderRadius: "18px" }}>📱 WhatsApp Details</Button>
+                          <Button variant="danger" onClick={() => handleVoidBill(farmerBillForm._id)} style={{ flex: 0.8, borderRadius: "18px" }}>🗑 Void Bill</Button>
                        </div>
                      )}
-                     <Button variant="outline" onClick={() => { setFarmerBillForm({...farmerBillForm, farmerId: ""}); setSettlementData([]); }} style={{ flex: 0.5, borderRadius: "18px" }}>Restart</Button>
+                     <Button variant="outline" onClick={() => { setFarmerBillForm({...farmerBillForm, farmerId: ""}); setSettlementData([]); }} style={{ flex: 0.5, borderRadius: "18px" }}>Reset</Button>
                   </div>
 
                   {/* Enhanced Traceability Panel */}
@@ -2231,6 +2245,7 @@ export default function App() {
                </div>
             </div>
           )}
+
 
           {/* 10. Ledger System */}
           {activeSection === "Ledger System" && (
