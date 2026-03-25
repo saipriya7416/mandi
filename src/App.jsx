@@ -1611,7 +1611,25 @@ export default function App() {
                                 <td style={{ padding: "16px" }}>{new Date(row.date).toLocaleDateString()}</td>
                              </tr>
                            ))}
-                           {intelData.length === 0 && <tr><td colSpan="7" style={{ padding: "40px", textAlign: "center", color: COLORS.muted }}>Use search to find product traceability across the supply chain.</td></tr>}
+                           {intelData.length === 0 && (
+                             <>
+                               {[
+                                 { farmerName: "Vikram Reddy", lotId: "LOT-2026-X11", arrivalDate: "2026-03-20", buyerName: "Harsha Wholesale", quantity: 1200, rate: 48, date: "2026-03-21" },
+                                 { farmerName: "Sandhya Devi", lotId: "LOT-2026-X12", arrivalDate: "2026-03-21", buyerName: "Reliance Fresh", quantity: 850, rate: 52, date: "2026-03-22" },
+                                 { farmerName: "Anwar Pasha", lotId: "LOT-2026-X13", arrivalDate: "2026-03-22", buyerName: "BigBasket Depot", quantity: 2000, rate: 45, date: "2026-03-23" }
+                               ].map((row, i) => (
+                                 <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                  <td style={{ padding: "16px" }}><b>{row.farmerName}</b></td>
+                                  <td style={{ padding: "16px" }}><span style={{ color: COLORS.sidebar, fontWeight: "700" }}>{row.lotId}</span></td>
+                                  <td style={{ padding: "16px" }}>{row.arrivalDate}</td>
+                                  <td style={{ padding: "16px" }}><b>{row.buyerName}</b></td>
+                                  <td style={{ padding: "16px" }}>{row.quantity} KG</td>
+                                  <td style={{ padding: "16px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
+                                  <td style={{ padding: "16px" }}>{row.date}</td>
+                                 </tr>
+                               ))}
+                             </>
+                           )}
                         </tbody>
                      </table>
                   </div>
@@ -1619,86 +1637,111 @@ export default function App() {
             </div>
           )}
           {activeSection === "Supplier Bill" && (
-            <Card title="🧾 Digital Bill Composer" subtitle="Automatic calculations for physical mandi bills">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginBottom: "32px" }}>
-                <Input label="Bill Number" value="BL-00441" />
-                <Input label="Entry Date" type="date" value={new Date().toISOString().slice(0, 10)} />
-                <Input label="Supplier Identity" placeholder="Select registered supplier" />
-              </div>
-              <Card style={{ border: "2px solid #0f172a", marginBottom: "32px", padding: "40px" }}>
-                <h2 style={{ textAlign: "center", textDecoration: "underline" }}>MANDI BILL STATEMENT</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", borderBottom: "2px solid #eee", paddingBottom: "10px", marginBottom: "20px", fontWeight: "900" }}>
-                  <div>Product</div><div>Qty</div><div>Rate</div><div>Amt</div>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "32px" }}>
-                  <div>🥭 Mango</div><div>1250</div><div>₹ 110</div><div>₹ 1,37,500</div>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px" }}>
-                  <div>
-                    <h4>Expense Deductions</h4>
-                    {[
-                      { l: "Transport / Freight", v: 4200 },
-                      { l: "Marketing Fees", v: 500 },
-                      { l: "Labour / Coolie", v: 1200 },
-                      { l: "Packing", v: 800 },
-                      { l: "Miscellaneous", v: 300 }
-                    ].map((ex, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px" }}>
-                        <span>{ex.l}</span><b style={{ color: COLORS.danger }}>- {formatCurrency(ex.v)}</b>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Gross Sale:</span> <b>{formatCurrency(137500)}</b></div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Total Exp:</span> <b style={{ color: COLORS.danger }}>- {formatCurrency(7000)}</b></div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Advance:</span> <b>- {formatCurrency(25000)}</b></div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "16px", borderTop: "2px solid #334155", paddingTop: "12px", fontSize: "20px", fontWeight: "900", color: COLORS.success }}>
-                      <span>Payable Net:</span> <span>{formatCurrency(105500)}</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-              <div style={{ display: "flex", gap: "16px", marginBottom: "32px" }}>
-                <Button onClick={() => alert("💾 Bill saved! Use backend IDs to test PDF download.")}>💾 Save Data</Button>
-                <Button variant="success" onClick={() => MandiService.downloadBillPDF('TEST_ID')} style={{ opacity: 0.6 }}>📄 Download PDF Bill</Button>
-                <Button variant="secondary">🖨 Print</Button>
-              </div>
-
-              {/* Farmer View: Traceability */}
-              <Card title="🤝 WHERE MY PRODUCE WENT" subtitle="Buyer-wise traceability for this lot/bill">
-                 <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                       <thead>
-                          <tr style={{ background: "#FDFBF4", textAlign: "left" }}>
-                             <th style={{ padding: "12px" }}>Buyer</th>
-                             <th style={{ padding: "12px" }}>Qty Allocated</th>
-                             <th style={{ padding: "12px" }}>Sale Rate</th>
-                             <th style={{ padding: "12px" }}>Sale Amount</th>
-                             <th style={{ padding: "12px" }}>Invoice #</th>
-                             <th style={{ padding: "12px" }}>Sale Date</th>
-                          </tr>
-                       </thead>
-                       <tbody>
-                          {/* Sample Traceability Data */}
-                          {[
-                            { name: "Suri Traders", qty: "300", rate: "52", amt: "15,600", inv: "INV-1023", date: "25/03/2026" },
-                            { name: "Kalyan Wholesale", qty: "250", rate: "55", amt: "13,750", inv: "INV-1024", date: "25/03/2026" },
-                            { name: "Reliance Retail", qty: "450", rate: "50", amt: "22,500", inv: "INV-1025", date: "25/03/2026" }
-                          ].map((row, i) => (
-                            <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                               <td style={{ padding: "12px" }}><b>{row.name}</b></td>
-                               <td style={{ padding: "12px" }}>{row.qty} KG</td>
-                               <td style={{ padding: "12px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
-                               <td style={{ padding: "12px" }}>₹{row.amt}</td>
-                               <td style={{ padding: "12px" }}>{row.inv}</td>
-                               <td style={{ padding: "12px" }}>{row.date}</td>
-                            </tr>
-                          ))}
-                       </tbody>
-                    </table>
+            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", marginBottom: "40px" }}>
+                  <Card style={{ background: COLORS.sidebar, color: "#fff" }}>
+                     <p style={{ opacity: 0.7, fontSize: "14px" }}>Today's Intake</p>
+                     <h1 style={{ margin: "10px 0" }}>14,250 <small style={{ fontSize: "16px" }}>KG</small></h1>
+                     <p style={{ color: COLORS.success, fontSize: "12px" }}>↑ 18% vs Yesterday</p>
+                  </Card>
+                  <Card>
+                     <p style={{ color: COLORS.muted, fontSize: "14px" }}>Outstanding (Suppliers)</p>
+                     <h1 style={{ margin: "10px 0" }}>₹ 8,42,000</h1>
+                     <p style={{ color: COLORS.danger, fontSize: "12px" }}>Next Payout: 28/03</p>
+                  </Card>
+                  <Card>
+                     <p style={{ color: COLORS.muted, fontSize: "14px" }}>Active Lots</p>
+                     <h1 style={{ margin: "10px 0" }}>24</h1>
+                     <p style={{ color: COLORS.primary, fontSize: "12px" }}>8 Pending Auction</p>
+                  </Card>
+                  <Card style={{ background: COLORS.secondary, color: "#fff" }}>
+                     <p style={{ opacity: 0.7, fontSize: "14px" }}>Daily Turnover</p>
+                     <h1 style={{ margin: "10px 0" }}>₹ 22.4L</h1>
+                     <p style={{ color: "#95de64", fontSize: "12px" }}>↑ Record day</p>
+                  </Card>
+               </div>
+               <Card title="🧾 Digital Bill Composer" subtitle="Automatic calculations for physical mandi bills">
+                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginBottom: "32px" }}>
+                   <Input label="Bill Number" value="BL-00441" />
+                   <Input label="Entry Date" type="date" value={new Date().toISOString().slice(0, 10)} />
+                   <Input label="Supplier Identity" placeholder="Select registered supplier" />
                  </div>
-              </Card>
-            </Card>
+                 <Card style={{ border: "2px solid #0f172a", marginBottom: "32px", padding: "40px" }}>
+                   <h2 style={{ textAlign: "center", textDecoration: "underline" }}>MANDI BILL STATEMENT</h2>
+                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", borderBottom: "2px solid #eee", paddingBottom: "10px", marginBottom: "20px", fontWeight: "900" }}>
+                     <div>Product</div><div>Qty</div><div>Rate</div><div>Amt</div>
+                   </div>
+                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "32px" }}>
+                     <div>🥭 Mango</div><div>1250</div><div>₹ 110</div><div>₹ 1,37,500</div>
+                   </div>
+                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px" }}>
+                     <div>
+                       <h4>Expense Deductions</h4>
+                       {[
+                         { l: "Transport / Freight", v: 4200 },
+                         { l: "Marketing Fees", v: 500 },
+                         { l: "Labour / Coolie", v: 1200 },
+                         { l: "Packing", v: 800 },
+                         { l: "Miscellaneous", v: 300 }
+                       ].map((ex, i) => (
+                         <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px" }}>
+                           <span>{ex.l}</span><b style={{ color: COLORS.danger }}>- {formatCurrency(ex.v)}</b>
+                         </div>
+                       ))}
+                     </div>
+                     <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "16px" }}>
+                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Gross Sale:</span> <b>{formatCurrency(137500)}</b></div>
+                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Total Exp:</span> <b style={{ color: COLORS.danger }}>- {formatCurrency(7000)}</b></div>
+                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span>Advance:</span> <b>- {formatCurrency(25000)}</b></div>
+                       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "16px", borderTop: "2px solid #334155", paddingTop: "12px", fontSize: "20px", fontWeight: "900", color: COLORS.success }}>
+                         <span>Payable Net:</span> <span>{formatCurrency(105500)}</span>
+                       </div>
+                     </div>
+                   </div>
+                 </Card>
+                 <div style={{ display: "flex", gap: "16px", marginBottom: "32px" }}>
+                   <Button onClick={() => alert("💾 Bill saved! Use backend IDs to test PDF download.")}>💾 Save Data</Button>
+                   <Button variant="success" onClick={() => MandiService.downloadBillPDF('TEST_ID')} style={{ opacity: 0.6 }}>📄 Download PDF Bill</Button>
+                   <Button variant="secondary">🖨 Print</Button>
+                 </div>
+
+                 {/* Farmer View: Traceability */}
+                 <Card title="🤝 WHERE MY PRODUCE WENT" subtitle="Buyer-wise traceability for this lot/bill">
+                    <div style={{ overflowX: "auto" }}>
+                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                          <thead>
+                             <tr style={{ background: "#FDFBF4", textAlign: "left" }}>
+                                <th style={{ padding: "12px" }}>Buyer</th>
+                                <th style={{ padding: "12px" }}>Qty Allocated</th>
+                                <th style={{ padding: "12px" }}>Sale Rate</th>
+                                <th style={{ padding: "12px" }}>Sale Amount</th>
+                                <th style={{ padding: "12px" }}>Invoice #</th>
+                                <th style={{ padding: "12px" }}>Sale Date</th>
+                             </tr>
+                          </thead>
+                          <tbody>
+                             {/* Sample Traceability Data */}
+                             {[
+                               { name: "Harsha Wholesale", qty: "300", rate: "52", amt: "15,600", inv: "INV-1023", date: "25/03/2026" },
+                               { name: "Anand Foodworld", qty: "250", rate: "55", amt: "13,750", inv: "INV-1024", date: "25/03/2026" },
+                               { name: "Heritage Depot", qty: "450", rate: "50", amt: "22,500", inv: "INV-1025", date: "25/03/2026" },
+                               { name: "BigBasket Hub", qty: "200", rate: "58", amt: "11,600", inv: "INV-1026", date: "25/03/2026" }
+                             ].map((row, i) => (
+                               <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                  <td style={{ padding: "12px" }}><b>{row.name}</b></td>
+                                  <td style={{ padding: "12px" }}>{row.qty} KG</td>
+                                  <td style={{ padding: "12px", color: COLORS.success, fontWeight: "700" }}>₹{row.rate}/KG</td>
+                                  <td style={{ padding: "12px" }}>₹{row.amt}</td>
+                                  <td style={{ padding: "12px" }}>{row.inv}</td>
+                                  <td style={{ padding: "12px" }}>{row.date}</td>
+                               </tr>
+                             ))}
+                          </tbody>
+                       </table>
+                    </div>
+                 </Card>
+               </Card>
+            </div>
           )}
 
           {/* 9. Buyer Invoice */}
@@ -1728,13 +1771,13 @@ export default function App() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px" }}>
                        <div>
                           <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>FARMER (SOURCE)</label>
-                          <h4 style={{ margin: "4px 0" }}>Ramesh Farmer</h4>
-                          <p style={{ margin: 0, fontSize: "12px" }}>Madanapalle, Chittoor</p>
+                          <h4 style={{ margin: "4px 0" }}>Vikram Reddy</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Guntur, Andhra Pradesh</p>
                        </div>
                        <div>
                           <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>LOT IDENTITY</label>
-                          <h4 style={{ margin: "4px 0", color: COLORS.primary }}>LOT-20260325-001</h4>
-                          <p style={{ margin: 0, fontSize: "12px" }}>Arrival: 25/03/2026 09:12 AM</p>
+                          <h4 style={{ margin: "4px 0", color: COLORS.primary }}>LOT-2026-X11</h4>
+                          <p style={{ margin: 0, fontSize: "12px" }}>Arrival: 20/03/2026 06:15 AM</p>
                        </div>
                        <div>
                           <label style={{ fontSize: "10px", fontWeight: "800", opacity: 0.6 }}>PRODUCT DETAILS</label>
@@ -1910,14 +1953,18 @@ export default function App() {
                 <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" }}>
                   <thead><tr style={{ textAlign: "left", color: COLORS.muted }}><th>Date</th><th>DOC #</th><th>Qty</th><th>Debit (-)</th><th>Credit (+)</th><th>Balance</th></tr></thead>
                   <tbody>
-                    {[1, 2, 3].map(i => (
+                    {[
+                      { date: "24/03/2026", doc: "TRX-101", lot: "LOT-X11", qty: "1,200", debit: "45,000", credit: "1,20,000", balance: "75,000" },
+                      { date: "25/03/2026", doc: "TRX-102", lot: "LOT-X12", qty: "850", debit: "30,000", credit: "95,000", balance: "1,40,000" },
+                      { date: "25/03/2026", doc: "TRX-103", lot: "LOT-X13", qty: "2,000", debit: "80,000", credit: "2,10,000", balance: "2,70,000" }
+                    ].map((row, i) => (
                       <tr key={i} style={{ background: "white", boxShadow: "0 2px 10px rgba(0,0,0,0.02)" }}>
-                        <td style={{ padding: "20px", borderRadius: "16px 0 0 16px" }}>18/03/2026</td>
-                        <td>TRX-00{i} <br /> <small style={{ color: COLORS.accent }}>LOT-9921</small></td>
-                        <td>1,250 KG</td>
-                        <td style={{ color: COLORS.danger }}>- ₹ 45,000</td>
-                        <td style={{ color: COLORS.success }}>+ ₹ 1,20,000</td>
-                        <td style={{ fontWeight: "900", borderRadius: "0 16px 16px 0" }}>{formatCurrency(i * 75000)}</td>
+                        <td style={{ padding: "20px", borderRadius: "16px 0 0 16px" }}>{row.date}</td>
+                        <td>{row.doc} <br /> <small style={{ color: COLORS.accent }}>{row.lot}</small></td>
+                        <td>{row.qty} KG</td>
+                        <td style={{ color: COLORS.danger }}>- ₹ {row.debit}</td>
+                        <td style={{ color: COLORS.success }}>+ ₹ {row.credit}</td>
+                        <td style={{ fontWeight: "900", borderRadius: "0 16px 16px 0" }}>₹ {row.balance}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1997,21 +2044,26 @@ export default function App() {
                   </div>
                   <Button style={{ width: "100%" }}>Run KYC Audit</Button>
                 </div>
-                <div>
-                  <h3>Onboarded KYC Status</h3>
-                  {[1, 2, 3].map(i => (
-                    <div key={i} style={{ padding: "20px", borderRadius: "16px", background: "#f8fafc", marginBottom: "12px", border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between" }}>
-                      <div>
-                        <b>{i === 1 ? "Srinivasa Rao" : i === 2 ? "Kalyan Wholesale" : "Venkatesh Mandi"}</b>
-                        <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted }}>Role: {i === 1 ? "Supplier" : "Buyer"}</p>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ background: COLORS.success, color: "#fff", padding: "4px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: "900" }}>VERIFIED</span>
-                        <p style={{ margin: 0, fontSize: "10px", marginTop: "4px" }}>Vault ID: {Date.now().toString().slice(-6)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                 <div>
+                   <h3>Onboarded KYC Status</h3>
+                   {[
+                     { name: "Srinivasa Rao", role: "Supplier", status: "VERIFIED" },
+                     { name: "Mahesh Traders", role: "Buyer", status: "VERIFIED" },
+                     { name: "Green Valley Farms", role: "Supplier", status: "PENDING" },
+                     { name: "Prakash Wholesale", role: "Buyer", status: "VERIFIED" }
+                   ].map((user, i) => (
+                     <div key={i} style={{ padding: "20px", borderRadius: "16px", background: "#f8fafc", marginBottom: "12px", border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between" }}>
+                       <div>
+                         <b>{user.name}</b>
+                         <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted }}>Role: {user.role}</p>
+                       </div>
+                       <div style={{ textAlign: "right" }}>
+                         <span style={{ background: user.status === 'VERIFIED' ? COLORS.success : COLORS.accent, color: "#fff", padding: "4px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: "900" }}>{user.status}</span>
+                         <p style={{ margin: 0, fontSize: "10px", marginTop: "4px" }}>Vault ID: {Date.now().toString().slice(-6)}</p>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
               </div>
             </Card>
           )}
