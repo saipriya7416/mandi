@@ -3571,6 +3571,292 @@ export default function App() {
             </div>
           )}
 
+          {/* 15. CONNECTION MODULE (PREMIUM INTELLIGENCE REPORT) */}
+          {activeSection === "CONNECTION" && (
+             <div style={{ animation: "slideUp 0.6s ease-out", display: "flex", flexDirection: "column", gap: "32px" }}>
+                {/* TOP: Search + Farmer Summary Card */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "32px" }}>
+                   <Card title="Farmer Traceability Search" subtitle="Two-way intelligence engine">
+                      <Input label="Search by Name, Mobile, Village or Lot ID" value={connSearchQuery} onChange={(e) => setConnSearchQuery(e.target.value)} placeholder="e.g. Vikram Reddy or 9848010000" />
+                      <Button style={{ width: "100%", marginTop: "12px" }}>Execute Intelligence Search</Button>
+                      
+                      <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                         <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Search Results (Click to View Dashboard)</label>
+                         {/* Static mapping for Farmer connection demonstration */}
+                         <div style={{ padding: "16px", background: selectedConnFarmer?.id === "f1" ? "rgba(159, 180, 67, 0.1)" : "#f8fafc", borderRadius: "16px", cursor: "pointer", border: selectedConnFarmer?.id === "f1" ? `2px solid ${COLORS.secondary}` : "2px solid #e2e8f0", transition: "0.2s" }} onClick={() => setSelectedConnFarmer({ id: "f1", name: "Vikram Reddy", phone: "9848010000", village: "Madanapalle" })}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                               <b style={{ color: COLORS.primary, fontSize: "15px" }}>Vikram Reddy</b>
+                               <span style={{ fontSize: "10px", background: COLORS.secondary, color: "#fff", padding: "4px 8px", borderRadius: "12px", fontWeight: "800" }}>VERIFIED</span>
+                            </div>
+                            <span style={{fontSize: "12px", color: COLORS.muted, display: "block", marginTop: "4px", fontWeight: "600"}}>📱 9848010000 • 📍 Madanapalle</span>
+                         </div>
+                      </div>
+                   </Card>
+
+                   {selectedConnFarmer ? (
+                   <Card style={{ background: "linear-gradient(135deg, #2d4137 0%, #1e293b 100%)", color: "#fff", border: "none", boxShadow: "0 25px 50px -12px rgba(45, 65, 55, 0.4)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "32px" }}>
+                         <div>
+                            <h2 style={{ margin: "0 0 8px 0", color: COLORS.secondary, fontSize: "32px", fontWeight: "900", letterSpacing: "1px" }}>{selectedConnFarmer.name}</h2>
+                            <div style={{ fontSize: "13px", opacity: 0.8, display: "flex", gap: "16px" }}>
+                               <span><b style={{opacity:0.6}}>Mobile:</b> {selectedConnFarmer.phone}</span>
+                               <span><b style={{opacity:0.6}}>Origin:</b> {selectedConnFarmer.village}</span>
+                            </div>
+                         </div>
+                         <div style={{ background: "rgba(255,255,255,0.05)", padding: "16px 24px", borderRadius: "20px", textAlign: "right", minWidth: "150px" }}>
+                            <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "1.5px", opacity: 0.6, fontWeight: "800", marginBottom: "4px" }}>Pending Settlement</div>
+                            <b style={{ fontSize: "28px", color: "#fbbf24", fontWeight: "900" }}>₹ 45,200</b>
+                         </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+                         {[
+                            { l: "Lots Supplied", v: "14", c: "#fff", bg: "rgba(255,255,255,0.1)" },
+                            { l: "QTY Supplied", v: "8,500 KG", c: "#fff", bg: "rgba(255,255,255,0.1)" },
+                            { l: "QTY Sold", v: "7,900 KG", c: COLORS.secondary, bg: "rgba(159,180,67,0.1)" },
+                            { l: "Gross Sale", v: "₹ 4,25,000", c: "#fff", bg: "rgba(255,255,255,0.1)" },
+                            { l: "Expenses Deducted", v: "₹ 21,250", c: "#fca5a5", bg: "rgba(248, 113, 113, 0.1)" },
+                            { l: "Net Paid", v: "₹ 3,58,550", c: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
+                            { l: "Last Supply Date", v: "24/03/2026", c: "#fff", bg: "rgba(255,255,255,0.1)" }
+                         ].map((x,i) => (
+                            <div key={i} style={{ padding: "16px", background: x.bg, borderRadius: "16px" }}>
+                               <div style={{ fontSize: "11px", opacity: 0.7, marginBottom: "6px", fontWeight: "700" }}>{x.l}</div>
+                               <b style={{ fontSize: "18px", color: x.c, fontWeight: "900" }}>{x.v}</b>
+                            </div>
+                         ))}
+                      </div>
+                   </Card>
+                   ) : (
+                   <Card style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "250px", color: COLORS.muted, background: "rgba(255,255,255,0.5)", backdropFilter: "blur(20px)" }}>
+                      <div style={{ textAlign: "center" }}>
+                         <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>🔗</span>
+                         <h3 style={{ margin: 0, color: COLORS.sidebar }}>Connection Matrix Standby</h3>
+                         <p style={{ margin: "8px 0 0 0", fontSize: "14px" }}>Select a farmer to generate exhaustive traceability intelligence.</p>
+                      </div>
+                   </Card>
+                   )}
+                </div>
+
+                {selectedConnFarmer && (
+                <>
+                {/* SMART ALERT */}
+                <div style={{ background: "#fef2f2", color: "#991b1b", padding: "18px 24px", borderRadius: "20px", border: "1.5px solid #fecaca", display: "flex", alignItems: "center", gap: "16px", fontWeight: "800", boxShadow: "0 10px 20px rgba(220, 38, 38, 0.05)" }}>
+                   <span style={{ fontSize: "24px" }}>⚠️</span>
+                   <div>
+                      <div style={{ fontSize: "14px", letterSpacing: "0.5px" }}>HIGH RISK ALERTS LINKED TO CURRENT PRODUCE:</div>
+                      <div style={{ fontSize: "12px", opacity: 0.8, fontWeight: "600", marginTop: "4px" }}>Buyer <b>'Reliance Fresh'</b> holds pending ₹1,45,000 affecting the liquidation of this farmer's supply. Escalate collection strategy.</div>
+                   </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "3.5fr 1fr", gap: "32px" }}>
+                   {/* MIDDLE: Live Traceability Table */}
+                   <Card title="Detailed Connection & Sales Ledger" subtitle="Immutable Farmer-to-Buyer Log" style={{ overflow: "hidden", padding: 0 }}>
+                      <div style={{ padding: "24px" }}>
+                         <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "24px" }}>
+                            {["Date Range", "Buyer Name", "Product", "Variety", "Grade", "Payment Mode", "Balance Pending"].map(f => (
+                               <select key={f} style={{ padding: "10px 16px", borderRadius: "10px", border: "1.5px solid #e2e8f0", outline: "none", fontSize: "12px", fontWeight: "700", color: COLORS.text, background: "#f8fafc" }}>
+                                  <option>{f} filter...</option>
+                               </select>
+                            ))}
+                         </div>
+                         
+                         <div style={{ overflowX: "auto", border: "1.5px solid #f1f5f9", borderRadius: "20px", background: "#fff" }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", whiteSpace: "nowrap" }}>
+                               <thead>
+                                  <tr style={{ background: "#0f172a", color: "#fff", textAlign: "left" }}>
+                                     <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>DATE & TIME</th>
+                                     <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>LOT ID</th>
+                                     <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>PRODUCE SPEC</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>QTY (KG)</th>
+                                     <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>BUYER IDENTITY</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>RATE (₹)</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>AMOUNT (₹)</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>PAID</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px", color: "#fbbf24" }}>BALANCE</th>
+                                     <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px" }}>INVOICE</th>
+                                  </tr>
+                               </thead>
+                               <tbody>
+                                  {/* Row 1 */}
+                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Reliance Fresh", phone: "9959012345", address: "Stall #102, Market Yard", totalPurchases: "₹ 4.5L", preferredProducts: ["Mango Alphonso (80%)", "Banana Yelakki (20%)"], paymentBehavior: "Delayed (15 days average)", outstanding: "₹ 1,45,000" })}>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>24/03/2026</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Tuesday, 6:45 AM</span></td>
+                                     <td style={{ padding: "16px", color: COLORS.primary, fontWeight: "900" }}>LOT-2026-X11</td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Mango</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Alphonso • A Grade</span></td>
+                                     <td style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "13px" }}>1,200</td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Reliance Fresh</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9959012345 • Stall #102</span></td>
+                                     <td style={{ padding: "16px", textAlign: "right", color: COLORS.success, fontWeight: "900", fontSize: "13px" }}>45.00</td>
+                                     <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", fontSize: "13px" }}>54,000</td>
+                                     <td style={{ padding: "16px", textAlign: "right" }}><b style={{ fontSize: "13px" }}>24,000</b><br/><span style={{ color: "#3b82f6", fontSize: "10px", fontWeight: "800", display: "inline-block", padding: "2px 6px", background: "#eff6ff", borderRadius: "6px", marginTop: "2px" }}>UPI Transfer</span></td>
+                                     <td style={{ padding: "16px", textAlign: "right", color: COLORS.danger, fontWeight: "900", fontSize: "13px" }}>30,000</td>
+                                     <td style={{ padding: "16px" }}><span style={{ color: "#fff", background: "#334155", padding: "6px 10px", borderRadius: "8px", fontWeight: "800", fontSize: "10px" }}>INV-2026-X01</span></td>
+                                  </tr>
+                                  {/* Row 2 */}
+                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Harsha Wholesale", phone: "9898989898", address: "Stall #45, New Block", totalPurchases: "₹ 1.2L", preferredProducts: ["Banana Yelakki (100%)"], paymentBehavior: "Excellent (Same day cash)", outstanding: "₹ 0" })}>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>23/03/2026</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Monday, 8:15 AM</span></td>
+                                     <td style={{ padding: "16px", color: COLORS.primary, fontWeight: "900" }}>LOT-2026-X09</td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Banana</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Yelakki • Premium</span></td>
+                                     <td style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "13px" }}>850</td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Harsha Wholesale</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9898989898 • Stall #45</span></td>
+                                     <td style={{ padding: "16px", textAlign: "right", color: COLORS.success, fontWeight: "900", fontSize: "13px" }}>32.00</td>
+                                     <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", fontSize: "13px" }}>27,200</td>
+                                     <td style={{ padding: "16px", textAlign: "right" }}><b style={{ fontSize: "13px" }}>27,200</b><br/><span style={{ color: COLORS.success, fontSize: "10px", fontWeight: "800", display: "inline-block", padding: "2px 6px", background: "#f0fdf4", borderRadius: "6px", marginTop: "2px" }}>Cash Payment</span></td>
+                                     <td style={{ padding: "16px", textAlign: "right", color: COLORS.muted, fontWeight: "900", fontSize: "13px" }}>0</td>
+                                     <td style={{ padding: "16px" }}><span style={{ color: "#fff", background: "#334155", padding: "6px 10px", borderRadius: "8px", fontWeight: "800", fontSize: "10px" }}>INV-2026-X02</span></td>
+                                  </tr>
+                               </tbody>
+                            </table>
+                         </div>
+                      </div>
+                   </Card>
+
+                   {/* RIGHT PANEL: Buyer Details Snapshot */}
+                   <div>
+                      <Card title="Buyer Snapshot" subtitle="Select trade log to inspect" style={{ position: "sticky", top: "20px" }}>
+                         {connSelectedBuyer ? (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "24px", animation: "slideUp 0.3s" }}>
+                               <div style={{ background: "#f8fafc", padding: "24px", borderRadius: "20px", border: "1.5px solid #e2e8f0" }}>
+                                  <h3 style={{ margin: "0 0 8px 0", color: COLORS.sidebar, fontSize: "20px" }}>{connSelectedBuyer.name}</h3>
+                                  <div style={{ fontSize: "13px", color: COLORS.muted, fontWeight: "600", display: "flex", flexDirection: "column", gap: "6px" }}>
+                                    <span>📞 {connSelectedBuyer.phone}</span>
+                                    <span>📍 {connSelectedBuyer.address}</span>
+                                  </div>
+                                  
+                                  <div style={{ marginTop: "24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                                     <div>
+                                        <small style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Lifetime Sourced</small>
+                                        <div style={{ fontSize: "18px", fontWeight: "900", color: COLORS.sidebar, marginTop: "4px" }}>{connSelectedBuyer.totalPurchases}</div>
+                                     </div>
+                                     <div>
+                                        <small style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Unsettled Balance</small>
+                                        <div style={{ fontSize: "18px", fontWeight: "900", color: connSelectedBuyer.outstanding === "₹ 0" ? COLORS.success : COLORS.danger, marginTop: "4px" }}>{connSelectedBuyer.outstanding}</div>
+                                     </div>
+                                  </div>
+                               </div>
+                               <div>
+                                  <small style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>Payment Habit Indicator</small>
+                                  <div style={{ padding: "16px", background: connSelectedBuyer.outstanding === "₹ 0" ? "#f0fdf4" : "#fef3c7", color: connSelectedBuyer.outstanding === "₹ 0" ? "#166534" : "#b45309", borderRadius: "16px", fontSize: "13px", fontWeight: "800" }}>
+                                     {connSelectedBuyer.paymentBehavior}
+                                  </div>
+                               </div>
+                               <div>
+                                  <small style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>Commodity Preferences</small>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                                     {connSelectedBuyer.preferredProducts.map((pp, idx) => (
+                                        <span key={idx} style={{ fontSize: "12px", padding: "8px 16px", background: "#e2e8f0", color: COLORS.sidebar, borderRadius: "24px", fontWeight: "700" }}>{pp}</span>
+                                     ))}
+                                  </div>
+                               </div>
+                            </div>
+                         ) : (
+                            <div style={{ textAlign: "center", opacity: 0.5, padding: "60px 0" }}>
+                               <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>👉</span>
+                               <p style={{ fontWeight: "600", fontSize: "15px", lineHeight: "1.5" }}>Click any transaction row in the matrix to unmask buyer intelligence.</p>
+                            </div>
+                         )}
+                      </Card>
+                   </div>
+                </div>
+
+                {/* BOTTOM: Sub-Analytics Layer */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "32px" }}>
+                   {/* Product Analytics */}
+                   <Card title="Product Analytics" subtitle="Market disposal efficiency by crop">
+                      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                         <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "20px", borderLeft: `6px solid ${COLORS.primary}`, boxShadow: "0 4px 10px rgba(0,0,0,0.02)" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                               <b style={{ fontSize: "16px" }}>Mango Alphonso</b>
+                               <span style={{ fontSize: "11px", fontWeight: "800", color: "#fff", background: COLORS.success, padding: "4px 10px", borderRadius: "10px", textTransform: "uppercase" }}>Top Volume</span>
+                            </div>
+                            <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                               <span>Supplies Cleared: <b style={{color: COLORS.text}}>4,000 KG</b></span>
+                               <span>Yield Rate: <b style={{color: COLORS.success}}>₹ 42.50 Avg</b></span>
+                            </div>
+                            <div style={{ marginTop: "12px", fontSize: "12px", color: COLORS.text, background: "#fff", padding: "10px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>Major Acquirer: <b style={{ color: COLORS.primary }}>Harsha Wholesale (45%)</b></div>
+                         </div>
+                         
+                         <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "20px", borderLeft: `6px solid ${COLORS.secondary}`, boxShadow: "0 4px 10px rgba(0,0,0,0.02)" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                               <b style={{ fontSize: "16px" }}>Banana Yelakki</b>
+                               <span style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, background: "#f1f5f9", padding: "4px 10px", borderRadius: "10px", textTransform: "uppercase" }}>Stable</span>
+                            </div>
+                            <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                               <span>Supplies Cleared: <b style={{color: COLORS.text}}>2,500 KG</b></span>
+                               <span>Yield Rate: <b style={{color: COLORS.success}}>₹ 31.00 Avg</b></span>
+                            </div>
+                            <div style={{ marginTop: "12px", fontSize: "12px", color: COLORS.text, background: "#fff", padding: "10px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>Major Acquirer: <b style={{ color: COLORS.primary }}>Reliance Fresh (82%)</b></div>
+                         </div>
+                      </div>
+                   </Card>
+
+                   {/* Payment Tracking */}
+                   <Card title="Payment Flow Intelligence" subtitle="Tracing origin limits & liquidity generation">
+                      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
+                            <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Gross Generated</span>
+                            <b style={{ fontSize: "20px", color: COLORS.sidebar }}>₹ 4,25,000</b>
+                         </div>
+                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
+                            <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.success, textTransform: "uppercase" }}>Amount Liquidated</span>
+                            <b style={{ fontSize: "20px", color: COLORS.success }}>₹ 3,45,000</b>
+                         </div>
+                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
+                            <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.danger, textTransform: "uppercase" }}>Deficit Balance</span>
+                            <b style={{ fontSize: "20px", color: COLORS.danger }}>₹ 80,000</b>
+                         </div>
+                         
+                         <div style={{ marginTop: "8px" }}>
+                            <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, letterSpacing: "1px", display: "block", marginBottom: "12px" }}>PAYMENT APPARATUS DISTRIBUTION</span>
+                            <div style={{ display: "flex", gap: "12px" }}>
+                               <div style={{ flex: 1, background: "#f8fafc", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #e2e8f0" }}>
+                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>💵</div>
+                                  <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.sidebar }}>30% CASH</div>
+                               </div>
+                               <div style={{ flex: 1, background: "#f8fafc", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #e2e8f0" }}>
+                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>📱</div>
+                                  <div style={{ fontSize: "11px", fontWeight: "900", color: "#3b82f6" }}>65% UPI</div>
+                               </div>
+                               <div style={{ flex: 1, background: "#fef2f2", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #fecaca" }}>
+                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>⏳</div>
+                                  <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.danger }}>5% DEBT</div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                   </Card>
+
+                   {/* Timing Algorithms */}
+                   <Card title="Time Array Analytics" subtitle="Biological lifecycle & market disposal velocities">
+                       <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "20px", background: "#f8fafc" }}>
+                         <table style={{ width: "100%", fontSize: "12px", textAlign: "left", borderCollapse: "collapse" }}>
+                            <thead>
+                               <tr style={{ color: COLORS.muted, background: "rgba(0,0,0,0.03)" }}>
+                                  <th style={{ padding: "16px", fontWeight: "800", fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px" }}>DAY PATTERN</th>
+                                  <th style={{ padding: "16px", fontWeight: "800", fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px" }}>OPTIMAL CLEARANCE WINDOW</th>
+                                  <th style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px" }}>VOLUME</th>
+                               </tr>
+                            </thead>
+                            <tbody>
+                               {[{d: "Monday", t: "06:00 AM - 08:30 AM", v: "2,400"}, {d: "Tuesday", t: "05:45 AM - 07:00 AM", v: "1,850"}, {d: "Thursday", t: "07:00 AM - 10:00 AM", v: "3,100"}].map((row,i) => (
+                                  <tr key={i} style={{ borderBottom: "1px solid #e2e8f0", background: "#fff" }}>
+                                     <td style={{ padding: "16px", fontWeight: "800", color: COLORS.sidebar }}>{row.d}</td>
+                                     <td style={{ padding: "16px", color: COLORS.muted, fontWeight: "600" }}>{row.t}</td>
+                                     <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.primary }}>{row.v} KG</td>
+                                  </tr>
+                               ))}
+                            </tbody>
+                         </table>
+                      </div>
+                      <div style={{ marginTop: "24px", background: "rgba(159, 180, 67, 0.1)", padding: "16px", borderRadius: "16px", border: `1px solid ${COLORS.secondary}40`, fontSize: "12px", color: COLORS.sidebar, fontWeight: "600", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                         <span style={{ fontSize: "16px" }}>💡</span>
+                         <span>Insight: Produce supplied on Thursdays accounts for highest liquidation volumes despite late timing windows.</span>
+                      </div>
+                   </Card>
+                </div>
+                </>
+                )}
+             </div>
+          )}
+
           {/* 16. Search & Filters */}
           {activeSection === "Search & Filters" && (
             <Card title="Matrix Search Terminal" subtitle="Universal lookup for the Mandi ecosystem">
