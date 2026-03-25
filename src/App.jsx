@@ -604,7 +604,6 @@ export default function App() {
   const ALL_MENU = [
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "User Role", icon: "👥", roles: ["Admin"] },
-    { id: "Supplier", icon: "👨‍🌾", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
     { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant"] },
     { id: "Farmer Billing", icon: "⚖️", roles: ["Admin", "Accountant"] }, // Linked to Settlement Bill rendering
