@@ -1793,70 +1793,11 @@ export default function App() {
                         </div>
 
                         {/* Financials & Charges Block */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "64px", marginTop: "48px", borderTop: "2px solid #f1f5f9", paddingTop: "48px" }}>
-                           <div>
-                              <h4 style={{ color: COLORS.secondary, marginBottom: "24px" }}>💸 ADDITIONAL CHARGES</h4>
-                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                                 <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "16px" }}>
-                                    <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.6 }}>COMMISSION (₹)</label>
-                                    <input type="number" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}}))} />
-                                 </div>
-                                 <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "16px" }}>
-                                    <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.6 }}>FREIGHT / TRANSPORT</label>
-                                    <input type="number" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}}))} />
-                                 </div>
-                              </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
-                                 <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "16px" }}>
-                                    <label style={{ fontSize: "11px", fontWeight: "900", opacity: 0.6 }}>HAMALI / HANDLING</label>
-                                    <input type="number" style={{ width: "100%", background: "none", border: "none", fontSize: "20px", fontWeight: "800", outline: "none" }} value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}}))} />
-                                 </div>
-                                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                                     {buyerInvoiceForm.charges.other.map((c, ci) => (
-                                       <div key={ci} style={{ background: "#fcf6f0", padding: "12px 16px", borderRadius: "16px", border: "1px solid #feeac8" }}>
-                                          <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                             <input 
-                                                style={{ fontSize: "10px", fontWeight: "900", color: "#856404", background: "none", border: "none", outline: "none", width: "70%" }} 
-                                                value={c.label}
-                                                onChange={e => {
-                                                   const no = [...buyerInvoiceForm.charges.other];
-                                                   no[ci].label = e.target.value;
-                                                   setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}});
-                                                }}
-                                             />
-                                             <button onClick={() => {
-                                                const no = buyerInvoiceForm.charges.other.filter((_, i) => i !== ci);
-                                                setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}}));
-                                             }} style={{ background: "none", border: "none", color: COLORS.danger, cursor: "pointer", fontSize: "10px" }}>✕</button>
-                                          </div>
-                                          <input 
-                                             type="number" 
-                                             style={{ width: "100%", background: "none", border: "none", fontSize: "16px", fontWeight: "800", outline: "none" }} 
-                                             value={c.amount}
-                                             onChange={e => {
-                                                const no = [...buyerInvoiceForm.charges.other];
-                                                no[ci].amount = Number(e.target.value);
-                                                setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}}));
-                                             }}
-                                          />
-                                       </div>
-                                     ))}
-                                     <button 
-                                       onClick={() => {
-                                          const no = [...buyerInvoiceForm.charges.other, { label: "NEW CHARGE", amount: 0 }];
-                                          setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, other: no}});
-                                       }}
-                                       style={{ padding: "10px", borderRadius: "12px", border: "1.5px dashed #feeac8", background: "none", color: "#856404", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
-                                     >+ Add Custom Charge</button>
-                                  </div>
-                              </div>
-                           </div>
-
-                           <div style={{ background: "#0f172a", color: "#fff", padding: "48px", borderRadius: "40px", boxShadow: "0 30px 60px rgba(0,0,0,0.15)" }}>
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "48px", borderTop: "2px solid #f1f5f9", paddingTop: "48px" }}>
+                           <div style={{ width: "100%", maxWidth: "400px", background: "#0f172a", color: "#fff", padding: "48px", borderRadius: "40px", boxShadow: "0 30px 60px rgba(0,0,0,0.15)" }}>
                               <h4 style={{ margin: "0 0 32px 0", color: COLORS.accent, letterSpacing: "2px" }}>INVOICE SUMMARY</h4>
                               <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                                  <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.6 }}><span>SUB-TOTAL AMOUNT</span><b>{formatCurrency(buyerInvoiceForm.subTotal)}</b></div>
-                                 <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.6 }}><span>TOTAL ADDL. CHARGES</span><b>{formatCurrency(buyerInvoiceForm.totalCharges)}</b></div>
                                  
                                  <div style={{ borderTop: "1.5px solid rgba(255,255,255,0.12)", paddingTop: "24px", display: "flex", justifyContent: "space-between", fontSize: "32px", fontWeight: "900" }}>
                                     <span style={{ color: COLORS.accent }}>GRAND TOTAL</span>
