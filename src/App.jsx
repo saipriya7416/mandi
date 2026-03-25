@@ -19,16 +19,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 // --- JAMANGO DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#335345", // Deep Forest Green from Logo
-  secondary: "#335345", 
-  bg: "#FAF7EF", // Warm Cream from Logo Background
+  primary: "#10B981", // Vibrant Emerald (Modern Rich Green)
+  secondary: "#064E3B", // Deep Jade (For Sidebar/Text)
+  bg: "#F1F5F9", // Modern Light Slate 
   card: "#FFFFFF",
-  text: "#335345", // High contrast using the primary brand color
-  muted: "#8A9F94", // Muted version of the brand green
-  success: "#166534",
-  danger: "#991B1B",
-  accent: "#A1B964", // Fresh Olive Green from Logo fruit
-  sidebar: "#335345" 
+  text: "#1e293b", // Deep Slate for Rich Contrast
+  muted: "#64748b",
+  success: "#059669",
+  danger: "#dc2626",
+  accent: "#F59E0B", // Amber Gold 
+  sidebar: "#064E3B" 
 };
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -746,17 +746,17 @@ export default function App() {
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff", "Viewer"] },
-    { id: "User Role", icon: "👥", roles: ["Admin", "Operations Staff"] },
+    { id: "User Role", icon: "👥", roles: ["Admin", "Operations Staff"], label: "Profiles" },
     { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
-    { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Farmer Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant", "Viewer"] },
     { id: "Payment & Settlement Management", icon: "💳", roles: ["Admin", "Accountant"] },
+    { id: "Transportation Tracking", icon: "🚚", roles: ["Admin", "Operations Staff", "Accountant"] },
+    { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Reports", icon: "📄", roles: ["Admin", "Accountant", "Viewer"] },
     { id: "Product Master & Configuration", icon: "⚙️", roles: ["Admin"] },
     { id: "User Roles, Access Control & Security", icon: "🛡️", roles: ["Admin"] },
-    { id: "Transportation Tracking", icon: "🚚", roles: ["Admin", "Operations Staff", "Accountant"] },
-    { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Document Management", icon: "📂", roles: ["Admin"] }
   ];
 
@@ -766,16 +766,20 @@ export default function App() {
 
   if (!loggedIn) {
     return (
-      <div style={{ height: "100vh", background: "#335345", display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: "radial-gradient(circle at 50% 50%, #4a6d5c 0%, #335345 100%)" }}>
-        <Card style={{ width: "450px", textAlign: "center", padding: "60px 50px", borderRadius: "32px", border: "none" }}>
+      <div style={{ height: "100vh", background: COLORS.sidebar, display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: `radial-gradient(circle at 50% 50%, ${COLORS.primary} 0%, ${COLORS.sidebar} 100%)` }}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+          * { font-family: 'Outfit', sans-serif !important; }
+        `}</style>
+        <Card style={{ width: "450px", textAlign: "center", padding: "60px 50px", borderRadius: "32px", border: "none", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-             <div style={{ position: "relative", width: "84px", height: "84px", background: "#A1B964", borderRadius: "42px", display: "flex", alignItems: "center", justifyContent: "center", color: "#335345", fontSize: "28px", fontWeight: "900", border: "2px solid #335345" }}>
+             <div style={{ position: "relative", width: "84px", height: "84px", background: COLORS.accent, borderRadius: "42px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.sidebar, fontSize: "28px", fontWeight: "900", border: `2px solid ${COLORS.sidebar}` }}>
                 SPV
-                <div style={{ position: "absolute", top: "-10px", width: "20px", height: "20px", background: "#335345", borderRadius: "50% 50% 0 50%", transform: "rotate(45deg)" }}></div>
+                <div style={{ position: "absolute", top: "-10px", width: "20px", height: "20px", background: COLORS.sidebar, borderRadius: "50% 50% 0 50%", transform: "rotate(45deg)" }}></div>
              </div>
           </div>
-          <h1 style={{ margin: "10px 0 8px", fontWeight: "900", color: "#335345", fontSize: "32px", letterSpacing: "-1px" }}>SPV FRUITS</h1>
-          <p style={{ color: "#8A9F94", marginBottom: "48px", fontSize: "11px", letterSpacing: "2px", textTransform: "uppercase", fontWeight: "850", opacity: 0.8 }}>Orchard Admin Console</p>
+          <h1 style={{ margin: "10px 0 8px", fontWeight: "900", color: COLORS.secondary, fontSize: "32px", letterSpacing: "-1px" }}>SPV FRUITS</h1>
+          <p style={{ color: COLORS.muted, marginBottom: "48px", fontSize: "11px", letterSpacing: "2px", textTransform: "uppercase", fontWeight: "850", opacity: 0.8 }}>Orchard Admin Console</p>
           
           <div style={{ textAlign: "left" }}>
             <Input 
@@ -793,10 +797,10 @@ export default function App() {
             />
           </div>
           
-          <Button onClick={handleLogin} style={{ width: "100%", height: "58px", fontSize: "16px", marginTop: "12px" }}>Initialize Command Deck</Button>
+          <Button onClick={handleLogin} style={{ width: "100%", height: "58px", fontSize: "16px", marginTop: "12px", background: COLORS.sidebar }}>Initialize Command Deck</Button>
           
           <div style={{ marginTop: "32px", fontSize: "11px", color: COLORS.muted, fontWeight: "600", letterSpacing: "0.5px" }}>
-            ⚡ SYSTEM v4.2.0 • COMPLIANT WITH RBAC PROTOCOLS
+            ⚡ SYSTEM v4.3.0 • SECURED WITH OUTFIT TYPOGRAPHY
           </div>
         </Card>
       </div>
@@ -809,8 +813,12 @@ export default function App() {
       background: COLORS.bg, 
       display: "flex", 
       flexDirection: isMobile ? "column" : "row",
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+      fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif" 
     }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+        * { font-family: 'Outfit', sans-serif !important; }
+      `}</style>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
         <div style={{ 
