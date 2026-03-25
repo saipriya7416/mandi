@@ -1847,33 +1847,6 @@ export default function App() {
                      </div>
                   </div>
 
-                  {/* Traceability Panel Footer */}
-                  <Card title="📜 INVOICE TRACEABILITY AUDIT" subtitle="Link every product line back to its farmer arrival">
-                     <div style={{ overflowX: "auto" }}>
-                        <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" }}>
-                           <thead>
-                              <tr style={{ background: "#f8fafc", textAlign: "left", fontSize: "11px", opacity: 0.6 }}>
-                                 <th style={{ padding: "12px" }}>PRODUCT</th>
-                                 <th style={{ padding: "12px" }}>FARMER SOURCE</th>
-                                 <th style={{ padding: "12px" }}>LOT IDENTITY</th>
-                                 <th style={{ padding: "12px" }}>MANDI ORIGIN</th>
-                                 <th style={{ padding: "12px", textAlign: "right" }}>VOLUME (%)</th>
-                              </tr>
-                           </thead>
-                           <tbody style={{ fontSize: "13px" }}>
-                              {buyerInvoiceForm.items.map((item, idx) => (
-                                <tr key={idx} style={{ background: "#fff", borderBottom: "1px solid #f1f5f9" }}>
-                                   <td style={{ padding: "12px" }}><b>{item.productLabel || "---"}</b></td>
-                                   <td style={{ padding: "12px" }}>{lots.find(l => l.lotId === item.lotId)?.supplier?.name || "Multiple Sources"}</td>
-                                   <td style={{ padding: "12px" }}><span style={{ color: COLORS.primary, fontWeight: "700" }}>{item.lotId || "N/A"}</span></td>
-                                   <td style={{ padding: "12px" }}>{lots.find(l => l.lotId === item.lotId)?.origin || "South Region"}</td>
-                                   <td style={{ padding: "12px", textAlign: "right" }}>100%</td>
-                                </tr>
-                              ))}
-                           </tbody>
-                        </table>
-                     </div>
-                  </Card>
                </div>
 
                {/* RIGHT COLUMN: BUYER INTEL & REGISTER */}
