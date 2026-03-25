@@ -19,16 +19,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 // --- JAMANGO DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#10B981", // Vibrant Emerald (Modern Rich Green)
-  secondary: "#064E3B", // Deep Jade (For Sidebar/Text)
-  bg: "#F1F5F9", // Modern Light Slate 
+  primary: "#375144", // Logo Forest Green (Authoritative)
+  secondary: "#9fb443", // Logo Olive/Lime (Growth)
+  bg: "#fcf9f1", // Logo Light Cream (Premium Paper)
   card: "#FFFFFF",
-  text: "#1e293b", // Deep Slate for Rich Contrast
+  text: "#1e293b",
   muted: "#64748b",
-  success: "#059669",
+  success: "#375144", // Use primary for success too
   danger: "#dc2626",
-  accent: "#F59E0B", // Amber Gold 
-  sidebar: "#064E3B" 
+  accent: "#9fb443", // Use secondary for accent
+  sidebar: "#2d4137" // Darker brand green
 };
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -766,43 +766,46 @@ export default function App() {
 
   if (!loggedIn) {
     return (
-      <div style={{ height: "100vh", background: COLORS.sidebar, display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: `radial-gradient(circle at 50% 50%, ${COLORS.primary} 0%, ${COLORS.sidebar} 100%)` }}>
+      <div style={{ height:"100vh", background:"#fcf9f1", display:"flex", justifyContent:"center", alignItems:"center", position:"relative", overflow:"hidden" }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
           * { font-family: 'Outfit', sans-serif !important; }
+          @keyframes floatUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+          .spv-input:focus { border-color: #9fb443 !important; }
+          .spv-btn:hover { transform:translateY(-3px) !important; box-shadow:0 20px 45px rgba(55,81,68,0.45) !important; }
         `}</style>
-        <Card style={{ width: "450px", textAlign: "center", padding: "60px 50px", borderRadius: "32px", border: "none", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-             <div style={{ position: "relative", width: "84px", height: "84px", background: COLORS.accent, borderRadius: "42px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.sidebar, fontSize: "28px", fontWeight: "900", border: `2px solid ${COLORS.sidebar}` }}>
-                SPV
-                <div style={{ position: "absolute", top: "-10px", width: "20px", height: "20px", background: COLORS.sidebar, borderRadius: "50% 50% 0 50%", transform: "rotate(45deg)" }}></div>
-             </div>
+        <div style={{ position:"absolute", top:"-150px", right:"-120px", width:"550px", height:"550px", background:"#375144", borderRadius:"50%", opacity:0.05 }} />
+        <div style={{ position:"absolute", bottom:"-120px", left:"-100px", width:"420px", height:"420px", background:"#9fb443", borderRadius:"50%", opacity:0.07 }} />
+        <div style={{ animation:"floatUp 0.5s ease-out", width:"460px", background:"#ffffff", borderRadius:"40px", padding:"56px 50px 48px", boxShadow:"0 30px 70px rgba(55,81,68,0.15)", border:"1.5px solid rgba(159,180,67,0.2)", textAlign:"center", position:"relative", zIndex:1 }}>
+          <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
+            <div style={{ position:"relative", width:"96px", height:"96px", background:"linear-gradient(145deg, #375144, #2d4137)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 14px 35px rgba(55,81,68,0.35)" }}>
+              <div style={{ position:"absolute", inset:"7px", borderRadius:"50%", border:"3.5px solid #9fb443", opacity:0.65 }} />
+              <div style={{ position:"absolute", inset:"14px", borderRadius:"50%", border:"2px solid #9fb443", opacity:0.25 }} />
+              <span style={{ color:"#9fb443", fontSize:"20px", fontWeight:"900", letterSpacing:"-0.5px", zIndex:1 }}>SPV</span>
+              <div style={{ position:"absolute", top:"12px", right:"14px", width:"12px", height:"8px", background:"#9fb443", borderRadius:"50%", transform:"rotate(-35deg)", opacity:0.9 }} />
+            </div>
           </div>
-          <h1 style={{ margin: "10px 0 8px", fontWeight: "900", color: COLORS.secondary, fontSize: "32px", letterSpacing: "-1px" }}>SPV FRUITS</h1>
-          <p style={{ color: COLORS.muted, marginBottom: "48px", fontSize: "11px", letterSpacing: "2px", textTransform: "uppercase", fontWeight: "850", opacity: 0.8 }}>Orchard Admin Console</p>
-          
-          <div style={{ textAlign: "left" }}>
-            <Input 
-              label="Staff Identity"
-              placeholder="Username" 
-              value={authForm.username} 
-              onChange={(e) => setAuthForm({ ...authForm, username: e.target.value })} 
-            />
-            <Input 
-              label="Secret Access Key"
-              type="password" 
-              placeholder="••••••••" 
-              value={authForm.password} 
-              onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })} 
-            />
+          <h1 style={{ margin:"0 0 4px", fontWeight:"900", color:"#375144", fontSize:"32px", letterSpacing:"-1.5px" }}>SPV FRUITS</h1>
+          <p style={{ color:"#9fb443", marginBottom:"44px", fontSize:"10px", letterSpacing:"3.5px", textTransform:"uppercase", fontWeight:"900" }}>Orchard Admin Console</p>
+          <div style={{ textAlign:"left" }}>
+            <div style={{ marginBottom:"18px" }}>
+              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Identity</label>
+              <input className="spv-input" type="text" placeholder="Enter username" value={authForm.username} onChange={e=>setAuthForm({...authForm,username:e.target.value})} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+            </div>
+            <div>
+              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Secret Access Key</label>
+              <input className="spv-input" type="password" placeholder="••••••••" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+            </div>
           </div>
-          
-          <Button onClick={handleLogin} style={{ width: "100%", height: "58px", fontSize: "16px", marginTop: "12px", background: COLORS.sidebar }}>Initialize Command Deck</Button>
-          
-          <div style={{ marginTop: "32px", fontSize: "11px", color: COLORS.muted, fontWeight: "600", letterSpacing: "0.5px" }}>
-            ⚡ SYSTEM v4.3.0 • SECURED WITH OUTFIT TYPOGRAPHY
+          <button className="spv-btn" onClick={handleLogin} style={{ width:"100%", height:"58px", fontSize:"16px", fontWeight:"900", marginTop:"28px", background:"linear-gradient(135deg, #375144 0%, #2d4137 100%)", color:"#ffffff", border:"none", borderRadius:"18px", cursor:"pointer", letterSpacing:"0.5px", boxShadow:"0 12px 30px rgba(55,81,68,0.3)", transition:"all 0.25s" }}>
+            🔐 Initialize Command Deck
+          </button>
+          <div style={{ marginTop:"32px", paddingTop:"20px", borderTop:"1.5px solid rgba(159,180,67,0.2)", display:"flex", justifyContent:"center", alignItems:"center", gap:"8px" }}>
+            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
+            <span style={{ fontSize:"10px", color:"#64748b", fontWeight:"700", letterSpacing:"0.5px" }}>SYSTEM v4.3.0 • SPV FRUITS ERP</span>
+            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -822,7 +825,7 @@ export default function App() {
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
         <div style={{ 
-          background: "#0f172a", 
+          background: "#2d4137", 
           padding: "16px 20px", 
           display: "flex", 
           justifyContent: "space-between", 
@@ -832,7 +835,7 @@ export default function App() {
           zIndex: 1000,
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
         }}>
-          <h2 style={{ color: COLORS.primary, margin: 0, fontSize: "20px" }}>Mandi ERP</h2>
+          <h2 style={{ color: "#9fb443", margin: 0, fontSize: "20px", fontWeight:"900" }}>SPV Fruits</h2>
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}
@@ -858,11 +861,14 @@ export default function App() {
           transition: "left 0.3s ease-in-out",
           boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
         }}>
-          <div style={{ padding: "0 24px 32px 24px", display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ background: COLORS.accent, width: "42px", height: "42px", borderRadius: "21px", display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.sidebar, fontSize: "16px", fontWeight: "900", border: "1.5px solid rgba(255,255,255,0.2)" }}>SPV</div>
+          <div style={{ padding: "0 24px 32px 24px", display: "flex", alignItems: "center", gap: "14px" }}>
+            <div style={{ position:"relative", background: "linear-gradient(145deg, #375144, #2d4137)", width: "48px", height: "48px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow:"0 6px 18px rgba(0,0,0,0.3)" }}>
+              <div style={{ position:"absolute", inset:"4px", borderRadius:"50%", border:"2px solid #9fb443", opacity:0.5 }} />
+              <span style={{ color:"#9fb443", fontSize:"13px", fontWeight:"900", zIndex:1 }}>SPV</span>
+            </div>
             <div>
               <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "-0.5px", margin: 0 }}>SPV FRUITS</h2>
-              <p style={{ color: COLORS.accent, fontSize: "10px", margin: "2px 0 0", fontWeight: "750", textTransform: "uppercase", letterSpacing: "0.5px" }}>Orchard Admin</p>
+              <p style={{ color: "#9fb443", fontSize: "10px", margin: "2px 0 0", fontWeight: "750", textTransform: "uppercase", letterSpacing: "0.5px" }}>Orchard Admin</p>
             </div>
           </div>
           
