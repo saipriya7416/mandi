@@ -97,6 +97,12 @@ export const MandiService = {
   recordExpense: async (data) => request('POST', '/expense', data),
   getSupplierLedger: async (supplierId) => request('GET', `/ledger/supplier/${supplierId}`),
 
+  // --- FARMER SETTLEMENT & BILLING ---
+  getFarmerSettlementData: async (farmerId) => request('GET', `/settlement/farmer/${farmerId}/pending`),
+  createFarmerSettlementBill: async (data) => request('POST', '/settlement/farmer/bill', data),
+  getFarmerSettlementHistory: async (farmerId) => request('GET', `/settlement/farmer/${farmerId}/history`),
+  voidFarmerSettlementBill: async (id, reason) => request('POST', `/settlement/farmer/bill/${id}/void`, { reason }),
+
   // --- REPORTS ---
   downloadBillPDF: async (id) => {
     const token = localStorage.getItem('mandi_token');

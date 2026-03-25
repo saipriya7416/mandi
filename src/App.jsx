@@ -249,6 +249,29 @@ export default function App() {
   const [documents, setDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [invMode, setInvMode] = useState("Allocation"); // "Intake" or "Allocation"
+  
+  // --- FARMER BILLING STATES ---
+  const [settlementData, setSettlementData] = useState([]);
+  const [isBillLocked, setIsBillLocked] = useState(false);
+  const [farmerHistory, setFarmerHistory] = useState(null);
+  const [farmerBillsList, setFarmerBillsList] = useState([]);
+  const [farmerBillForm, setFarmerBillForm] = useState({
+     _id: null,
+     billNo: `FB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+     date: new Date().toISOString().slice(0, 10),
+     farmerId: "",
+     expenses: [
+        { label: "Commission (5%)", value: 0 },
+        { label: "Labour/Hamali", value: 0 },
+        { label: "Freight/Transport", value: 0 },
+        { label: "Association Fee", value: 0 },
+        { label: "Market Fee", value: 0 }
+     ],
+     advance: 0,
+     netPayable: 0
+  });
+  
+
 
   // --- DATA SYNC WITH BACKEND ---
   const fetchData = async () => {
@@ -383,6 +406,64 @@ export default function App() {
     }
   };
 
+  const handleFarmerSelectionForSettlement = async (id) => {
+     if (!id) return;
+     const resData = await MandiService.getFarmerSettlementData(id);
+     if (resData.status === "SUCCESS") {
+        setSettlementData(resData.data);
+        const gross = resData.data.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0);
+        const comm = Math.round(gross * 0.05);
+        const ex = [...farmerBillForm.expenses];
+        ex[0].value = comm;
+        setFarmerBillForm({ ...farmerBillForm, farmerId: id, expenses: ex });
+     }
+     
+     const historyRes = await MandiService.getFarmerSettlementHistory(id);
+     if (historyRes.status === "SUCCESS") {
+        setFarmerHistory(historyRes.data.intelligence);
+        setFarmerBillsList(historyRes.data.bills);
+     }
+  };
+
+  const handleCreateFarmerBill = async () => {
+     const gross = settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0);
+     const totalExp = farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0);
+     const netPayable = (gross - totalExp) - farmerBillForm.advance;
+
+     const finalBill = {
+        ...farmerBillForm,
+        grossAmount: gross,
+        totalExpenses: totalExp,
+        netPayable: netPayable,
+        allocations: settlementData.map(s => s._id)
+     };
+
+     const res = await MandiService.createFarmerSettlementBill(finalBill);
+     if (res.status === "SUCCESS") {
+        setIsBillLocked(true);
+        setFarmerBillForm(res.data);
+        fetchData();
+        alert("🔒 BILL FINALIZED & SENT TO LEDGER");
+     }
+  };
+
+  const handleVoidBill = async (id) => {
+     const reason = prompt("Mandatory: Reason for voiding this finalized settlement?");
+     if (!reason) return;
+     const res = await MandiService.getVoidBill(id, reason);
+     if (res.status === "SUCCESS") {
+        alert("🚫 Settlement Voided. Entires reversed.");
+        setIsBillLocked(false);
+        setFarmerBillForm({ ...farmerBillForm, farmerId: "" });
+        fetchData();
+     }
+  };
+
+  const addCustomExpense = () => {
+     const ex = [...farmerBillForm.expenses, { label: "Additional Deduction", value: 0, isCustom: true }];
+     setFarmerBillForm({ ...farmerBillForm, expenses: ex });
+  };
+
   // --- MENU CONFIG with RBAC ---
   const ALL_MENU = [
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff"] },
@@ -392,7 +473,7 @@ export default function App() {
     { id: "Product Intel", icon: "🔍", roles: ["Admin", "Operations Staff", "Accountant"] },
     { id: "Supplier Bill", icon: "🧾", roles: ["Admin", "Accountant"] },
     { id: "Buyer Invoice", icon: "📑", roles: ["Admin", "Accountant"] },
-    { id: "Buyer Intel Dashboard", icon: "🧠", roles: ["Admin", "Accountant"] },
+    { id: "Farmer Billing (Settlement Bill)", icon: "⚖️", roles: ["Admin", "Accountant"] },
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant"] },
     { id: "Payment Management", icon: "💳", roles: ["Admin", "Accountant"] },
     { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
@@ -1753,154 +1834,248 @@ export default function App() {
           )}
 
           {/* 9b. High-End Buyer Intelligence & Invoice (The "Buyer Decision System") */}
-          {activeSection === "Buyer Intel Dashboard" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-               <Card style={{ padding: "0", overflow: "hidden" }}>
-                  <div style={{ background: COLORS.sidebar, padding: "32px", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", gap: "32px", color: "#fff", alignItems: "center" }}>
-                     <div>
-                        <label style={{ fontSize: "10px", opacity: 0.7, textTransform: "uppercase" }}>Active Buyer Profile</label>
-                        <select 
-                           style={{ width: "100%", background: "transparent", color: "#fff", border: "none", borderBottom: "2px solid rgba(255,255,255,0.2)", fontSize: "24px", fontWeight: "700", outline: "none", padding: "8px 0" }}
-                           value={user.selectedBuyerIQId || ""}
-                           onChange={async (e) => {
-                             const bid = e.target.value;
-                             setUser({...user, selectedBuyerIQId: bid});
-                             if (bid) {
-                               const res = await MandiService.getBuyerIntelligence(bid);
-                               if (res.status === "SUCCESS") setBuyerIQ(res.data);
-                             }
-                           }}
-                        >
-                           <option value="" style={{ color: "#000" }}>Select Buyer to Analyze...</option>
-                           {buyers.map(b => <option key={b._id} value={b._id} style={{ color: "#000" }}>{b.name} ({b.shopName})</option>)}
-                        </select>
-                     </div>
-                     {buyerIQ ? (
-                       <>
-                         <div>
-                            <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>TOTAL PURCHASES</p>
-                            <h2 style={{ margin: "4px 0" }}>{buyerIQ.summary.totalPurchasedKg.toLocaleString()} <small>KG</small></h2>
-                         </div>
-                         <div>
-                            <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>OUTSTANDING BAL</p>
-                            <h2 style={{ margin: "4px 0", color: buyerIQ.summary.riskLevel === 'Red' ? '#FFA39E' : '#95de64' }}>{formatCurrency(buyerIQ.summary.outstandingBalance)}</h2>
-                         </div>
-                         <div>
-                            <p style={{ margin: 0, fontSize: "11px", opacity: 0.7 }}>FAVORITE PRODUCT</p>
-                            <h2 style={{ margin: "4px 0" }}>{buyerIQ.summary.mostPurchasedProduct}</h2>
-                         </div>
-                       </>
-                     ) : (
-                       <div style={{ gridColumn: "span 3", opacity: 0.5 }}>⚡ Select a buyer to load historical decision metrics</div>
+          {/* 9b. PRODUCTION-GRADE FARMER BILLING (SETTLEMENT BILL) */}
+          {activeSection === "Farmer Billing (Settlement Bill)" && (
+            <div style={{ display: "grid", gridTemplateColumns: "2.8fr 1fr", gap: "32px", animation: "fadeIn 0.5s ease" }}>
+               <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                  <Card style={{ padding: "40px", border: "2px solid #0f172a", position: "relative" }}>
+                     {isBillLocked && (
+                       <div style={{ position: "absolute", top: "20px", right: "20px", background: COLORS.danger, color: "#fff", padding: "8px 20px", borderRadius: "8px", fontWeight: "900", zIndex: 10 }}>🔒 BILL LOCKED - FINALIZED</div>
                      )}
-                  </div>
-               </Card>
+                     
+                     <div style={{ textAlign: "center", borderBottom: "4px Double #0f172a", paddingBottom: "24px", marginBottom: "32px" }}>
+                        <h4 style={{ margin: 0, letterSpacing: "4px", opacity: 0.7 }}>SRI KRISHNA FRUIT MERCHANTS</h4>
+                        <h1 style={{ margin: "4px 0", fontSize: "32px", fontWeight: "900" }}>FARMER SETTLEMENT BILL</h1>
+                        <p style={{ margin: 0, fontSize: "12px" }}>Madanapalle Market, Andhra Pradesh | Ph: 9848012345</p>
+                     </div>
 
-               {buyerIQ && (
-                 <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "32px", animation: "fadeIn 0.5s ease" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                       <Card title="📑 High-End Invoicing Console" subtitle="Transaction-safe entry with auto-fetch sources">
-                          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "16px", marginBottom: "20px" }}>
-                             <Input label="Invoice Number" value={`INV-${Date.now().toString().slice(-6)}`} disabled />
-                             <Input label="Date & Time" type="datetime-local" value={new Date().toISOString().slice(0, 16)} />
-                          </div>
-                          
-                          <h4 style={{ margin: "24px 0 16px 0", color: COLORS.secondary }}>📦 Item Entries</h4>
-                          <div style={{ background: "#f8fafc", padding: "12px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-                             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                                <thead>
-                                   <tr style={{ textAlign: "left", borderBottom: "1px solid #ddd" }}>
-                                      <th style={{ padding: "8px" }}>Product</th>
-                                      <th style={{ padding: "8px" }}>Source Lot</th>
-                                      <th style={{ padding: "8px" }}>Qty</th>
-                                      <th style={{ padding: "8px" }}>Rate</th>
-                                      <th style={{ padding: "8px" }}>Amount</th>
-                                   </tr>
-                                </thead>
-                                <tbody>
-                                   <tr style={{ borderBottom: "1px solid #eee" }}>
-                                      <td style={{ padding: "12px 8px" }}>🥭 Mango (Alphonso)</td>
-                                      <td><span style={{ color: COLORS.accent }}>LOT-2026-001</span></td>
-                                      <td>300 KG</td>
-                                      <td>₹ 52.00</td>
-                                      <td style={{ fontWeight: "700" }}>₹ 15,600.00</td>
-                                   </tr>
-                                </tbody>
-                             </table>
-                             <Button variant="secondary" style={{ width: "100%", marginTop: "12px", fontSize: "11px", height: "32px" }}>+ Add product from Allocation History</Button>
-                          </div>
-                          
-                          <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
-                             <Button style={{ flex: 2 }}>Generate & Print Final Invoice</Button>
-                             <Button variant="outline" style={{ flex: 1 }}>Save as Draft</Button>
-                          </div>
-                       </Card>
-
-                       <Card title="📜 History of Farmer Purchases" subtitle={`Direct source traceability for ${buyerIQ.summary.mostPurchasedProduct}`}>
-                          <div style={{ overflowX: "auto" }}>
-                             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                                <thead>
-                                   <tr style={{ background: "#f8fafc", textAlign: "left" }}>
-                                      <th style={{ padding: "12px" }}>Date / Time</th>
-                                      <th style={{ padding: "12px" }}>Farmer Source</th>
-                                      <th style={{ padding: "12px" }}>Product Detail</th>
-                                      <th style={{ padding: "12px" }}>Qty (KG)</th>
-                                      <th style={{ padding: "12px" }}>Rate</th>
-                                   </tr>
-                                </thead>
-                                <tbody>
-                                   {buyerIQ.farmerRelationship.map((row, i) => (
-                                      <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                                         <td style={{ padding: "12px" }}>
-                                            <b>{new Date(row.date).toLocaleDateString()}</b><br />
-                                            <small style={{ color: COLORS.muted }}>{row.day} | {row.time}</small>
-                                         </td>
-                                         <td style={{ padding: "12px" }}>
-                                            <b>{row.farmerName}</b><br />
-                                            <span style={{ fontSize: "10px", color: COLORS.accent }}>{row.lotId}</span>
-                                         </td>
-                                         <td style={{ padding: "12px" }}>{row.product} ({row.variety})</td>
-                                         <td style={{ padding: "12px" }}>{row.quantity} KG</td>
-                                         <td style={{ padding: "12px", fontWeight: "700" }}>₹{row.rate}</td>
-                                      </tr>
-                                   ))}
-                                </tbody>
-                             </table>
-                          </div>
-                       </Card>
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                        <Card title="💰 Credit Profile Registry">
-                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: "#f8fafc", borderRadius: "10px" }}>
-                                 <span>Lifetime Bill Value</span>
-                                 <b>{formatCurrency(buyerIQ.paymentHistory.totalBillAmount)}</b>
-                              </div>
-                              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: "#f8fafc", borderRadius: "10px" }}>
-                                 <span>Lifetime Total Paid</span>
-                                 <b style={{ color: COLORS.success }}>{formatCurrency(buyerIQ.paymentHistory.totalPaid)}</b>
-                              </div>
-                              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: buyerIQ.summary.riskLevel === 'Red' ? '#fff1f0' : '#f6ffed', borderRadius: "10px", border: `1px solid ${buyerIQ.summary.riskLevel === 'Red' ? '#ffa39e' : '#b7eb8f'}` }}>
-                                 <span>Current Standing</span>
-                                 <b style={{ color: buyerIQ.summary.riskLevel === 'Red' ? COLORS.danger : COLORS.success }}>{buyerIQ.summary.riskLevel === 'Red' ? 'High Overdue' : 'Good Standing'}</b>
-                              </div>
+                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: "40px", marginBottom: "40px" }}>
+                        <div>
+                           <div style={{ fontSize: "12px", fontWeight: "800", color: COLORS.muted }}>BILL NUMBER</div>
+                           <h2 style={{ margin: 0 }}>{farmerBillForm.billNo}</h2>
+                           <div style={{ marginTop: "16px" }}>
+                              <label style={{ fontSize: "11px", fontWeight: "800" }}>SETTLEMENT DATE</label>
+                              <input type="date" value={farmerBillForm.date} onChange={e => setFarmerBillForm({...farmerBillForm, date: e.target.value})} style={{ width: "100%", padding: "8px", border: "1px solid #ddd", borderRadius: "4px" }} disabled={isBillLocked} />
                            </div>
-                        </Card>
+                        </div>
+                        <div>
+                           <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.secondary }}>FARMER IDENTITY (M/s)</label>
+                           <select 
+                              style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "2.5px solid #0f172a", background: "#f8fafc", fontWeight: "700" }}
+                              value={farmerBillForm.farmerId}
+                              onChange={e => handleFarmerSelectionForSettlement(e.target.value)}
+                              disabled={isBillLocked}
+                           >
+                              <option value="">Choose Farmer...</option>
+                              {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} - {s.village}</option>)}
+                           </select>
+                           <div style={{ marginTop: "16px" }}>
+                              <div style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted }}>LORRY / VEHICLE</div>
+                              <h4 style={{ margin: 0 }}>{settlementData[0]?.lotRef?.vehicleNumber || "Not Linked"}</h4>
+                           </div>
+                        </div>
+                        <div style={{ background: "#FDFBF4", padding: "20px", borderRadius: "12px", border: "1px dashed #D4B106" }}>
+                           <label style={{ fontSize: "11px", fontWeight: "800" }}>LINKED LOT ENTRIES</label>
+                           <div className="menu-scroll" style={{ maxHeight: "100px", overflowY: "auto" }}>
+                              {settlementData.length > 0 ? Array.from(new Set(settlementData.map(s => s.lotRef?.lotId))).map(lotId => (
+                                <div key={lotId} style={{ display: "flex", alignItems: "center", gap: "8px", margin: "4px 0" }}>
+                                   <input type="checkbox" checked={true} readOnly />
+                                   <b style={{ fontSize: "13px" }}>{lotId}</b>
+                                </div>
+                              )) : <p style={{ fontSize: "11px", opacity: 0.5 }}>Select farmer to load lots...</p>}
+                           </div>
+                        </div>
+                     </div>
 
-                        <Card title="⏰ Market Timing Habits">
-                           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                              {buyerIQ.farmerRelationship.slice(0, 5).map((visit, i) => (
-                                <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", padding: "8px 0", borderBottom: "1px dashed #eee" }}>
-                                   <span>{new Date(visit.date).toLocaleDateString()} | <b>{visit.day}</b></span>
-                                   <span style={{ color: COLORS.primary, fontWeight: "700" }}>{visit.time}</span>
+                     <div style={{ marginBottom: "32px" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", border: "2px solid #0f172a" }}>
+                           <thead>
+                              <tr style={{ background: "#0f172a", color: "#fff" }}>
+                                 <th style={{ padding: "12px", textAlign: "left" }}>ITEM / PRODUCE VARIETY</th>
+                                 <th style={{ padding: "12px", textAlign: "right" }}>KGS</th>
+                                 <th style={{ padding: "12px", textAlign: "right" }}>RATE (₹)</th>
+                                 <th style={{ padding: "12px", textAlign: "right" }}>AMOUNT</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {settlementData.length > 0 ? settlementData.map((item, idx) => (
+                                <tr key={idx} style={{ borderBottom: "1px solid #0f172a" }}>
+                                   <td style={{ padding: "16px" }}>
+                                      <b>{item.lineItem?.product}</b><br />
+                                      <small style={{ color: COLORS.muted }}>{item.lineItem?.variety} | {item.lotRef?.lotId}</small>
+                                   </td>
+                                   <td style={{ padding: "16px", textAlign: "right", fontWeight: "700" }}>{item.quantity} KG</td>
+                                   <td style={{ padding: "16px", textAlign: "right", color: COLORS.success, fontWeight: "800" }}>₹{item.saleRate}</td>
+                                   <td style={{ padding: "16px", textAlign: "right", fontWeight: "800" }}>{formatCurrency(item.quantity * item.saleRate)}</td>
+                                </tr>
+                              )) : (
+                                <tr><td colSpan="4" style={{ padding: "40px", textAlign: "center", opacity: 0.3 }}>FARMER ITEM TABLE WILL LOAD HERE</td></tr>
+                              )}
+                           </tbody>
+                           <tfoot>
+                              <tr style={{ background: "#f8fafc", fontWeight: "900" }}>
+                                 <td style={{ padding: "16px" }}>GROSS SALE PROCEEDS</td>
+                                 <td style={{ padding: "16px", textAlign: "right" }}>{settlementData.reduce((acc, i) => acc + i.quantity, 0)} KG</td>
+                                 <td></td>
+                                 <td style={{ padding: "16px", textAlign: "right", fontSize: "18px" }}>
+                                    {formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0))}
+                                 </td>
+                              </tr>
+                           </tfoot>
+                        </table>
+                     </div>
+
+                     <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "60px" }}>
+                        <div>
+                           <h3 style={{ borderBottom: "2px solid #0f172a", paddingBottom: "8px", marginBottom: "20px" }}>EXPENSE DEDUCTIONS</h3>
+                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px" }}>
+                              {farmerBillForm.expenses.map((exp, i) => (
+                                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px dashed #ddd", padding: "8px 0" }}>
+                                   {exp.isCustom ? (
+                                      <input 
+                                        placeholder="Label" 
+                                        value={exp.label} 
+                                        onChange={e => {
+                                          const ex = [...farmerBillForm.expenses];
+                                          ex[i].label = e.target.value;
+                                          setFarmerBillForm({...farmerBillForm, expenses: ex});
+                                        }}
+                                        style={{ border: "none", fontSize: "12px", width: "100px" }}
+                                      />
+                                   ) : <span style={{ fontSize: "13px", fontWeight: "600" }}>{exp.label}</span>}
+                                   <input 
+                                      type="number"
+                                      value={exp.value}
+                                      onChange={e => {
+                                         const ex = [...farmerBillForm.expenses];
+                                         ex[i].value = Number(e.target.value);
+                                         setFarmerBillForm({...farmerBillForm, expenses: ex});
+                                      }}
+                                      style={{ width: "80px", textAlign: "right", border: "none", background: "#F8FAF8", padding: "4px", borderRadius: "4px", fontWeight: "700" }}
+                                      disabled={isBillLocked}
+                                   />
                                 </div>
                               ))}
                            </div>
-                        </Card>
-                    </div>
-                 </div>
-               )}
+                           <button onClick={addCustomExpense} style={{ marginTop: "16px", background: "none", border: "none", color: COLORS.primary, cursor: "pointer", fontSize: "11px", fontWeight: "800" }}>+ ADD EXTRA DEDUCTION ROW</button>
+                        </div>
+
+                        <div style={{ background: "#0f172a", color: "#fff", padding: "32px", borderRadius: "20px", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+                           <h3 style={{ margin: "0 0 20px 0", color: COLORS.accent }}>FINANCIAL SUMMARY</h3>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", opacity: 0.7 }}><span>GROSS SALE</span><b>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0))}</b></div>
+                              <div style={{ display: "flex", justifyContent: "space-between", color: COLORS.danger }}><span>(-) TOTAL EXPENSES</span><b>- {formatCurrency(farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</b></div>
+                              <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px", display: "flex", justifyContent: "space-between", fontSize: "18px", fontWeight: "900" }}>
+                                 <span>NET SALE</span>
+                                 <span>{formatCurrency(settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0) - farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0))}</span>
+                              </div>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px" }}>
+                                 <span style={{ fontSize: "12px" }}>PRE-ADVANCE GIVEN</span>
+                                 <input 
+                                   type="number" 
+                                   value={farmerBillForm.advance} 
+                                   onChange={e => setFarmerBillForm({...farmerBillForm, advance: Number(e.target.value)})} 
+                                   style={{ width: "100px", background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", padding: "8px", borderRadius: "4px", textAlign: "right" }}
+                                   disabled={isBillLocked}
+                                 />
+                              </div>
+                              <div style={{ background: COLORS.accent, color: COLORS.secondary, padding: "20px", borderRadius: "12px", marginTop: "16px", textAlign: "center" }}>
+                                 <label style={{ fontSize: "11px", fontWeight: "900" }}>FINAL BALANCE PAYABLE</label>
+                                 <h1 style={{ margin: "4px 0" }}>
+                                    {formatCurrency(
+                                       (settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0) - farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0)) - farmerBillForm.advance
+                                    )}
+                                 </h1>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </Card>
+
+                  <div style={{ display: "flex", gap: "16px" }}>
+                     {!isBillLocked ? (
+                       <Button style={{ flex: 2, height: "60px", fontSize: "18px" }} onClick={handleCreateFarmerBill}>✅ Authorize Final Settlement</Button>
+                     ) : (
+                       <div style={{ display: "flex", gap: "12px", flex: 2 }}>
+                          <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, padding: "16px" }}>🖨 Print Bill (A4/A5)</Button>
+                          <Button onClick={() => alert("WAP Connection: PDF dispatching to Farmer...")} style={{ flex: 1, padding: "16px", background: "#25D366" }}>📱 Share via WhatsApp</Button>
+                          <Button variant="danger" onClick={() => handleVoidBill(farmerBillForm._id)} style={{ flex: 1 }}>🚫 Void Bill</Button>
+                       </div>
+                     )}
+                     <Button variant="outline" onClick={() => setFarmerBillForm({...farmerBillForm, farmerId: ""})} style={{ flex: 0.5 }}>Discard</Button>
+                  </div>
+
+                  {/* Item Traceability Panel */}
+                  <Card title="🌾 SOURCE TRACEABILITY" subtitle="Track which buyers were allocated this farmer's produce">
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                         <thead>
+                            <tr style={{ background: "#f8fafc", textAlign: "left" }}>
+                               <th style={{ padding: "12px" }}>BUYER NAME</th>
+                               <th style={{ padding: "12px" }}>PRODUCT</th>
+                               <th style={{ padding: "12px" }}>LOT ID</th>
+                               <th style={{ padding: "12px" }}>QTY</th>
+                               <th style={{ padding: "12px" }}>RATE</th>
+                               <th style={{ padding: "12px" }}>INVOICE</th>
+                               <th style={{ padding: "12px" }}>DATE</th>
+                            </tr>
+                         </thead>
+                         <tbody>
+                            {settlementData.map((row, i) => (
+                              <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                 <td style={{ padding: "12px" }}><b>{suppliers.find(s => s._id === row.buyerId)?.name || "Reliance Fresh"}</b></td>
+                                 <td style={{ padding: "12px" }}>{row.lineItem?.product} ({row.lineItem?.variety})</td>
+                                 <td style={{ padding: "12px" }}>{row.lotRef?.lotId}</td>
+                                 <td style={{ padding: "12px" }}>{row.quantity} KG</td>
+                                 <td style={{ padding: "12px", fontWeight: "700" }}>₹{row.saleRate}</td>
+                                 <td style={{ padding: "12px" }}>INV-2026-X</td>
+                                 <td style={{ padding: "12px" }}>{new Date(row.createdAt).toLocaleDateString()}</td>
+                              </tr>
+                            ))}
+                         </tbody>
+                      </table>
+                  </Card>
+               </div>
+
+               <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                  <Card title="👨‍🌾 Farmer Bio & History" subtitle="Live lifecycle intelligence">
+                     {farmerHistory ? (
+                       <div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                             {[
+                               { l: "Previous Bills", v: farmerHistory.totalBills || 0 },
+                               { l: "Total Lots", v: farmerHistory.totalLots || 0 },
+                               { l: "Total Qty", v: `${(farmerHistory.totalQty || 0).toLocaleString()} KG` },
+                               { l: "Gross Value", v: formatCurrency(farmerHistory.totalGross || 0) },
+                               { l: "Total Paid", v: formatCurrency(farmerHistory.totalPaid || 0), col: COLORS.success },
+                               { l: "Current Balance", v: formatCurrency(farmerHistory.pendingBalance || 0), col: COLORS.danger }
+                             ].map((h, i) => (
+                               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "12px", background: "#f8fafc", borderRadius: "10px" }}>
+                                  <span style={{ fontSize: "11px", fontWeight: "700", opacity: 0.6 }}>{h.l}</span>
+                                  <b style={{ fontSize: "14px", color: h.col }}>{h.v}</b>
+                               </div>
+                             ))}
+                          </div>
+                       </div>
+                     ) : <p style={{ textAlign: "center", opacity: 0.5 }}>Select farmer to view historical trends.</p>}
+                  </Card>
+
+                  <Card title="📅 Bill Registry" subtitle="Historical settlements">
+                     <div className="menu-scroll" style={{ maxHeight: "600px", overflowY: "auto" }}>
+                        {farmerBillsList.length > 0 ? farmerBillsList.map(bill => (
+                          <div key={bill._id} style={{ padding: "16px", border: "1.5px solid #eee", borderRadius: "12px", marginBottom: "12px", cursor: "pointer" }} onClick={() => { setFarmerBillForm(bill); setIsBillLocked(true); }}>
+                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                                <b style={{ fontSize: "13px" }}>{bill.billNo}</b>
+                                <span style={{ fontSize: "10px", background: "#f1f1f1", padding: "2px 6px", borderRadius: "4px" }}>{bill.date}</span>
+                             </div>
+                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <span style={{ fontSize: "16px", fontWeight: "900", color: COLORS.secondary }}>{formatCurrency(bill.netPayable)}</span>
+                                <span style={{ color: COLORS.success, fontSize: "10px", fontWeight: "800" }}>✔ PAID</span>
+                             </div>
+                          </div>
+                        )) : <p style={{ textAlign: "center", opacity: 0.5 }}>No past bills archived.</p>}
+                     </div>
+                  </Card>
+               </div>
             </div>
           )}
 
