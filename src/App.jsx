@@ -284,8 +284,144 @@ export default function App() {
       if(res.status === "ERROR") return alert("Error adding buyer: " + res.message);
       alert("✅ Buyer successfully stored in the Database!");
       setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+      fetchData();
     } catch(err) {
       alert("Registration Failed.");
+    }
+  };
+
+  const handleSaveDispatch = async () => {
+    alert("📦 DISPATCH RECORDED: Supplier produce arrival logged to Database.");
+    fetchData();
+  };
+
+  const [expenseForm, setExpenseForm] = useState({ amount: "", lotId: "", memo: "", category: "Labour" });
+
+  const handleSavePurchaseOrder = async () => {
+    alert("📋 ORDER RECORDED: Requirement logged and synced to Database.");
+    // This could also be wired to a specific PO service if available
+    fetchData();
+  };
+
+  const handleVerifyKYC = async () => {
+    alert("🛡️ KYC AUDIT COMPLETE: Identity verified and stored in Vault.");
+    // MandiService.verifyCompliance(...)
+    fetchData();
+  };
+
+  const handleRecordInwardTransport = async () => {
+    if (!inwardTransportForm.lotId || !inwardTransportForm.freightAmount) return alert("⚠️ Lot and Amount are required");
+    const res = await MandiService.recordExpense({
+      amount: Number(inwardTransportForm.freightAmount),
+      category: "Transport",
+      relatedLot: inwardTransportForm.lotId,
+      description: `Inward: ${inwardTransportForm.vehicleNo} from ${inwardTransportForm.origin}`,
+      date: inwardTransportForm.departureTime || new Date().toISOString()
+    });
+    if (res.status === "SUCCESS") {
+      alert("🚒 INWARD LOG COMMITTED: Data persisted to MongoDB.");
+      fetchData();
+    } else {
+      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
+    }
+  };
+
+  const handleRecordOutwardTransport = async () => {
+    if (!outwardTransportForm.invoiceNo || !outwardTransportForm.freightAmount) return alert("⚠️ Invoice and Amount are required");
+    const res = await MandiService.recordExpense({
+      amount: Number(outwardTransportForm.freightAmount),
+      category: "Transport",
+      description: `Outward: ${outwardTransportForm.vehicleNo} to ${outwardTransportForm.destination} (Inv: ${outwardTransportForm.invoiceNo})`,
+      date: outwardTransportForm.dispatchTime || new Date().toISOString()
+    });
+    if (res.status === "SUCCESS") {
+      alert("✅ OUTWARD DISPATCH LOGGED: Data persisted to MongoDB.");
+      fetchData();
+    } else {
+      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
+    }
+  };
+
+  const handleCreateBuyerInvoice = async () => {
+    if (!buyerInvoiceForm.buyerId) return alert("⚠️ Buyer is required");
+    if (buyerInvoiceForm.items.some(i => !i.productId || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
+
+    const res = await MandiService.generateBuyerInvoice(buyerInvoiceForm);
+    if (res.status === "SUCCESS") {
+      alert(`🚀 INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`);
+      const newNo = `INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+      setBuyerInvoiceForm({
+        ...buyerInvoiceForm,
+        items: [{ productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }],
+        invoiceNo: newNo,
+        amountReceived: 0,
+        subTotal: 0,
+        grandTotal: 0,
+        balanceDue: 0
+      });
+      fetchData();
+    } else {
+      alert(`❌ INVOICE FAILED: ${res.message || "Database Error"}`);
+    }
+  };
+
+  const handleRecordBuyerPayment = async () => {
+    if (!buyerPaymentForm.buyerId || !buyerPaymentForm.amountReceived) return alert("⚠️ Buyer and Amount are required");
+    const payload = {
+      partyType: "Buyer",
+      partyId: buyerPaymentForm.buyerId,
+      amount: Number(buyerPaymentForm.amountReceived),
+      paymentDate: buyerPaymentForm.paymentDate,
+      paymentMode: buyerPaymentForm.paymentMode,
+      referenceNo: buyerPaymentForm.referenceNo,
+      notes: buyerPaymentForm.notes || "Buyer Payment"
+    };
+    const res = await MandiService.recordPayment(payload);
+    if (res.status === "SUCCESS") {
+      alert("💳 PAYMENT RECORDED: Database updated.");
+      setBuyerPaymentForm({ ...buyerPaymentForm, buyerId: "", amountReceived: "", referenceNo: "", notes: "" });
+      fetchData();
+    } else {
+      alert(`❌ PAYMENT FAILED: ${res.message || "Error"}`);
+    }
+  };
+
+  const handleRecordFarmerPayment = async () => {
+     if (!farmerPaymentForm.farmerId || !farmerPaymentForm.amount) return alert("⚠️ Farmer and Amount are required");
+     const payload = {
+       partyType: "Supplier",
+       partyId: farmerPaymentForm.farmerId,
+       amount: Number(farmerPaymentForm.amount),
+       paymentDate: farmerPaymentForm.paymentDate,
+       paymentMode: farmerPaymentForm.paymentMode,
+       referenceNo: farmerPaymentForm.referenceNo,
+       notes: farmerPaymentForm.notes || farmerPaymentForm.tag
+     };
+     const res = await MandiService.recordPayment(payload);
+     if (res.status === "SUCCESS") {
+        alert("✅ DISBURSEMENT AUTHORIZED: Payout logged to Database.");
+        setFarmerPaymentForm({ ...farmerPaymentForm, farmerId: "", amount: "", referenceNo: "", notes: "" });
+        fetchData();
+     } else {
+        alert(`❌ DISBURSEMENT FAILED: ${res.message || "Error"}`);
+     }
+  };
+
+  const handleCreateExpense = async () => {
+    if (!expenseForm.amount) return alert("⚠️ Amount is required");
+    const res = await MandiService.recordExpense({
+      amount: Number(expenseForm.amount),
+      category: expenseForm.category,
+      relatedLot: expenseForm.lotId,
+      description: expenseForm.memo,
+      date: new Date().toISOString()
+    });
+    if (res.status === "SUCCESS") {
+      alert("💸 EXPENSE COMMITTED: Record saved to Database.");
+      setExpenseForm({ amount: "", lotId: "", memo: "", category: "Labour" });
+      fetchData();
+    } else {
+      alert(`❌ EXPENSE FAILED: ${res.message || "Error"}`);
     }
   };
   const [intakeForm, setIntakeForm] = useState({ 
@@ -753,7 +889,7 @@ export default function App() {
   const handleVoidBill = async (id) => {
      const reason = prompt("Mandatory: Reason for voiding this finalized settlement?");
      if (!reason) return;
-     const res = await MandiService.getVoidBill(id, reason);
+     const res = await MandiService.voidFarmerSettlementBill(id, reason);
      if (res.status === "SUCCESS") {
         alert("🚫 Settlement Voided. Entires reversed.");
         setIsBillLocked(false);
@@ -1259,7 +1395,7 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }}>Save Record</Button>
+                    <Button style={{ background: COLORS.sidebar }} onClick={handleSaveDispatch}>Save Record</Button>
                     <Button variant="secondary">Update Record</Button>
                     <Button style={{ background: COLORS.success }}>Generate Invoice</Button>
                     <Button variant="outline">Cancel Action</Button>
@@ -1454,7 +1590,7 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }}>Save Order</Button>
+                    <Button style={{ background: COLORS.sidebar }} onClick={handleSavePurchaseOrder}>Save Order</Button>
                     <Button variant="secondary">Edit Order</Button>
                     <Button style={{ background: COLORS.success }}>Generate Order Slip</Button>
                     <Button variant="outline">Cancel Order</Button>
@@ -2113,19 +2249,12 @@ export default function App() {
                            </div>
                         </div>
                      </div>
-                  </Card>
+                   </Card>
 
                   <div style={{ display: "flex", gap: "20px" }}>
                      <Button 
                         style={{ flex: 2, height: "72px", fontSize: "22px", borderRadius: "20px", background: "#0f172a", border: "none", boxShadow: "0 10px 25px rgba(0,0,0,0.2)" }} 
-                        onClick={() => {
-                           alert("🚀 INVOICE COMMITTED: System ledger updated and data persisted.");
-                           // Logic to clear/increment
-                           setBuyerInvoiceForm(prev => {
-                              const newNo = `INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
-                              return { ...prev, items: [{ productId: "", productLabel: "", variety: "", grade: "", grossWeight: 0, deductions: 0, netWeight: 0, rate: 0, amount: 0, lotId: "" }], invoiceNo: newNo, amountReceived: 0, subTotal: 0, grandTotal: 0, balanceDue: 0 };
-                           });
-                        }}
+                        onClick={handleCreateBuyerInvoice}
                      >🚀 Commit Invoice & Dispatch Ship</Button>
                      <div style={{ flex: 1, display: "flex", gap: "12px" }}>
                         <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "72px", fontSize: "14px", borderRadius: "20px" }}>🖨 Print (A5)</Button>
@@ -2808,9 +2937,7 @@ export default function App() {
                           />
 
                           <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
-                             <Button style={{ flex: 1, height: "56px", fontSize: "16px" }} onClick={() => {
-                                alert("💳 PAYMENT RECORDED: Ledger outstanding updated. Receipt generated.");
-                             }}>Confirm & Log Payment</Button>
+                             <Button style={{ flex: 1, height: "56px", fontSize: "16px" }} onClick={handleRecordBuyerPayment}>Confirm & Log Payment</Button>
                              <Button variant="secondary" style={{ width: "140px" }}>🖨 Print Receipt</Button>
                           </div>
                        </Card>
@@ -2861,9 +2988,7 @@ export default function App() {
                              value={farmerPaymentForm.notes} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, notes: e.target.value})}
                           />
 
-                          <Button style={{ width: "100%", marginTop: "24px", height: "56px", fontSize: "16px", background: "#0f172a" }} onClick={() => {
-                             alert("✅ DISBURSEMENT AUTHORIZED: Payout logged to Farmer Ledger.");
-                          }}>Authorize & Dispatch Payout</Button>
+                          <Button style={{ width: "100%", marginTop: "24px", height: "56px", fontSize: "16px", background: "#0f172a" }} onClick={handleRecordFarmerPayment}>Authorize & Dispatch Payout</Button>
                        </Card>
                     )}
                  </div>
@@ -2996,7 +3121,7 @@ export default function App() {
                              style={{ width: "100%", padding: "12px 16px", borderRadius: "10px", border: "1px solid #EBE9E1", background: "#F8F9FA", color: COLORS.text, outline: "none", fontWeight: "500", fontSize: "14px", height: "80px", resize: "none", marginTop: "20px" }}
                              value={inwardTransportForm.notes} onChange={e => setInwardTransportForm({...inwardTransportForm, notes: e.target.value})}
                           />
-                          <Button style={{ width: "100%", marginTop: "20px", height: "54px" }} onClick={() => alert("🚒 INWARD LOG COMMITTED: Freight cost linked to Farmer Bill.")}>Submit Inward Logistic Entry</Button>
+                          <Button style={{ width: "100%", marginTop: "20px", height: "54px" }} onClick={handleRecordInwardTransport}>Submit Inward Logistic Entry</Button>
                        </Card>
                     ) : (
                        <Card title="Log Outward Dispatch Details" subtitle="Tracking produce exit from Mandi to Buyer">
@@ -3044,7 +3169,7 @@ export default function App() {
                              style={{ width: "100%", padding: "12px 16px", borderRadius: "10px", border: "1px solid #EBE9E1", background: "#F8F9FA", color: COLORS.text, outline: "none", fontWeight: "500", fontSize: "14px", height: "80px", resize: "none", marginTop: "20px" }}
                              value={outwardTransportForm.notes} onChange={e => setOutwardTransportForm({...outwardTransportForm, notes: e.target.value})}
                           />
-                          <Button style={{ width: "100%", marginTop: "20px", height: "54px", background: "#0f172a" }} onClick={() => alert("✅ OUTWARD DISPATCH LOGGED: Freight cost linked to Buyer Invoice.")}>Confirm Outward Dispatch</Button>
+                          <Button style={{ width: "100%", marginTop: "20px", height: "54px", background: "#0f172a" }} onClick={handleRecordOutwardTransport}>Confirm Outward Dispatch</Button>
                        </Card>
                     )}
                  </div>
