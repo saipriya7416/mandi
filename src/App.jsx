@@ -527,7 +527,7 @@ export default function App() {
 
   useEffect(() => {
     if (loggedIn) fetchData();
-    if (loggedIn && activeSection === "Farmer Billing (Settlement Bill)" && settlementData.length === 0) {
+    if (loggedIn && activeSection === "Supplier Billing" && settlementData.length === 0) {
        // Seed mock visuals for "duplicated data" requirement
        setSettlementData([
           { _id: 's-mock-1', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '🥭 Mango', variety: 'Alphonso' }, quantity: 450, saleRate: 75, createdAt: new Date().toISOString() },
@@ -753,7 +753,7 @@ export default function App() {
     { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff", "Viewer"] },
     { id: "User Role", icon: "👥", roles: ["Admin", "Operations Staff"], label: "Profiles" },
     { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
-    { id: "Farmer Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "Supplier Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant", "Operations Staff"] },
     { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant", "Viewer"] },
     { id: "CONNECTION", icon: "🔗", roles: ["Admin", "Accountant", "Viewer"] },
@@ -2212,9 +2212,9 @@ export default function App() {
             </div>
           )}
 
-          {/* 9b. PRODUCTION-GRADE FARMER BILLING (SETTLEMENT COMMAND CENTER) */}
+          {/* 9b. PRODUCTION-GRADE SUPPLIER BILLING (SETTLEMENT COMMAND CENTER) */}
 
-          {activeSection === "Farmer Billing" && (
+          {activeSection === "Supplier Billing" && (
             <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: "32px", animation: "slideUp 0.6s ease-out" }}>
                {/* LEFT COLUMN: THE SETTLEMENT ENGINE */}
                <div className="printable-area" style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
