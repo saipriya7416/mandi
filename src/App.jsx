@@ -266,6 +266,7 @@ export default function App() {
       if(res.status === "ERROR") return alert("Error adding supplier: " + res.message);
       alert("✅ Supplier successfully stored in the Database!");
       setSupplierForm({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+      fetchData();
     } catch(err) {
       alert("Registration Failed.");
     }
@@ -294,8 +295,29 @@ export default function App() {
   };
 
   const handleSaveDispatch = async () => {
-    alert("📦 DISPATCH RECORDED: Supplier produce arrival logged to Database.");
-    fetchData();
+    if (!intakeForm.supplierId) return alert("⚠️ Supplier is required to record a dispatch.");
+    const payload = {
+      supplier: intakeForm.supplierId,
+      entryDate: intakeForm.entryDate,
+      vehicleNumber: intakeForm.vehicleNumber,
+      driverName: intakeForm.driverName,
+      origin: intakeForm.origin,
+      notes: intakeForm.notes,
+      lineItems: intakeForm.lineItems
+    };
+    const res = await MandiService.addLot(payload);
+    if (res.status === "SUCCESS") {
+      alert(`📦 DISPATCH RECORDED: Lot ${res.data.lotId} logged to Database.`);
+      setIntakeForm({
+        supplierId: "", 
+        entryDate: new Date().toISOString().slice(0, 10),
+        vehicleNumber: "", driverName: "", origin: "", notes: "",
+        lineItems: [{ product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
+      });
+      fetchData();
+    } else {
+      alert(`❌ ERROR: ${res.message || "Failed to add lot"}`);
+    }
   };
 
   const [expenseForm, setExpenseForm] = useState({ amount: "", lotId: "", memo: "", category: "Labour" });
@@ -349,7 +371,13 @@ export default function App() {
     if (!buyerInvoiceForm.buyerId) return alert("⚠️ Buyer is required");
     if (buyerInvoiceForm.items.some(i => !i.productId || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
 
-    const res = await MandiService.generateBuyerInvoice(buyerInvoiceForm);
+    // Map frontend structure to expected backend schema
+    const payload = {
+      buyer: buyerInvoiceForm.buyerId,
+      items: buyerInvoiceForm.items,
+      additionalCharges: buyerInvoiceForm.charges
+    };
+    const res = await MandiService.generateBuyerInvoice(payload);
     if (res.status === "SUCCESS") {
       alert(`🚀 INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`);
       const newNo = `INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
@@ -374,10 +402,10 @@ export default function App() {
       partyType: "Buyer",
       partyId: buyerPaymentForm.buyerId,
       amount: Number(buyerPaymentForm.amountReceived),
-      paymentDate: buyerPaymentForm.paymentDate,
-      paymentMode: buyerPaymentForm.paymentMode,
-      referenceNo: buyerPaymentForm.referenceNo,
-      notes: buyerPaymentForm.notes || "Buyer Payment"
+      date: buyerPaymentForm.paymentDate,
+      mode: buyerPaymentForm.paymentMode === 'UPI / Scan' ? 'UPI' : 'Cash',
+      type: "Partial",
+      referenceId: buyerPaymentForm.referenceNo
     };
     const res = await MandiService.recordPayment(payload);
     if (res.status === "SUCCESS") {
@@ -395,10 +423,10 @@ export default function App() {
        partyType: "Supplier",
        partyId: farmerPaymentForm.farmerId,
        amount: Number(farmerPaymentForm.amount),
-       paymentDate: farmerPaymentForm.paymentDate,
-       paymentMode: farmerPaymentForm.paymentMode,
-       referenceNo: farmerPaymentForm.referenceNo,
-       notes: farmerPaymentForm.notes || farmerPaymentForm.tag
+       date: farmerPaymentForm.paymentDate,
+       mode: farmerPaymentForm.paymentMode === 'Bank Transfer' ? 'Bank' : 'Cash',
+       type: "Full Settlement",
+       referenceId: farmerPaymentForm.referenceNo
      };
      const res = await MandiService.recordPayment(payload);
      if (res.status === "SUCCESS") {
@@ -898,12 +926,12 @@ export default function App() {
       lineItemId: selection.item._id,
       buyerId: allocationForm.buyerId,
       quantity: Number(allocationForm.quantity),
-      saleRate: Number(allocationForm.saleRate),
+      rate: Number(allocationForm.saleRate),
       notes: allocationForm.notes
     };
 
     try {
-      const res = await MandiService.createAllocation(payload);
+      const res = await MandiService.allocateLot(payload);
       if (res.status === "SUCCESS") {
         alert(`🚀 ALLOCATION AUTHORIZED: Invoice ${res.data?.invoiceNo || 'generated'} committed to database.`);
         setAllocationForm({ buyerId: "", quantity: "", saleRate: "", notes: "" });
