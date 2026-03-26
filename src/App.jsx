@@ -910,7 +910,6 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff", "Viewer"] },
     { id: "User Role", icon: "👥", roles: ["Admin", "Operations Staff"], label: "Profiles" },
     { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
     { id: "Supplier Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
@@ -1220,7 +1219,7 @@ export default function App() {
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"28px" }}>
                     <div>
                       <h3 style={{ margin:"0 0 4px", fontSize:"18px", fontWeight:"900", color:"#375144", letterSpacing:"-0.5px" }}>Sales Performance</h3>
-                      <p style={{ margin:0, fontSize:"12px", color:COLORS.muted, fontWeight:"600" }}>Boxes dispatched this week · Mon–Sun</p>
+                      <p style={{ margin:0, fontSize:"12px", color:COLORS.muted, fontWeight:"600" }}>Weight (KGs/Tones) dispatched this week · Mon–Sun</p>
                     </div>
                     <div style={{ display:"flex", gap:"8px" }}>
                       {["Week","Month","Season"].map((t,i) => (
@@ -3709,14 +3708,32 @@ export default function App() {
                       
                       <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "12px" }}>
                          <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Search Results (Click to View Dashboard)</label>
-                         {/* Static mapping for Farmer connection demonstration */}
-                         <div style={{ padding: "16px", background: selectedConnFarmer?.id === "f1" ? "rgba(159, 180, 67, 0.1)" : "#f8fafc", borderRadius: "16px", cursor: "pointer", border: selectedConnFarmer?.id === "f1" ? `2px solid ${COLORS.secondary}` : "2px solid #e2e8f0", transition: "0.2s" }} onClick={() => setSelectedConnFarmer({ id: "f1", name: "Vikram Reddy", phone: "9848010000", village: "Madanapalle" })}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                               <b style={{ color: COLORS.primary, fontSize: "15px" }}>Vikram Reddy</b>
-                               <span style={{ fontSize: "10px", background: COLORS.secondary, color: "#fff", padding: "4px 8px", borderRadius: "12px", fontWeight: "800" }}>VERIFIED</span>
-                            </div>
-                            <span style={{fontSize: "12px", color: COLORS.muted, display: "block", marginTop: "4px", fontWeight: "600"}}>📱 9848010000 • 📍 Madanapalle</span>
-                         </div>
+                         {[
+                             { id: "f1", name: "Vikram Reddy", phone: "9848010000", village: "Madanapalle" },
+                             { id: "f2", name: "Srinivas Rao", phone: "8123456789", village: "Vijayawada" },
+                             { id: "f3", name: "Priya Reddy", phone: "9988776655", village: "Chittoor" },
+                             { id: "f4", name: "Mohan Chandra", phone: "7766554433", village: "Guntur" }
+                         ].map((farmer) => (
+                             <div 
+                                key={farmer.id}
+                                style={{ 
+                                   padding: "16px", 
+                                   background: selectedConnFarmer?.id === farmer.id ? "rgba(159, 180, 67, 0.1)" : "#f8fafc", 
+                                   borderRadius: "16px", 
+                                   cursor: "pointer", 
+                                   border: selectedConnFarmer?.id === farmer.id ? `2.5px solid ${COLORS.secondary}` : "1.5px solid #e2e8f0", 
+                                   transition: "0.25s all",
+                                   marginBottom: "8px"
+                                }} 
+                                onClick={() => setSelectedConnFarmer(farmer)}
+                             >
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                   <b style={{ color: COLORS.primary, fontSize: "15px" }}>{farmer.name}</b>
+                                   <span style={{ fontSize: "10px", background: COLORS.secondary, color: "#fff", padding: "4px 8px", borderRadius: "12px", fontWeight: "800" }}>VERIFIED</span>
+                                </div>
+                                <span style={{fontSize: "12px", color: COLORS.muted, display: "block", marginTop: "4px", fontWeight: "600"}}>📱 {farmer.phone} • 📍 {farmer.village}</span>
+                             </div>
+                         ))}
                       </div>
                    </Card>
 
