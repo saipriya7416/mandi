@@ -716,6 +716,13 @@ export default function App() {
     }
   }, [activeSection, loggedIn]);
 
+  const getGreeting = () => {
+    const hours = new Date().getHours();
+    if (hours < 12) return "Good Morning";
+    if (hours < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   const handleLogin = async () => {
     const res = await MandiService.login(authForm.username, authForm.password);
     if (res?.status === "SUCCESS") {
@@ -1087,7 +1094,7 @@ export default function App() {
         <header style={{ marginBottom: "60px", display: "flex", justifyContent: "space-between", alignItems: "end" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
                <div>
-                  <h1 style={{ fontSize: "32px", fontWeight: "900", color: COLORS.secondary, margin: 0, letterSpacing: "-1px" }}>Salutations, {user?.name?.split(' ')[0] || user?.username || 'Admin'}</h1>
+                  <h1 style={{ fontSize: "32px", fontWeight: "900", color: COLORS.secondary, margin: 0, letterSpacing: "-1px" }}>{getGreeting()}, {user?.name?.split(' ')[0] || user?.username || 'Admin'}</h1>
                   <p style={{ color: COLORS.muted, fontSize: "15px", marginTop: "8px", fontWeight: "650", opacity: 0.8 }}>Orchard & Mandi Operations Command Center</p>
                </div>
                <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
