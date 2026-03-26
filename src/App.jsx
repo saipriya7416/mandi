@@ -499,7 +499,6 @@ export default function App() {
         { label: "Commission (5%)", value: 0 },
         { label: "Labour/Hamali", value: 0 },
         { label: "Freight/Transport", value: 0 },
-        { label: "Association Fee", value: 0 },
         { label: "Market Fee", value: 0 }
      ],
      advance: 0,
@@ -583,7 +582,6 @@ export default function App() {
     { id: "1", name: "Commission", type: "Percentage", default: 4, active: true },
     { id: "2", name: "Labour/Handling", type: "Fixed", default: 0, active: true },
     { id: "3", name: "Market Fee", type: "Percentage", default: 1, active: true },
-    { id: "4", name: "Association Fee", type: "Fixed", default: 0, active: true }
   ]);
   const [systemSettings, setSystemSettings] = useState({
     businessName: "SPV Fruits Trading",
@@ -929,8 +927,9 @@ export default function App() {
     return (
       <div style={{ height:"100vh", background:"#fcf9f1", display:"flex", justifyContent:"center", alignItems:"center", position:"relative", overflow:"hidden" }}>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-          * { font-family: 'Outfit', sans-serif !important; }
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+          * { font-family: 'Plus Jakarta Sans', sans-serif; }
+          .font-display { font-family: 'Outfit', sans-serif !important; }
           @keyframes floatUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
           .spv-input:focus { border-color: #9fb443 !important; }
           .spv-btn:hover { transform:translateY(-3px) !important; box-shadow:0 20px 45px rgba(55,81,68,0.45) !important; }
@@ -980,8 +979,8 @@ export default function App() {
       fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif" 
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-        * { font-family: 'Outfit', sans-serif !important; }
+        * { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-display { font-family: 'Outfit', sans-serif !important; }
       `}</style>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
@@ -1126,7 +1125,7 @@ export default function App() {
                     <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", background:"rgba(255,255,255,0.15)", backdropFilter:"blur(4px)", borderRadius:"14px", width:"44px", height:"44px", fontSize:"20px", marginBottom:"18px" }}>{m.icon}</div>
                     <p style={{ margin:"0 0 4px", fontSize:"11px", fontWeight:"800", color:"rgba(255,255,255,0.65)", textTransform:"uppercase", letterSpacing:"1.5px" }}>{m.label}</p>
                     <p style={{ margin:"0 0 12px", fontSize:"10px", color:"rgba(255,255,255,0.45)", fontWeight:"600", letterSpacing:"0.5px" }}>{m.period}</p>
-                    <h2 style={{ fontSize:"32px", margin:"0 0 16px", color:"#ffffff", fontWeight:"900", letterSpacing:"-1.5px", lineHeight:1 }}>{m.val}</h2>
+                    <h2 className="font-display" style={{ fontSize:"32px", margin:"0 0 16px", color:"#ffffff", fontWeight:"900", letterSpacing:"-1.5px", lineHeight:1 }}>{m.val}</h2>
                     {/* Spark bar */}
                     <div style={{ height:"3px", background:"rgba(255,255,255,0.15)", borderRadius:"2px", marginBottom:"14px", overflow:"hidden" }}>
                       <div style={{ height:"100%", width:m.sparkW, background:"rgba(255,255,255,0.5)", borderRadius:"2px" }} />
@@ -3457,7 +3456,7 @@ export default function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "32px" }}>
                      <Card title="Register Expense Category" subtitle="Admin can add/rename billing deductions">
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <Input label="Category Label" placeholder="e.g. Association Fee" />
+                           <Input label="Category Label" placeholder="e.g. Loading Fee" />
                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                               <div>
                                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Calculation Type</label>
