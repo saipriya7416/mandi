@@ -112,7 +112,10 @@ const formatCurrency = (v) => {
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "N/A";
+  // Handle short formats like "24/03" gracefully
+  if (typeof dateStr === 'string' && dateStr.length <= 6) return dateStr;
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr; // Return raw string if invalid
   return date.toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "2-digit",
@@ -438,7 +441,13 @@ export default function App() {
     incomingKgToday: 0,
     totalSoldKg: 0,
     remainingStockKg: 0,
-    pendingDeliveryKg: 0
+    pendingDeliveryKg: 0,
+    netRevenue: 0,
+    settlementsPending: 0,
+    settlementsPendingAmount: 0,
+    activeProcurementLots: 0,
+    totalProcurementLots: 0,
+    lowStockAlerts: 0
   });
   const [selection, setSelection] = useState({ 
     lot: null, 
@@ -453,6 +462,14 @@ export default function App() {
   const [lotTraceability, setLotTraceability] = useState([]);
   const [allocationTraceability, setAllocationTraceability] = useState(null);
   const [buyerIQ, setBuyerIQ] = useState(null);
+
+  // --- ALLOCATION FORM STATE (REQUIRED BY ENTERPRISE ALLOCATION ENGINE) ---
+  const [allocationForm, setAllocationForm] = useState({
+    buyerId: "",
+    quantity: "",
+    saleRate: "",
+    notes: ""
+  });
 
   // --- DATA STORAGE STATES ---
   const [suppliers, setSuppliers] = useState([]);
@@ -628,7 +645,7 @@ export default function App() {
       "Chandra Mohan", "Durga Prasad", "Eshwar Rao", "Fatima Begum", "Ganapathi Bhat",
       "Himamshu Roy", "Indrani Sharma", "Jagadish Murthy", "Karthik Raja", "Lalitha Goud",
       "Murali Krishna", "Nirmala Devi", "Om Prakash", "Parvathi Amma", "Qasim Khan"
-    ].map((n, i) => ({ _id: `s-${i}`, name: n, village: 'Madanapalle', mobile: `98480${10000+i}` }));
+    ].map((n, i) => ({ _id: `s-${i}`, name: n, village: 'Madanapalle', mobile: `98480${10000+i}`, phone: `98480${10000+i}`, address: 'Main Road, Madanapalle', govIdNumber: `AID-${1000+i}`, idType: 'Aadhaar' }));
 
     const dummyBuyers = [
        "Harsha Wholesale", "Reliance Fresh", "BigBasket Depot", "Heritage Foods", "Anand Foodworld",
@@ -639,9 +656,25 @@ export default function App() {
     ].map((n, i) => ({ _id: `b-${i}`, name: n, shopName: n, phone: `99590${10000+i}`, mobile: `99590${10000+i}`, address: `Stall #${100+i}, Madanapalle Market` }));
 
     const dummyLots = [
-      { _id: 'l-1', lotId: 'LOT-2026-001', supplier: { name: 'Vikram Reddy' }, entryDate: '2026-03-20', origin: 'Madanapalle', status: 'Partially Sold', totalQuantity: 1500, remainingQuantity: 400, lineItems: [{ product: "Mango", variety: "Alphonso", grade: "A", grossWeight: 500, deductions: 20, netWeight: 480, amount: 20000, rate: 45 }] },
-      { _id: 'l-2', lotId: 'LOT-2026-002', supplier: { name: 'Sandhya Devi' }, entryDate: '2026-03-21', origin: 'Guntur', status: 'Pending Auction', totalQuantity: 2000, remainingQuantity: 2000, lineItems: [] },
-      { _id: 'l-3', lotId: 'LOT-2026-003', supplier: { name: 'Anwar Pasha' }, entryDate: '2026-03-22', origin: 'Nellore', status: 'Fully Sold', totalQuantity: 1200, remainingQuantity: 0, lineItems: [] }
+      { 
+        _id: 'l-1', lotId: 'LOT-2026-001', supplier: { name: 'Vikram Reddy' }, entryDate: '2026-03-20', origin: 'Madanapalle', status: 'Partially Sold', totalQuantity: 1500, remainingQuantity: 400, 
+        lineItems: [
+          { product: "Mango", variety: "Alphonso", grade: "A", grossWeight: 500, deductions: 20, netWeight: 480, soldQuantity: 300, remainingQuantity: 180, amount: 20000, rate: 45, status: 'Partially Sold' },
+          { product: "Mango", variety: "Kesar", grade: "B", grossWeight: 1000, deductions: 50, netWeight: 950, soldQuantity: 730, remainingQuantity: 220, amount: 40000, rate: 55, status: 'Partially Sold' }
+        ] 
+      },
+      { 
+        _id: 'l-2', lotId: 'LOT-2026-002', supplier: { name: 'Sandhya Devi' }, entryDate: '2026-03-21', origin: 'Guntur', status: 'Pending Auction', totalQuantity: 2000, remainingQuantity: 2000, 
+        lineItems: [
+          { product: "Banana", variety: "Yelakki", grade: "A", grossWeight: 2000, deductions: 100, netWeight: 1900, soldQuantity: 0, remainingQuantity: 1900, amount: 0, rate: 25, status: 'Pending Auction' }
+        ] 
+      },
+      { 
+        _id: 'l-3', lotId: 'LOT-2026-003', supplier: { name: 'Anwar Pasha' }, entryDate: '2026-03-22', origin: 'Nellore', status: 'Fully Sold', totalQuantity: 1200, remainingQuantity: 0, 
+        lineItems: [
+          { product: "Tomato", variety: "Roma", grade: "A", grossWeight: 1200, deductions: 50, netWeight: 1150, soldQuantity: 1150, remainingQuantity: 0, amount: 15000, rate: 13, status: 'Fully Sold' }
+        ] 
+      }
     ];
 
     try {
@@ -666,14 +699,14 @@ export default function App() {
 
       const statsRes = await MandiService.getInventoryDashboard();
       if (statsRes.status === "SUCCESS") setInventoryStats(statsRes.data);
-      else setInventoryStats({ totalLotsToday: 14, incomingKgToday: 8500, totalSoldKg: 12400, remainingStockKg: 3200, pendingDeliveryKg: 850 });
+      else setInventoryStats({ totalLotsToday: 14, incomingKgToday: 8500, totalSoldKg: 12400, remainingStockKg: 3200, pendingDeliveryKg: 850, netRevenue: 284560, settlementsPending: 15, settlementsPendingAmount: 45200, activeProcurementLots: 6, totalProcurementLots: 8, lowStockAlerts: 2 });
 
     } catch (err) {
       console.warn("Backend Unreachable - Using Local Data Engine:", err.message);
       setSuppliers(dummySuppliers);
       setBuyers(dummyBuyers);
       setLots(dummyLots);
-      setInventoryStats({ totalLotsToday: 14, incomingKgToday: 8500, totalSoldKg: 12400, remainingStockKg: 3200, pendingDeliveryKg: 850 });
+      setInventoryStats({ totalLotsToday: 14, incomingKgToday: 8500, totalSoldKg: 12400, remainingStockKg: 3200, pendingDeliveryKg: 850, netRevenue: 284560, settlementsPending: 15, settlementsPendingAmount: 45200, activeProcurementLots: 6, totalProcurementLots: 8, lowStockAlerts: 2 });
     }
   };
 
@@ -847,6 +880,40 @@ export default function App() {
       fetchData();
     } else {
       alert(`❌ FAILED: ${res.message || "Database Error"}`);
+    }
+  };
+
+  // --- HANDLE ALLOCATION (MISSING FUNCTION — WAS CRASHING ON BUTTON CLICK) ---
+  const handleAllocate = async () => {
+    if (!allocationForm.buyerId) return alert("⚠️ Please select a Buyer");
+    if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("⚠️ Please enter a valid Quantity");
+    if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("⚠️ Please enter a valid Sale Rate");
+    if (!selection.item || !selection.lot) return alert("⚠️ Please select a Lot Item from the left panel");
+    if (Number(allocationForm.quantity) > selection.item.remainingQuantity) {
+      return alert(`⚠️ Quantity entered (${allocationForm.quantity} KG) exceeds available stock (${selection.item.remainingQuantity} KG)`);
+    }
+
+    const payload = {
+      lotId: selection.lot._id,
+      lineItemId: selection.item._id,
+      buyerId: allocationForm.buyerId,
+      quantity: Number(allocationForm.quantity),
+      saleRate: Number(allocationForm.saleRate),
+      notes: allocationForm.notes
+    };
+
+    try {
+      const res = await MandiService.createAllocation(payload);
+      if (res.status === "SUCCESS") {
+        alert(`🚀 ALLOCATION AUTHORIZED: Invoice ${res.data?.invoiceNo || 'generated'} committed to database.`);
+        setAllocationForm({ buyerId: "", quantity: "", saleRate: "", notes: "" });
+        setSelection({ lot: null, item: null, buyerId: "", qty: "", rate: "", inv: "" });
+        fetchData();
+      } else {
+        alert(`❌ ALLOCATION FAILED: ${res.message || "Database Error"}`);
+      }
+    } catch (err) {
+      alert(`❌ ALLOCATION FAILED: ${err.message}`);
     }
   };
 
@@ -1116,10 +1183,10 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: "20px" }}>
                 {[
-                  { icon: "💰", label: "Net Revenue", period: "This Month", val: "₹2,84,560", trend: "+12.4%", trendUp: true, sub: "vs last cycle", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
-                  { icon: "⚖️", label: "Inventory", period: "Live Stock", val: "1,347 KG", trend: "+8.1%", trendUp: true, sub: "vs yesterday", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
-                  { icon: "📋", label: "Settlements", period: "Pending Audit", val: "15 Bills", trend: "₹45,200", trendUp: null, sub: "awaiting review", gradFrom: "#9fb443", gradTo: "#7a8d34", sparkW: "40%" },
-                  { icon: "🏪", label: "Procurement", period: "Active Lots", val: "6 / 8", trend: "2 Low", trendUp: false, sub: "restock alert", gradFrom: "#c0392b", gradTo: "#a93226", sparkW: "25%" }
+                  { icon: "💰", label: "Net Revenue", period: "Total Net Sale", val: formatCurrency(inventoryStats.netRevenue || 0), trend: "Dynamic", trendUp: true, sub: "Live Database", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
+                  { icon: "⚖️", label: "Inventory", period: "Live Stock", val: `${inventoryStats.remainingStockKg} KG`, trend: "Real-time", trendUp: true, sub: "From DB Lots", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
+                  { icon: "📋", label: "Settlements", period: "Pending Invoices/Bills", val: `${inventoryStats.settlementsPending} Pending`, trend: formatCurrency(inventoryStats.settlementsPendingAmount || 0), trendUp: null, sub: "awaiting review", gradFrom: "#9fb443", gradTo: "#7a8d34", sparkW: "40%" },
+                  { icon: "🏪", label: "Procurement", period: "Active Lots", val: `${inventoryStats.activeProcurementLots} / ${inventoryStats.totalProcurementLots}`, trend: `${inventoryStats.lowStockAlerts} Low`, trendUp: false, sub: "restock alerts", gradFrom: "#c0392b", gradTo: "#a93226", sparkW: "25%" }
                 ].map((m, i) => (
                   <div key={i} style={{ background: `linear-gradient(145deg, ${m.gradFrom} 0%, ${m.gradTo} 100%)`, borderRadius: "28px", padding: "28px 26px", position: "relative", overflow: "hidden", boxShadow: `0 16px 40px ${m.gradFrom}35`, cursor: "default", transition: "transform 0.25s, box-shadow 0.25s" }}
                     onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 24px 50px ${m.gradFrom}50`; }}
