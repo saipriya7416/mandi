@@ -910,6 +910,7 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
+    { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff", "Viewer"] },
     { id: "User Role", icon: "👥", roles: ["Admin", "Operations Staff"], label: "Profiles" },
     { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
     { id: "Supplier Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
