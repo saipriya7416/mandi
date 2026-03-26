@@ -575,8 +575,8 @@ export default function App() {
   // --- PRODUCT MASTER & CONFIGURATION STATES ---
   const [activeConfigTab, setActiveConfigTab] = useState("Product"); // "Product" | "Expense" | "System"
   const [masterProducts, setMasterProducts] = useState([
-    { name: "Mango", varieties: ["Alphonso", "Banganapalli", "Rumani", "Nillam", "Kesar"], grades: ["A-Grade", "B-Grade", "Export"], units: ["KG", "Box", "Crate"] },
-    { name: "Banana", varieties: ["Yelakki", "G9", "Nendran"], grades: ["Local", "Export"], units: ["KG", "Bunch"] }
+    { name: "Mango", varieties: ["Alphonso", "Banganapalli", "Rumani", "Nillam", "Kesar"], grades: ["A-Grade", "B-Grade", "Export"], units: ["KG", "Ton", "Crate"] },
+    { name: "Banana", varieties: ["Yelakki", "G9", "Nendran"], grades: ["Local", "Export"], units: ["KG", "Ton"] }
   ]);
   const [masterExpenses, setMasterExpenses] = useState([
     { id: "1", name: "Commission", type: "Percentage", default: 4, active: true },
@@ -1117,7 +1117,7 @@ export default function App() {
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: "20px" }}>
                 {[
                   { icon: "💰", label: "Net Revenue", period: "This Month", val: "₹2,84,560", trend: "+12.4%", trendUp: true, sub: "vs last cycle", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
-                  { icon: "📦", label: "Inventory", period: "Live Stock", val: "1,347 KG", trend: "+8.1%", trendUp: true, sub: "vs yesterday", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
+                  { icon: "⚖️", label: "Inventory", period: "Live Stock", val: "1,347 KG", trend: "+8.1%", trendUp: true, sub: "vs yesterday", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
                   { icon: "📋", label: "Settlements", period: "Pending Audit", val: "15 Bills", trend: "₹45,200", trendUp: null, sub: "awaiting review", gradFrom: "#9fb443", gradTo: "#7a8d34", sparkW: "40%" },
                   { icon: "🏪", label: "Procurement", period: "Active Lots", val: "6 / 8", trend: "2 Low", trendUp: false, sub: "restock alert", gradFrom: "#c0392b", gradTo: "#a93226", sparkW: "25%" }
                 ].map((m, i) => (
@@ -1151,14 +1151,14 @@ export default function App() {
                 <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>View all &rarr;</span>} title="Recent Orders" style={{ padding: "24px 0 0 0" }}>
                   <div className="menu-scroll" style={{ marginTop: "20px", maxHeight: "380px", overflowY: "auto", paddingRight: "8px" }}>
                     {[
-                      { initials: "PR", name: "Priya Reddy", desc: "2 x Alphonso Box • Hyderabad", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "SM", name: "Sanjay Mehta", desc: "5 x Kesar Box • Secunderabad", amount: "₹3,100", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "AK", name: "Ananya Kumar", desc: "1 x Langra Box • Banjara Hills", amount: "₹580", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "VS", name: "Vikram Sharma", desc: "3 x Alphonso Box • Jubilee Hills", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "DM", name: "Deepa Menon", desc: "4 x Kesar Box • Madhapur", amount: "₹2,480", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "SR", name: "Srinivas Rao", desc: "1 x Alphonso Box • Gachibowli", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "LN", name: "Lakshmi Narayana", desc: "10 x Kesar Box • Kukatpally", amount: "₹6,200", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "VB", name: "Venkatesh Babu", desc: "3 x Langra Box • Ameerpet", amount: "₹1,740", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "PR", name: "Priya Reddy", desc: "2 x Alphonso KG • Hyderabad", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SM", name: "Sanjay Mehta", desc: "5 x Kesar KG • Secunderabad", amount: "₹3,100", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "AK", name: "Ananya Kumar", desc: "1 x Langra KG • Banjara Hills", amount: "₹580", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "VS", name: "Vikram Sharma", desc: "3 x Alphonso KG • Jubilee Hills", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "DM", name: "Deepa Menon", desc: "4 x Kesar KG • Madhapur", amount: "₹2,480", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SR", name: "Srinivas Rao", desc: "1 x Alphonso KG • Gachibowli", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "LN", name: "Lakshmi Narayana", desc: "10 x Kesar KG • Kukatpally", amount: "₹6,200", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "VB", name: "Venkatesh Babu", desc: "3 x Langra KG • Ameerpet", amount: "₹1,740", status: "Confirmed", statusCol: "#4CAF50" },
                       { initials: "SK", name: "Sai Krishna", desc: "2 x Dasheri Box • Kondapur", amount: "₹1,100", status: "In Transit", statusCol: "#3B82F6" },
                       { initials: "BP", name: "Bhanu Prakash", desc: "5 x Alphonso Box • Miyapur", amount: "₹3,100", status: "Confirmed", statusCol: "#4CAF50" },
                       { initials: "RS", name: "Ramya Sri", desc: "1 x Kesar Box • Dilsukhnagar", amount: "₹620", status: "Pending", statusCol: "#F59E0B" },
@@ -1233,7 +1233,7 @@ export default function App() {
                       data={{
                         labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
                         datasets: [{
-                          label: "Boxes Sold",
+                          label: "KGs Sold",
                           data: [65, 45, 80, 75, 120, 60, 40],
                           backgroundColor: ["rgba(55,81,68,0.12)","rgba(55,81,68,0.12)","rgba(55,81,68,0.12)","rgba(55,81,68,0.12)","#375144","rgba(55,81,68,0.12)","rgba(55,81,68,0.12)"],
                           hoverBackgroundColor: "#9fb443",
@@ -1244,7 +1244,7 @@ export default function App() {
                       }}
                       options={{
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { backgroundColor:"#375144", padding:12, cornerRadius:10, callbacks: { label: ctx => ` ${ctx.raw} boxes` } } },
+                        plugins: { legend: { display: false }, tooltip: { backgroundColor:"#375144", padding:12, cornerRadius:10, callbacks: { label: ctx => ` ${ctx.raw} KGs` } } },
                         scales: {
                           x: { grid: { display: false }, border: { display: false }, ticks: { color:"#64748b", font:{ weight:"700", size:11 }, padding:6 } },
                           y: { grid: { color:"rgba(0,0,0,0.04)" }, border: { display: false }, ticks: { color:"#94a3b8", font:{ size:10 }, padding:6 } }
@@ -1255,7 +1255,7 @@ export default function App() {
                   <div style={{ display:"flex", gap:"24px", marginTop:"20px", paddingTop:"18px", borderTop:"1.5px solid rgba(55,81,68,0.08)" }}>
                     {[
                       { label:"Peak Day", val:"Friday", icon:"🏆" },
-                      { label:"Total Boxes", val:"485", icon:"📦" },
+                      { label:"Total Weight (KG)", val:"4,850", icon:"⚖️" },
                       { label:"Avg Daily", val:"69.3", icon:"📊" },
                       { label:"Best Sale", val:"₹74,400", icon:"💰" }
                     ].map((s,i) => (
@@ -1385,7 +1385,7 @@ export default function App() {
                       fields: [
                         { label: "Unit Cost (₹)", type: "number", placeholder: "0.00" },
                         { label: "Quantity", type: "number", placeholder: "0" },
-                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"] },
+                        { label: "Unit Type", type: "select", options: ["KG", "Ton", "Crate"] },
                         { label: "Number of Trucks", type: "number", placeholder: "1" },
                         { label: "Truck Number", placeholder: "TS 09 EU 1234" },
                         { label: "Driver Name" },
@@ -1423,9 +1423,9 @@ export default function App() {
                         </thead>
                         <tbody>
                           {[
-                            { id: "DSP-55920", supplier: "Priya Reddy", product: "Apple (Fuji) • Premium", logistics: "20 Box • TS09 EU 1234", amount: "₹45,000", status: "In Transit" },
-                            { id: "DSP-55919", supplier: "Srinivas Rao", product: "Mango (Alphonso) • A Grade", logistics: "50 Box • AP28 BW 9091", amount: "₹82,500", status: "Delivered" },
-                            { id: "DSP-55918", supplier: "Mohan Chandra", product: "Tomato (Roma) • Standard", logistics: "15 Ton • TS07 CD 4455", amount: "₹18,000", status: "Delivered" }
+                            { id: "DSP-55920", supplier: "Priya Reddy", product: "Apple (Fuji) • Premium", logistics: "20 KGs • TS09 EU 1234", amount: "₹45,000", status: "In Transit" },
+                            { id: "DSP-55919", supplier: "Srinivas Rao", product: "Mango (Alphonso) • A Grade", logistics: "50 KGs • AP28 BW 9091", amount: "₹82,500", status: "Delivered" },
+                            { id: "DSP-55918", supplier: "Mohan Chandra", product: "Tomato (Roma) • Standard", logistics: "15 Tons • TS07 CD 4455", amount: "₹18,000", status: "Delivered" }
                           ].map((d, i) => (
                             <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
                               <td style={{ padding: "16px", fontWeight: "600", color: COLORS.sidebar }}>{d.id}</td>
@@ -1619,7 +1619,7 @@ export default function App() {
                         <tbody>
                           {[
                             { id: "ORD-PO-148", buyer: "Reliance Retail", product: "Apple (Fuji) • Grade A", qty: "500 KG", rate: "₹120/KG", urgency: "High" },
-                            { id: "ORD-PO-147", buyer: "Kisan Markets", product: "Mango (Alphonso) • Premium", qty: "100 Box", rate: "₹650/Box", urgency: "Normal" },
+                            { id: "ORD-PO-147", buyer: "Kisan Markets", product: "Mango (Alphonso) • Premium", qty: "100 Tons", rate: "₹45,000/Ton", urgency: "Normal" },
                             { id: "ORD-PO-146", buyer: "BigBasket", product: "Tomato (Grape) • Standard", qty: "2 Ton", rate: "₹15/KG", urgency: "Critical" }
                           ].map((o, i) => (
                             <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
@@ -3428,7 +3428,7 @@ export default function App() {
                            <Input label="Variety Name (Level 2)" placeholder="e.g. Alphonso, S-Grade" />
                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                               <Input label="Default Grade" placeholder="A-Grade" />
-                              <Input label="Standard Unit" placeholder="KG / Box / Dozen" />
+                              <Input label="Standard Unit" placeholder="KG / Ton / Quintal" />
                            </div>
                            <Button style={{ marginTop: "10px" }}>Register in Catalog</Button>
                         </div>
