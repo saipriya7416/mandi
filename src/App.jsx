@@ -1146,7 +1146,7 @@ export default function App() {
                   </div>
                 ))}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: "24px", marginTop: "0px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px", marginTop: "0px" }}>
                 {/* Recent Orders */}
                 <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>View all &rarr;</span>} title="Recent Orders" style={{ padding: "24px 0 0 0" }}>
                   <div className="menu-scroll" style={{ marginTop: "20px", maxHeight: "380px", overflowY: "auto", paddingRight: "8px" }}>
@@ -1266,29 +1266,6 @@ export default function App() {
                     ))}
                   </div>
                 </div>
-
-                {/* Today's Staff */}
-                <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>Schedule &rarr;</span>} title="Today's Staff">
-                  <div style={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: "28px" }}>
-                    {[
-                      { name: "Ravi Kumar", role: "Delivery Driver", time: "08:00–16:00" },
-                      { name: "Meera Devi", role: "Stall Manager", time: "09:00–17:00" },
-                      { name: "Sunil Varma", role: "Store keeper", time: "06:00–14:00" },
-                      { name: "Kiran Bhai", role: "Logistics", time: "10:00–18:00" }
-                    ].map((staff, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                          <div style={{ width: "8px", height: "8px", borderRadius: "4px", background: COLORS.accent }}></div>
-                          <div>
-                            <p style={{ margin: 0, fontWeight: "600", color: COLORS.sidebar, fontSize: "13px" }}>{staff.name}</p>
-                            <p style={{ margin: "2px 0 0", color: COLORS.muted, fontSize: "11px" }}>{staff.role}</p>
-                          </div>
-                        </div>
-                        <p style={{ margin: 0, fontWeight: "500", color: COLORS.muted, fontSize: "12px" }}>{staff.time}</p>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
               </div>
             </div>
           )}
