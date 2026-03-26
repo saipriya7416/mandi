@@ -3701,7 +3701,7 @@ export default function App() {
           {activeSection === "CONNECTION" && (
              <div style={{ animation: "slideUp 0.6s ease-out", display: "flex", flexDirection: "column", gap: "32px" }}>
                 {/* TOP: Search + Farmer Summary Card */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "32px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "32px", alignItems: "start" }}>
                    <Card title="Farmer Traceability Search" subtitle="Two-way intelligence engine">
                       <Input label="Search by Name, Mobile, Village or Lot ID" value={connSearchQuery} onChange={(e) => setConnSearchQuery(e.target.value)} placeholder="e.g. Vikram Reddy or 9848010000" />
                       <Button style={{ width: "100%", marginTop: "12px" }}>Execute Intelligence Search</Button>
