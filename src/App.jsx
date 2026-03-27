@@ -721,10 +721,19 @@ export default function App() {
       return alert("⚠️ Supplier is required to record a dispatch.");
     const payload = {
       supplier: intakeForm.supplierId,
+      buyer: intakeForm.buyerId && intakeForm.buyerId !== "Direct Marketplace Dispatch" ? intakeForm.buyerId : null,
+      buyerMobile: intakeForm.buyerMobile,
       entryDate: intakeForm.entryDate,
+      entryTime: intakeForm.entryTime,
       vehicleNumber: intakeForm.vehicleNumber,
       driverName: intakeForm.driverName,
+      driverMobile: intakeForm.driverMobile,
+      transportType: intakeForm.transportType,
       origin: intakeForm.origin,
+      destination: intakeForm.destination,
+      dispatchStatus: intakeForm.dispatchStatus,
+      paymentStatus: intakeForm.paymentStatus,
+      paymentMode: intakeForm.paymentMode,
       notes: intakeForm.notes,
       lineItems: intakeForm.lineItems,
     };
@@ -732,21 +741,42 @@ export default function App() {
     if (res.status === "SUCCESS") {
       alert(`📦 DISPATCH RECORDED: Lot ${res.data.lotId} logged to Database.`);
       setIntakeForm({
+        dispatchId: `DSP-${Math.floor(10000 + Math.random() * 90000)}`,
         supplierId: "",
+        buyerId: "",
+        buyerMobile: "",
         entryDate: new Date().toISOString().slice(0, 10),
+        entryTime: new Date().toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         vehicleNumber: "",
         driverName: "",
+        driverMobile: "",
+        transportType: "Self Managed",
         origin: "",
+        destination: "Madanapalle Market Hub",
+        paymentStatus: "Pending",
+        paymentMode: "Bank Transfer",
+        dispatchStatus: "Loaded",
         notes: "",
         lineItems: [
           {
+            itemGuid: Math.random().toString(36).substr(2, 9),
+            category: "Fruits",
             product: "",
             variety: "",
-            grade: "",
-            grossWeight: "",
-            deductions: "",
-            boxes: "",
-            estimatedRate: "",
+            grade: "A Grade",
+            size: "Medium",
+            color: "Standard",
+            unit: "KG",
+            grossWeight: 0,
+            packages: 0,
+            packagingType: "Plastic Crates",
+            rate: 0,
+            batchNo: "",
+            qualityStatus: "Passed",
+            storageType: "Ambient",
           },
         ],
       });
@@ -982,6 +1012,8 @@ export default function App() {
   const [intakeForm, setIntakeForm] = useState({
     dispatchId: `DSP-${Math.floor(10000 + Math.random() * 90000)}`,
     supplierId: "",
+    buyerId: "",
+    buyerMobile: "",
     entryDate: new Date().toISOString().slice(0, 10),
     entryTime: new Date().toLocaleTimeString("en-GB", {
       hour: "2-digit",
@@ -4270,6 +4302,86 @@ export default function App() {
                             marginBottom: "8px",
                           }}
                         >
+                          Buyer Identity (Optional)
+                        </label>
+                        <select
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "10px",
+                            border: "1.5px solid #F1F5F9",
+                            fontWeight: "700",
+                          }}
+                          value={intakeForm.buyerId}
+                          onChange={(e) => {
+                            const b = buyers.find(
+                              (x) => (x.shopName || x.name) === e.target.value,
+                            );
+                            setIntakeForm({
+                              ...intakeForm,
+                              buyerId: e.target.value,
+                              buyerMobile: b?.phone || b?.mobile || "",
+                            });
+                          }}
+                        >
+                          <option>Direct Marketplace Dispatch</option>
+                          {buyers.map((b) => (
+                            <option key={b._id}>{b.shopName || b.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.sidebar,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Buyer Mobile
+                        </label>
+                        <input
+                          placeholder="+91 9999999999"
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "10px",
+                            border: "1.5px solid #F1F5F9",
+                          }}
+                          value={intakeForm.buyerMobile}
+                          onChange={(e) =>
+                            setIntakeForm({
+                              ...intakeForm,
+                              buyerMobile: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(200px, 1fr))",
+                        gap: "20px",
+                        marginTop: "20px",
+                      }}
+                    >
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.sidebar,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
                           Vehicle Info
                         </label>
                         <div style={{ display: "flex", gap: "10px" }}>
@@ -5272,6 +5384,15 @@ export default function App() {
                                 borderBottom: "1px solid #EBE9E1",
                               }}
                             >
+                              Buyer
+                            </th>
+                            <th
+                              style={{
+                                padding: "14px",
+                                fontWeight: "700",
+                                borderBottom: "1px solid #EBE9E1",
+                              }}
+                            >
                               Total
                             </th>
                             <th
@@ -5330,16 +5451,21 @@ export default function App() {
                               </td>
                               <td style={{ padding: "14px" }}>{d.supplier}</td>
                               <td style={{ padding: "14px" }}>{d.product}</td>
-                              <td style={{ padding: "14px" }}>{d.vehicle}</td>
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  fontWeight: "700",
-                                  color: COLORS.sidebar,
-                                }}
-                              >
-                                {d.amount}
-                              </td>
+                                <td style={{ padding: "14px" }}>{d.vehicle}</td>
+                                <td style={{ padding: "14px" }}>
+                                  <span style={{ fontWeight: "700", color: COLORS.sidebar }}>
+                                    {d.buyer || "Direct Marketplace"}
+                                  </span>
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "14px",
+                                    fontWeight: "700",
+                                    color: COLORS.sidebar,
+                                  }}
+                                >
+                                  {d.amount}
+                                </td>
                               <td style={{ padding: "14px" }}>
                                 <span
                                   style={{
@@ -5366,6 +5492,79 @@ export default function App() {
                       </table>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {activeSupplierTab === "Supplier Accounts" && (
+                <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+                  <Card
+                    title="Buyer Allocation Matrix"
+                    subtitle="Track product flow from this supplier to specific buyers"
+                  >
+                    <div
+                      style={{
+                        padding: "100px",
+                        textAlign: "center",
+                        border: "2px dashed #EBE9E1",
+                        borderRadius: "32px",
+                        background: "#FDFBF4",
+                      }}
+                    >
+                      <span style={{ fontSize: "64px" }}>📊</span>
+                      <h3 style={{ color: COLORS.sidebar, marginTop: "24px" }}>
+                        Allocation Intelligence
+                      </h3>
+                      <p style={{ maxWidth: "400px", margin: "16px auto", opacity: 0.7 }}>
+                        This view maps supplier's dispatches to the buyers who purchased them. 
+                        Select a supplier to view their distribution network.
+                      </p>
+                      <Button style={{ marginTop: "24px" }}>
+                        Generate Allocation Report
+                      </Button>
+                    </div>
+
+                    <div style={{ marginTop: "40px" }}>
+                      <h4 style={{ fontSize: "14px", fontWeight: "800", marginBottom: "16px" }}>
+                        Recent Multi-Party Transactions
+                      </h4>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                        <thead>
+                          <tr style={{ textAlign: "left", background: "#f8fafc", color: COLORS.muted }}>
+                            <th style={{ padding: "12px" }}>DATE</th>
+                            <th style={{ padding: "12px" }}>LOT ID</th>
+                            <th style={{ padding: "12px" }}>PRODUCT</th>
+                            <th style={{ padding: "12px" }}>BUYER</th>
+                            <th style={{ padding: "12px" }}>QTY (KG)</th>
+                            <th style={{ padding: "12px" }}>SETTLEMENT</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { date: "2026-03-27", lot: "LOT-55920", prod: "Apple", buyer: "Harsha Wholesale", qty: "450", status: "Paid" },
+                            { date: "2026-03-26", lot: "LOT-55919", prod: "Mango", buyer: "Reliance Fresh", qty: "800", status: "Pending" },
+                          ].map((row, i) => (
+                            <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                              <td style={{ padding: "12px" }}>{row.date}</td>
+                              <td style={{ padding: "12px", fontWeight: "700" }}>{row.lot}</td>
+                              <td style={{ padding: "12px" }}>{row.prod}</td>
+                              <td style={{ padding: "12px", fontWeight: "700", color: COLORS.primary }}>{row.buyer}</td>
+                              <td style={{ padding: "12px" }}>{row.qty}</td>
+                              <td style={{ padding: "12px" }}>
+                                <span style={{ 
+                                  padding: "2px 8px", 
+                                  borderRadius: "4px", 
+                                  fontSize: "10px", 
+                                  background: row.status === "Paid" ? "#dcfce7" : "#fee2e2" 
+                                }}>
+                                  {row.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Card>
                 </div>
               )}
 
