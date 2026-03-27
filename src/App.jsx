@@ -1725,30 +1725,28 @@ export default function App() {
                       title: "Product Identity & Dispatch",
                       fields: [
                         { label: "Dispatch ID", disabled: true, value: `DSP-${Math.floor(10000 + Math.random() * 90000)}` },
-                        { label: "Supplier Name", type: "select", options: ["Select Supplier", ...suppliers.map(s => s.name)], value: intakeForm?.supplierId || "", onChange: e => setIntakeForm({...intakeForm, supplierId: e.target.value}) },
+                        { label: "Supplier Name", type: "select", options: ["Select Supplier Name", ...suppliers.map(s => s.name)], value: intakeForm?.supplierId || "", onChange: e => setIntakeForm({...intakeForm, supplierId: e.target.value}) },
                         { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
-                        { label: "Product Name (A to Z)", type: "select", options: dispatchType === "Fruits" ? FRUIT_LIST_AZ : (dispatchType === "Vegetables" ? VEG_LIST_AZ : ["Select Product"]), value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
+                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
                            const val = e.target.value;
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].product = val;
                            setDispatchProduct(val);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Variety (Seed Type)", type: "select", options: getProductData(dispatchProduct).varieties, value: intakeForm?.lineItems?.[0]?.variety || "", onChange: e => {
+                        { label: "Variety", type: "select", options: ["Select Variety", ...getProductData(dispatchProduct).varieties], value: intakeForm?.lineItems?.[0]?.variety || "", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].variety = e.target.value;
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Seed Origin", type: "select", options: ["Hybrid", "Desi (Native)", "F1 Hybrid", "Imported", "Wild"] },
-                        { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes, value: intakeForm?.lineItems?.[0]?.grade || "", onChange: e => {
+                        { label: "Size Grade", type: "select", options: ["Select Size Grade", ...getProductData(dispatchProduct).sizes], value: intakeForm?.lineItems?.[0]?.grade || "", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].grade = e.target.value;
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
-                        { label: "Quality Grade", type: "select", options: getProductData(dispatchProduct).grades },
-                        { label: "Growth Method", type: "select", options: ["Conventional", "Organic (Certified)", "Chemical Free", "Zero Budget (ZBNF)"] },
-                        { label: "Category", type: "select", options: ["Premium (Export)", "Standard (A)", "Local (B)", "Processing (C)"] }
+                        { label: "Color Grade", type: "select", options: ["Select Color Grade", ...getProductData(dispatchProduct).colors] },
+                        { label: "Quality Grade", type: "select", options: ["Select Quality Grade", ...getProductData(dispatchProduct).grades] },
+                        { label: "Category", type: "select", options: ["Select Category", "Premium", "Standard", "Local", "Export"] }
                       ]
                     },
                     {
@@ -1759,30 +1757,27 @@ export default function App() {
                            if (newItems.length > 0) newItems[0].estimatedRate = Number(e.target.value);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Total Quantity (Net)", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
+                        { label: "Quantity", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].grossWeight = Number(e.target.value);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Weight Unit", type: "select", options: ["KG", "Tones", "Quintals", "Crates", "Bags"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
+                        { label: "Unit Type", type: "select", options: ["Select Unit Type", "KG", "Ton", "Crate", "Bag"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].unit = e.target.value;
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Packaging Type", type: "select", options: ["Plastic Crates", "Gunny Bags", "Wooden Boxes", "Corrugated", "Loose Load"] },
-                        { label: "Stacking / Load Type", type: "select", options: ["Single Stack", "Double Stack", "Bulk", "Cold Chain"] },
-                        { label: "Number of Trucks", type: "number", placeholder: "1" },
+                        { label: "Number of Trucks", type: "number", placeholder: "1", value: 1 },
                         { label: "Truck Number", placeholder: "TS 09 EU 1234", value: intakeForm?.vehicleNumber || "", onChange: e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value}) },
                         { label: "Driver Name", value: intakeForm?.driverName || "", onChange: e => setIntakeForm({...intakeForm, driverName: e.target.value}) },
                         { label: "Driver Mobile", type: "tel" },
-                        { label: "Loading Date", type: "date", value: intakeForm?.entryDate || "", onChange: e => setIntakeForm({...intakeForm, entryDate: e.target.value}) },
-                        { label: "Origin (Village/Hub)", placeholder: "Specify source" },
-                        { label: "Destination (Market)", placeholder: "Madanapalle Market" },
+                        { label: "Loading Date", type: "date", value: intakeForm?.entryDate || new Date().toISOString().slice(0,10), onChange: e => setIntakeForm({...intakeForm, entryDate: e.target.value}) },
+                        { label: "Destination", placeholder: "Enter Destination Market", value: intakeForm?.origin || "", onChange: e => setIntakeForm({...intakeForm, origin: e.target.value}) },
                         { label: "Total Cost (₹)", type: "number", disabled: true, value: (Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) || 0 },
-                        { label: "Tax / Mandi Fee (%)", type: "number", value: "5" },
-                        { label: "Extra Charges (Handling)", type: "number", placeholder: "0.00" },
+                        { label: "Tax (%)", type: "number", value: "5" },
+                        { label: "Extra Charges (₹)", type: "number", placeholder: "0.00" },
                         { label: "Net Total (₹)", type: "number", disabled: true, value: ((Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) * 1.05) || 0 },
-                        { label: "Remarks / Special Handling", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
+                        { label: "Remarks", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
@@ -1956,43 +1951,38 @@ export default function App() {
                       title: "Order Requirements",
                       fields: [
                         { label: "Order ID", disabled: true, value: `ORD-PO-${Math.floor(100 + Math.random() * 900)}` },
-                        { label: "Buyer Name", type: "select", options: ["Select Buyer", ...buyers.map(b => b.name)], value: buyerOrderForm.buyerId, onChange: e => setBuyerOrderForm({...buyerOrderForm, buyerId: e.target.value}) },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Spices", "Grains", "Industrial"], value: poType, onChange: (e) => setPoType(e.target.value) },
-                        { label: "Product Name", list: poType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: buyerOrderForm.product, onChange: (e) => {
+                        { label: "Buyer Name", type: "select", options: ["Select Buyer Name", ...buyers.map(b => b.name)], value: buyerOrderForm.buyerId, onChange: e => setBuyerOrderForm({...buyerOrderForm, buyerId: e.target.value}) },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: poType, onChange: (e) => setPoType(e.target.value) },
+                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: buyerOrderForm.product, onChange: (e) => {
                            setPoProduct(e.target.value);
                            setBuyerOrderForm({...buyerOrderForm, product: e.target.value});
                         } },
-                        { label: "Required Variety (Seed Type)", type: "select", options: getProductData(buyerOrderForm.product).varieties, value: buyerOrderForm.variety, onChange: e => setBuyerOrderForm({...buyerOrderForm, variety: e.target.value}) },
-                        { label: "Target Seed Origin", type: "select", options: ["Hybrid", "Desi (Native)", "F1 Hybrid", "Imported", "Any Market Grade"] },
-                        { label: "Required Size", type: "select", options: getProductData(buyerOrderForm.product).sizes, value: buyerOrderForm.grade, onChange: e => setBuyerOrderForm({...buyerOrderForm, grade: e.target.value}) },
-                        { label: "Color / Maturity", type: "select", options: getProductData(buyerOrderForm.product).colors },
-                        { label: "Required Quality", type: "select", options: ["Premium (Export)", "A Grade (Domestic)", "B Grade (Local)", "Processing"] },
-                        { label: "Growth Method Pref.", type: "select", options: ["Conventional", "Organic Pref.", "Natural / ZBNF Only", "Any"] }
+                        { label: "Required Variety", type: "select", options: ["Select Required Variety", ...getProductData(buyerOrderForm.product).varieties], value: buyerOrderForm.variety, onChange: e => setBuyerOrderForm({...buyerOrderForm, variety: e.target.value}) },
+                        { label: "Required Size", type: "select", options: ["Select Required Size", ...getProductData(buyerOrderForm.product).sizes], value: buyerOrderForm.grade, onChange: e => setBuyerOrderForm({...buyerOrderForm, grade: e.target.value}) },
+                        { label: "Required Color", type: "select", options: ["Select Required Color", ...getProductData(buyerOrderForm.product).colors] },
+                        { label: "Required Quality", type: "select", options: ["Select Required Quality", ...getProductData(buyerOrderForm.product).grades] }
                       ]
                     },
                     {
                       title: "Fulfillment Details",
                       fields: [
                         { label: "Required Quantity", type: "number", placeholder: "0", value: buyerOrderForm.quantity, onChange: e => setBuyerOrderForm({...buyerOrderForm, quantity: e.target.value}) },
-                        { label: "Weight Unit", type: "select", options: ["KG", "Tones", "Quintals", "Crates", "Bags"], value: buyerOrderForm.unit, onChange: e => setBuyerOrderForm({...buyerOrderForm, unit: e.target.value}) },
-                        { label: "Fulfillment Window", type: "select", options: ["Prompt (24h)", "2-3 Days", "Weekly", "Seasonal Contract"] },
-                        { label: "Truck Requirement", type: "select", options: ["Single LCV", "Heavy Multi-axle", "Cold Chain (Reefer)", "No Transport Needed"] },
+                        { label: "Unit Type", type: "select", options: ["Select Unit Type", "KG", "Ton", "Crate", "Bag"], value: buyerOrderForm.unit, onChange: e => setBuyerOrderForm({...buyerOrderForm, unit: e.target.value}) },
                         { label: "Number of Trucks Required", type: "number", placeholder: "1", value: buyerOrderForm.vehicleRequired, onChange: e => setBuyerOrderForm({...buyerOrderForm, vehicleRequired: e.target.value}) },
-                        { label: "Packing Requirement", type: "select", options: ["Retail Brand Packaging", "Standard Corrugated", "Plastic Crates", "Gunny Bags", "Loose Loads"] },
-                        { label: "Target Delivery Date", type: "date", value: buyerOrderForm.orderDate, onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
-                        { label: "Destination Hub / Stall", placeholder: "Hub ID or Stall Number" },
+                        { label: "Packing Type", type: "select", options: ["Select Packing Type", "Retail Brand Packaging", "Standard Corrugated", "Plastic Crates", "Gunny Bags", "Loose Loads"] },
+                        { label: "Delivery Date", type: "date", value: buyerOrderForm.orderDate || new Date().toISOString().slice(0,10), onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
+                        { label: "Delivery Location", placeholder: "Destination Hub", value: buyerOrderForm.origin || "", onChange: e => setBuyerOrderForm({...buyerOrderForm, origin: e.target.value}) },
                         { label: "Preferred Rate (₹)", type: "number", placeholder: "Target max price", value: buyerOrderForm.targetRate, onChange: e => setBuyerOrderForm({...buyerOrderForm, targetRate: e.target.value}) },
-                        { label: "Urgency Level", type: "select", options: ["Normal", "High", "Critical (Immediate)"] },
-                        { label: "Loading / Unloading Pref.", type: "select", options: ["Mechanical", "Manual (Labour)", "Mixed"] },
-                        { label: "Special Notes", value: buyerOrderForm.notes, onChange: e => setBuyerOrderForm({...buyerOrderForm, notes: e.target.value}) }
+                        { label: "Urgency Level", type: "select", options: ["Select Urgency Level", "Normal", "High", "Critical"] },
+                        { label: "Notes", value: buyerOrderForm.notes, onChange: e => setBuyerOrderForm({...buyerOrderForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar }} onClick={handleSavePurchaseOrder}>Save Order</Button>
-                    <Button variant="secondary">Edit Order</Button>
+                    <Button variant="outline">Edit Order</Button>
                     <Button style={{ background: COLORS.success }}>Generate Order Slip</Button>
-                    <Button variant="outline">Cancel Order</Button>
+                    <Button variant="ghost" style={{ background: "#FDFBF4", color: "#9fb443" }}>Cancel Order</Button>
                   </div>
 
                   <div style={{ marginTop: "40px" }}>
