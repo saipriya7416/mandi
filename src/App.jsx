@@ -631,6 +631,51 @@ export default function App() {
     { name: "Mango", varieties: ["Alphonso", "Banganapalli", "Rumani", "Nillam", "Kesar"], grades: ["A-Grade", "B-Grade", "Export"], units: ["KG", "Ton", "Crate"] },
     { name: "Banana", varieties: ["Yelakki", "G9", "Nendran"], grades: ["Local", "Export"], units: ["KG", "Ton"] }
   ]);
+
+  const [newProductForm, setNewProductForm] = useState({
+     coreProduct: "",
+     variety: "",
+     grade: "A-Grade",
+     unit: "KG"
+  });
+
+  const handleRegisterProduct = () => {
+     if (!newProductForm.coreProduct || !newProductForm.variety) {
+        alert("⚠️ Core Product and Variety name are mandatory.");
+        return;
+     }
+
+     const existingIdx = masterProducts.findIndex(p => p.name.toLowerCase() === newProductForm.coreProduct.toLowerCase());
+     
+     if (existingIdx !== -1) {
+        const updatedProducts = [...masterProducts];
+        if (!updatedProducts[existingIdx].varieties.includes(newProductForm.variety)) {
+           updatedProducts[existingIdx].varieties.push(newProductForm.variety);
+        }
+        if (!updatedProducts[existingIdx].units.includes(newProductForm.unit)) {
+           updatedProducts[existingIdx].units.push(newProductForm.unit);
+        }
+        setMasterProducts(updatedProducts);
+        alert(`✅ Variety '${newProductForm.variety}' added to ${newProductForm.coreProduct}!`);
+     } else {
+        const newProduct = {
+           name: newProductForm.coreProduct,
+           varieties: [newProductForm.variety],
+           grades: [newProductForm.grade],
+           units: [newProductForm.unit]
+        };
+        setMasterProducts([...masterProducts, newProduct]);
+        alert(`✅ Core Product '${newProductForm.coreProduct}' registered in catalog!`);
+     }
+
+     setNewProductForm({
+        coreProduct: "",
+        variety: "",
+        grade: "A-Grade",
+        unit: "KG"
+     });
+  };
+
   const [masterExpenses, setMasterExpenses] = useState([
     { id: "1", name: "Commission", type: "Percentage", default: 4, active: true },
     { id: "2", name: "Labour/Handling", type: "Fixed", default: 0, active: true },
@@ -3692,13 +3737,13 @@ export default function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.8fr", gap: "32px" }}>
                      <Card title="Add New Product / Variety" subtitle="No-coding required catalog expansion">
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <Input label="Core Product (Level 1)" placeholder="e.g. Mango, Tomato" />
-                           <Input label="Variety Name (Level 2)" placeholder="e.g. Alphonso, S-Grade" />
+                           <Input label="Core Product (Level 1)" placeholder="e.g. Mango, Tomato" value={newProductForm.coreProduct} onChange={e=>setNewProductForm({...newProductForm, coreProduct: e.target.value})} />
+                           <Input label="Variety Name (Level 2)" placeholder="e.g. Alphonso, S-Grade" value={newProductForm.variety} onChange={e=>setNewProductForm({...newProductForm, variety: e.target.value})} />
                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                              <Input label="Default Grade" placeholder="A-Grade" />
-                              <Input label="Standard Unit" placeholder="KG / Ton / Quintal" />
+                              <Input label="Default Grade" placeholder="A-Grade" value={newProductForm.grade} onChange={e=>setNewProductForm({...newProductForm, grade: e.target.value})} />
+                              <Input label="Standard Unit" placeholder="KG / Ton / Quintal" value={newProductForm.unit} onChange={e=>setNewProductForm({...newProductForm, unit: e.target.value})} />
                            </div>
-                           <Button style={{ marginTop: "10px" }}>Register in Catalog</Button>
+                           <Button style={{ marginTop: "10px" }} onClick={handleRegisterProduct}>Register in Catalog</Button>
                         </div>
                      </Card>
                      
