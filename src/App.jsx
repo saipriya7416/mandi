@@ -2189,7 +2189,9 @@ export default function App() {
                                             <input type="number" style={{ width: "70px", textAlign: "right", padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0" }} value={item.deductions} onChange={e => handleUpdateInvoiceItem(idx, "deductions", e.target.value)} />
                                          </td>
                                       )}
-                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "700", color: "#0f172a" }}>{item.netWeight.toLocaleString()} KG</td>
+                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "700", color: "#0f172a" }}>
+                                         <input type="number" style={{ width: "95px", textAlign: "right", padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0", fontWeight: "900" }} value={item.netWeight} onChange={e => handleUpdateInvoiceItem(idx, "netWeight", e.target.value)} /> KG
+                                      </td>
                                       <td style={{ padding: "16px", textAlign: "right" }}>
                                          <input type="number" style={{ width: "90px", textAlign: "right", padding: "10px", borderRadius: "8px", border: "2.5px solid #22c55e", background: "#f0fdf4", color: "#166534", fontWeight: "900", fontSize: "15px" }} value={item.rate} onChange={e => handleUpdateInvoiceItem(idx, "rate", e.target.value)} />
                                       </td>
