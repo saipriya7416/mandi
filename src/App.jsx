@@ -3769,8 +3769,35 @@ export default function App() {
                            <Input label="Core Product (Level 1)" placeholder="e.g. Mango, Tomato" value={newProductForm.coreProduct} onChange={e=>setNewProductForm({...newProductForm, coreProduct: e.target.value})} />
                            <Input label="Variety Name (Level 2)" placeholder="e.g. Alphonso, S-Grade" value={newProductForm.variety} onChange={e=>setNewProductForm({...newProductForm, variety: e.target.value})} />
                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                              <Input label="Default Grade" placeholder="A-Grade" value={newProductForm.grade} onChange={e=>setNewProductForm({...newProductForm, grade: e.target.value})} />
-                              <Input label="Standard Unit" placeholder="KG / Ton / Quintal" value={newProductForm.unit} onChange={e=>setNewProductForm({...newProductForm, unit: e.target.value})} />
+                              <div>
+                                 <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Default Grade</label>
+                                 <select 
+                                    value={newProductForm.grade}
+                                    onChange={e=>setNewProductForm({...newProductForm, grade: e.target.value})}
+                                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", background: "#f8fafc", fontWeight: "600" }}
+                                 >
+                                    <option>A-Grade</option>
+                                    <option>B-Grade</option>
+                                    <option>C-Grade</option>
+                                    <option>Export Quality</option>
+                                    <option>Pulp Grade</option>
+                                 </select>
+                              </div>
+                              <div>
+                                 <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Standard Unit</label>
+                                 <select 
+                                    value={newProductForm.unit}
+                                    onChange={e=>setNewProductForm({...newProductForm, unit: e.target.value})}
+                                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", background: "#f8fafc", fontWeight: "600" }}
+                                 >
+                                    <option>KG</option>
+                                    <option>Crate</option>
+                                    <option>Box</option>
+                                    <option>Ton</option>
+                                    <option>Quintal</option>
+                                    <option>Bag</option>
+                                 </select>
+                              </div>
                            </div>
                            <Button style={{ marginTop: "10px" }} onClick={handleRegisterProduct}>Register in Catalog</Button>
                         </div>
