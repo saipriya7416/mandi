@@ -369,12 +369,18 @@ export default function App() {
 
   const handleCreateBuyerInvoice = async () => {
     if (!buyerInvoiceForm.buyerId) return alert("⚠️ Buyer is required");
-    if (buyerInvoiceForm.items.some(i => !i.productId || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
+    if (buyerInvoiceForm.items.some(i => !i.productLabel || (!i.netWeight && !i.grossWeight))) return alert("⚠️ Product and Weight are required for all items");
 
     // Map frontend structure to expected backend schema
+    const mappedItems = buyerInvoiceForm.items.map(i => ({
+      productName: i.productLabel || "Unknown Product",
+      quantity: Number(i.netWeight) || Number(i.grossWeight) || 0,
+      rate: Number(i.rate) || 0,
+    }));
+
     const payload = {
       buyer: buyerInvoiceForm.buyerId,
-      items: buyerInvoiceForm.items,
+      items: mappedItems,
       additionalCharges: buyerInvoiceForm.charges
     };
     const res = await MandiService.generateBuyerInvoice(payload);
