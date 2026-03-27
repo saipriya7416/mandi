@@ -1293,8 +1293,7 @@ export default function App() {
               <div style={{ position:"absolute", top:"12px", right:"14px", width:"12px", height:"8px", background:"#9fb443", borderRadius:"50%", transform:"rotate(-35deg)", opacity:0.9 }} />
             </div>
           </div>
-          <h1 style={{ margin:"0 0 4px", fontWeight:"900", color:"#375144", fontSize:"32px", letterSpacing:"-1.5px" }}>SPV FRUITS</h1>
-          <p style={{ color:"#9fb443", marginBottom:"44px", fontSize:"10px", letterSpacing:"3.5px", textTransform:"uppercase", fontWeight:"900" }}>Orchard Admin Console</p>
+          <h1 style={{ margin:"0 0 44px", fontWeight:"900", color:"#375144", fontSize:"32px", letterSpacing:"-1.5px" }}>SPV FRUITS</h1>
           <div style={{ textAlign:"left" }}>
             <div style={{ marginBottom:"18px" }}>
               <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Identity</label>
@@ -1307,12 +1306,6 @@ export default function App() {
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
-              <div style={{ marginTop:"8px", padding:"10px 12px", background:"rgba(159,180,67,0.1)", borderRadius:"8px", border:"1px solid rgba(159,180,67,0.2)" }}>
-                 {authForm.role === "Owner / Admin" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Full access — all modules, reports, settings, user management, delete, void bills</p>}
-                 {authForm.role === "Accountant" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Bills, invoices, payments, ledgers, reports — NO system configuration, NO delete</p>}
-                 {authForm.role === "Operations Staff" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Create lots, allocate produce, create bills/invoices — NO payment records, NO ledger edits</p>}
-                 {authForm.role === "Viewer" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Read-only access to reports and ledgers — NO create or edit</p>}
-              </div>
             </div>
             <div>
               <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Secret Access Key</label>
@@ -1390,7 +1383,6 @@ export default function App() {
             </div>
             <div>
               <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "-0.5px", margin: 0 }}>SPV FRUITS</h2>
-              <p style={{ color: "#9fb443", fontSize: "10px", margin: "2px 0 0", fontWeight: "750", textTransform: "uppercase", letterSpacing: "0.5px" }}>Orchard Admin</p>
             </div>
           </div>
           
