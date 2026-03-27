@@ -362,7 +362,6 @@ export default function App() {
       alert(`❌ FAILED: ${res.message || "Error"}`);
     }
   };
-  };
 
   const [expenseForm, setExpenseForm] = useState({ amount: "", lotId: "", memo: "", category: "Labour" });
 
@@ -2054,21 +2053,21 @@ export default function App() {
             </div>
           )}
 
-          {/* 6 & 7. UNIFIED INVENTORY MANAGEMENT MODULE */}
           {activeSection === "Lot / Inventory Intake" &&
-            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-               <div style={{ display: "flex", gap: "10px", background: "#fff", padding: "8px", borderRadius: "20px", border: "1.5px solid #EBE9E1", width: "fit-content", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px", animation: "fadeIn 0.4s ease" }}>
+               <h1 style={{ fontSize: "18px", fontWeight: "850", color: "#64748b", margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Orchard & Mandi Operations Command Center</h1>
+               <div style={{ display: "flex", gap: "10px", background: "#fff", padding: "10px", borderRadius: "24px", border: "1.5px solid #EBE9E1", width: "fit-content", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
                   <button 
                     onClick={() => setInvMode("Allocation")} 
-                    style={{ padding: "12px 28px", borderRadius: "14px", border: "none", background: invMode === "Allocation" ? COLORS.primary : "transparent", color: invMode === "Allocation" ? "#fff" : COLORS.text, fontWeight: "800", cursor: "pointer", transition: "all 0.2s" }}
+                    style={{ padding: "12px 32px", borderRadius: "18px", border: "none", background: invMode === "Allocation" ? COLORS.sidebar : "transparent", color: invMode === "Allocation" ? "#fff" : COLORS.muted, fontSize: "15px", fontWeight: "900", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }}
                   >
-                    📤 Live Stock & Allocation
+                    Live Stock & Allocation
                   </button>
                   <button 
                     onClick={() => setInvMode("Intake")} 
-                    style={{ padding: "12px 28px", borderRadius: "14px", border: "none", background: invMode === "Intake" ? COLORS.primary : "transparent", color: invMode === "Intake" ? "#fff" : COLORS.text, fontWeight: "800", cursor: "pointer", transition: "all 0.2s" }}
+                    style={{ padding: "12px 32px", borderRadius: "18px", border: "none", background: invMode === "Intake" ? COLORS.sidebar : "transparent", color: invMode === "Intake" ? "#fff" : COLORS.muted, fontSize: "15px", fontWeight: "900", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }}
                   >
-                    📥 Lot Creation
+                    Lot Creation
                   </button>
                </div>
 
