@@ -171,7 +171,19 @@ const PRODUCT_DATA = {
   }
 };
 
-const getProductData = (productName) => PRODUCT_DATA[productName] || PRODUCT_DATA["default"];
+const getProductData = (productName) => {
+  const product = masterProducts.find(p => p.name.toLowerCase() === productName?.toLowerCase());
+  if (product) {
+    return {
+      varieties: product.varieties,
+      grades: product.grades,
+      units: product.units,
+      sizes: ["Big", "Medium", "Small", "Export Size"],
+      colors: ["Bright Red", "Natural", "Yellow-Orange"]
+    };
+  }
+  return { varieties: ["Select Product First"], grades: [], units: [], sizes: [], colors: [] };
+};
 
 const TabHeader = ({ tabs, active, set }) => (
   <div style={{ display: "flex", gap: "32px", borderBottom: "1px solid #EBE9E1", marginBottom: "32px", overflowX: "auto" }}>
@@ -627,10 +639,17 @@ export default function App() {
 
   // --- PRODUCT MASTER & CONFIGURATION STATES ---
   const [activeConfigTab, setActiveConfigTab] = useState("Product"); // "Product" | "Expense" | "System"
-  const [masterProducts, setMasterProducts] = useState([
-    { name: "Mango", varieties: ["Alphonso", "Banganapalli", "Rumani", "Nillam", "Kesar"], grades: ["A-Grade", "B-Grade", "Export"], units: ["KG", "Ton", "Crate"] },
-    { name: "Banana", varieties: ["Yelakki", "G9", "Nendran"], grades: ["Local", "Export"], units: ["KG", "Ton"] }
-  ]);
+  const [masterProducts, setMasterProducts] = useState(() => {
+    const saved = localStorage.getItem('master_products');
+    return saved ? JSON.parse(saved) : [
+      { name: "Mango", varieties: ["Alphonso", "Banganapalli", "Rumani", "Nillam", "Kesar"], grades: ["A-Grade", "B-Grade", "Export"], units: ["KG", "Ton", "Crate"] },
+      { name: "Banana", varieties: ["Yelakki", "G9", "Nendran"], grades: ["Local", "Export"], units: ["KG", "Ton"] }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('master_products', JSON.stringify(masterProducts));
+  }, [masterProducts]);
 
   const [newProductForm, setNewProductForm] = useState({
      coreProduct: "",
@@ -705,11 +724,18 @@ export default function App() {
      alert(`✅ Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`);
   };
 
-  const [masterExpenses, setMasterExpenses] = useState([
-    { id: "1", name: "Commission", type: "Percentage", default: 4, active: true },
-    { id: "2", name: "Labour/Handling", type: "Fixed", default: 0, active: true },
-    { id: "3", name: "Market Fee", type: "Percentage", default: 1, active: true },
-  ]);
+  const [masterExpenses, setMasterExpenses] = useState(() => {
+    const saved = localStorage.getItem('master_expenses');
+    return saved ? JSON.parse(saved) : [
+      { id: "1", name: "Commission", type: "Percentage", default: 4, active: true },
+      { id: "2", name: "Labour/Handling", type: "Fixed", default: 0, active: true },
+      { id: "3", name: "Market Fee", type: "Percentage", default: 1, active: true }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('master_expenses', JSON.stringify(masterExpenses));
+  }, [masterExpenses]);
   const [systemSettings, setSystemSettings] = useState({
     businessName: "SPV Fruits Trading",
     address: "Mandi Gate No. 4, Fruit Market, Guntur, AP",
@@ -1642,14 +1668,14 @@ export default function App() {
                       title: "Product Identity & Dispatch",
                       fields: [
                         { label: "Dispatch ID", disabled: true, value: "DSP-55921" },
-                        { label: "Supplier Name", type: "select", options: ["Srinivas Rao", "Priya Reddy", "Mohan Chandra", "Harika Naidu"] },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
-                        { label: "Product Name", list: dispatchType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: dispatchProduct, onChange: (e) => setDispatchProduct(e.target.value) },
+                        { label: "Supplier Name", type: "select", options: ["Srinivasa Rao", "Priya Reddy", "Mohan Chandra", "Harika Naidu"] },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
+                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: dispatchProduct, onChange: (e) => setDispatchProduct(e.target.value) },
                         { label: "Variety", type: "select", options: getProductData(dispatchProduct).varieties },
                         { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes },
                         { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
-                        { label: "Quality Grade", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] },
-                        { label: "Category", type: "select", options: ["Organic", "Inorganic"] }
+                        { label: "Quality Grade", type: "select", options: getProductData(dispatchProduct).grades },
+                        { label: "Category", type: "select", options: ["Premium", "Standard", "Local", "Export"] }
                       ]
                     },
                     {
@@ -1713,9 +1739,8 @@ export default function App() {
                     </div>
                   </div>
 
-                  <datalist id="product-list">
-                    {DB.Fruits.map(f => <option key={f} value={f} />)}
-                    {DB.Vegetables.map(v => <option key={v} value={v} />)}
+                  <datalist id="master-product-list">
+                    {masterProducts.map(p => <option key={p.name} value={p.name} />)}
                   </datalist>
                 </div>
               )}
@@ -2392,7 +2417,7 @@ export default function App() {
                                       <div key={charge.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                                             <span style={{ fontSize: "18px" }}>{charge.name.includes("Transport") ? "🚚" : charge.name.includes("Handling") ? "👷" : "💎"}</span>
-                                            <span style={{ fontWeight: "700", color: COLORS.secondary }}>{charge.name} ({charge.type === "Percentage" ? "%" : "₹"})</span>
+                                            <span style={{ fontWeight: "700", color: COLORS.secondary }}>{charge.name} ({charge.type === "Percentage" ? charge.default + "%" : "₹"})</span>
                                          </div>
                                          <input 
                                             type="number" 
