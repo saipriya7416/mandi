@@ -3131,7 +3131,13 @@ export default function App() {
                         </select>
                     </div>
                     <div>
-                 {/* Summary View */}
+                        <label style={{ fontSize: "11px", fontWeight: "800", marginBottom: "6px", display: "block", color: COLORS.primary }}>'As On Date' Balance Query</label>
+                        <input type="date" value={ledgerFilters.asOnDate} onChange={e => setLedgerFilters({...ledgerFilters, asOnDate: e.target.value})} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "2px solid " + COLORS.accent }} title="Check cumulative balance valid up to this date" />
+                    </div>
+                 </div>
+              </Card>
+
+              {/* Summary View */}
               <div className="printable-area" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
                  <Card style={{ background: "#f8fafc", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: COLORS.muted, textTransform: "uppercase" }}>Total Volume Transacted</p>
@@ -3153,14 +3159,7 @@ export default function App() {
                     </h2>
                  </Card>
               </div>
- "12px", color: "#166534", textTransform: "uppercase" }}>Total Payments {ledgerTab === "Farmer" ? "Settled" : "Received"}</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#15803d", fontSize: "28px" }}>{formatCurrency(1250000)}</h2>
-                 </Card>
-                 <Card style={{ background: "#fef2f2", border: "none" }}>
-                    <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: "#991b1b", textTransform: "uppercase" }}>{ledgerTab === "Farmer" ? "Outstanding Dues to Farmer" : "Outstanding Balance (Due from Buyer)"}</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#b91c1c", fontSize: "28px" }}>{formatCurrency(185000)}</h2>
-                 </Card>
-              </div>
+
 
               {/* Main Ledger Book */}
               <Card style={{ padding: "0", overflow: "hidden" }} className="printable-area">
