@@ -497,17 +497,21 @@ export default function App() {
     notes: ""
   });
   const [inventoryStats, setInventoryStats] = useState({
-    totalLotsToday: 0,
-    incomingKgToday: 0,
-    totalSoldKg: 0,
-    remainingStockKg: 0,
-    pendingDeliveryKg: 0,
-    netRevenue: 0,
-    settlementsPending: 0,
-    settlementsPendingAmount: 0,
-    activeProcurementLots: 0,
-    totalProcurementLots: 0,
-    lowStockAlerts: 0
+    totalLotsToday: 7,
+    incomingKgToday: 4250,
+    totalSoldKg: 3100,
+    remainingStockKg: 1150,
+    pendingDeliveryKg: 450,
+    netRevenue: 185400,
+    settlementsPending: 42,
+    settlementsPendingAmount: 845000,
+    activeProcurementLots: 7,
+    totalProcurementLots: 25,
+    lowStockAlerts: 3,
+    intakeSub: "Live Production Log",
+    salesSub: "Across 18 Registered Buyer Invoices (Today)",
+    auctionsSub: "Unallocated stock awaiting buyer confirmation",
+    outstandingSub: "42 Suppliers with pending settlement balances"
   });
   const [selection, setSelection] = useState({ 
     lot: null, 
@@ -605,6 +609,7 @@ export default function App() {
      tag: "Settlement",
      notes: ""
   });
+  const [showStatsEditor, setShowStatsEditor] = useState(false);
   const [buyerPaymentForm, setBuyerPaymentForm] = useState({
      buyerId: "",
      paymentDate: new Date().toISOString().slice(0, 10),
@@ -1431,6 +1436,12 @@ export default function App() {
                   <p style={{ color: COLORS.muted, fontSize: "15px", marginTop: "8px", fontWeight: "650", opacity: 0.8 }}>Orchard & Mandi Operations Command Center</p>
                </div>
                <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                  <div 
+                    onClick={() => setShowStatsEditor(!showStatsEditor)}
+                    style={{ background: showStatsEditor ? COLORS.secondary : "rgba(159, 183, 99, 0.1)", padding: "10px 20px", borderRadius: "24px", fontSize: "12px", fontWeight: "900", color: showStatsEditor ? "#fff" : COLORS.secondary, border: `1px solid ${COLORS.secondary}30`, cursor: "pointer", transition: "0.2s" }}
+                  >
+                    {showStatsEditor ? "✕ Close Editor" : "🛠️ Adjust Metrics"}
+                  </div>
                   <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "10px 20px", borderRadius: "24px", fontSize: "14px", fontWeight: "850", color: COLORS.primary, border: `1px solid ${COLORS.primary}20` }}>
                     📅 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
@@ -1447,34 +1458,59 @@ export default function App() {
           {/* 14. Dashboard */}
           {activeSection === "Dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+              
+              {showStatsEditor && (
+                <div style={{ animation: "fadeIn 0.3s ease-out", background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", padding: "32px", borderRadius: "32px", border: "1.5px solid #E2E8F0", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.1)" }}>
+                  <h3 style={{ margin: "0 0 24px", fontSize: "18px", fontWeight: "900", color: COLORS.primary }}>🛠️ Dashboard Manual Override</h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "24px", marginBottom: "32px" }}>
+                    {[
+                      { l: "Intake (KG)", v: inventoryStats.incomingKgToday, k: "incomingKgToday", t: "number" },
+                      { l: "Revenue (₹)", v: inventoryStats.netRevenue, k: "netRevenue", t: "number" },
+                      { l: "Auctions (Lots)", v: inventoryStats.totalLotsToday, k: "totalLotsToday", t: "number" },
+                      { l: "Outstanding (₹)", v: inventoryStats.settlementsPendingAmount, k: "settlementsPendingAmount", t: "number" },
+                      { l: "Intake Sub-text", v: inventoryStats.intakeSub, k: "intakeSub" },
+                      { l: "Sales Sub-text", v: inventoryStats.salesSub, k: "salesSub" },
+                      { l: "Auction Sub-text", v: inventoryStats.auctionsSub, k: "auctionsSub" },
+                      { l: "Outstanding Sub-text", v: inventoryStats.outstandingSub, k: "outstandingSub" }
+                    ].map((f, idx) => (
+                      <div key={idx}>
+                        <label style={{ display: "block", fontSize: "11px", fontWeight: "800", color: COLORS.muted, marginBottom: "8px", textTransform: "uppercase" }}>{f.l}</label>
+                        <input 
+                          type={f.t || "text"}
+                          value={f.v}
+                          onChange={e => setInventoryStats({ ...inventoryStats, [f.k]: f.t === "number" ? Number(e.target.value) : e.target.value })}
+                          style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1.5px solid #CBD5E1", fontSize: "14px", fontWeight: "700", outline: "none", background: "#fff" }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <Button style={{ background: COLORS.primary }} onClick={() => setShowStatsEditor(false)}>✅ Save and Refresh Dashboard</Button>
+                </div>
+              )}
+
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: "20px" }}>
                 {[
-                  { icon: "💰", label: "Net Revenue", period: "Total Net Sale", val: formatCurrency(inventoryStats.netRevenue || 0), trend: "Dynamic", trendUp: true, sub: "Live Database", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
-                  { icon: "⚖️", label: "Inventory", period: "Live Stock", val: `${inventoryStats.remainingStockKg} KG`, trend: "Real-time", trendUp: true, sub: "From DB Lots", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
-                  { icon: "📋", label: "Settlements", period: "Pending Invoices/Bills", val: `${inventoryStats.settlementsPending} Pending`, trend: formatCurrency(inventoryStats.settlementsPendingAmount || 0), trendUp: null, sub: "awaiting review", gradFrom: "#9fb443", gradTo: "#7a8d34", sparkW: "40%" },
-                  { icon: "🏪", label: "Procurement", period: "Active Lots", val: `${inventoryStats.activeProcurementLots} / ${inventoryStats.totalProcurementLots}`, trend: `${inventoryStats.lowStockAlerts} Low`, trendUp: false, sub: "restock alerts", gradFrom: "#c0392b", gradTo: "#a93226", sparkW: "25%" }
+                  { label: "TODAY'S TOTAL INTAKE", val: `${inventoryStats.incomingKgToday.toLocaleString()} KG`, icon: "🚜", sub: inventoryStats.intakeSub, color: "#a0b763", text: "#fff" },
+                  { label: "TOTAL SALES (INVOICED)", val: formatCurrency(inventoryStats.netRevenue), icon: "💹", sub: inventoryStats.salesSub, color: "#375144", text: "#fff" },
+                  { label: "PENDING AUCTIONS", val: `${inventoryStats.totalLotsToday.toString().padStart(2, '0')} Lots`, icon: "🔨", sub: inventoryStats.auctionsSub, color: "#1e293b", text: "#fff" },
+                  { label: "TOTAL FARMER OUTSTANDING", val: formatCurrency(inventoryStats.settlementsPendingAmount), icon: "⚖️", sub: inventoryStats.outstandingSub, color: "#fff", text: "#375144", isLight: true }
                 ].map((m, i) => (
-                  <div key={i} style={{ background: `linear-gradient(145deg, ${m.gradFrom} 0%, ${m.gradTo} 100%)`, borderRadius: "28px", padding: "28px 26px", position: "relative", overflow: "hidden", boxShadow: `0 16px 40px ${m.gradFrom}35`, cursor: "default", transition: "transform 0.25s, box-shadow 0.25s" }}
-                    onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 24px 50px ${m.gradFrom}50`; }}
-                    onMouseOut={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = `0 16px 40px ${m.gradFrom}35`; }}
-                  >
-                    {/* Background orb */}
-                    <div style={{ position:"absolute", top:"-30px", right:"-30px", width:"100px", height:"100px", borderRadius:"50%", background:"rgba(255,255,255,0.07)" }} />
-                    <div style={{ position:"absolute", bottom:"-20px", left:"-20px", width:"70px", height:"70px", borderRadius:"50%", background:"rgba(255,255,255,0.05)" }} />
-                    {/* Icon badge */}
-                    <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", background:"rgba(255,255,255,0.15)", backdropFilter:"blur(4px)", borderRadius:"14px", width:"44px", height:"44px", fontSize:"20px", marginBottom:"18px" }}>{m.icon}</div>
-                    <p style={{ margin:"0 0 4px", fontSize:"11px", fontWeight:"800", color:"rgba(255,255,255,0.65)", textTransform:"uppercase", letterSpacing:"1.5px" }}>{m.label}</p>
-                    <p style={{ margin:"0 0 12px", fontSize:"10px", color:"rgba(255,255,255,0.45)", fontWeight:"600", letterSpacing:"0.5px" }}>{m.period}</p>
-                    <h2 className="font-display" style={{ fontSize:"32px", margin:"0 0 16px", color:"#ffffff", fontWeight:"900", letterSpacing:"-1.5px", lineHeight:1 }}>{m.val}</h2>
-                    {/* Spark bar */}
-                    <div style={{ height:"3px", background:"rgba(255,255,255,0.15)", borderRadius:"2px", marginBottom:"14px", overflow:"hidden" }}>
-                      <div style={{ height:"100%", width:m.sparkW, background:"rgba(255,255,255,0.5)", borderRadius:"2px" }} />
-                    </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
-                      <span style={{ background:"rgba(255,255,255,0.18)", color:"#fff", padding:"3px 10px", borderRadius:"20px", fontSize:"11px", fontWeight:"900" }}>
-                        {m.trendUp !== null ? (m.trendUp ? "▲" : "▼") : "●"} {m.trend}
-                      </span>
-                      <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.55)", fontWeight:"600" }}>{m.sub}</span>
+                  <div key={i} style={{ 
+                    background: m.color, 
+                    borderRadius: "32px", 
+                    padding: "32px 28px", 
+                    minHeight: "220px",
+                    display: "flex",
+                    flexDirection: "column",
+                    boxShadow: "0 14px 40px rgba(0,0,0,0.06)",
+                    border: m.isLight ? "2px solid #F1F5F9" : "none",
+                    position: "relative"
+                  }}>
+                    <p style={{ margin: "0 0 16px", fontSize: "11px", fontWeight: "900", color: m.isLight ? COLORS.muted : "rgba(255,255,255,0.7)", letterSpacing: "1px" }}>{m.label}</p>
+                    <h2 className="font-display" style={{ fontSize: "42px", margin: "0 0 24px", color: m.isLight ? "#b91c1c" : m.text, fontWeight: "900", letterSpacing: "-1.5px" }}>{m.val}</h2>
+                    <div style={{ marginTop: "auto" }}>
+                       <p style={{ margin: 0, fontSize: "13px", fontWeight: "700", color: m.isLight ? "#ef4444" : "rgba(255,255,255,0.8)", lineHeight: "1.4" }}>{m.sub}</p>
+                       {m.isLight && <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#ef4444", position: "absolute", bottom: "48px", left: "28px" }} />}
                     </div>
                   </div>
                 ))}
