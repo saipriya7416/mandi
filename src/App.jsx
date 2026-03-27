@@ -2538,12 +2538,17 @@ export default function App() {
                                       <td style={{ padding: "10px", border: `1px solid ${COLORS.secondary}10`, minWidth: "250px" }}>
                                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                                             {item.isManual && !isBillLocked ? (
-                                               <input 
-                                                  style={{ border: "none", background: "none", color: COLORS.secondary, fontWeight: "900", fontSize: "14px", outline: "none", textTransform: "uppercase", width: "100%", borderBottom: "1px dashed #ccc" }}
+                                               <select 
+                                                  style={{ border: "none", background: "none", color: COLORS.secondary, fontWeight: "900", fontSize: "14px", outline: "none", textTransform: "uppercase", width: "100%", borderBottom: "1px dashed #ccc", cursor: "pointer" }}
                                                   value={item.lineItem?.product || ""}
                                                   onChange={e => handleUpdateSettlementItem(idx, "product", e.target.value)}
-                                                  placeholder="Product Name"
-                                               />
+                                               >
+                                                  <option value="">Select Product...</option>
+                                                  {["MANGO", "BANANA", "TOMATO", "PAPAYA", "GRAPES", "POMEGRANATE", "GUAVA", "ORANGE", "WATERMELON", "BRINJAL", "CHILLI", "POTATO", "ONION", "CUSTARD APPLE", "SAPOTA"].map(fruit => (
+                                                     <option key={fruit} value={fruit}>{fruit}</option>
+                                                  ))}
+                                                  <option value="OTHER">OTHER / MISC</option>
+                                               </select>
                                             ) : (
                                                <b style={{ textTransform: "uppercase", color: COLORS.secondary, fontSize: "14px" }}>{item.lineItem?.product}</b>
                                             )}
