@@ -676,6 +676,35 @@ export default function App() {
      });
   };
 
+  const [newExpenseForm, setNewExpenseForm] = useState({
+     label: "",
+     type: "Percentage",
+     defaultValue: 0
+  });
+
+  const handleCreateExpense = () => {
+     if (!newExpenseForm.label) {
+        alert("⚠️ Please enter a label for the expense.");
+        return;
+     }
+
+     const newExpense = {
+        id: (masterExpenses.length + 1).toString(),
+        name: newExpenseForm.label,
+        type: newExpenseForm.type,
+        default: Number(newExpenseForm.defaultValue) || 0,
+        active: true
+     };
+
+     setMasterExpenses([...masterExpenses, newExpense]);
+     setNewExpenseForm({
+        label: "",
+        type: "Percentage",
+        defaultValue: 0
+     });
+     alert(`✅ Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`);
+  };
+
   const [masterExpenses, setMasterExpenses] = useState([
     { id: "1", name: "Commission", type: "Percentage", default: 4, active: true },
     { id: "2", name: "Labour/Handling", type: "Fixed", default: 0, active: true },
