@@ -605,6 +605,7 @@ export default function App() {
      tag: "Settlement",
      notes: ""
   });
+  const [dashboardTimeFrame, setDashboardTimeFrame] = useState("Today");
   const [buyerPaymentForm, setBuyerPaymentForm] = useState({
      buyerId: "",
      paymentDate: new Date().toISOString().slice(0, 10),
@@ -1447,6 +1448,22 @@ export default function App() {
           {/* 14. Dashboard */}
           {activeSection === "Dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "900", color: COLORS.sidebar, letterSpacing: "-0.5px" }}>Performance Intelligence</h3>
+                  <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>Analyzing {dashboardTimeFrame}'s operations vs system benchmarks</p>
+                </div>
+                <div style={{ background: "#F1F5F9", padding: "4px", borderRadius: "12px", display: "flex", gap: "4px" }}>
+                  {["Today", "Yesterday"].map(tf => (
+                    <button 
+                      key={tf}
+                      onClick={() => setDashboardTimeFrame(tf)}
+                      style={{ padding: "8px 16px", borderRadius: "8px", border: "none", fontSize: "12px", fontWeight: "850", cursor: "pointer", background: dashboardTimeFrame === tf ? COLORS.primary : "transparent", color: dashboardTimeFrame === tf ? "#fff" : COLORS.muted, transition: "0.2s" }}
+                    >{tf}</button>
+                  ))}
+                </div>
+              </div>
+
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: "20px" }}>
                 {[
                   { icon: "💰", label: "Net Revenue", period: "Total Net Sale", val: formatCurrency(inventoryStats.netRevenue || 0), trend: "Dynamic", trendUp: true, sub: "Live Database", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
