@@ -2169,6 +2169,7 @@ export default function App() {
                                                    style={{ flex: 2, padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0", fontWeight: "700" }}
                                                    value={item.productLabel}
                                                    onChange={e => handleUpdateInvoiceItem(idx, "productLabel", e.target.value)}
+                                                />
                                                 <input 
                                                    placeholder="Grade" 
                                                    style={{ width: "60px", padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "11px", textAlign: "center" }}
