@@ -1612,11 +1612,11 @@ export default function App() {
                     <div 
                       onClick={() => setActiveUserRoleTab("Supplier")}
                       style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Supplier" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Supplier" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
-                    >🏢 Supplier Registration</div>
+                    >Supplier Registration</div>
                     <div 
                       onClick={() => setActiveUserRoleTab("Buyer")}
                       style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Buyer" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Buyer" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
-                    >💎 Customer Registration</div>
+                    >Customer Registration</div>
                   </div>
                </div>
             </div>
@@ -1651,7 +1651,7 @@ export default function App() {
                       fields: [
                         { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements" },
                         { label: "IFSC Code", placeholder: "Bank branch code" },
-                        { label: "Advance Balance (₹)", disabled: true, value: "Auto-calculated", placeholder: "Running advance held by SPV" },
+                        { label: "Advance Balance (₹)", type: "number", placeholder: "Running advance held by SPV" },
                         { label: "Notes", placeholder: "Free-form notes" }
                       ]
                     }
@@ -1874,7 +1874,7 @@ export default function App() {
                       fields: [
                         { label: "Credit Limit (₹) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
                         { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
-                        { label: "Outstanding Balance (₹)", disabled: true, value: "Auto-calculated", placeholder: "Auto-calculated from invoices - payments" },
+                        { label: "Outstanding Balance (₹)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
                         { label: "Notes", placeholder: "Free-form notes" }
                       ]
                     }
