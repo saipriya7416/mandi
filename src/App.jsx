@@ -1681,7 +1681,7 @@ export default function App() {
                       fields: [
                         { label: "Dispatch ID", disabled: true, value: `DSP-${Math.floor(10000 + Math.random() * 90000)}` },
                         { label: "Supplier Name", type: "select", options: ["Select Supplier", ...suppliers.map(s => s.name)], value: intakeForm?.supplierId || "", onChange: e => setIntakeForm({...intakeForm, supplierId: e.target.value}) },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Spices", "Grains", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
                         { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
                            const val = e.target.value;
                            const newItems = [...(intakeForm?.lineItems || [])];
@@ -1689,11 +1689,12 @@ export default function App() {
                            setDispatchProduct(val);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Variety", type: "select", options: getProductData(dispatchProduct).varieties, value: intakeForm?.lineItems?.[0]?.variety || "", onChange: e => {
+                        { label: "Variety (Seed Type)", type: "select", options: getProductData(dispatchProduct).varieties, value: intakeForm?.lineItems?.[0]?.variety || "", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].variety = e.target.value;
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
+                        { label: "Seed Origin", type: "select", options: ["Hybrid", "Desi (Native)", "F1 Hybrid", "Imported", "Wild"] },
                         { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes, value: intakeForm?.lineItems?.[0]?.grade || "", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].grade = e.target.value;
@@ -1701,7 +1702,8 @@ export default function App() {
                         }},
                         { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
                         { label: "Quality Grade", type: "select", options: getProductData(dispatchProduct).grades },
-                        { label: "Category", type: "select", options: ["Premium", "Standard", "Local", "Export"] }
+                        { label: "Growth Method", type: "select", options: ["Conventional", "Organic (Certified)", "Chemical Free", "Zero Budget (ZBNF)"] },
+                        { label: "Category", type: "select", options: ["Premium (Export)", "Standard (A)", "Local (B)", "Processing (C)"] }
                       ]
                     },
                     {
@@ -1712,27 +1714,30 @@ export default function App() {
                            if (newItems.length > 0) newItems[0].estimatedRate = Number(e.target.value);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Quantity", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
+                        { label: "Total Quantity (Net)", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].grossWeight = Number(e.target.value);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Unit Type", type: "select", options: ["KG", "Ton", "Crate"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
+                        { label: "Weight Unit", type: "select", options: ["KG", "Tones", "Quintals", "Crates", "Bags"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].unit = e.target.value;
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
+                        { label: "Packaging Type", type: "select", options: ["Plastic Crates", "Gunny Bags", "Wooden Boxes", "Corrugated", "Loose Load"] },
+                        { label: "Stacking / Load Type", type: "select", options: ["Single Stack", "Double Stack", "Bulk", "Cold Chain"] },
                         { label: "Number of Trucks", type: "number", placeholder: "1" },
                         { label: "Truck Number", placeholder: "TS 09 EU 1234", value: intakeForm?.vehicleNumber || "", onChange: e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value}) },
                         { label: "Driver Name", value: intakeForm?.driverName || "", onChange: e => setIntakeForm({...intakeForm, driverName: e.target.value}) },
                         { label: "Driver Mobile", type: "tel" },
                         { label: "Loading Date", type: "date", value: intakeForm?.entryDate || "", onChange: e => setIntakeForm({...intakeForm, entryDate: e.target.value}) },
-                        { label: "Destination" },
+                        { label: "Origin (Village/Hub)", placeholder: "Specify source" },
+                        { label: "Destination (Market)", placeholder: "Madanapalle Market" },
                         { label: "Total Cost (₹)", type: "number", disabled: true, value: (Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) || 0 },
-                        { label: "Tax (%)", type: "number", value: "5" },
-                        { label: "Extra Charges (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Tax / Mandi Fee (%)", type: "number", value: "5" },
+                        { label: "Extra Charges (Handling)", type: "number", placeholder: "0.00" },
                         { label: "Net Total (₹)", type: "number", disabled: true, value: ((Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) * 1.05) || 0 },
-                        { label: "Remarks", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
+                        { label: "Remarks / Special Handling", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
@@ -1907,29 +1912,34 @@ export default function App() {
                       fields: [
                         { label: "Order ID", disabled: true, value: `ORD-PO-${Math.floor(100 + Math.random() * 900)}` },
                         { label: "Buyer Name", type: "select", options: ["Select Buyer", ...buyers.map(b => b.name)], value: buyerOrderForm.buyerId, onChange: e => setBuyerOrderForm({...buyerOrderForm, buyerId: e.target.value}) },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"], value: poType, onChange: (e) => setPoType(e.target.value) },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Spices", "Grains", "Industrial"], value: poType, onChange: (e) => setPoType(e.target.value) },
                         { label: "Product Name", list: poType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: buyerOrderForm.product, onChange: (e) => {
                            setPoProduct(e.target.value);
                            setBuyerOrderForm({...buyerOrderForm, product: e.target.value});
                         } },
-                        { label: "Required Variety", type: "select", options: getProductData(buyerOrderForm.product).varieties, value: buyerOrderForm.variety, onChange: e => setBuyerOrderForm({...buyerOrderForm, variety: e.target.value}) },
+                        { label: "Required Variety (Seed Type)", type: "select", options: getProductData(buyerOrderForm.product).varieties, value: buyerOrderForm.variety, onChange: e => setBuyerOrderForm({...buyerOrderForm, variety: e.target.value}) },
+                        { label: "Target Seed Origin", type: "select", options: ["Hybrid", "Desi (Native)", "F1 Hybrid", "Imported", "Any Market Grade"] },
                         { label: "Required Size", type: "select", options: getProductData(buyerOrderForm.product).sizes, value: buyerOrderForm.grade, onChange: e => setBuyerOrderForm({...buyerOrderForm, grade: e.target.value}) },
-                        { label: "Required Color", type: "select", options: getProductData(buyerOrderForm.product).colors },
-                        { label: "Required Quality", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] }
+                        { label: "Color / Maturity", type: "select", options: getProductData(buyerOrderForm.product).colors },
+                        { label: "Required Quality", type: "select", options: ["Premium (Export)", "A Grade (Domestic)", "B Grade (Local)", "Processing"] },
+                        { label: "Growth Method Pref.", type: "select", options: ["Conventional", "Organic Pref.", "Natural / ZBNF Only", "Any"] }
                       ]
                     },
                     {
                       title: "Fulfillment Details",
                       fields: [
                         { label: "Required Quantity", type: "number", placeholder: "0", value: buyerOrderForm.quantity, onChange: e => setBuyerOrderForm({...buyerOrderForm, quantity: e.target.value}) },
-                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"], value: buyerOrderForm.unit, onChange: e => setBuyerOrderForm({...buyerOrderForm, unit: e.target.value}) },
+                        { label: "Weight Unit", type: "select", options: ["KG", "Tones", "Quintals", "Crates", "Bags"], value: buyerOrderForm.unit, onChange: e => setBuyerOrderForm({...buyerOrderForm, unit: e.target.value}) },
+                        { label: "Fulfillment Window", type: "select", options: ["Prompt (24h)", "2-3 Days", "Weekly", "Seasonal Contract"] },
+                        { label: "Truck Requirement", type: "select", options: ["Single LCV", "Heavy Multi-axle", "Cold Chain (Reefer)", "No Transport Needed"] },
                         { label: "Number of Trucks Required", type: "number", placeholder: "1", value: buyerOrderForm.vehicleRequired, onChange: e => setBuyerOrderForm({...buyerOrderForm, vehicleRequired: e.target.value}) },
-                        { label: "Packing Type", type: "select", options: ["Standard Corrugated", "Plastic Crates", "Wooden Boxes", "Loose Loads"] },
-                        { label: "Delivery Date", type: "date", value: buyerOrderForm.orderDate, onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
-                        { label: "Delivery Location", placeholder: "Destination Hub" },
+                        { label: "Packing Requirement", type: "select", options: ["Retail Brand Packaging", "Standard Corrugated", "Plastic Crates", "Gunny Bags", "Loose Loads"] },
+                        { label: "Target Delivery Date", type: "date", value: buyerOrderForm.orderDate, onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
+                        { label: "Destination Hub / Stall", placeholder: "Hub ID or Stall Number" },
                         { label: "Preferred Rate (₹)", type: "number", placeholder: "Target max price", value: buyerOrderForm.targetRate, onChange: e => setBuyerOrderForm({...buyerOrderForm, targetRate: e.target.value}) },
-                        { label: "Urgency Level", type: "select", options: ["Normal", "High", "Critical (Same Day)"] },
-                        { label: "Notes", value: buyerOrderForm.notes, onChange: e => setBuyerOrderForm({...buyerOrderForm, notes: e.target.value}) }
+                        { label: "Urgency Level", type: "select", options: ["Normal", "High", "Critical (Immediate)"] },
+                        { label: "Loading / Unloading Pref.", type: "select", options: ["Mechanical", "Manual (Labour)", "Mixed"] },
+                        { label: "Special Notes", value: buyerOrderForm.notes, onChange: e => setBuyerOrderForm({...buyerOrderForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
