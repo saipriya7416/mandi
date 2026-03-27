@@ -606,6 +606,10 @@ export default function App() {
      notes: ""
   });
   const [dashboardTimeFrame, setDashboardTimeFrame] = useState("Today");
+  const [correctionLog, setCorrectionLog] = useState([
+    { id: 1, date: "2026-03-27 15:30", party: "P. Srinivasa Rao", type: "Debit", amount: 1500, reason: "Excess weighing adjustment" },
+    { id: 2, date: "2026-03-27 14:15", party: "K. Mohan Reddy", type: "Credit", amount: 2000, reason: "Unrecorded lot correction" }
+  ]);
   const [buyerPaymentForm, setBuyerPaymentForm] = useState({
      buyerId: "",
      paymentDate: new Date().toISOString().slice(0, 10),
@@ -4291,6 +4295,27 @@ export default function App() {
                                   <option>{f} filter...</option>
                                </select>
                             ))}
+                         </div>
+
+                         {/* Admin Audit Table - Added for Traceability */}
+                         <div style={{ marginTop: "32px", padding: "20px", background: "#fef2f250", borderRadius: "16px", border: "1.5px solid #FEF2F2" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                               <h5 style={{ margin: 0, fontSize: "13px", fontWeight: "900", color: COLORS.sidebar, textTransform: "uppercase" }}>🛡️ Audit & Correction Logs</h5>
+                               <span style={{ fontSize: "10px", fontWeight: "900", background: "#FEF2F2", color: "#B91C1C", padding: "2px 10px", borderRadius: "10px" }}>AUDIT READY</span>
+                            </div>
+                            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                               <tbody>
+                                  {correctionLog.map((log, i) => (
+                                     <tr key={i} style={{ borderBottom: "1px solid #EBE9E1" }}>
+                                        <td style={{ padding: "10px 0", fontSize: "11px", color: COLORS.muted }}>{log.date}</td>
+                                        <td style={{ padding: "10px 0", fontSize: "12px", fontWeight: "800", color: COLORS.sidebar }}>{log.party}</td>
+                                        <td style={{ padding: "10px 0", fontSize: "11px", fontWeight: "900", color: log.type === "Debit" ? "#B91C1C" : "#16A34A" }}>[{log.type}]</td>
+                                        <td style={{ padding: "10px 0", fontSize: "12px", fontWeight: "900" }}>{formatCurrency(log.amount)}</td>
+                                        <td style={{ padding: "10px 0", fontSize: "11px", color: COLORS.muted, textAlign: "right", fontStyle: "italic" }}>"{log.reason}"</td>
+                                     </tr>
+                                  ))}
+                               </tbody>
+                            </table>
                          </div>
                          
                          <div style={{ overflowX: "auto", border: "1.5px solid #f1f5f9", borderRadius: "20px", background: "#fff" }}>
