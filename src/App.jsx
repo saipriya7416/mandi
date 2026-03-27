@@ -2148,7 +2148,6 @@ export default function App() {
                               <thead>
                                  <tr style={{ textAlign: "left", color: COLORS.muted, fontSize: "11px", fontWeight: "900", textTransform: "uppercase" }}>
                                     <th style={{ padding: "0 15px" }}>Item Description</th>
-                                    <th style={{ padding: "0 15px" }}>Source Lot (Auto-Link)</th>
                                     {weightDisplayMode === "COMPREHENSIVE" && <th style={{ padding: "0 15px", textAlign: "right" }}>Gross</th>}
                                     {weightDisplayMode === "COMPREHENSIVE" && <th style={{ padding: "0 15px", textAlign: "right" }}>Deductions</th>}
                                     <th style={{ padding: "0 15px", textAlign: "right" }}>Net Qty</th>
