@@ -1286,12 +1286,7 @@ export default function App() {
         <div style={{ position:"absolute", bottom:"-120px", left:"-100px", width:"420px", height:"420px", background:"#9fb443", borderRadius:"50%", opacity:0.07 }} />
         <div style={{ animation:"floatUp 0.5s ease-out", width:"460px", background:"#ffffff", borderRadius:"40px", padding:"56px 50px 48px", boxShadow:"0 30px 70px rgba(55,81,68,0.15)", border:"1.5px solid rgba(159,180,67,0.2)", textAlign:"center", position:"relative", zIndex:1 }}>
           <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
-            <div style={{ position:"relative", width:"96px", height:"96px", background:"linear-gradient(145deg, #375144, #2d4137)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 14px 35px rgba(55,81,68,0.35)" }}>
-              <div style={{ position:"absolute", inset:"7px", borderRadius:"50%", border:"3.5px solid #9fb443", opacity:0.65 }} />
-              <div style={{ position:"absolute", inset:"14px", borderRadius:"50%", border:"2px solid #9fb443", opacity:0.25 }} />
-              <span style={{ color:"#9fb443", fontSize:"20px", fontWeight:"900", letterSpacing:"-0.5px", zIndex:1 }}>SPV</span>
-              <div style={{ position:"absolute", top:"12px", right:"14px", width:"12px", height:"8px", background:"#9fb443", borderRadius:"50%", transform:"rotate(-35deg)", opacity:0.9 }} />
-            </div>
+            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits Logo" style={{ width: "96px", height: "96px", objectFit: "contain", filter: "drop-shadow(0 10px 20px rgba(55,81,68,0.15))" }} />
           </div>
           <h1 style={{ margin:"0 0 44px", fontWeight:"900", color:"#375144", fontSize:"32px", letterSpacing:"-1.5px" }}>SPV FRUITS</h1>
           <div style={{ textAlign:"left" }}>
@@ -1377,10 +1372,7 @@ export default function App() {
           boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
         }}>
           <div style={{ padding: "0 24px 32px 24px", display: "flex", alignItems: "center", gap: "14px" }}>
-            <div style={{ position:"relative", background: "linear-gradient(145deg, #375144, #2d4137)", width: "48px", height: "48px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow:"0 6px 18px rgba(0,0,0,0.3)" }}>
-              <div style={{ position:"absolute", inset:"4px", borderRadius:"50%", border:"2px solid #9fb443", opacity:0.5 }} />
-              <span style={{ color:"#9fb443", fontSize:"13px", fontWeight:"900", zIndex:1 }}>SPV</span>
-            </div>
+            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits" style={{ width: "48px", height: "48px", objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
             <div>
               <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "-0.5px", margin: 0 }}>SPV FRUITS</h2>
             </div>
