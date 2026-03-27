@@ -682,7 +682,7 @@ export default function App() {
      defaultValue: 0
   });
 
-  const handleCreateExpense = () => {
+  const handleRegisterExpenseCategory = () => {
      if (!newExpenseForm.label) {
         alert("⚠️ Please enter a label for the expense.");
         return;
@@ -3805,7 +3805,7 @@ export default function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "32px" }}>
                      <Card title="Register Expense Category" subtitle="Admin can add/rename billing deductions">
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <Input label="Category Label" placeholder="e.g. Loading Fee" />
+                           <Input label="Category Label" placeholder="e.g. Loading Fee" value={newExpenseForm.label} onChange={e=>setNewExpenseForm({...newExpenseForm, label: e.target.value})} />
                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                               <div>
                                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Calculation Type</label>
@@ -3813,9 +3813,9 @@ export default function App() {
                                     <option>Percentage (%)</option><option>Fixed Amount (₹)</option>
                                  </select>
                               </div>
-                              <Input label="Default Value" placeholder="e.g. 4" />
+                              <Input label="Default Value" placeholder="e.g. 4" value={newExpenseForm.defaultValue} onChange={e=>setNewExpenseForm({...newExpenseForm, defaultValue: e.target.value})} />
                            </div>
-                           <Button style={{ marginTop: "10px" }}>Create Ledger Category</Button>
+                           <Button style={{ marginTop: "10px" }} onClick={handleRegisterExpenseCategory}>Create Ledger Category</Button>
                         </div>
                      </Card>
                      <Card title="Expense Master List" subtitle="Manage appearing categories in Bills/Invoices">
