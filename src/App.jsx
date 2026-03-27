@@ -1251,20 +1251,15 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "Dashboard", icon: "📊", roles: ["Owner / Admin", "Accountant", "Operations Staff", "Viewer"] },
-    { id: "User Role", icon: "👥", roles: ["Owner / Admin", "Operations Staff"], label: "Profiles" },
-    { id: "Inventory Allocation", icon: "📦", roles: ["Owner / Admin", "Operations Staff"] },
-    { id: "Supplier Billing", icon: "⚖️", roles: ["Owner / Admin", "Accountant", "Operations Staff"] },
-    { id: "Buyer Invoicing", icon: "🧾", roles: ["Owner / Admin", "Accountant", "Operations Staff"] },
-    { id: "Ledger System", icon: "📖", roles: ["Owner / Admin", "Accountant", "Viewer"] },
-    { id: "CONNECTION", icon: "🔗", roles: ["Owner / Admin", "Accountant", "Viewer"] },
-    { id: "Payment & Settlement Management", icon: "💳", roles: ["Owner / Admin", "Accountant"] },
-    { id: "Transportation Tracking", icon: "🚚", roles: ["Owner / Admin", "Operations Staff", "Accountant"] },
-    { id: "Expense Management", icon: "💸", roles: ["Owner / Admin", "Accountant", "Operations Staff"] },
-    { id: "Reports", icon: "📄", roles: ["Owner / Admin", "Accountant", "Viewer"] },
-    { id: "Product Master & Configuration", icon: "⚙️", roles: ["Owner / Admin"] },
-    { id: "User Roles, Access Control & Security", icon: "🛡️", roles: ["Owner / Admin"] },
-    { id: "Document Management", icon: "📂", roles: ["Owner / Admin"] }
+    { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
+    { id: "Lot / Inventory Intake", roles: ["Owner / Admin", "Operations Staff"], label: "Lot / Inventory Intake" },
+    { id: "Inventory Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation" },
+    { id: "Supplier Billing", roles: ["Owner / Admin", "Accountant", "Operations Staff"], label: "Supplier Billing" },
+    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Accountant", "Operations Staff"], label: "Customer Invoicing" },
+    { id: "Ledger System", roles: ["Owner / Admin", "Accountant", "Viewer"], label: "Ledger System" },
+    { id: "Payment & Settlement Management", roles: ["Owner / Admin", "Accountant"], label: "Payment & Settlement" },
+    { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff", "Accountant"], label: "Transportation Tracking" },
+    { id: "Dashboard", roles: ["Owner / Admin", "Accountant", "Operations Staff", "Viewer"], label: "Dashboard & Reports" }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
@@ -1392,13 +1387,12 @@ export default function App() {
                 }}
                 style={{
                   padding: item.isSub ? "8px 16px 8px 36px" : "12px 18px", borderRadius: "14px", marginBottom: "6px", cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: "14px", transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  display: "flex", alignItems: "center", transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   background: activeSection === item.id ? "rgba(160, 183, 99, 0.15)" : "transparent",
                   color: activeSection === item.id ? "#ffffff" : "#AEC4BB",
                 }}
               >
-                <span style={{ fontSize: item.isSub ? "14px" : "18px", opacity: activeSection === item.id ? 1 : 0.6, transform: activeSection === item.id ? "scale(1.1)" : "scale(1)" }}>{item.icon}</span>
-                <span style={{ fontWeight: activeSection === item.id ? "850" : "550", fontSize: item.isSub ? "12px" : "14px", letterSpacing: "0.2px" }}>{item.id}</span>
+                <span style={{ fontWeight: activeSection === item.id ? "850" : "550", fontSize: item.isSub ? "12px" : "14px", letterSpacing: "0.2px" }}>{item.label || item.id}</span>
               </div>
             ))}
           </div>
@@ -1613,16 +1607,16 @@ export default function App() {
           {activeSection === "User Role" && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
                <div>
-                  <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>System User Matrix</h2>
+                  <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Party Management</h2>
                   <div style={{ display: "flex", gap: "20px" }}>
                     <div 
                       onClick={() => setActiveUserRoleTab("Supplier")}
                       style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Supplier" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Supplier" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
-                    >🏢 Supplier Pipeline</div>
+                    >🏢 Supplier Registration</div>
                     <div 
                       onClick={() => setActiveUserRoleTab("Buyer")}
                       style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Buyer" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Buyer" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
-                    >💎 Buyer Pipeline</div>
+                    >💎 Customer Registration</div>
                   </div>
                </div>
             </div>
@@ -1631,8 +1625,6 @@ export default function App() {
           {/* Supplier Role Module (Handles both direct "Supplier" and nested "User Role") */}
           {(activeSection === "Supplier" || (activeSection === "User Role" && activeUserRoleTab === "Supplier")) && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              
-              <TabHeader tabs={["Supplier Registration", "Dispatch Entry", "Supplier Accounts"]} active={activeSupplierTab} set={setActiveSupplierTab} />
 
               {activeSupplierTab === "Supplier Registration" && (
                 <div>
@@ -1868,8 +1860,6 @@ export default function App() {
           {/* Buyer Role Module */}
           {((activeSection === "User Role" && activeUserRoleTab === "Buyer")) && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              
-              <TabHeader tabs={["Buyer Registration", "Purchase Order", "Buyer Accounts"]} active={activeBuyerTab} set={setActiveBuyerTab} />
 
               {activeBuyerTab === "Buyer Registration" && (
                 <div>
