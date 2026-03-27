@@ -463,12 +463,12 @@ export default function App() {
   };
   const [intakeForm, setIntakeForm] = useState({ 
     supplierId: "", 
-    entryDate: new Date().toISOString().slice(0, 10),
+    entryDate: new Date().toISOString().slice(0, 16),
     vehicleNumber: "",
     driverName: "",
     origin: "",
     notes: "",
-    lineItems: [{ product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
+    lineItems: [{ product: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
   });
   const [inventoryStats, setInventoryStats] = useState({
     totalLotsToday: 0,
@@ -899,17 +899,35 @@ export default function App() {
     if (!intakeForm.supplierId) return alert("⚠️ Supplier is required");
     if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
     
-    const res = await MandiService.addLot(intakeForm);
+    const payload = {
+       supplier: intakeForm.supplierId,
+       entryDate: intakeForm.entryDate,
+       vehicleNumber: intakeForm.vehicleNumber,
+       driverName: intakeForm.driverName,
+       origin: intakeForm.origin,
+       notes: intakeForm.notes,
+       lineItems: intakeForm.lineItems.map(i => ({
+          product: i.product || i.productLabel || "Unknown",
+          variety: i.variety || "Standard", 
+          grade: i.grade || "A",
+          grossWeight: Number(i.grossWeight) || 0,
+          deductions: Number(i.deductions) || 0,
+          boxes: Number(i.boxes) || 0,
+          estimatedRate: Number(i.estimatedRate) || 0
+       }))
+    };
+    
+    const res = await MandiService.addLot(payload);
     if (res.status === "SUCCESS") {
-      alert(`💾 SUCCESS: Lot ${res.data.lotId} recorded!`);
+      alert(`💾 SUCCESS: Lot ${res.data.lotId} recorded! Net weight added to Live Stock.`);
       setIntakeForm({ 
         supplierId: "", 
-        entryDate: new Date().toISOString().slice(0, 10),
+        entryDate: new Date().toISOString().slice(0, 16), // datetime-local format
         vehicleNumber: "",
         driverName: "",
         origin: "",
         notes: "",
-        lineItems: [{ product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
+        lineItems: [{ product: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
       });
       fetchData();
     } else {
@@ -2097,7 +2115,7 @@ export default function App() {
                            </div>
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr", gap: "40px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "32px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "40px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "32px", paddingBottom: "32px" }}>
                            <div>
                               <label style={{ fontSize: "10px", fontWeight: "900", opacity: 0.5, marginBottom: "10px", display: "block" }}>BUYER NAME (M/s)</label>
                               <select 
@@ -2108,7 +2126,7 @@ export default function App() {
                                  <option value="" style={{ color: "#000" }}>-- Select Target Buyer Profile --</option>
                                  {buyers.map(b => <option key={b._id} value={b._id} style={{ color: "#000" }}>{b.shopName || b.name}</option>)}
                               </select>
-                              <div style={{ mt: "16px", display: "flex", gap: "25px", marginTop: "16px" }}>
+                              <div style={{ display: "flex", gap: "25px", marginTop: "16px" }}>
                                  <div>
                                    <small style={{ fontWeight: "800", opacity: 0.4, fontSize: "10px", display: "block" }}>MOBILE CONTACT</small>
                                    <span style={{ fontWeight: "700", fontSize: "14px" }}>{buyerInvoiceForm.buyerPhone || "Not Assigned"}</span>
@@ -2117,44 +2135,6 @@ export default function App() {
                                    <small style={{ fontWeight: "800", opacity: 0.4, fontSize: "10px", display: "block" }}>DISPATCH ADDRESS</small>
                                    <span style={{ fontWeight: "700", fontSize: "14px" }}>{buyerInvoiceForm.buyerAddress || "No address on file"}</span>
                                  </div>
-                              </div>
-                           </div>
-                           <div>
-                              <label style={{ fontSize: "10px", fontWeight: "900", opacity: 0.5, marginBottom: "10px", display: "block" }}>LOGISTICS / DISPATCH INFO</label>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                                    <input 
-                                       placeholder="Lorry / Auto #" 
-                                       style={{ width: "100%", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)", color: "#fff", outline: "none", fontSize: "12px" }}
-                                       value={buyerInvoiceForm.vehicleNumber}
-                                       onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, vehicleNumber: e.target.value})}
-                                    />
-                                    <input 
-                                       placeholder="Bice No." 
-                                       style={{ width: "100%", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)", color: "#fff", outline: "none", fontSize: "12px" }}
-                                       value={buyerInvoiceForm.biceNo}
-                                       onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, biceNo: e.target.value})}
-                                    />
-                                 </div>
-                                 <input 
-                                    placeholder="Driver Name / Agency" 
-                                    style={{ width: "100%", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)", color: "#fff", outline: "none", fontSize: "12px" }}
-                                    value={buyerInvoiceForm.driverName}
-                                    onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, driverName: e.target.value})}
-                                 />
-                              </div>
-                           </div>
-                           <div style={{ background: "rgba(255,255,255,0.05)", padding: "24px", borderRadius: "20px", border: "1px dashed rgba(255,255,255,0.2)" }}>
-                              <label style={{ fontSize: "10px", fontWeight: "900", opacity: 0.5, display: "block", marginBottom: "12px" }}>WEIGHT DISPLAY PARADIGM</label>
-                              <div style={{ display: "flex", background: "rgba(0,0,0,0.2)", padding: "4px", borderRadius: "12px" }}>
-                                 <button 
-                                    onClick={() => setWeightDisplayMode("COMPREHENSIVE")}
-                                    style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "none", fontSize: "11px", fontWeight: "900", background: weightDisplayMode === "COMPREHENSIVE" ? COLORS.accent : "transparent", color: weightDisplayMode === "COMPREHENSIVE" ? COLORS.secondary : "#fff", cursor: "pointer", transition: "0.3s" }}
-                                 >COMPREHENSIVE</button>
-                                 <button 
-                                    onClick={() => setWeightDisplayMode("MINIMAL")}
-                                    style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "none", fontSize: "11px", fontWeight: "900", background: weightDisplayMode === "MINIMAL" ? COLORS.accent : "transparent", color: weightDisplayMode === "MINIMAL" ? COLORS.secondary : "#fff", cursor: "pointer", transition: "0.3s" }}
-                                 >MINIMAL (NET)</button>
                               </div>
                            </div>
                         </div>
@@ -2189,7 +2169,6 @@ export default function App() {
                                                    style={{ flex: 2, padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0", fontWeight: "700" }}
                                                    value={item.productLabel}
                                                    onChange={e => handleUpdateInvoiceItem(idx, "productLabel", e.target.value)}
-                                                />
                                                 <input 
                                                    placeholder="Grade" 
                                                    style={{ width: "60px", padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "11px", textAlign: "center" }}
@@ -2197,24 +2176,8 @@ export default function App() {
                                                    onChange={e => handleUpdateInvoiceItem(idx, "grade", e.target.value)}
                                                 />
                                              </div>
-                                             <input 
-                                                placeholder="Variety / Specialized Info" 
-                                                style={{ width: "100%", padding: "8px 10px", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "11px", background: "#f1f5f9" }}
-                                                value={item.variety}
-                                                onChange={e => handleUpdateInvoiceItem(idx, "variety", e.target.value)}
-                                             />
                                           </div>
-                                      </td>
-                                      <td style={{ padding: "16px" }}>
-                                         <select 
-                                            style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0", background: "#fff", fontWeight: "600" }}
-                                            value={item.lotId}
-                                            onChange={e => handleUpdateInvoiceItem(idx, "lotId", e.target.value)}
-                                         >
-                                            <option value="">Trace to Lot...</option>
-                                            {lots.map(l => <option key={l._id} value={l.lotId}>{l.lotId} ({l.supplier?.name})</option>)}
-                                         </select>
-                                      </td>
+                                       </td>
                                       {weightDisplayMode === "COMPREHENSIVE" && (
                                          <td style={{ padding: "16px", textAlign: "right" }}>
                                             <input type="number" style={{ width: "80px", textAlign: "right", padding: "10px", borderRadius: "8px", border: "1px solid #e2e8f0" }} value={item.grossWeight} onChange={e => handleUpdateInvoiceItem(idx, "grossWeight", e.target.value)} />
