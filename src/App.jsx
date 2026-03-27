@@ -33,21 +33,16 @@ const COLORS = {
 
 // --- A-to-Z MASTER LISTS ---
 const FRUIT_LIST_AZ = [
-  "Select Fruit", "Apple (Fuji/Shimla)", "Apricot", "Avocado", "Banana (Yelakki/Robusta)", "Blackberry", "Blueberry", 
-  "Cherry", "Coconut", "Cranberry", "Date", "Dragonfruit", "Durian", "Elderberry", "Fig", "Gooseberry", "Grape (Black/Green)", 
-  "Grapefruit", "Guava", "Honeyberry", "Huckleberry", "Jackfruit", "Jambul", "Kiwi", "Kumquat", "Lemon", "Lime", "Lychee", 
-  "Mandarin", "Mango (Alphonso/Banganapalli)", "Mangosteen", "Melon (Water/Musk)", "Mulberry", "Nectarine", "Olive", "Orange", 
-  "Papaya", "Passionfruit", "Peach", "Pear", "Persimmon", "Pineapple", "Plum", "Pomegranate", "Quince", "Raspberry", 
-  "Redcurrant", "Starfruit", "Strawberry", "Tamarind", "Tangerine", "Watermelon"
+  "Apple", "Apricot", "Avocado", "Banana", "Blackberry", "Blueberry", "Cherry", "Coconut", "Custard Apple", 
+  "Dates", "Dragonfruit", "Fig", "Grapes", "Guava", "Jackfruit", "Kiwi", "Lemon", "Litchi", 
+  "Mango (Alphonso/Banganapalli/Local)", "Mosambi", "Orange", "Papaya", "Peach", "Pear", "Pineapple", "Plum", 
+  "Pomegranate", "Sapota", "Strawberry", "Watermelon"
 ].sort();
 
 const VEG_LIST_AZ = [
-  "Select Vegetable", "Artichoke", "Asparagus", "Bamboo Shoot", "Beans (French/Cluster)", "Beetroot", "Bell Pepper (Capsicum)", 
-  "Bitter Gourd", "Bottle Gourd", "Broccoli", "Brussels Sprout", "Cabbage", "Carrot", "Cauliflower", "Celery", "Chard", 
-  "Chive", "Corn (Sweet/Baby)", "Cucumber", "Daikon", "Eggplant (Brinjal)", "Endive", "Fennel", "Garlic", "Ginger", 
-  "Green Bean", "Horseradish", "Jicama", "Kale", "Kohlrabi", "Leek", "Lettuce", "Mushroom", "Okra (Bhendi)", "Onion", 
-  "Parsley", "Parsnip", "Pea", "Potato", "Pumpkin", "Radish", "Rhubarb", "Rutabaga", "Shallot", "Spinach", "Squash", 
-  "Sweet Potato", "Taro", "Tomato (Hybrid/Local)", "Turnip", "Watercress", "Yam", "Zucchini"
+  "Ash Gourd", "Beetroot", "Bitter Gourd", "Bottle Gourd", "Brinjal", "Broccoli", "Cabbage", "Capsicum", 
+  "Carrot", "Cauliflower", "Chilli", "Cucumber", "Drumstick", "Garlic", "Ginger", "Green Peas", 
+  "Ladies Finger", "Onion", "Potato", "Pumpkin", "Radish", "Spinach", "Sweet Corn", "Tomato"
 ].sort();
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -495,13 +490,39 @@ export default function App() {
     }
   };
   const [intakeForm, setIntakeForm] = useState({ 
+    dispatchId: `DSP-${Math.floor(10000 + Math.random() * 90000)}`,
     supplierId: "", 
+    buyerId: "",
+    buyerMobile: "",
     entryDate: new Date().toISOString().slice(0, 10),
+    entryTime: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
     vehicleNumber: "",
     driverName: "",
+    driverMobile: "",
+    transportType: "Self Managed",
     origin: "",
+    destination: "Madanapalle Market Hub",
+    paymentStatus: "Pending",
+    paymentMode: "Bank Transfer",
+    dispatchStatus: "Loaded",
     notes: "",
-    lineItems: [{ product: "", variety: "", grade: "A", grossWeight: 0, deductions: 0, boxes: 0, unit: "KG", estimatedRate: 0 }]
+    lineItems: [{ 
+      itemGuid: Math.random().toString(36).substr(2, 9),
+      category: "Fruits",
+      product: "", 
+      variety: "", 
+      grade: "A Grade", 
+      size: "Medium",
+      color: "Standard",
+      unit: "KG",
+      grossWeight: 0, 
+      packages: 0, 
+      packagingType: "Plastic Crates",
+      rate: 0,
+      batchNo: "",
+      qualityStatus: "Passed",
+      storageType: "Ambient"
+    }]
   });
   const [buyerOrderForm, setBuyerOrderForm] = useState({
     buyerId: "",
@@ -1693,78 +1714,218 @@ export default function App() {
               )}
 
               {activeSupplierTab === "Dispatch Entry" && (
-                <div>
-                  <FormGrid sections={[
-                    {
-                      title: "Product Identity & Dispatch",
-                      fields: [
-                        { label: "Dispatch ID", disabled: true, value: `DSP-${Math.floor(10000 + Math.random() * 90000)}` },
-                        { label: "Supplier Name", type: "select", options: ["Select Supplier", ...suppliers.map(s => s.name)], value: intakeForm?.supplierId || "", onChange: e => setIntakeForm({...intakeForm, supplierId: e.target.value}) },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
-                        { label: "Product Name (A to Z)", type: "select", options: dispatchType === "Fruits" ? FRUIT_LIST_AZ : (dispatchType === "Vegetables" ? VEG_LIST_AZ : ["Select Product"]), value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
-                           const val = e.target.value;
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].product = val;
-                           setDispatchProduct(val);
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Variety (Seed Type)", type: "select", options: getProductData(dispatchProduct).varieties, value: intakeForm?.lineItems?.[0]?.variety || "", onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].variety = e.target.value;
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Seed Origin", type: "select", options: ["Hybrid", "Desi (Native)", "F1 Hybrid", "Imported", "Wild"] },
-                        { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes, value: intakeForm?.lineItems?.[0]?.grade || "", onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].grade = e.target.value;
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
-                        { label: "Quality Grade", type: "select", options: getProductData(dispatchProduct).grades },
-                        { label: "Growth Method", type: "select", options: ["Conventional", "Organic (Certified)", "Chemical Free", "Zero Budget (ZBNF)"] },
-                        { label: "Category", type: "select", options: ["Premium (Export)", "Standard (A)", "Local (B)", "Processing (C)"] }
-                      ]
-                    },
-                    {
-                      title: "Logistics & Commercials",
-                      fields: [
-                        { label: "Unit Cost (₹)", type: "number", placeholder: "0.00", value: intakeForm?.lineItems?.[0]?.estimatedRate || 0, onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].estimatedRate = Number(e.target.value);
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Total Quantity (Net)", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].grossWeight = Number(e.target.value);
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Weight Unit", type: "select", options: ["KG", "Tones", "Quintals", "Crates", "Bags"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].unit = e.target.value;
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Packaging Type", type: "select", options: ["Plastic Crates", "Gunny Bags", "Wooden Boxes", "Corrugated", "Loose Load"] },
-                        { label: "Stacking / Load Type", type: "select", options: ["Single Stack", "Double Stack", "Bulk", "Cold Chain"] },
-                        { label: "Number of Trucks", type: "number", placeholder: "1" },
-                        { label: "Truck Number", placeholder: "TS 09 EU 1234", value: intakeForm?.vehicleNumber || "", onChange: e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value}) },
-                        { label: "Driver Name", value: intakeForm?.driverName || "", onChange: e => setIntakeForm({...intakeForm, driverName: e.target.value}) },
-                        { label: "Driver Mobile", type: "tel" },
-                        { label: "Loading Date", type: "date", value: intakeForm?.entryDate || "", onChange: e => setIntakeForm({...intakeForm, entryDate: e.target.value}) },
-                        { label: "Origin (Village/Hub)", placeholder: "Specify source" },
-                        { label: "Destination (Market)", placeholder: "Madanapalle Market" },
-                        { label: "Total Cost (₹)", type: "number", disabled: true, value: (Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) || 0 },
-                        { label: "Tax / Mandi Fee (%)", type: "number", value: "5" },
-                        { label: "Extra Charges (Handling)", type: "number", placeholder: "0.00" },
-                        { label: "Net Total (₹)", type: "number", disabled: true, value: ((Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) * 1.05) || 0 },
-                        { label: "Remarks / Special Handling", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
-                      ]
-                    }
-                  ]} />
-                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }} onClick={handleSaveDispatch}>Save Record</Button>
-                    <Button variant="secondary">Update Record</Button>
-                    <Button style={{ background: COLORS.success }}>Generate Invoice</Button>
-                    <Button variant="outline">Cancel Action</Button>
+                <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+                  {/* Logistics & Core Details */}
+                  <Card style={{ marginBottom: "24px", borderLeft: `6px solid ${COLORS.sidebar}` }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
+                       <div>
+                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Dispatch ID</label>
+                          <input style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9", fontWeight: "700" }} value={intakeForm.dispatchId} onChange={e => setIntakeForm({...intakeForm, dispatchId: e.target.value})} />
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Supplier / Farmer</label>
+                          <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9", fontWeight: "700" }} value={intakeForm.supplierId} onChange={e => {
+                             const s = suppliers.find(sup => sup.name === e.target.value);
+                             setIntakeForm({...intakeForm, supplierId: e.target.value, origin: s?.village || ""});
+                          }}>
+                             <option>Select Supplier</option>
+                             {suppliers.map(s => <option key={s._id}>{s.name}</option>)}
+                          </select>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Buyer Name</label>
+                          <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9", fontWeight: "700" }} value={intakeForm.buyerId} onChange={e => setIntakeForm({...intakeForm, buyerId: e.target.value})}>
+                             <option>Select Buyer</option>
+                             {buyers.map(b => <option key={b._id}>{b.shopName || b.name}</option>)}
+                          </select>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Dispatch Date & Time</label>
+                          <div style={{ display: "flex", gap: "10px" }}>
+                             <input type="date" style={{ flex: 2, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
+                             <input type="time" style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.entryTime} onChange={e => setIntakeForm({...intakeForm, entryTime: e.target.value})} />
+                          </div>
+                       </div>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginTop: "20px" }}>
+                       <div>
+                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Vehicle Info</label>
+                          <div style={{ display: "flex", gap: "10px" }}>
+                             <input placeholder="TS 09 EU 1234" style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
+                             <select style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.transportType} onChange={e => setIntakeForm({...intakeForm, transportType: e.target.value})}>
+                                <option>Self Managed</option><option>Third Party Logistics</option><option>Buyer Arrangement</option>
+                             </select>
+                          </div>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Driver Details</label>
+                          <div style={{ display: "flex", gap: "10px" }}>
+                             <input placeholder="Name" style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.driverName} onChange={e => setIntakeForm({...intakeForm, driverName: e.target.value})} />
+                             <input placeholder="Mobile" style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.driverMobile} onChange={e => setIntakeForm({...intakeForm, driverMobile: e.target.value})} />
+                          </div>
+                       </div>
+                       <div>
+                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar, textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Status & Payment</label>
+                          <div style={{ display: "flex", gap: "10px" }}>
+                             <select style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.dispatchStatus} onChange={e => setIntakeForm({...intakeForm, dispatchStatus: e.target.value})}>
+                                <option>Packed</option><option>Loaded</option><option>In Transit</option><option>Delivered</option>
+                             </select>
+                             <select style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "1.5px solid #F1F5F9" }} value={intakeForm.paymentStatus} onChange={e => setIntakeForm({...intakeForm, paymentStatus: e.target.value})}>
+                                <option>Pending</option><option>Partial</option><option>Paid</option>
+                             </select>
+                          </div>
+                       </div>
+                    </div>
+                  </Card>
+
+                  {/* Product Line Items */}
+                  {intakeForm.lineItems.map((item, index) => (
+                    <Card key={item.itemGuid} style={{ marginTop: "16px", background: "#fcfcfc", border: index % 2 === 0 ? "1px solid #EBE9E1" : "1px solid #D4E157" }}>
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                          <h4 style={{ margin: 0, color: COLORS.sidebar, fontSize: "14px", fontWeight: "800" }}>PRODUCT #{index + 1}</h4>
+                          <Button variant="danger" style={{ padding: "6px 12px", fontSize: "11px" }} onClick={() => {
+                             const newItems = intakeForm.lineItems.filter(li => li.itemGuid !== item.itemGuid);
+                             setIntakeForm({...intakeForm, lineItems: newItems});
+                          }}>✕ Remove Product</Button>
+                       </div>
+
+                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Category</label>
+                             <select style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.category} onChange={e => {
+                                const val = e.target.value;
+                                const newItems = [...intakeForm.lineItems];
+                                newItems[index].category = val;
+                                setIntakeForm({...intakeForm, lineItems: newItems});
+                             }}><option>Fruits</option><option>Vegetables</option></select>
+                          </div>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Product Name (A-Z)</label>
+                             <select style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0", fontWeight: "700" }} value={item.product} onChange={e => {
+                                const val = e.target.value;
+                                const newItems = [...intakeForm.lineItems];
+                                newItems[index].product = val;
+                                // Auto-Duplicate Logic: Look for previous dispatches of the same product
+                                const prev = lots.find(l => l.lineItems?.[0]?.product === val);
+                                if (prev) {
+                                  newItems[index].variety = prev.lineItems?.[0]?.variety || "";
+                                  newItems[index].grade = prev.lineItems?.[0]?.grade || "A Grade";
+                                  newItems[index].unit = prev.lineItems?.[0]?.unit || "KG";
+                                }
+                                setIntakeForm({...intakeForm, lineItems: newItems});
+                             }}>
+                                {item.category === "Fruits" ? FRUIT_LIST_AZ.map(f => <option key={f}>{f}</option>) : VEG_LIST_AZ.map(v => <option key={v}>{v}</option>)}
+                             </select>
+                          </div>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Variety</label>
+                             <select style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.variety} onChange={e => {
+                                const newItems = [...intakeForm.lineItems];
+                                newItems[index].variety = e.target.value;
+                                setIntakeForm({...intakeForm, lineItems: newItems});
+                             }}>
+                                {getProductData(item.product).varieties.map(v => <option key={v}>{v}</option>)}
+                             </select>
+                          </div>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Grade</label>
+                             <select style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.grade} onChange={e => {
+                                const newItems = [...intakeForm.lineItems];
+                                newItems[index].grade = e.target.value;
+                                setIntakeForm({...intakeForm, lineItems: newItems});
+                             }}>
+                                <option>A Grade</option><option>B Grade</option><option>C Grade</option><option>Premium</option><option>Export Quality</option>
+                             </select>
+                          </div>
+                       </div>
+
+                       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginTop: "16px" }}>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Qty Tracking</label>
+                             <div style={{ display: "flex", gap: "6px" }}>
+                                <input type="number" placeholder="Net Weight" style={{ flex: 2, padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.grossWeight} onChange={e => {
+                                   const newItems = [...intakeForm.lineItems];
+                                   newItems[index].grossWeight = Number(e.target.value);
+                                   setIntakeForm({...intakeForm, lineItems: newItems});
+                                }} />
+                                <select style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.unit} onChange={e => {
+                                   const newItems = [...intakeForm.lineItems];
+                                   newItems[index].unit = e.target.value;
+                                   setIntakeForm({...intakeForm, lineItems: newItems});
+                                }}>
+                                   <option>KG</option><option>Box</option><option>Crate</option><option>Ton</option><option>Packet</option>
+                                </select>
+                             </div>
+                          </div>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Rate & Pricing</label>
+                             <div style={{ display: "flex", gap: "6px" }}>
+                                <input type="number" placeholder="Rate" style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.rate} onChange={e => {
+                                   const newItems = [...intakeForm.lineItems];
+                                   newItems[index].rate = Number(e.target.value);
+                                   setIntakeForm({...intakeForm, lineItems: newItems});
+                                }} />
+                                <input disabled style={{ flex: 1.5, padding: "10px", borderRadius: "8px", border: "none", background: "#f8fafc", fontWeight: "900", textAlign: "right", color: COLORS.sidebar }} value={formatCurrency(item.rate * item.grossWeight)} />
+                             </div>
+                          </div>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Packaging Profile</label>
+                             <div style={{ display: "flex", gap: "6px" }}>
+                                <input type="number" placeholder="No. of Packs" style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.packages} onChange={e => {
+                                   const newItems = [...intakeForm.lineItems];
+                                   newItems[index].packages = Number(e.target.value);
+                                   setIntakeForm({...intakeForm, lineItems: newItems});
+                                }} />
+                                <select style={{ flex: 2, padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.packagingType} onChange={e => {
+                                   const newItems = [...intakeForm.lineItems];
+                                   newItems[index].packagingType = e.target.value;
+                                   setIntakeForm({...intakeForm, lineItems: newItems});
+                                }}>
+                                   <option>Plastic Crates</option><option>Wooden Boxes</option><option>Corrugated</option><option>Gunny Bags</option>
+                                </select>
+                             </div>
+                          </div>
+                          <div>
+                             <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "4px" }}>Quality & Storage</label>
+                             <div style={{ display: "flex", gap: "6px" }}>
+                                <select style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.qualityStatus} onChange={e => {
+                                   const newItems = [...intakeForm.lineItems];
+                                   newItems[index].qualityStatus = e.target.value;
+                                   setIntakeForm({...intakeForm, lineItems: newItems});
+                                }}><option>Passed</option><option>Quarantine</option><option>Failed</option></select>
+                                <select style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.2px solid #E2E8F0" }} value={item.storageType} onChange={e => {
+                                   const newItems = [...intakeForm.lineItems];
+                                   newItems[index].storageType = e.target.value;
+                                   setIntakeForm({...intakeForm, lineItems: newItems});
+                                }}><option>Ambient</option><option>Cold Case</option><option>Hygienic</option></select>
+                             </div>
+                          </div>
+                       </div>
+                    </Card>
+                  ))}
+
+                  <div style={{ marginTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center", background: COLORS.sidebar, padding: "24px", borderRadius: "20px", color: "#fff" }}>
+                     <div>
+                        <Button style={{ background: "#fff", color: COLORS.sidebar, fontWeight: "900" }} onClick={() => {
+                           const newItem = { 
+                              itemGuid: Math.random().toString(36).substr(2, 9),
+                              category: "Fruits", product: "", variety: "", grade: "A Grade", size: "Medium", color: "Standard",
+                              unit: "KG", grossWeight: 0, packages: 0, packagingType: "Plastic Crates", rate: 0, batchNo: "",
+                              qualityStatus: "Passed", storageType: "Ambient"
+                           };
+                           setIntakeForm({...intakeForm, lineItems: [...intakeForm.lineItems, newItem]});
+                        }}>⊕ Add Product Record</Button>
+                     </div>
+                     <div style={{ textAlign: "right" }}>
+                        <p style={{ margin: 0, fontSize: "12px", opacity: 0.7, fontWeight: "700" }}>DISPATCH TRANSACTION TOTAL</p>
+                        <h2 style={{ margin: 0, fontSize: "32px", fontWeight: "900" }}>{formatCurrency(intakeForm.lineItems.reduce((acc, current) => acc + (current.rate * current.grossWeight), 0))}</h2>
+                     </div>
+                  </div>
+
+                  <div style={{ marginTop: "32px", display: "flex", gap: "16px" }}>
+                     <Button style={{ flex: 1, background: COLORS.success, height: "60px", fontSize: "18px" }} onClick={handleSaveDispatch}>🚀 Commit Dispatch & Log Inventory</Button>
+                     <Button variant="outline" style={{ background: "#fff", height: "60px" }} onClick={() => alert("💾 Dispatch Draft saved to local storage.")}>💾 Save Dispatch Draft</Button>
                   </div>
 
                   <div style={{ marginTop: "40px" }}>
@@ -1800,10 +1961,6 @@ export default function App() {
                       </table>
                     </div>
                   </div>
-
-                  <datalist id="master-product-list">
-                    {masterProducts.map(p => <option key={p.name} value={p.name} />)}
-                  </datalist>
                 </div>
               )}
 
