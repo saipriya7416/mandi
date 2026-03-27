@@ -1019,12 +1019,16 @@ export default function App() {
   };
 
   const handleCreateFarmerBill = async () => {
+     const targetFarmerId = farmerBillForm.farmerId;
+     if (!targetFarmerId) return alert("⚠️ Please select a farmer first.");
+     if (settlementData.length === 0) return alert("⚠️ No sale entries added to this bill. Please ensure items are present.");
+
      const gross = settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0);
      const totalExp = farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0);
      const netPayable = (gross - totalExp) - farmerBillForm.advance;
 
      const backendPayload = {
-        supplier: farmerBillForm.farmerId,
+        supplier: targetFarmerId,
         items: settlementData.map(s => ({
            lotId: s.lotRef?._id,
            productName: s.lineItem?.product || "Product",
@@ -1045,9 +1049,9 @@ export default function App() {
      if (res.status === "SUCCESS") {
         setIsBillLocked(true);
         setFarmerBillForm(res.data);
-        // Sync both global and farmer-specific records
+        // Refresh history using the captured ID to avoid race conditions with state updates
         fetchData();
-        handleFarmerSelectionForSettlement(farmerBillForm.farmerId);
+        handleFarmerSelectionForSettlement(targetFarmerId);
         alert("🔒 BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.");
      } else {
         alert(`❌ STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`);
