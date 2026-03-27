@@ -410,8 +410,9 @@ export default function App() {
       amount: Number(buyerPaymentForm.amountReceived),
       date: buyerPaymentForm.paymentDate,
       mode: buyerPaymentForm.paymentMode === 'UPI / Scan' ? 'UPI' : 'Cash',
-      type: "Partial",
-      referenceId: buyerPaymentForm.referenceNo
+      type: "Full Settlement",
+      referenceId: buyerPaymentForm.referenceNo,
+      againstInvoiceNo: buyerPaymentForm.againstInvoiceNo
     };
     const res = await MandiService.recordPayment(payload);
     if (res.status === "SUCCESS") {
@@ -432,7 +433,8 @@ export default function App() {
        date: farmerPaymentForm.paymentDate,
        mode: farmerPaymentForm.paymentMode === 'Bank Transfer' ? 'Bank' : 'Cash',
        type: "Full Settlement",
-       referenceId: farmerPaymentForm.referenceNo
+       referenceId: farmerPaymentForm.referenceNo,
+       againstBillNo: farmerPaymentForm.againstBillNo
      };
      const res = await MandiService.recordPayment(payload);
      if (res.status === "SUCCESS") {
