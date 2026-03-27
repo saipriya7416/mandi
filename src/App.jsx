@@ -648,15 +648,47 @@ export default function App() {
     authWhatsApp: "+91 99XXXXXX00"
   });
 
-  // --- USER ROLES & SECURITY STATES ---
-  const [activeSecurityTab, setActiveSecurityTab] = useState("Staff Hub"); // "Staff Hub" | "Permissions" | "Security"
-  const [staffUsers, setStaffUsers] = useState([
-    { id: "U001", name: "Srinivasa Rao", role: "Admin", status: "Active", lastLogin: "10 mins ago" },
-    { id: "U002", name: "Anil Kumar", role: "Accountant", status: "Active", lastLogin: "3 hours ago" },
-    { id: "U003", name: "Ramesh Babu", role: "Operations Staff", status: "Active", lastLogin: "Yesterday" },
-    { id: "U004", name: "Venkatesh", role: "Viewer", status: "Deactivated", lastLogin: "5 days ago" }
-  ]);
-  const [securityAuditLogs, setSecurityAuditLogs] = useState([
+   // --- USER ROLES & SECURITY STATES ---
+   const [activeSecurityTab, setActiveSecurityTab] = useState("Staff Hub"); // "Staff Hub" | "Permissions" | "Security"
+   const [staffUsers, setStaffUsers] = useState([
+     { id: "U001", name: "Srinivasa Rao", role: "Admin", status: "Active", lastLogin: "10 mins ago" },
+     { id: "U002", name: "Anil Kumar", role: "Accountant", status: "Active", lastLogin: "3 hours ago" },
+     { id: "U003", name: "Ramesh Babu", role: "Operations Staff", status: "Active", lastLogin: "Yesterday" },
+     { id: "U004", name: "Venkatesh", role: "Viewer", status: "Deactivated", lastLogin: "5 days ago" }
+   ]);
+
+   const [newStaffForm, setNewStaffForm] = useState({
+      name: "",
+      username: "",
+      role: "Accountant",
+      expiry: ""
+   });
+
+   const handleCreateStaff = () => {
+      if (!newStaffForm.name || !newStaffForm.username) {
+         alert("⚠️ Please fill in all staff details.");
+         return;
+      }
+
+      const newStaff = {
+         id: `U${(staffUsers.length + 1).toString().padStart(3, '0')}`,
+         name: newStaffForm.name,
+         role: newStaffForm.role,
+         status: "Active",
+         lastLogin: "Never"
+      };
+
+      setStaffUsers([...staffUsers, newStaff]);
+      setNewStaffForm({
+         name: "",
+         username: "",
+         role: "Accountant",
+         expiry: ""
+      });
+      alert("✅ Staff Identity Created Successfully! User added to Directory.");
+   };
+
+   const [securityAuditLogs, setSecurityAuditLogs] = useState([
     { timestamp: "2026-03-25 14:10", user: "Admin", action: "System Config Updated", status: "SUCCESS" },
     { timestamp: "2026-03-25 11:45", user: "Accountant", action: "Void Bill #129 Attempt", status: "DENIED" },
     { timestamp: "2026-03-25 09:30", user: "Admin", action: "Database Backup Initiated", status: "SUCCESS" }
@@ -3808,19 +3840,23 @@ export default function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "32px" }}>
                      <Card title="Onboard New Staff" subtitle="Create digital identities for Mandi personnel">
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <Input label="Staff Full Name" placeholder="e.g. Ramesh K." />
-                           <Input label="Login Username" placeholder="staff_01" />
+                           <Input label="Staff Full Name" placeholder="e.g. Ramesh K." value={newStaffForm.name} onChange={e=>setNewStaffForm({...newStaffForm, name: e.target.value})} />
+                           <Input label="Login Username" placeholder="staff_01" value={newStaffForm.username} onChange={e=>setNewStaffForm({...newStaffForm, username: e.target.value})} />
                            <div>
                               <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>System Role</label>
-                              <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+                              <select 
+                                 value={newStaffForm.role}
+                                 onChange={e=>setNewStaffForm({...newStaffForm, role: e.target.value})}
+                                 style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", background: "#f8fafc", fontWeight: "600" }}
+                              >
                                  <option>Accountant</option>
                                  <option>Operations Staff</option>
                                  <option>Viewer (Read-Only)</option>
                                  <option>Admin / Owner</option>
                               </select>
                            </div>
-                           <Input label="Access Expiry (Optional)" type="date" />
-                           <Button style={{ marginTop: "10px" }}>Create Access Identity</Button>
+                           <Input label="Access Expiry (Optional)" type="date" value={newStaffForm.expiry} onChange={e=>setNewStaffForm({...newStaffForm, expiry: e.target.value})} />
+                           <Button style={{ marginTop: "10px" }} onClick={handleCreateStaff}>Create Access Identity</Button>
                         </div>
                      </Card>
                      
