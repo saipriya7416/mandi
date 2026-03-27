@@ -1048,7 +1048,8 @@ export default function App() {
      const res = await MandiService.createFarmerSettlementBill(backendPayload);
      if (res.status === "SUCCESS") {
         setIsBillLocked(true);
-        setFarmerBillForm(res.data);
+        // Prevent crash: ensure 'expenses' remains a React-loopable array despite backend object responses
+        setFarmerBillForm({ ...farmerBillForm, ...res.data, expenses: farmerBillForm.expenses });
         // Refresh history using the captured ID to avoid race conditions with state updates
         fetchData();
         handleFarmerSelectionForSettlement(targetFarmerId);
