@@ -1030,7 +1030,7 @@ export default function App() {
      const backendPayload = {
         supplier: targetFarmerId,
         items: settlementData.map(s => ({
-           lotId: s.lotRef?._id,
+           lotId: s._id, // USE THE ROW ID TO CLEAR FROM PENDING ON DASHBOARD
            productName: s.lineItem?.product || "Product",
            quantity: s.quantity || 0,
            rate: s.saleRate || 0
