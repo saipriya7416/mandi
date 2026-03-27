@@ -31,6 +31,25 @@ const COLORS = {
   sidebar: "#2d4137" // Darker brand green
 };
 
+// --- A-to-Z MASTER LISTS ---
+const FRUIT_LIST_AZ = [
+  "Select Fruit", "Apple (Fuji/Shimla)", "Apricot", "Avocado", "Banana (Yelakki/Robusta)", "Blackberry", "Blueberry", 
+  "Cherry", "Coconut", "Cranberry", "Date", "Dragonfruit", "Durian", "Elderberry", "Fig", "Gooseberry", "Grape (Black/Green)", 
+  "Grapefruit", "Guava", "Honeyberry", "Huckleberry", "Jackfruit", "Jambul", "Kiwi", "Kumquat", "Lemon", "Lime", "Lychee", 
+  "Mandarin", "Mango (Alphonso/Banganapalli)", "Mangosteen", "Melon (Water/Musk)", "Mulberry", "Nectarine", "Olive", "Orange", 
+  "Papaya", "Passionfruit", "Peach", "Pear", "Persimmon", "Pineapple", "Plum", "Pomegranate", "Quince", "Raspberry", 
+  "Redcurrant", "Starfruit", "Strawberry", "Tamarind", "Tangerine", "Watermelon"
+].sort();
+
+const VEG_LIST_AZ = [
+  "Select Vegetable", "Artichoke", "Asparagus", "Bamboo Shoot", "Beans (French/Cluster)", "Beetroot", "Bell Pepper (Capsicum)", 
+  "Bitter Gourd", "Bottle Gourd", "Broccoli", "Brussels Sprout", "Cabbage", "Carrot", "Cauliflower", "Celery", "Chard", 
+  "Chive", "Corn (Sweet/Baby)", "Cucumber", "Daikon", "Eggplant (Brinjal)", "Endive", "Fennel", "Garlic", "Ginger", 
+  "Green Bean", "Horseradish", "Jicama", "Kale", "Kohlrabi", "Leek", "Lettuce", "Mushroom", "Okra (Bhendi)", "Onion", 
+  "Parsley", "Parsnip", "Pea", "Potato", "Pumpkin", "Radish", "Rhubarb", "Rutabaga", "Shallot", "Spinach", "Squash", 
+  "Sweet Potato", "Taro", "Tomato (Hybrid/Local)", "Turnip", "Watercress", "Yam", "Zucchini"
+].sort();
+
 const Card = ({ children, title, subtitle, action, style = {} }) => (
   <div style={{
     background: COLORS.card,
@@ -1681,8 +1700,8 @@ export default function App() {
                       fields: [
                         { label: "Dispatch ID", disabled: true, value: `DSP-${Math.floor(10000 + Math.random() * 90000)}` },
                         { label: "Supplier Name", type: "select", options: ["Select Supplier", ...suppliers.map(s => s.name)], value: intakeForm?.supplierId || "", onChange: e => setIntakeForm({...intakeForm, supplierId: e.target.value}) },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Spices", "Grains", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
-                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
+                        { label: "Product Name (A to Z)", type: "select", options: dispatchType === "Fruits" ? FRUIT_LIST_AZ : (dispatchType === "Vegetables" ? VEG_LIST_AZ : ["Select Product"]), value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
                            const val = e.target.value;
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].product = val;
@@ -3112,20 +3131,29 @@ export default function App() {
                         </select>
                     </div>
                     <div>
-                        <label style={{ fontSize: "11px", fontWeight: "800", marginBottom: "6px", display: "block", color: COLORS.primary }}>'As On Date' Balance Query</label>
-                        <input type="date" value={ledgerFilters.asOnDate} onChange={e => setLedgerFilters({...ledgerFilters, asOnDate: e.target.value})} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "2px solid " + COLORS.accent }} title="Check cumulative balance valid up to this date" />
-                    </div>
-                 </div>
-              </Card>
-
-              {/* Summary View */}
+                 {/* Summary View */}
               <div className="printable-area" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
                  <Card style={{ background: "#f8fafc", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: COLORS.muted, textTransform: "uppercase" }}>Total Volume Transacted</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#0f172a", fontSize: "28px" }}>24,500 <span style={{ fontSize: "14px", color: COLORS.muted }}>KG</span></h2>
+                    <h2 style={{ margin: "5px 0 0", color: "#0f172a", fontSize: "28px" }}>
+                       { (lots && lots.length > 0) ? lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight) || 0), 0) : 24500 }
+                       <span style={{ fontSize: "14px", color: COLORS.muted }}> KG</span>
+                    </h2>
                  </Card>
                  <Card style={{ background: "#f0fdf4", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: "#166534", textTransform: "uppercase" }}>Total Payments {ledgerTab === "Farmer" ? "Settled" : "Received"}</p>
+                    <h2 style={{ margin: "5px 0 0", color: "#15803d", fontSize: "28px" }}>
+                       {formatCurrency((lots && lots.length > 0) ? (lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight || 0) * Number(current?.lineItems?.[0]?.estimatedRate || 0)), 0) * 0.8) : 1250000)}
+                    </h2>
+                 </Card>
+                 <Card style={{ background: "#fef2f2", border: "none" }}>
+                    <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: "#991b1b", textTransform: "uppercase" }}>{ledgerTab === "Farmer" ? "Outstanding Dues to Farmer" : "Outstanding Balance (Due from Buyer)"}</p>
+                    <h2 style={{ margin: "5px 0 0", color: "#b91c1c", fontSize: "28px" }}>
+                       {formatCurrency((lots && lots.length > 0) ? (lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight || 0) * Number(current?.lineItems?.[0]?.estimatedRate || 0)), 0) * 0.2) : 185000)}
+                    </h2>
+                 </Card>
+              </div>
+ "12px", color: "#166534", textTransform: "uppercase" }}>Total Payments {ledgerTab === "Farmer" ? "Settled" : "Received"}</p>
                     <h2 style={{ margin: "5px 0 0", color: "#15803d", fontSize: "28px" }}>{formatCurrency(1250000)}</h2>
                  </Card>
                  <Card style={{ background: "#fef2f2", border: "none" }}>
