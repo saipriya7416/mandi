@@ -1668,11 +1668,25 @@ export default function App() {
                       title: "Product Identity & Dispatch",
                       fields: [
                         { label: "Dispatch ID", disabled: true, value: "DSP-55921" },
-                        { label: "Supplier Name", type: "select", options: ["Srinivasa Rao", "Priya Reddy", "Mohan Chandra", "Harika Naidu"] },
+                        { label: "Supplier Name", type: "select", options: ["Select Supplier", ...suppliers.map(s => s.name)], value: intakeForm.supplierId, onChange: e => setIntakeForm({...intakeForm, supplierId: e.target.value}) },
                         { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
-                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: dispatchProduct, onChange: (e) => setDispatchProduct(e.target.value) },
-                        { label: "Variety", type: "select", options: getProductData(dispatchProduct).varieties },
-                        { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes },
+                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: intakeForm.lineItems[0].product, onChange: (e) => {
+                           const val = e.target.value;
+                           const newItems = [...intakeForm.lineItems];
+                           newItems[0].product = val;
+                           setDispatchProduct(val);
+                           setIntakeForm({...intakeForm, lineItems: newItems});
+                        }},
+                        { label: "Variety", type: "select", options: getProductData(dispatchProduct).varieties, value: intakeForm.lineItems[0].variety, onChange: e => {
+                           const newItems = [...intakeForm.lineItems];
+                           newItems[0].variety = e.target.value;
+                           setIntakeForm({...intakeForm, lineItems: newItems});
+                        }},
+                        { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes, value: intakeForm.lineItems[0].grade, onChange: e => {
+                           const newItems = [...intakeForm.lineItems];
+                           newItems[0].grade = e.target.value;
+                           setIntakeForm({...intakeForm, lineItems: newItems});
+                        }},
                         { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
                         { label: "Quality Grade", type: "select", options: getProductData(dispatchProduct).grades },
                         { label: "Category", type: "select", options: ["Premium", "Standard", "Local", "Export"] }
@@ -1681,20 +1695,32 @@ export default function App() {
                     {
                       title: "Logistics & Commercials",
                       fields: [
-                        { label: "Unit Cost (₹)", type: "number", placeholder: "0.00" },
-                        { label: "Quantity", type: "number", placeholder: "0" },
-                        { label: "Unit Type", type: "select", options: ["KG", "Ton", "Crate"] },
+                        { label: "Unit Cost (₹)", type: "number", placeholder: "0.00", value: intakeForm.lineItems[0].estimatedRate, onChange: e => {
+                           const newItems = [...intakeForm.lineItems];
+                           newItems[0].estimatedRate = e.target.value;
+                           setIntakeForm({...intakeForm, lineItems: newItems});
+                        }},
+                        { label: "Quantity", type: "number", placeholder: "0", value: intakeForm.lineItems[0].grossWeight, onChange: e => {
+                           const newItems = [...intakeForm.lineItems];
+                           newItems[0].grossWeight = e.target.value;
+                           setIntakeForm({...intakeForm, lineItems: newItems});
+                        }},
+                        { label: "Unit Type", type: "select", options: ["KG", "Ton", "Crate"], value: intakeForm.lineItems[0].unit, onChange: e => {
+                           const newItems = [...intakeForm.lineItems];
+                           newItems[0].unit = e.target.value;
+                           setIntakeForm({...intakeForm, lineItems: newItems});
+                        }},
                         { label: "Number of Trucks", type: "number", placeholder: "1" },
-                        { label: "Truck Number", placeholder: "TS 09 EU 1234" },
-                        { label: "Driver Name" },
+                        { label: "Truck Number", placeholder: "TS 09 EU 1234", value: intakeForm.vehicleNumber, onChange: e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value}) },
+                        { label: "Driver Name", value: intakeForm.driverName, onChange: e => setIntakeForm({...intakeForm, driverName: e.target.value}) },
                         { label: "Driver Mobile", type: "tel" },
-                        { label: "Loading Date", type: "date", value: new Date().toISOString().slice(0, 10) },
+                        { label: "Loading Date", type: "date", value: intakeForm.entryDate, onChange: e => setIntakeForm({...intakeForm, entryDate: e.target.value}) },
                         { label: "Destination" },
-                        { label: "Total Cost (₹)", type: "number", disabled: true, value: "Auto-calculated" },
+                        { label: "Total Cost (₹)", type: "number", disabled: true, value: (Number(intakeForm.lineItems[0].grossWeight) * Number(intakeForm.lineItems[0].estimatedRate)) || 0 },
                         { label: "Tax (%)", type: "number", value: "5" },
                         { label: "Extra Charges (₹)", type: "number", placeholder: "0.00" },
-                        { label: "Net Total (₹)", type: "number", disabled: true, value: "Auto-calculated" },
-                        { label: "Remarks" }
+                        { label: "Net Total (₹)", type: "number", disabled: true, value: ((Number(intakeForm.lineItems[0].grossWeight) * Number(intakeForm.lineItems[0].estimatedRate)) * 1.05) || 0 },
+                        { label: "Remarks", value: intakeForm.notes, onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
