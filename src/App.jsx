@@ -323,8 +323,11 @@ export default function App() {
   };
 
   const handleCreateLot = async () => {
-    if (!intakeForm.supplierId) return alert("⚠️ Supplier is required");
-    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
+    if (!intakeForm.supplierId) return alert("⚠️ Farmer selection is mandatory for traceability.");
+    if (!intakeForm.vehicleNumber) return alert("⚠️ Vehicle / Lorry number is required.");
+    if (!intakeForm.origin) return alert("⚠️ Origin / Source location is mandatory.");
+    if (!intakeForm.entryDate) return alert("⚠️ Date & Time of arrival is mandatory.");
+    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ At least one Produce item with Weight is required.");
 
     const payload = {
       supplier: intakeForm.supplierId,
@@ -346,18 +349,19 @@ export default function App() {
 
     const res = await MandiService.addLot(payload);
     if (res.status === "SUCCESS") {
-      const sName = suppliers.find(s => s._id === intakeForm.supplierId)?.name || "Supplier";
-      alert(`✅ LOT SAVED: Lot ${res.data.lotId} for ${sName} successfully recorded to Database.`);
+      const sName = suppliers.find(s => s._id === intakeForm.supplierId)?.name || "Farmer";
+      alert(`✅ LOT CREATED: Lot ${res.data.lotId} for ${sName} successfully committed to Database.`);
       setIntakeForm({
         supplierId: "", 
-        entryDate: new Date().toISOString().slice(0, 10),
+        entryDate: new Date().toISOString().slice(0, 16).replace('Z',''), 
         vehicleNumber: "", driverName: "", origin: "", notes: "",
         lineItems: [{ product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
       });
       fetchData();
     } else {
-      alert(`❌ ERROR: ${res.message || "Failed to add lot"}`);
+      alert(`❌ FAILED: ${res.message || "Error"}`);
     }
+  };
   };
 
   const [expenseForm, setExpenseForm] = useState({ amount: "", lotId: "", memo: "", category: "Labour" });
@@ -2071,15 +2075,15 @@ export default function App() {
                {invMode === "Intake" ? (
                  <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "fadeIn 0.4s ease" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
-                    <Card title="📋 Lot Creation" subtitle="Create incoming produce lots perfectly">
+                    <Card title="📦 Lot Creation" subtitle="Initial registration of arriving produce">
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                           <Input label="Lot ID *" disabled value={"LOT-" + new Date().toISOString().slice(0, 10).replace(/-/g, '') + "-001"} placeholder="Format: LOT-YYYYMMDD-001 (sequential per day)" />
-                          <Input label="Date & Time *" type="datetime-local" placeholder="Date of produce arrival" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
+                          <Input label="Date & Time of Arrival *" type="datetime-local" placeholder="Date of produce arrival" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
                        </div>
                        
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           <div style={{ marginBottom: "16px" }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Supplier Name *</label>
+                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Farmer Name *</label>
                             <select 
                               style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc", cursor: "pointer" }}
                               value={intakeForm.supplierId}
@@ -2091,9 +2095,9 @@ export default function App() {
                                  }
                               }}
                             >
-                              <option value="">Linked to supplier profile...</option>
+                              <option value="">Linked to farmer profile...</option>
                               {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} {s.village ? `- ${s.village}` : ''}</option>)}
-                              <option value="REGISTER_NEW" style={{ fontWeight: "800", color: "#166534" }}>➕ Register New Supplier</option>
+                              <option value="REGISTER_NEW" style={{ fontWeight: "800", color: "#166534" }}>➕ Register New Farmer</option>
                             </select>
                           </div>
                           <Input label="Vehicle / Lorry Number *" placeholder="Registration number of arriving vehicle" value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
