@@ -848,46 +848,11 @@ export default function App() {
   // --- DATA SYNC WITH BACKEND ---
   const fetchData = async () => {
     // Robust fallbacks for Demo/Offline consistency
-    const dummySuppliers = [
-      "Vikram Reddy", "Sandhya Devi", "Anwar Pasha", "Gopal Krishnan", "Srinivasa Rao",
-      "Ramachandra Murthy", "Lakshmi Kanth", "Venkata Raman", "Satyavati Garu", "Rajesh Kumar",
-      "Suresh Babu", "Manisha Singh", "Vijay Bhaskar", "Anil Reddy", "Kavita Rao",
-      "Shiva Prasad", "Naveen Kumar", "Santosh Hegde", "Padmaja Devi", "Ravi Teja",
-      "Mohan Babu", "Girish Gupta", "Aruna Kumari", "Harish Shetty", "Bhaskar Rao",
-      "Chandra Mohan", "Durga Prasad", "Eshwar Rao", "Fatima Begum", "Ganapathi Bhat",
-      "Himamshu Roy", "Indrani Sharma", "Jagadish Murthy", "Karthik Raja", "Lalitha Goud",
-      "Murali Krishna", "Nirmala Devi", "Om Prakash", "Parvathi Amma", "Qasim Khan"
-    ].map((n, i) => ({ _id: `s-${i}`, name: n, village: 'Madanapalle', mobile: `98480${10000+i}`, phone: `98480${10000+i}`, address: 'Main Road, Madanapalle', govIdNumber: `AID-${1000+i}`, idType: 'Aadhaar' }));
+    const dummySuppliers = [];
 
-    const dummyBuyers = [
-       "Harsha Wholesale", "Reliance Fresh", "BigBasket Depot", "Heritage Foods", "Anand Foodworld",
-       "Heritage Depot", "BigBasket Hub", "Metro Cash & Carry", "More Retail", "Spencer's Market",
-       "Nilgiris Supermarket", "Star Bazaar", "DMart Depot", "Safal Mandi", "Nature's Basket",
-       "Amazon Fresh Hub", "Daily Delight", "FreshDirect", "GreenWay Traders", "Quality First",
-       "Tasty Trends", "Urban Organic", "Value Mart", "Wholesale Wonders", "Zenith Exports"
-    ].map((n, i) => ({ _id: `b-${i}`, name: n, shopName: n, phone: `99590${10000+i}`, mobile: `99590${10000+i}`, address: `Stall #${100+i}, Madanapalle Market` }));
+    const dummyBuyers = [];
 
-    const dummyLots = [
-      { 
-        _id: 'l-1', lotId: 'LOT-2026-001', supplier: { name: 'Vikram Reddy' }, entryDate: '2026-03-20', origin: 'Madanapalle', status: 'Partially Sold', totalQuantity: 1500, remainingQuantity: 400, 
-        lineItems: [
-          { product: "Mango", variety: "Alphonso", grade: "A", grossWeight: 500, deductions: 20, netWeight: 480, soldQuantity: 300, remainingQuantity: 180, amount: 20000, rate: 45, status: 'Partially Sold' },
-          { product: "Mango", variety: "Kesar", grade: "B", grossWeight: 1000, deductions: 50, netWeight: 950, soldQuantity: 730, remainingQuantity: 220, amount: 40000, rate: 55, status: 'Partially Sold' }
-        ] 
-      },
-      { 
-        _id: 'l-2', lotId: 'LOT-2026-002', supplier: { name: 'Sandhya Devi' }, entryDate: '2026-03-21', origin: 'Guntur', status: 'Pending Auction', totalQuantity: 2000, remainingQuantity: 2000, 
-        lineItems: [
-          { product: "Banana", variety: "Yelakki", grade: "A", grossWeight: 2000, deductions: 100, netWeight: 1900, soldQuantity: 0, remainingQuantity: 1900, amount: 0, rate: 25, status: 'Pending Auction' }
-        ] 
-      },
-      { 
-        _id: 'l-3', lotId: 'LOT-2026-003', supplier: { name: 'Anwar Pasha' }, entryDate: '2026-03-22', origin: 'Nellore', status: 'Fully Sold', totalQuantity: 1200, remainingQuantity: 0, 
-        lineItems: [
-          { product: "Tomato", variety: "Roma", grade: "A", grossWeight: 1200, deductions: 50, netWeight: 1150, soldQuantity: 1150, remainingQuantity: 0, amount: 15000, rate: 13, status: 'Fully Sold' }
-        ] 
-      }
-    ];
+    const dummyLots = [];
 
     try {
       const sRes = await MandiService.getSuppliers();
@@ -1246,8 +1211,7 @@ export default function App() {
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
-    { id: "Lot / Inventory Intake", roles: ["Owner / Admin", "Operations Staff"], label: "Lot / Inventory Intake" },
-    { id: "Inventory Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot & Auction Management" },
+    { id: "Inventory Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot Creation" },
     { id: "Supplier Billing", roles: ["Owner / Admin", "Accountant", "Operations Staff"], label: "Supplier Billing" },
     { id: "Buyer Invoicing", roles: ["Owner / Admin", "Accountant", "Operations Staff"], label: "Customer Invoicing" },
     { id: "Ledger System", roles: ["Owner / Admin", "Accountant", "Viewer"], label: "Ledger System" },
@@ -2053,7 +2017,7 @@ export default function App() {
             </div>
           )}
 
-          {activeSection === "Lot / Inventory Intake" &&
+          {activeSection === "Inventory Allocation" &&
             <div style={{ display: "flex", flexDirection: "column", gap: "24px", animation: "fadeIn 0.4s ease" }}>
                <h1 style={{ fontSize: "18px", fontWeight: "850", color: "#64748b", margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Orchard & Mandi Operations Command Center</h1>
                <div style={{ display: "flex", gap: "10px", background: "#fff", padding: "10px", borderRadius: "24px", border: "1.5px solid #EBE9E1", width: "fit-content", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
@@ -2082,21 +2046,21 @@ export default function App() {
                        
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           <div style={{ marginBottom: "16px" }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Farmer Name *</label>
+                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Supplier Name *</label>
                             <select 
                               style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc", cursor: "pointer" }}
                               value={intakeForm.supplierId}
                               onChange={e => {
                                  if (e.target.value === "REGISTER_NEW") {
-                                    setActiveSection("Party Management");
+                                    setActiveSection("User Role"); setActiveSupplierTab("Supplier Registration");
                                  } else {
                                     setIntakeForm({...intakeForm, supplierId: e.target.value});
                                  }
                               }}
                             >
-                              <option value="">Linked to farmer profile...</option>
+                              <option value="">Linked to supplier profile...</option>
                               {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} {s.village ? `- ${s.village}` : ''}</option>)}
-                              <option value="REGISTER_NEW" style={{ fontWeight: "800", color: "#166534" }}>➕ Register New Farmer</option>
+                              <option value="REGISTER_NEW" style={{ fontWeight: "800", color: "#166534" }}>➕ Register New Supplier</option>
                             </select>
                           </div>
                           <Input label="Vehicle / Lorry Number *" placeholder="Registration number of arriving vehicle" value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
@@ -2189,44 +2153,20 @@ export default function App() {
 
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
                                <Input label="Net Weight (KG)" disabled value={item.grossWeight ? ((Number(item.grossWeight || 0) - Number(item.deductions || 0)) || 0) : "Auto = G - D"} placeholder="Auto = G - D" />
-                               <div>
-                                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>KGs / Tones *</label>
-                                  <div style={{ display: "flex", gap: "8px" }}>
-                                      <select 
-                                        style={{ width: "85px", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "12px", background: "#f8fafc", fontWeight: "750", color: COLORS.sidebar }}
-                                        value={item.unit || "KG"}
-                                        onChange={e => {
-                                           const newList = [...intakeForm.lineItems];
-                                           newList[idx].unit = e.target.value;
-                                           setIntakeForm({...intakeForm, lineItems: newList});
-                                        }}
-                                      >
-                                         <option value="KG">KGs</option>
-                                         <option value="TON">Tones</option>
-                                         <option value="QTL">Qtls</option>
-                                      </select>
-                                      <input 
-                                        type="number" 
-                                        placeholder="Value"
-                                        style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "13px", boxSizing: "border-box", outline: "none" }}
-                                        value={item.boxes || ''}
-                                        onChange={e => {
-                                          const newList = [...intakeForm.lineItems];
-                                          newList[idx].boxes = e.target.value;
-                                          setIntakeForm({...intakeForm, lineItems: newList});
-                                        }}
-                                      />
-                                  </div>
-                                </div>
+                               <Input label="Boxes / Crates" type="number" placeholder="Optional — number of units/boxes" value={item.boxes || ''} onChange={e => {
+                                  const newList = [...intakeForm.lineItems];
+                                  newList[idx].boxes = e.target.value;
+                                  setIntakeForm({...intakeForm, lineItems: newList});
+                               }} />
                             </div>
 
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                               <Input label="Est. Rate (₹/Unit)" type="number" placeholder="Auction rate" value={item.estimatedRate || ''} onChange={e => {
+                               <Input label="Estimated Rate (₹/KG)" type="number" placeholder="Optional — pre-auction estimate" value={item.estimatedRate || ''} onChange={e => {
                                   const newList = [...intakeForm.lineItems];
                                   newList[idx].estimatedRate = e.target.value;
                                   setIntakeForm({...intakeForm, lineItems: newList});
                                }} />
-                               <Input label="Status" disabled value="Pending Auction" placeholder="Pending Auction" />
+                               <Input label="Status (Auto)" disabled value="Pending Auction" placeholder="Pending Auction / Partially Sold / Fully Sold" />
                             </div>
                             <Button variant="danger" style={{ width: "100%", marginTop: "16px", background: "#FEF2F2", color: "#DC2626", border: "none", fontWeight: "700" }} onClick={() => {
                                const newList = intakeForm.lineItems.filter((_, i) => i !== idx);
