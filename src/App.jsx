@@ -1050,10 +1050,30 @@ export default function App() {
         setIsBillLocked(true);
         // Prevent crash: ensure 'expenses' remains a React-loopable array despite backend object responses
         setFarmerBillForm({ ...farmerBillForm, ...res.data, expenses: farmerBillForm.expenses });
-        // Refresh history using the captured ID to avoid race conditions with state updates
-        fetchData();
+        // Finalize state and await global sync for immediate dashboard updates
+        await fetchData();
         handleFarmerSelectionForSettlement(targetFarmerId);
         alert("🔒 BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.");
+        
+        if (confirm("Bill stored. Clear form for next settlement?")) {
+           setIsBillLocked(false);
+           setSettlementData([]);
+           setFarmerBillForm({
+              ...farmerBillForm,
+              _id: null,
+              billNo: `FB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+              date: new Date().toISOString().slice(0, 10),
+              farmerId: "",
+              expenses: [
+                 { label: "Commission (5%)", value: 0 },
+                 { label: "Labour/Hamali", value: 0 },
+                 { label: "Freight/Transport", value: 0 },
+                 { label: "Market Fee", value: 0 }
+              ],
+              advance: 0,
+              netPayable: 0
+           });
+        }
      } else {
         alert(`❌ STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`);
      }
@@ -2745,6 +2765,7 @@ export default function App() {
                      )}
                       <Button variant="outline" onClick={() => { 
                          setIsBillLocked(false);
+                         setSettlementData([]);
                          setFarmerBillForm({
                             _id: null,
                             billNo: `FB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
