@@ -995,15 +995,25 @@ export default function App() {
      const totalExp = farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0);
      const netPayable = (gross - totalExp) - farmerBillForm.advance;
 
-     const finalBill = {
-        ...farmerBillForm,
-        grossAmount: gross,
-        totalExpenses: totalExp,
-        netPayable: netPayable,
-        allocations: settlementData.map(s => s._id)
+     const backendPayload = {
+        supplier: farmerBillForm.farmerId,
+        items: settlementData.map(s => ({
+           lotId: s.lotRef?._id,
+           productName: s.lineItem?.product || "Product",
+           quantity: s.quantity || 0,
+           rate: s.saleRate || 0
+        })),
+        expenses: {
+           transport: farmerBillForm.expenses.find(e => e.label.includes("Freight"))?.value || 0,
+           marketing: farmerBillForm.expenses.find(e => e.label.includes("Market"))?.value || 0,
+           labour: farmerBillForm.expenses.find(e => e.label.includes("Labour"))?.value || 0,
+           packing: farmerBillForm.expenses.find(e => e.label.includes("Packing"))?.value || 0,
+           misc: farmerBillForm.expenses.find(e => e.label.includes("Commission"))?.value || 0
+        },
+        advancePayment: farmerBillForm.advance || 0
      };
 
-     const res = await MandiService.createFarmerSettlementBill(finalBill);
+     const res = await MandiService.createFarmerSettlementBill(backendPayload);
      if (res.status === "SUCCESS") {
         setIsBillLocked(true);
         setFarmerBillForm(res.data);
