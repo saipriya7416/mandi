@@ -990,6 +990,34 @@ export default function App() {
      }
   };
 
+  const handleUpdateSettlementItem = (idx, field, value) => {
+     const newData = [...settlementData];
+     if (field === 'product' || field === 'variety') {
+        newData[idx].lineItem = { ...newData[idx].lineItem, [field]: value };
+     } else {
+        newData[idx][field] = (field === 'quantity' || field === 'saleRate') ? Number(value) : value;
+     }
+     setSettlementData(newData);
+  };
+
+  const handleAddSettlementRow = () => {
+    setSettlementData([
+      ...settlementData,
+      {
+        _id: `manual-${Date.now()}`,
+        lineItem: { product: "New Product", variety: "Standard" },
+        lotRef: { lotId: "MANUAL" },
+        quantity: 0,
+        saleRate: 0,
+        isManual: true
+      }
+    ]);
+  };
+
+  const removeSettlementRow = (idx) => {
+     setSettlementData(settlementData.filter((_, i) => i !== idx));
+  };
+
   const handleCreateFarmerBill = async () => {
      const gross = settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0);
      const totalExp = farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0);
@@ -2489,28 +2517,106 @@ export default function App() {
                               </thead>
                               <tbody>
                                  {settlementData.length > 0 ? settlementData.map((item, idx) => (
-                                   <tr key={idx}>
-                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>-</td>
-                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10` }}>
-                                         <b style={{ textTransform: "uppercase", color: COLORS.secondary }}>{item.lineItem?.product}</b>
-                                         <div style={{ fontSize: "11px", color: COLORS.muted, fontWeight: "600" }}>{item.lineItem?.variety} • Lot Reference: {item.lotRef?.lotId}</div>
+                                   <tr key={idx} style={{ background: item.isManual ? "rgba(251, 191, 36, 0.03)" : "transparent" }}>
+                                      <td style={{ padding: "10px", border: `1px solid ${COLORS.secondary}10`, textAlign: "center", color: COLORS.muted }}>
+                                         {!isBillLocked ? (
+                                            <button 
+                                               onClick={() => removeSettlementRow(idx)}
+                                               style={{ background: "none", border: "none", color: COLORS.primary, cursor: "pointer", fontWeight: "900", fontSize: "16px" }}
+                                               title="Remove Item"
+                                            >✕</button>
+                                         ) : <span style={{ fontWeight: "900", opacity: 0.3 }}>-</span>}
                                       </td>
-                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", fontWeight: "850", color: COLORS.text }}>{item.quantity.toLocaleString()}</td>
-                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", color: COLORS.muted }}>{item.saleRate.toFixed(2)}</td>
-                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", fontWeight: "900", color: COLORS.secondary }}>{formatCurrency(item.quantity * item.saleRate)}</td>
+                                      <td style={{ padding: "10px", border: `1px solid ${COLORS.secondary}10`, minWidth: "250px" }}>
+                                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                            {item.isManual && !isBillLocked ? (
+                                               <input 
+                                                  style={{ border: "none", background: "none", color: COLORS.secondary, fontWeight: "900", fontSize: "14px", outline: "none", textTransform: "uppercase", width: "100%", borderBottom: "1px dashed #ccc" }}
+                                                  value={item.lineItem?.product || ""}
+                                                  onChange={e => handleUpdateSettlementItem(idx, "product", e.target.value)}
+                                                  placeholder="Product Name"
+                                               />
+                                            ) : (
+                                               <b style={{ textTransform: "uppercase", color: COLORS.secondary, fontSize: "14px" }}>{item.lineItem?.product}</b>
+                                            )}
+                                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                               {item.isManual && !isBillLocked ? (
+                                                  <input 
+                                                     style={{ border: "none", background: "none", color: COLORS.muted, fontWeight: "600", fontSize: "11px", outline: "none", width: "100px", borderBottom: "1px dashed #ccc" }}
+                                                     value={item.lineItem?.variety || ""}
+                                                     onChange={e => handleUpdateSettlementItem(idx, "variety", e.target.value)}
+                                                     placeholder="Variety"
+                                                  />
+                                               ) : (
+                                                  <span style={{ fontSize: "11px", color: COLORS.muted, fontWeight: "600" }}>{item.lineItem?.variety}</span>
+                                               )}
+                                               <span style={{ fontSize: "10px", opacity: 0.4 }}>•</span>
+                                               <span style={{ fontSize: "10px", color: COLORS.muted }}>Lot: {item.lotRef?.lotId || "N/A"}</span>
+                                            </div>
+                                         </div>
+                                      </td>
+                                      <td style={{ padding: "10px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right" }}>
+                                         {!isBillLocked ? (
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                                               <input 
+                                                  type="number"
+                                                  style={{ width: "90px", textAlign: "right", border: "1.5px solid transparent", borderBottomColor: COLORS.accent, background: "#f8fafc", borderRadius: "4px", fontWeight: "850", color: COLORS.text, padding: "4px 8px", outline: "none" }}
+                                                  value={item.quantity}
+                                                  onChange={e => handleUpdateSettlementItem(idx, "quantity", e.target.value)}
+                                               />
+                                               <span style={{ fontSize: "10px", fontWeight: "800", marginLeft: "4px", opacity: 0.6 }}>KG</span>
+                                            </div>
+                                         ) : (
+                                            <span style={{ fontWeight: "850", color: COLORS.text }}>{item.quantity.toLocaleString()} KG</span>
+                                         )}
+                                      </td>
+                                      <td style={{ padding: "10px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right" }}>
+                                         {!isBillLocked ? (
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                                               <span style={{ fontSize: "12px", opacity: 0.5, marginRight: "4px" }}>₹</span>
+                                               <input 
+                                                  type="number"
+                                                  style={{ width: "80px", textAlign: "right", border: "1.5px solid transparent", borderBottomColor: COLORS.success, background: "#f0fdf4", borderRadius: "4px", fontWeight: "700", color: "#166534", padding: "4px 8px", outline: "none" }}
+                                                  value={item.saleRate}
+                                                  onChange={e => handleUpdateSettlementItem(idx, "saleRate", e.target.value)}
+                                               />
+                                            </div>
+                                         ) : (
+                                            <span style={{ color: COLORS.muted }}>₹{item.saleRate.toFixed(2)}</span>
+                                         )}
+                                      </td>
+                                      <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", fontWeight: "900", color: COLORS.secondary }}>
+                                         {formatCurrency(item.quantity * item.saleRate)}
+                                      </td>
                                    </tr>
                                  )) : (
                                    <tr><td colSpan="5" style={{ padding: "80px", textAlign: "center", opacity: 0.5, fontStyle: "italic" }}>No entries selected for settlement...</td></tr>
                                  )}
                                  
+                                 {/* Interaction Row for Manual Addition */}
+                                 {!isBillLocked && (
+                                    <tr>
+                                       <td colSpan="5" style={{ padding: "15px", border: `1px dashed ${COLORS.secondary}20`, textAlign: "center" }}>
+                                          <button 
+                                             onClick={handleAddSettlementRow}
+                                             style={{ background: "#f8fafc", border: `1.5px dashed ${COLORS.secondary}40`, color: COLORS.secondary, padding: "12px 24px", borderRadius: "10px", fontWeight: "900", cursor: "pointer", fontSize: "12px", transition: "0.2s" }}
+                                             onMouseOver={e => e.currentTarget.style.background = "#eff6ff"}
+                                             onMouseOut={e => e.currentTarget.style.background = "#f8fafc"}
+                                          >
+                                             + ADD NEW LINE ITEM ENTRY FOR BILLING
+                                          </button>
+                                       </td>
+                                    </tr>
+                                 )}
+                                 
                                  {/* Filler rows for consistent printable output */}
-                                 {settlementData.length < 3 && Array.from({ length: 3 - settlementData.length }).map((_, i) => (
-                                    <tr key={`filler-${i}`} style={{ height: "60px" }}>
-                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
-                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
-                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
-                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
-                                       <td style={{ border: `1px solid ${COLORS.secondary}08` }}></td>
+                                 {settlementData.length < 2 && Array.from({ length: 2 - settlementData.length }).map((_, i) => (
+                                    <tr key={`filler-${i}`} style={{ height: "45px" }}>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}05` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}05` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}05` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}05` }}></td>
+                                       <td style={{ border: `1px solid ${COLORS.secondary}05` }}></td>
                                     </tr>
                                  ))}
                               </tbody>
