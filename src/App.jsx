@@ -286,7 +286,8 @@ export default function App() {
     driverName: "",
     origin: "",
     attachedBill: null,
-    notes: ""
+    notes: "",
+    lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "", status: "Pending Auction" }]
   });
 
   const handleRegisterSupplier = async () => {
@@ -348,12 +349,38 @@ export default function App() {
       setLotCreationForm({
         ...lotCreationForm,
         lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
-        vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: ""
+        vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
+        lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "", status: "Pending Auction" }]
       });
       fetchData();
     } catch(err) {
       alert("Lot Storage Failed.");
     }
+  };
+
+  const handleLineItemAction = (action, idx, field, value) => {
+    let items = [...lotCreationForm.lineItems];
+    if (action === "Add") {
+      items.push({ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "", status: "Pending Auction" });
+    } else if (action === "Remove") {
+      items.splice(idx, 1);
+    } else if (action === "Update") {
+      items[idx][field] = value;
+      if (field === "productId") items[idx].variety = "";
+    }
+    setLotCreationForm({ ...lotCreationForm, lineItems: items });
+  };
+
+  const handleSupplierItemAction = (action, idx, field, value) => {
+    let items = [...supplierSettlementForm.items];
+    if (action === "Add") {
+      items.push({ id: Date.now(), productName: "", quantity: "", rate: "" });
+    } else if (action === "Remove") {
+      items.splice(idx, 1);
+    } else if (action === "Update") {
+      items[idx][field] = value;
+    }
+    setSupplierSettlementForm({ ...supplierSettlementForm, items });
   };
 
   const handleRegisterBuyer = async () => {
@@ -612,10 +639,13 @@ export default function App() {
 
   // --- ALLOCATION FORM STATE (REQUIRED BY ENTERPRISE ALLOCATION ENGINE) ---
   const [allocationForm, setAllocationForm] = useState({
+    lotId: "",
+    lineItemId: "",
     buyerId: "",
     quantity: "",
     saleRate: "",
     allocationDate: getISTDate(),
+    buyerInvoiceNo: "",
     notes: ""
   });
 
@@ -668,6 +698,15 @@ export default function App() {
      ],
      advance: 0,
      netPayable: 0
+  });
+
+  const [supplierSettlementForm, setSupplierSettlementForm] = useState({
+    billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
+    date: getISTDate(),
+    supplierId: "",
+    lotId: "",
+    vehicleNumber: "",
+    items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }]
   });
 
   // --- LEDGER SYSTEM STATES ---
@@ -1267,7 +1306,9 @@ export default function App() {
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
-    { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot Creation" }
+    { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "LOT / INVENTORY INTAKE FROM FARMERS" },
+    { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "AUCTION & LOT ALLOCATION TO BUYERS" },
+    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff"], label: "SUPPLIERS BILLING (SETTLEMENT BILL)" }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
@@ -1572,7 +1613,7 @@ export default function App() {
               </datalist>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
                  <div>
-                    <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>LOT / INVENTORY INTAKE FROM FARMERS</h2>
+                    <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Lot Creation</h2>
                  </div>
               </div>
               
@@ -1591,6 +1632,77 @@ export default function App() {
                   ]
                 }
               ]} />
+
+              <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", marginTop: "24px" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", marginTop: 0 }}>Produce Details</h3>
+                
+                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                  {lotCreationForm.lineItems.map((item, idx) => (
+                    <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", padding: "24px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
+                      
+                      {idx > 0 && (
+                        <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
+                          ❌ Remove
+                        </div>
+                      )}
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
+                        <select value={item.productId} onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                           <option value="" disabled>Select Product</option>
+                           {Object.keys(PRODUCT_DATA).filter(k => k !== "default").map(p => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Variety *</label>
+                        <select value={item.variety} onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                           <option value="" disabled>Select Variety</option>
+                           {(PRODUCT_DATA[item.productId]?.varieties || []).map(v => <option key={v} value={v}>{v}</option>)}
+                        </select>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Grade</label>
+                        <select value={item.grade} onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                           <option value="A">A Grade</option>
+                           <option value="B">B Grade</option>
+                           <option value="C">C Grade</option>
+                           <option value="Export">Export</option>
+                           <option value="Local">Local</option>
+                        </select>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Gross Weight (KG) *</label>
+                        <input type="number" value={item.grossWeight} onChange={(e) => handleLineItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Deductions (KG)</label>
+                        <input type="number" value={item.deductions} onChange={(e) => handleLineItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Net Weight (KG) Auto</label>
+                        <input type="number" disabled value={(Number(item.grossWeight) - Number(item.deductions)) || 0} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Boxes / Crates</label>
+                        <input type="number" value={item.boxes} onChange={(e) => handleLineItemAction("Update", idx, "boxes", e.target.value)} placeholder="Optional units/boxes" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (₹/KG)</label>
+                        <input type="number" value={item.estimatedRate} onChange={(e) => handleLineItemAction("Update", idx, "estimatedRate", e.target.value)} placeholder="Optional pre-auction estimate" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                      </div>
+
+                    </div>
+                  ))}
+                  <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>+ Add Next Produce Item</Button>
+                </div>
+              </div>
           
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                 <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterLot}>Create Lot</Button>
@@ -1602,8 +1714,147 @@ export default function App() {
                 <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setLotCreationForm({
                     ...lotCreationForm,
                     lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
-                    vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: ""
+                    vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
+                    lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "", status: "Pending Auction" }]
                   })}>Clear Form</Button>
+              </div>
+            </div>
+          )}
+
+          {/* LOT ALLOCATION MODULE */}
+          {activeSection === "Lot Allocation" && (
+            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
+                 <div>
+                    <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Allocation Record Fields</h2>
+                 </div>
+              </div>
+
+              <FormGrid sections={[
+                {
+                  title: "Auction & Allocation Entry",
+                  fields: [
+                    { label: "Lot ID *", type: "text", list: "lots-list", value: allocationForm.lotId, onChange: e => setAllocationForm({...allocationForm, lotId: e.target.value}), placeholder: "Select active lot" },
+                    { label: "Product / Variety / Grade *", type: "text", list: "items-list", value: allocationForm.lineItemId, onChange: e => setAllocationForm({...allocationForm, lineItemId: e.target.value}), placeholder: "Specific line item" },
+                    { label: "Buyer Name *", type: "select", options: ["", ...buyers.map(b => b.name)], value: allocationForm.buyerId, onChange: e => setAllocationForm({...allocationForm, buyerId: e.target.value}) },
+                    { label: "Quantity Allocated (KG) *", type: "number", value: allocationForm.quantity, onChange: e => setAllocationForm({...allocationForm, quantity: e.target.value}), placeholder: "Can be partial" },
+                    { label: "Sale Rate (₹/KG) *", type: "number", value: allocationForm.saleRate, onChange: e => setAllocationForm({...allocationForm, saleRate: e.target.value}), placeholder: "Agreed rate" },
+                    { label: "Sale Amount (₹) Auto", type: "number", disabled: true, value: (Number(allocationForm.quantity) * Number(allocationForm.saleRate)) || 0 },
+                    { label: "Allocation Date *", type: "date", value: allocationForm.allocationDate, onChange: e => setAllocationForm({...allocationForm, allocationDate: e.target.value}) },
+                    { label: "Buyer Invoice No.", type: "text", value: allocationForm.buyerInvoiceNo, onChange: e => setAllocationForm({...allocationForm, buyerInvoiceNo: e.target.value}), placeholder: "Generated invoice number" },
+                    { label: "Notes", type: "text", value: allocationForm.notes, onChange: e => setAllocationForm({...allocationForm, notes: e.target.value}), placeholder: "E.g. 'Bice No. 111'" }
+                  ]
+                }
+              ]} />
+              
+              <datalist id="lots-list">
+                 {lots.filter(l => l.status !== "Fully Sold").map(l => <option key={l._id || l.lotId} value={l.lotId} />)}
+              </datalist>
+              <datalist id="items-list">
+                 {lots.find(l => l.lotId === allocationForm.lotId)?.lineItems?.map(item => 
+                   <option key={item._id || item.id} value={`${item.productId} / ${item.variety} / ${item.grade}`} />
+                 ) || []}
+              </datalist>
+
+              <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={() => {
+                   alert(`✅ ALLOCATION RECORDED for Lot ${allocationForm.lotId}!`);
+                   setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" });
+                }}>Record Allocation</Button>
+                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" })}>Clear Form</Button>
+              </div>
+            </div>
+          )}
+
+          {/* SUPPLIER BILLING MODULE */}
+          {activeSection === "Supplier Billing" && (
+            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "flex-start" }}>
+                 
+                 {/* COLUMN 1: BILL HEADER */}
+                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Bill Header</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                       
+                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Bill Number</label>
+                          <input type="text" disabled value={supplierSettlementForm.billNumber} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                       </div>
+
+                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Date</label>
+                          <input type="date" value={supplierSettlementForm.date} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, date: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                       </div>
+
+                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Farmer Name (M/s)</label>
+                          <select value={supplierSettlementForm.supplierId} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, supplierId: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                             <option value="" disabled>Select Farmer</option>
+                             {suppliers.map(s => <option key={s._id} value={s.name}>{s.name}</option>)}
+                          </select>
+                       </div>
+
+                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot ID Reference</label>
+                          <select value={supplierSettlementForm.lotId} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, lotId: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                             <option value="" disabled>Select Lot</option>
+                             {lots.filter(l => l.supplierId === supplierSettlementForm.supplierId || !supplierSettlementForm.supplierId).map(l => <option key={l._id || l.lotId} value={l.lotId}>{l.lotId}</option>)}
+                          </select>
+                       </div>
+
+                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Vehicle Number</label>
+                          <input type="text" value={supplierSettlementForm.vehicleNumber} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, vehicleNumber: e.target.value})} placeholder="Lorry/truck that brought the produce" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                       </div>
+
+                    </div>
+                 </div>
+
+                 {/* COLUMN 2: ITEM TABLE */}
+                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", flexDirection: "column", height: "100%" }}>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Item Table — Produce Sold</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px", flex: 1 }}>
+                       {supplierSettlementForm.items.map((item, idx) => (
+                           <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", background: "#FDFBF4", padding: "20px", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
+                               {idx > 0 && <div style={{ position: "absolute", top: "8px", right: "8px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "10px" }} onClick={() => handleSupplierItemAction("Remove", idx)}>❌ Remove</div>}
+                               
+                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Item / Product Name</label>
+                                  <input type="text" value={item.productName} onChange={(e) => handleSupplierItemAction("Update", idx, "productName", e.target.value)} placeholder="E.g. Mango - Alphonso" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                               </div>
+                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>KGS (Quantity)</label>
+                                  <input type="number" value={item.quantity} onChange={(e) => handleSupplierItemAction("Update", idx, "quantity", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                               </div>
+                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>RATE (₹/KG)</label>
+                                  <input type="number" value={item.rate} onChange={(e) => handleSupplierItemAction("Update", idx, "rate", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                               </div>
+                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>AMOUNT (₹) Auto</label>
+                                  <input type="number" disabled value={(Number(item.quantity) * Number(item.rate)) || 0} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                               </div>
+                           </div>
+                       ))}
+                       <Button style={{ alignSelf: "flex-start", marginTop: "8px", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleSupplierItemAction("Add")}>+ Add Line Item</Button>
+                    </div>
+
+                    <div style={{ borderTop: "2px solid #EBE9E1", marginTop: "32px", paddingTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "800", color: COLORS.sidebar }}>Total Amount:</h3>
+                        <h2 style={{ margin: 0, fontSize: "28px", color: COLORS.primary }}>
+                            {formatCurrency(supplierSettlementForm.items.reduce((sum, it) => sum + ((Number(it.quantity) * Number(it.rate)) || 0), 0))}
+                        </h2>
+                    </div>
+                 </div>
+
+              </div>
+
+              <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
+                <Button style={{ background: COLORS.primary, color: "#FFFFFF", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={() => {
+                   alert(`✅ BILL GENERATED: ${supplierSettlementForm.billNumber} saved into the database!`);
+                   setSupplierSettlementForm({ billNumber: `BILL-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), supplierId: "", lotId: "", vehicleNumber: "", items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }] });
+                }}>Generate Bill</Button>
+                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setSupplierSettlementForm({ billNumber: `BILL-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), supplierId: "", lotId: "", vehicleNumber: "", items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }] })}>Clear Data</Button>
               </div>
             </div>
           )}
