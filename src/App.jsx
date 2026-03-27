@@ -3304,10 +3304,16 @@ export default function App() {
           {activeSection === "Expense Management" && (
             <Card title="Operational Burn Registry" subtitle="Track expenses per transaction or daily cycle">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "16px", marginBottom: "40px" }}>
-                {["Labour", "Transport", "Marketing", "Packing", "Misc"].map(cat => (
-                  <div key={cat} style={{ padding: "24px", background: "#f8fafc", borderRadius: "20px", textAlign: "center", border: "1.5px solid #e2e8f0" }}>
-                    <p style={{ margin: 0, fontWeight: "800", color: COLORS.muted }}>{cat}</p>
-                    <h3 style={{ margin: "8px 0 0", color: COLORS.secondary }}>₹ 24,000</h3>
+                {[
+                  { cat: "Labour", val: 32500 },
+                  { cat: "Transport", val: 45800 },
+                  { cat: "Marketing", val: 12000 },
+                  { cat: "Packing", val: 18400 },
+                  { cat: "Misc", val: 8200 }
+                ].map(item => (
+                  <div key={item.cat} style={{ padding: "24px", background: "#f8fafc", borderRadius: "20px", textAlign: "center", border: "1.5px solid #e2e8f0" }}>
+                    <p style={{ margin: 0, fontWeight: "800", color: COLORS.muted }}>{item.cat}</p>
+                    <h3 style={{ margin: "8px 0 0", color: COLORS.secondary }}>{formatCurrency(item.val)}</h3>
                   </div>
                 ))}
               </div>
