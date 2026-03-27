@@ -278,6 +278,16 @@ export default function App() {
   // --- FORM STATES & HANDLERS ---
   const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
   const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+  const [lotCreationForm, setLotCreationForm] = useState({
+    lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-001`,
+    dateTime: new Date().toISOString().slice(0, 16),
+    farmerId: "",
+    vehicleNumber: "",
+    driverName: "",
+    origin: "",
+    attachedBill: null,
+    notes: ""
+  });
 
   const handleRegisterSupplier = async () => {
     if(!supplierForm.name || !supplierForm.phone) return alert("Name and phone are required!");
@@ -297,6 +307,52 @@ export default function App() {
       fetchData();
     } catch(err) {
       alert("Registration Failed.");
+    }
+  };
+
+  const handleRegisterLot = async () => {
+    if(!lotCreationForm.farmerId || !lotCreationForm.vehicleNumber || !lotCreationForm.origin) {
+      return alert("Supplier Name, Vehicle Number, and Origin are required fields.");
+    }
+
+    let fileUrl = null;
+    if (lotCreationForm.attachedBill) {
+      try {
+        const uploadRes = await MandiService.uploadFile(lotCreationForm.attachedBill, 'INTAKE_BILL');
+        fileUrl = uploadRes.url || "uploaded";
+      } catch (err) {
+         console.warn("Bill upload failed or API not configured", err);
+      }
+    }
+
+    const matchedSupplier = suppliers.find(s => s.name === lotCreationForm.farmerId);
+
+    const payload = {
+      lotId: lotCreationForm.lotId,
+      entryDate: lotCreationForm.dateTime,
+      supplierId: matchedSupplier ? matchedSupplier._id : lotCreationForm.farmerId, 
+      vehicleNumber: lotCreationForm.vehicleNumber,
+      driverName: lotCreationForm.driverName,
+      origin: lotCreationForm.origin,
+      billAttachment: fileUrl,
+      notes: lotCreationForm.notes,
+      lineItems: [] 
+    };
+
+    try {
+      const res = await MandiService.addLot(payload);
+      if(res.status === "ERROR") return alert("Intake registration error: " + res.message);
+      
+      alert(`✅ LOT CREATED: ${lotCreationForm.lotId} permanently stored in Database!`);
+      
+      setLotCreationForm({
+        ...lotCreationForm,
+        lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+        vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: ""
+      });
+      fetchData();
+    } catch(err) {
+      alert("Lot Storage Failed.");
     }
   };
 
@@ -1210,7 +1266,8 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" }
+    { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
+    { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot Creation" }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
@@ -1507,7 +1564,49 @@ export default function App() {
             </div>
           )}
 
+          {/* LOT CREATION MODULE */}
+          {activeSection === "Lot Creation" && (
+            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+              <datalist id="suppliers-list">
+                 {suppliers.map(s => <option key={s._id} value={s.name} />)}
+              </datalist>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
+                 <div>
+                    <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>LOT / INVENTORY INTAKE FROM FARMERS</h2>
+                 </div>
+              </div>
+              
+              <FormGrid sections={[
+                {
+                  title: "Intake Details",
+                  fields: [
+                    { label: "Lot ID *", type: "text", value: lotCreationForm.lotId, disabled: true, placeholder: "Auto-generated sequence" },
+                    { label: "Date & Time *", type: "datetime-local", value: lotCreationForm.dateTime, onChange: e => setLotCreationForm({...lotCreationForm, dateTime: e.target.value}) },
+                    { label: "Supplier Name *", type: "text", list: "suppliers-list", value: lotCreationForm.farmerId, onChange: e => setLotCreationForm({...lotCreationForm, farmerId: e.target.value}), placeholder: "Search and select supplier" },
+                    { label: "Vehicle / Lorry Number *", type: "text", value: lotCreationForm.vehicleNumber, onChange: e => setLotCreationForm({...lotCreationForm, vehicleNumber: e.target.value}), placeholder: "Registration number of arriving vehicle" },
+                    { label: "Driver Name", type: "text", value: lotCreationForm.driverName, onChange: e => setLotCreationForm({...lotCreationForm, driverName: e.target.value}), placeholder: "Optional" },
+                    { label: "Origin / Source Location *", type: "text", value: lotCreationForm.origin, onChange: e => setLotCreationForm({...lotCreationForm, origin: e.target.value}), placeholder: "Village or farm location" },
+                    { label: "Attached Bill Photo", type: "file", onChange: e => setLotCreationForm({...lotCreationForm, attachedBill: e.target.files[0]}), placeholder: "Photo of paper bill / delivery challan from farmer" },
+                    { label: "Notes", type: "text", value: lotCreationForm.notes, onChange: e => setLotCreationForm({...lotCreationForm, notes: e.target.value}), placeholder: "Any special remarks about condition of produce" }
+                  ]
+                }
+              ]} />
+          
+              <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterLot}>Create Lot</Button>
+                
+                {isAdmin && (
+                  <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Edit Mode enabled for Admin")}>Edit</Button>
+                )}
 
+                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setLotCreationForm({
+                    ...lotCreationForm,
+                    lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+                    vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: ""
+                  })}>Clear Form</Button>
+              </div>
+            </div>
+          )}
 
 
           {/* 11. PAYMENT & SETTLEMENT MANAGEMENT */}
