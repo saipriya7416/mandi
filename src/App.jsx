@@ -129,8 +129,8 @@ const getISTDate = () => {
 };
 
 const DB = {
-  Fruits: ["Apple", "Apricot", "Avocado", "Banana", "Blackberry", "Blueberry", "Cherry", "Coconut", "Dragon Fruit", "Fig", "Grapes", "Guava", "Kiwi", "Lemon", "Mango", "Orange", "Papaya", "Peach", "Pear", "Pineapple", "Plum", "Pomegranate", "Strawberry", "Watermelon"],
-  Vegetables: ["Ash Gourd", "Beetroot", "Brinjal", "Broccoli", "Cabbage", "Capsicum", "Carrot", "Cauliflower", "Cucumber", "Drumstick", "Garlic", "Ginger", "Green Chilli", "Lady Finger", "Onion", "Potato", "Pumpkin", "Radish", "Spinach", "Sweet Corn", "Tomato"]
+  Fruits: ["Apple", "Apricot", "Avocado", "Banana", "Blackberry", "Blueberry", "Cantaloupe", "Cherry", "Clementine", "Coconut", "Cranberry", "Custard Apple", "Date", "Dragon Fruit", "Durian", "Elderberry", "Fig", "Gooseberry", "Grapefruit", "Grapes (Black)", "Grapes (Green)", "Guava", "Honeydew", "Jackfruit", "Jujube", "Kiwi", "Kumquat", "Lemon", "Lime", "Longan", "Lychee", "Mandarin", "Mango", "Mangosteen", "Mulberry", "Nectarine", "Orange", "Papaya", "Passion Fruit", "Peach", "Pear", "Persimmon", "Pineapple", "Pitaya", "Plum", "Pomegranate", "Pomelo", "Quince", "Raspberry", "Sapodilla", "Star Fruit", "Strawberry", "Sweet Lime (Mosambi)", "Tamarind", "Tangerine", "Watermelon"],
+  Vegetables: ["Artichoke", "Asparagus", "Ash Gourd", "Baby Corn", "Bamboo Shoot", "Beans (French)", "Beans (Long)", "Beetroot", "Bell Pepper", "Bitter Gourd", "Bottle Gourd", "Broccoli", "Brussels Sprout", "Cabbage (Green)", "Cabbage (Red/Purple)", "Capsicum (Yellow/Red)", "Capsicum (Green)", "Carrot", "Cassava", "Cauliflower", "Celery", "Chayote", "Chilli (Green)", "Chilli (Red)", "Chinese Cabbage", "Cluster Beans", "Colocasia", "Corn (Sweet)", "Cucumber", "Curry Leaves", "Daikon", "Drumstick", "Eggplant (Brinjal)", "Elephant Foot Yam", "Endive", "Fenugreek Leaves (Methi)", "Garlic", "Ginger", "Green Pea", "Ivy Gourd", "Kale", "Kohlrabi", "Lady Finger (Okra)", "Leek", "Lettuce", "Microgreens", "Mint", "Mushroom", "Mustard Greens", "Onion (Red)", "Onion (White)", "Parsley", "Parsnip", "Peas", "Pointed Gourd", "Potato", "Pumpkin", "Radish", "Ridge Gourd", "Scallion", "Shallot", "Snake Gourd", "Spinach", "Spring Onion", "Sweet Potato", "Taro", "Tomato", "Turnip", "Water Chestnut", "Yam", "Zucchini"]
 };
 
 const PRODUCT_DATA = {
@@ -172,17 +172,29 @@ const PRODUCT_DATA = {
 };
 
 const getProductData = (productName) => {
-  const product = masterProducts.find(p => p.name.toLowerCase() === productName?.toLowerCase());
-  if (product) {
+  // Try to find in custom master products (Added by user in config)
+  const masterProd = masterProducts?.find(p => p.name.toLowerCase() === productName?.toLowerCase());
+  if (masterProd) {
     return {
-      varieties: product.varieties,
-      grades: product.grades,
-      units: product.units,
-      sizes: ["Big", "Medium", "Small", "Export Size"],
-      colors: ["Bright Red", "Natural", "Yellow-Orange"]
+      varieties: masterProd.varieties || [],
+      grades: masterProd.grades || ["A Grade", "B Grade", "C Grade"]
     };
   }
-  return { varieties: ["Select Product First"], grades: [], units: [], sizes: [], colors: [] };
+  
+  // Try to find in predefined PRODUCT_DATA map
+  const preDefined = PRODUCT_DATA[productName];
+  if (preDefined) {
+    return {
+      varieties: preDefined.varieties || [],
+      grades: ["A Grade", "B Grade", "C Grade", "Export Quality", "Local"]
+    };
+  }
+
+  // Fallback for typed products
+  return { 
+    varieties: ["Standard", "Premium", "Local Grade", "Processing Quality"], 
+    grades: ["A Grade", "B Grade", "C Grade", "Export Quality", "Local"]
+  };
 };
 
 const TabHeader = ({ tabs, active, set }) => (
@@ -310,8 +322,10 @@ export default function App() {
     }
   };
 
-  const handleSaveDispatch = async () => {
-    if (!intakeForm.supplierId) return alert("⚠️ Supplier is required to record a dispatch.");
+  const handleCreateLot = async () => {
+    if (!intakeForm.supplierId) return alert("⚠️ Supplier is required");
+    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
+
     const payload = {
       supplier: intakeForm.supplierId,
       entryDate: intakeForm.entryDate,
@@ -319,11 +333,21 @@ export default function App() {
       driverName: intakeForm.driverName,
       origin: intakeForm.origin,
       notes: intakeForm.notes,
-      lineItems: intakeForm.lineItems
+      lineItems: intakeForm.lineItems.map(i => ({
+        product: i.product || "Unknown",
+        variety: i.variety || "Standard", 
+        grade: i.grade || "A",
+        grossWeight: Number(i.grossWeight) || 0,
+        deductions: Number(i.deductions) || 0,
+        boxes: Number(i.boxes) || 0,
+        estimatedRate: Number(i.estimatedRate) || 0
+      }))
     };
+
     const res = await MandiService.addLot(payload);
     if (res.status === "SUCCESS") {
-      alert(`📦 DISPATCH RECORDED: Lot ${res.data.lotId} logged to Database.`);
+      const sName = suppliers.find(s => s._id === intakeForm.supplierId)?.name || "Supplier";
+      alert(`✅ LOT SAVED: Lot ${res.data.lotId} for ${sName} successfully recorded to Database.`);
       setIntakeForm({
         supplierId: "", 
         entryDate: new Date().toISOString().slice(0, 10),
@@ -532,6 +556,7 @@ export default function App() {
     buyerId: "",
     quantity: "",
     saleRate: "",
+    allocationDate: getISTDate(),
     notes: ""
   });
 
@@ -1046,54 +1071,19 @@ export default function App() {
     });
   };
 
-  const handleCreateLot = async () => {
-    if (!intakeForm.supplierId) return alert("⚠️ Supplier is required");
-    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
-    
-    const payload = {
-       supplier: intakeForm.supplierId,
-       entryDate: intakeForm.entryDate,
-       vehicleNumber: intakeForm.vehicleNumber,
-       driverName: intakeForm.driverName,
-       origin: intakeForm.origin,
-       notes: intakeForm.notes,
-       lineItems: intakeForm.lineItems.map(i => ({
-          product: i.product || i.productLabel || "Unknown",
-          variety: i.variety || "Standard", 
-          grade: i.grade || "A",
-          grossWeight: Number(i.grossWeight) || 0,
-          deductions: Number(i.deductions) || 0,
-          boxes: Number(i.boxes) || 0,
-          estimatedRate: Number(i.estimatedRate) || 0
-       }))
-    };
-    
-    const res = await MandiService.addLot(payload);
-    if (res.status === "SUCCESS") {
-      alert(`💾 SUCCESS: Lot ${res.data.lotId} recorded! Net weight added to Live Stock.`);
-      setIntakeForm({ 
-        supplierId: "", 
-        entryDate: new Date().toISOString().slice(0, 16), // datetime-local format
-        vehicleNumber: "",
-        driverName: "",
-        origin: "",
-        notes: "",
-        lineItems: [{ product: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
-      });
-      fetchData();
-    } else {
-      alert(`❌ FAILED: ${res.message || "Database Error"}`);
-    }
-  };
+
 
   // --- HANDLE ALLOCATION (MISSING FUNCTION — WAS CRASHING ON BUTTON CLICK) ---
   const handleAllocate = async () => {
-    if (!allocationForm.buyerId) return alert("⚠️ Please select a Buyer");
-    if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("⚠️ Please enter a valid Quantity");
-    if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("⚠️ Please enter a valid Sale Rate");
-    if (!selection.item || !selection.lot) return alert("⚠️ Please select a Lot Item from the left panel");
+    if (!allocationForm.buyerId) return alert("⚠️ Buyer is required for auction record.");
+    if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("⚠️ Valid Quantity must be entered.");
+    if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("⚠️ Sale Rate is required.");
+    if (!allocationForm.allocationDate) return alert("⚠️ Allocation Date is mandatory.");
+    if (!allocationForm.notes || allocationForm.notes.length < 3) return alert("⚠️ Transfer Notes are mandatory for tracking.");
+    if (!selection.item || !selection.lot) return alert("⚠️ Select a Lot Item to allocate.");
+    
     if (Number(allocationForm.quantity) > selection.item.remainingQuantity) {
-      return alert(`⚠️ Quantity entered (${allocationForm.quantity} KG) exceeds available stock (${selection.item.remainingQuantity} KG)`);
+      return alert(`⚠️ Stock Deficit: Only ${selection.item.remainingQuantity} KG available.`);
     }
 
     const payload = {
@@ -1102,6 +1092,7 @@ export default function App() {
       buyerId: allocationForm.buyerId,
       quantity: Number(allocationForm.quantity),
       rate: Number(allocationForm.saleRate),
+      allocationDate: allocationForm.allocationDate,
       notes: allocationForm.notes
     };
 
@@ -1253,7 +1244,7 @@ export default function App() {
   const ALL_MENU = [
     { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
     { id: "Lot / Inventory Intake", roles: ["Owner / Admin", "Operations Staff"], label: "Lot / Inventory Intake" },
-    { id: "Inventory Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation" },
+    { id: "Inventory Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot & Auction Management" },
     { id: "Supplier Billing", roles: ["Owner / Admin", "Accountant", "Operations Staff"], label: "Supplier Billing" },
     { id: "Buyer Invoicing", roles: ["Owner / Admin", "Accountant", "Operations Staff"], label: "Customer Invoicing" },
     { id: "Ledger System", roles: ["Owner / Admin", "Accountant", "Viewer"], label: "Ledger System" },
@@ -1445,6 +1436,14 @@ export default function App() {
         <div style={{ animation: "fadeIn 0.6s ease-out" }}>
 
           {/* 14. Dashboard */}
+          {/* Global Location Datalists */}
+          <datalist id="indian-states">
+             {["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"].map(s => <option key={s} value={s} />)}
+          </datalist>
+          <datalist id="indian-towns">
+             {["Guntur", "Madanapalle", "Tenali", "Narasaraopet", "Nagpur", "Nashik", "Pune", "Mumbai", "Surat", "Ahmedabad", "Rajkot", "Vadodara", "Varanasi", "Lucknow", "Kanpur", "Prayagraj", "Patna", "Gaya", "Ranchi", "Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain", "Azadpur", "Ghazipur", "Warangal", "Karimnagar", "Nizamabad", "Khammam", "Ramagundam", "Siddipet", "Medak", "Chikballapur", "Kolar", "Hassan", "Mysuru", "Hubli", "Belagavi", "Davanagere", "Anantapur", "Chittoor", "Kadapa", "Nellore", "Kurnool", "Ongole", "Tirupati"].map(t => <option key={t} value={t} />)}
+          </datalist>
+
           {activeSection === "Dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: "20px" }}>
@@ -1632,10 +1631,10 @@ export default function App() {
                     {
                       title: "Farmer / Supplier Profile",
                       fields: [
-                        { label: "Farmer Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: e => setSupplierForm({...supplierForm, name: e.target.value}) },
+                        { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: e => setSupplierForm({...supplierForm, name: e.target.value}) },
                         { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: e => setSupplierForm({...supplierForm, phone: e.target.value}) },
-                        { label: "Village / Town *", placeholder: "Origin of produce" },
-                        { label: "District / State *", placeholder: "District / State" }
+                        { label: "Village / Town *", list: "indian-towns", placeholder: "Origin of produce (Type to search)" },
+                        { label: "District / State *", list: "indian-states", placeholder: "District / State (Type to search)" }
                       ]
                     },
                     {
@@ -1657,10 +1656,10 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }} onClick={handleRegisterSupplier}>Submit Details</Button>
-                    <Button variant="secondary">Save Draft</Button>
-                    <Button variant="outline">Edit</Button>
-                    <Button variant="danger" style={{ background: "#F1F5F9", color: COLORS.danger, border: "none" }}>Cancel All</Button>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>Submit Details</Button>
+                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Save Draft</Button>
+                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Edit</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Cancel All</Button>
                   </div>
                 </div>
               )}
@@ -1861,11 +1860,11 @@ export default function App() {
                     {
                       title: "Customer Profile & Location",
                       fields: [
-                        { label: "Buyer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: e => setBuyerForm({...buyerForm, name: e.target.value}) },
+                        { label: "Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: e => setBuyerForm({...buyerForm, name: e.target.value}) },
                         { label: "Shop / Business Name *", placeholder: "Shop / Business Name", value: buyerForm.shopName, onChange: e => setBuyerForm({...buyerForm, shopName: e.target.value}) },
                         { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: e => setBuyerForm({...buyerForm, phone: e.target.value}) },
                         { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: e => setBuyerForm({...buyerForm, address: e.target.value}) },
-                        { label: "Market / Area *", placeholder: "Which mandi or market zone" },
+                        { label: "Market / Area *", list: "indian-towns", placeholder: "Which mandi or market zone" },
                         { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN" }
                       ]
                     },
@@ -1880,10 +1879,10 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }} onClick={handleRegisterBuyer}>Submit Details</Button>
-                    <Button variant="secondary">Save Draft</Button>
-                    <Button variant="outline">Edit</Button>
-                    <Button variant="danger" style={{ background: "#F1F5F9", color: COLORS.danger, border: "none" }}>Cancel All</Button>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>Submit Details</Button>
+                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Save Draft</Button>
+                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Edit</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Cancel All</Button>
                   </div>
                 </div>
               )}
@@ -2052,7 +2051,7 @@ export default function App() {
           )}
 
           {/* 6 & 7. UNIFIED INVENTORY MANAGEMENT MODULE */}
-          {activeSection === "Inventory Allocation" &&
+          {activeSection === "Lot / Inventory Intake" &&
             <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
                <div style={{ display: "flex", gap: "10px", background: "#fff", padding: "8px", borderRadius: "20px", border: "1.5px solid #EBE9E1", width: "fit-content", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
                   <button 
@@ -2065,77 +2064,177 @@ export default function App() {
                     onClick={() => setInvMode("Intake")} 
                     style={{ padding: "12px 28px", borderRadius: "14px", border: "none", background: invMode === "Intake" ? COLORS.primary : "transparent", color: invMode === "Intake" ? "#fff" : COLORS.text, fontWeight: "800", cursor: "pointer", transition: "all 0.2s" }}
                   >
-                    📥 Register New Farmer Arrival
+                    📥 Lot Creation
                   </button>
                </div>
 
                {invMode === "Intake" ? (
-                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", animation: "fadeIn 0.4s ease" }}>
-                    <Card title="📋 Lot Creation Engine" subtitle="Record new produce arrivals immediately">
+                 <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "fadeIn 0.4s ease" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
+                    <Card title="📋 Lot Creation" subtitle="Create incoming produce lots perfectly">
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                          <Input label="📅 Arrival Date & Time" type="datetime-local" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
+                          <Input label="Lot ID *" disabled value={"LOT-" + new Date().toISOString().slice(0, 10).replace(/-/g, '') + "-001"} placeholder="Format: LOT-YYYYMMDD-001 (sequential per day)" />
+                          <Input label="Date & Time *" type="datetime-local" placeholder="Date of produce arrival" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
+                       </div>
+                       
+                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           <div style={{ marginBottom: "16px" }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>👨‍🌾 Farmer Selection</label>
+                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Supplier Name *</label>
                             <select 
-                              style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc" }}
+                              style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc", cursor: "pointer" }}
                               value={intakeForm.supplierId}
-                              onChange={e => setIntakeForm({...intakeForm, supplierId: e.target.value})}
+                              onChange={e => {
+                                 if (e.target.value === "REGISTER_NEW") {
+                                    setActiveSection("Party Management");
+                                 } else {
+                                    setIntakeForm({...intakeForm, supplierId: e.target.value});
+                                 }
+                              }}
                             >
-                              <option value="">Search Farmer...</option>
-                              {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} - {s.village}</option>)}
+                              <option value="">Linked to supplier profile...</option>
+                              {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} {s.village ? `- ${s.village}` : ''}</option>)}
+                              <option value="REGISTER_NEW" style={{ fontWeight: "800", color: "#166534" }}>➕ Register New Supplier</option>
                             </select>
                           </div>
+                          <Input label="Vehicle / Lorry Number *" placeholder="Registration number of arriving vehicle" value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
                        </div>
-                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                          <Input label="🚛 Vehicle Number" placeholder="Ex: TS 09..." value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
-                          <Input label="📍 Origin Point" placeholder="Ex: Guntur" value={intakeForm.origin} onChange={e => setIntakeForm({...intakeForm, origin: e.target.value})} />
-                          <Input label="👷 Driver Contact" placeholder="Optional" value={intakeForm.driverName} onChange={e => setIntakeForm({...intakeForm, driverName: e.target.value})} />
+
+                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "-16px" }}>
+                          <Input label="Driver Name" placeholder="Optional" value={intakeForm.driverName} onChange={e => setIntakeForm({...intakeForm, driverName: e.target.value})} />
+                          <Input label="Origin / Source Location *" placeholder="Village or farm location" value={intakeForm.origin} onChange={e => setIntakeForm({...intakeForm, origin: e.target.value})} />
                        </div>
-                       <div style={{ marginTop: "24px" }}>
-                          <h4 style={{ color: COLORS.secondary, marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            📦 Produce Breakdown
-                            <Button variant="secondary" onClick={() => setIntakeForm({...intakeForm, lineItems: [...intakeForm.lineItems, { product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]})} style={{ padding: "6px 16px", fontSize: "12px" }}>+ Add Variant</Button>
-                          </h4>
-                          {intakeForm.lineItems.map((item, idx) => (
-                            <div key={idx} style={{ padding: "20px", background: "#f8FAF8", borderRadius: "16px", marginBottom: "16px", border: "1px solid #E2E8F0" }}>
-                              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: "12px", marginBottom: "12px" }}>
-                                 <select 
-                                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ddd" }}
-                                    value={item.product}
-                                    onChange={e => {
-                                      const newList = [...intakeForm.lineItems];
-                                      newList[idx].product = e.target.value;
-                                      setIntakeForm({...intakeForm, lineItems: newList});
-                                    }}
-                                 >
-                                    <option value="">Choose Fruit/Veg...</option>
-                                    {[...DB.Fruits, ...DB.Vegetables].map(p => <option key={p} value={p}>{p}</option>)}
-                                 </select>
-                                 <Input placeholder="Variety" value={item.variety} onChange={e => {
-                                    const newList = [...intakeForm.lineItems];
-                                    newList[idx].variety = e.target.value;
-                                    setIntakeForm({...intakeForm, lineItems: newList});
-                                 }} />
-                                 <Input placeholder="Qty (Gross KG)" type="number" value={item.grossWeight} onChange={e => {
+
+                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
+                          <Input label="Attached Bill Photo" type="file" accept="image/*" placeholder="Photo of paper bill / delivery challan from farmer" />
+                          <Input label="Notes" placeholder="Any special remarks about condition of produce" value={intakeForm.notes || ''} onChange={e => setIntakeForm({...intakeForm, notes: e.target.value})} />
+                       </div>
+                       <Button style={{ width: "100%", height: "54px", marginTop: "24px", background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleCreateLot}>Create Inventory Lot</Button>
+                    </Card>
+
+                    <Card title="📦 Produce Details" subtitle="Add configurable produce variants to this lot">
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+                            <Button variant="secondary" onClick={() => setIntakeForm({...intakeForm, lineItems: [...intakeForm.lineItems, { product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]})} style={{ padding: "6px 16px", fontSize: "12px", background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800" }}>+ Add Variant</Button>
+                        </div>
+                        <div style={{ maxHeight: "600px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px", paddingRight: "8px" }} className="menu-scroll">
+                        <datalist id="global-produce-list">
+                           {[...DB.Fruits, ...DB.Vegetables].sort().map(p => <option key={p} value={p} />)}
+                        </datalist>
+
+                        {intakeForm.lineItems.map((item, idx) => (
+                          <div key={idx} style={{ padding: "20px", background: "#f8FAF8", borderRadius: "16px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Product *</label>
+                                    <input 
+                                      list="global-produce-list"
+                                      placeholder="Type to search (e.g. app...)"
+                                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "13px", boxSizing: "border-box" }}
+                                      value={item.product}
+                                      onChange={e => {
+                                        const newList = [...intakeForm.lineItems];
+                                        newList[idx].product = e.target.value;
+                                        setIntakeForm({...intakeForm, lineItems: newList});
+                                      }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Variety *</label>
+                                    <select 
+                                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "13px", background: "#FFFFFF", boxSizing: "border-box" }} 
+                                      value={item.variety} 
+                                      onChange={e => {
+                                        const newList = [...intakeForm.lineItems];
+                                        newList[idx].variety = e.target.value;
+                                        setIntakeForm({...intakeForm, lineItems: newList});
+                                      }}
+                                    >
+                                       <option value="">-- Choose Variety --</option>
+                                       {getProductData(item.product).varieties.map(v => <option key={v} value={v}>{v}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "12px", marginBottom: "12px" }}>
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>Grade *</label>
+                                    <select 
+                                      style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "13px", background: "#FFFFFF", boxSizing: "border-box" }} 
+                                      value={item.grade} 
+                                      onChange={e => {
+                                        const newList = [...intakeForm.lineItems];
+                                        newList[idx].grade = e.target.value;
+                                        setIntakeForm({...intakeForm, lineItems: newList});
+                                      }}
+                                    >
+                                       <option value="">-- Choose Grade --</option>
+                                       {getProductData(item.product).grades.map(g => <option key={g} value={g}>{g}</option>)}
+                                    </select>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                                  <Input label="Gross Wt (KG) *" type="number" placeholder="Total" value={item.grossWeight || ''} onChange={e => {
                                     const newList = [...intakeForm.lineItems];
                                     newList[idx].grossWeight = e.target.value;
                                     setIntakeForm({...intakeForm, lineItems: newList});
-                                 }} />
-                              </div>
-                              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                                 <Input placeholder="Deductions" style={{ width: "120px" }} value={item.deductions} onChange={e => {
+                                  }} />
+                                  <Input label="Deduct (KG) *" type="number" placeholder="Tara" value={item.deductions || ''} onChange={e => {
                                     const newList = [...intakeForm.lineItems];
                                     newList[idx].deductions = e.target.value;
                                     setIntakeForm({...intakeForm, lineItems: newList});
-                                 }} />
-                                 <span style={{ fontSize: "12px", color: COLORS.muted }}>Net Calculation: <b style={{ color: COLORS.primary }}>{(Number(item.grossWeight) - Number(item.deductions)) || 0} KG</b></span>
-                              </div>
+                                  }} />
+                                </div>
                             </div>
-                          ))}
-                       </div>
-                       <Button style={{ width: "100%", height: "54px", marginTop: "24px" }} onClick={handleCreateLot}>Create Inventory Lot & QR</Button>
+
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                               <Input label="Net Weight (KG)" disabled value={item.grossWeight ? ((Number(item.grossWeight || 0) - Number(item.deductions || 0)) || 0) : "Auto = G - D"} placeholder="Auto = G - D" />
+                               <div>
+                                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>KGs / Tones *</label>
+                                  <div style={{ display: "flex", gap: "8px" }}>
+                                      <select 
+                                        style={{ width: "85px", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "12px", background: "#f8fafc", fontWeight: "750", color: COLORS.sidebar }}
+                                        value={item.unit || "KG"}
+                                        onChange={e => {
+                                           const newList = [...intakeForm.lineItems];
+                                           newList[idx].unit = e.target.value;
+                                           setIntakeForm({...intakeForm, lineItems: newList});
+                                        }}
+                                      >
+                                         <option value="KG">KGs</option>
+                                         <option value="TON">Tones</option>
+                                         <option value="QTL">Qtls</option>
+                                      </select>
+                                      <input 
+                                        type="number" 
+                                        placeholder="Value"
+                                        style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "13px", boxSizing: "border-box", outline: "none" }}
+                                        value={item.boxes || ''}
+                                        onChange={e => {
+                                          const newList = [...intakeForm.lineItems];
+                                          newList[idx].boxes = e.target.value;
+                                          setIntakeForm({...intakeForm, lineItems: newList});
+                                        }}
+                                      />
+                                  </div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                               <Input label="Est. Rate (₹/Unit)" type="number" placeholder="Auction rate" value={item.estimatedRate || ''} onChange={e => {
+                                  const newList = [...intakeForm.lineItems];
+                                  newList[idx].estimatedRate = e.target.value;
+                                  setIntakeForm({...intakeForm, lineItems: newList});
+                               }} />
+                               <Input label="Status" disabled value="Pending Auction" placeholder="Pending Auction" />
+                            </div>
+                            <Button variant="danger" style={{ width: "100%", marginTop: "16px", background: "#FEF2F2", color: "#DC2626", border: "none", fontWeight: "700" }} onClick={() => {
+                               const newList = intakeForm.lineItems.filter((_, i) => i !== idx);
+                               setIntakeForm({...intakeForm, lineItems: newList.length ? newList : [{ product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]});
+                            }}>Remove Variant</Button>
+                          </div>
+                        ))}
+                        </div>
                     </Card>
-                    <Card title="Incoming Live Stream" subtitle="Queue of inventory pending allocation">
+                  </div>
+                  <Card title="Incoming Live Stream" subtitle="Queue of inventory pending allocation">
                        <div style={{ maxHeight: "700px", overflowY: "auto" }} className="menu-scroll">
                           {lots.slice(0, 10).map(lot => (
                             <div key={lot._id} style={{ border: "1px solid #EBE9E1", borderRadius: "16px", background: "#FFFFFF", marginBottom: "16px", overflow: "hidden" }}>
@@ -2215,27 +2314,77 @@ export default function App() {
                                         <div><small style={{ opacity: 0.8 }}>FARMER</small><br /><b>{selection.lot.supplier?.name}</b></div>
                                       </div>
                                   </div>
-                                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-                                      <div style={{ marginBottom: "20px" }}>
-                                        <label style={{ display: "block", marginBottom: "8px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>🏙 Target Buyer</label>
+                                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "20px", marginBottom: "20px" }}>
+                                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        <label style={{ display: "block", fontWeight: "750", color: COLORS.secondary, fontSize: "11px", textTransform: "uppercase" }}>🌇 Select Customer *</label>
                                         <select 
-                                          style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc" }}
+                                          style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", background: "#f8fafc", fontSize: "13px", fontWeight: "600" }}
                                           value={allocationForm.buyerId}
                                           onChange={e => setAllocationForm({...allocationForm, buyerId: e.target.value})}
                                         >
-                                            <option value="">Choose registered buyer...</option>
+                                            <option value="">-- Choose Customer --</option>
                                             {buyers.map(b => <option key={b._id} value={b._id}>{b.name} - {b.shopName}</option>)}
                                         </select>
                                       </div>
-                                      <Input label="⚖️ Quantity (KG)" type="number" value={allocationForm.quantity} onChange={e => setAllocationForm({...allocationForm, quantity: e.target.value})} />
-                                      <Input label="💰 Sale Rate (₹/KG)" type="number" value={allocationForm.saleRate} onChange={e => setAllocationForm({...allocationForm, saleRate: e.target.value})} />
-                                      <Input label="📝 Transfer Memo" placeholder="Notes..." value={allocationForm.notes} onChange={e => setAllocationForm({...allocationForm, notes: e.target.value})} />
+                                      <Input label="📅 Allocation Date *" type="date" value={allocationForm.allocationDate} onChange={e => setAllocationForm({...allocationForm, allocationDate: e.target.value})} />
                                   </div>
-                                  <div style={{ background: "#FDFBF4", padding: "24px", borderRadius: "20px", border: "1.5px dashed #D4B106", marginTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                      <div><p style={{ margin: 0, fontSize: "12px", color: "#856404" }}>EST VALUE</p><h2 style={{ margin: 0, color: COLORS.secondary }}>{formatCurrency((allocationForm.quantity * allocationForm.saleRate) || 0)}</h2></div>
-                                      <div style={{ textAlign: "right" }}><p style={{ margin: 0, fontSize: "12px", color: "#856404" }}>REMAINING</p><h4>{selection.item.remainingQuantity - allocationForm.quantity} KG</h4></div>
+
+                                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                                      <div>
+                                        <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "11px", textTransform: "uppercase" }}>⚖️ Qty Allocated *</label>
+                                        <div style={{ display: "flex", gap: "8px" }}>
+                                            <select 
+                                              style={{ width: "85px", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "12px", background: "#f8fafc", fontWeight: "750" }}
+                                              value={allocationForm.quantityUnit || "KG"}
+                                              onChange={e => setAllocationForm({...allocationForm, quantityUnit: e.target.value})}
+                                            >
+                                               <option value="KG">KGs</option>
+                                               <option value="TON">Tones</option>
+                                            </select>
+                                            <input 
+                                              type="number" 
+                                              placeholder="Value"
+                                              style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "13px", outline: "none" }}
+                                              value={allocationForm.quantity}
+                                              onChange={e => setAllocationForm({...allocationForm, quantity: e.target.value})}
+                                            />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "11px", textTransform: "uppercase" }}>💰 Sale Rate *</label>
+                                        <div style={{ display: "flex", gap: "8px" }}>
+                                            <select 
+                                              style={{ width: "85px", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "12px", background: "#f8fafc", fontWeight: "750" }}
+                                              value={allocationForm.rateUnit || "KG"}
+                                              onChange={e => setAllocationForm({...allocationForm, rateUnit: e.target.value})}
+                                            >
+                                               <option value="KG">₹ / KG</option>
+                                               <option value="TON">₹ / Ton</option>
+                                            </select>
+                                            <input 
+                                              type="number" 
+                                              placeholder="Rate"
+                                              style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", fontSize: "13px", outline: "none" }}
+                                              value={allocationForm.saleRate}
+                                              onChange={e => setAllocationForm({...allocationForm, saleRate: e.target.value})}
+                                            />
+                                        </div>
+                                      </div>
                                   </div>
-                                  <Button style={{ width: "100%", height: "60px", marginTop: "32px", fontSize: "18px" }} onClick={handleAllocate}>Authorize & Generate Invoice</Button>
+
+                                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                                      <Input label="📝 Transfer Memo / Notes *" placeholder="e.g. Bice No. 111, Truck Ref" value={allocationForm.notes} onChange={e => setAllocationForm({...allocationForm, notes: e.target.value})} />
+                                      <div>
+                                         <label style={{ display: "block", marginBottom: "8px", fontWeight: "750", color: COLORS.secondary, fontSize: "11px", textTransform: "uppercase" }}>📑 Customer Invoice No.</label>
+                                         <div style={{ padding: "14px", background: "#F1F5F9", borderRadius: "12px", fontSize: "12px", color: COLORS.muted, fontWeight: "700" }}>Linked Auto-Generated ID</div>
+                                      </div>
+                                  </div>
+
+                                  <div style={{ background: "linear-gradient(to right, #FCFAF4, #FFFFFF)", padding: "24px", borderRadius: "20px", border: "1.5px dashed #D4B106", marginTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <div><p style={{ margin: "0 0 4px", fontSize: "10px", fontWeight: "800", color: "#856404", textTransform: "uppercase" }}>💰 Sale Amount (Qty × Rate)</p><h2 style={{ margin: 0, color: COLORS.secondary, letterSpacing: "-1px" }}>{formatCurrency((allocationForm.quantity * allocationForm.saleRate) || 0)}</h2></div>
+                                      <div style={{ textAlign: "right" }}><p style={{ margin: "0 0 4px", fontSize: "10px", fontWeight: "800", color: "#856404", textTransform: "uppercase" }}>🔄 Remaining Stock</p><h4 style={{ margin: 0, fontWeight: "900" }}>{isNaN(selection.item.remainingQuantity - allocationForm.quantity) ? "--" : (selection.item.remainingQuantity - allocationForm.quantity)} KG</h4></div>
+                                  </div>
+                                  <Button style={{ width: "100%", height: "60px", marginTop: "32px", fontSize: "18px", letterSpacing: "0.5px" }} onClick={handleAllocate}>AUTHORIZE AUCTION & COMMIT</Button>
                                 </div>
                               ) : (
                                 <div style={{ padding: "100px 40px", textAlign: "center", background: "#f8fafc", borderRadius: "24px", border: "2px dashed #e2e8f0" }}>
