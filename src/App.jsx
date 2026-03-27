@@ -1630,35 +1630,29 @@ export default function App() {
                 <div>
                   <FormGrid sections={[
                     {
-                      title: "Basic Details",
+                      title: "Farmer / Supplier Profile",
                       fields: [
-                        { label: "Supplier ID", disabled: true, value: "SUP-" + Math.floor(Math.random()*90000 + 10000) },
-                        { label: "Full Name", placeholder: "Enter name", value: supplierForm.name, onChange: e => setSupplierForm({...supplierForm, name: e.target.value}) },
-                        { label: "Mobile Number", type: "tel", value: supplierForm.phone, onChange: e => setSupplierForm({...supplierForm, phone: e.target.value}) },
-                        { label: "Alternate Mobile / Landline", type: "tel" },
-                        { label: "WhatsApp Number", type: "tel" },
-                        { label: "Email", type: "email" },
-                        { label: "Local / Non-Local", type: "select", options: ["Local", "Non-Local"] },
-                        { label: "Address", placeholder: "Street/Village", value: supplierForm.address, onChange: e => setSupplierForm({...supplierForm, address: e.target.value}) },
-                        { label: "City" },
-                        { label: "District" },
-                        { label: "Pincode" },
-                        { label: "State" },
-                        { label: "Country", value: "India" },
-                        { label: "GST Number" },
-                        { label: "Aadhaar / PAN Number" },
-                        { label: "Business Name" },
-                        { label: "Registration Date", type: "date", value: new Date().toISOString().slice(0, 10) }
+                        { label: "Farmer Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: e => setSupplierForm({...supplierForm, name: e.target.value}) },
+                        { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: e => setSupplierForm({...supplierForm, phone: e.target.value}) },
+                        { label: "Village / Town *", placeholder: "Origin of produce" },
+                        { label: "District / State *", placeholder: "District / State" }
                       ]
                     },
                     {
-                      title: "Additional Business Details",
+                      title: "KYC Compliance",
                       fields: [
-                        { label: "Preferred Payment Method", type: "select", options: ["Bank Transfer (RTGS/NEFT)", "UPI", "Cash", "Cheque"] },
-                        { label: "Credit Limit (₹)", type: "number", placeholder: "0.00" },
-                        { label: "Supplier Category", type: "select", options: ["Farmer", "Wholesaler", "Broker", "Agent"] },
-                        { label: "Transport Availability", type: "select", options: ["Yes - Own Transport", "No - Requires Pickup"] },
-                        { label: "Remarks / Notes" }
+                        { label: "Aadhaar Number", type: "number", placeholder: "12-digit (For KYC compliance)" },
+                        { label: "PAN Number", placeholder: "For high-value transactions" },
+                        { label: "Voter ID", placeholder: "Alternate ID" }
+                      ]
+                    },
+                    {
+                      title: "Banking & Settlement",
+                      fields: [
+                        { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements" },
+                        { label: "IFSC Code", placeholder: "Bank branch code" },
+                        { label: "Advance Balance (₹)", disabled: true, value: "Auto-calculated", placeholder: "Running advance held by SPV" },
+                        { label: "Notes", placeholder: "Free-form notes" }
                       ]
                     }
                   ]} />
@@ -1865,30 +1859,23 @@ export default function App() {
                 <div>
                   <FormGrid sections={[
                     {
-                      title: "Buyer Basic Details",
+                      title: "Customer Profile & Location",
                       fields: [
-                        { label: "Buyer ID", disabled: true, value: "BUY-" + Math.floor(Math.random()*9000 + 1000) },
-                        { label: "Buyer Name", placeholder: "Full Name", value: buyerForm.name, onChange: e => setBuyerForm({...buyerForm, name: e.target.value}) },
-                        { label: "Business Name", placeholder: "Company / Shop Name", value: buyerForm.shopName, onChange: e => setBuyerForm({...buyerForm, shopName: e.target.value}) },
-                        { label: "Buyer Type", type: "select", options: ["Wholesaler", "Retailer", "Exporter", "Supermarket Chain"] },
-                        { label: "Preferred Product Category", type: "select", options: ["Fruits Only", "Vegetables Only", "Mixed/Both"] },
-                        { label: "Mobile Number", type: "tel", value: buyerForm.phone, onChange: e => setBuyerForm({...buyerForm, phone: e.target.value}) },
-                        { label: "Alternate Number", type: "tel" },
-                        { label: "WhatsApp Number", type: "tel" },
-                        { label: "Email", type: "email" }
+                        { label: "Buyer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: e => setBuyerForm({...buyerForm, name: e.target.value}) },
+                        { label: "Shop / Business Name *", placeholder: "Shop / Business Name", value: buyerForm.shopName, onChange: e => setBuyerForm({...buyerForm, shopName: e.target.value}) },
+                        { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: e => setBuyerForm({...buyerForm, phone: e.target.value}) },
+                        { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: e => setBuyerForm({...buyerForm, address: e.target.value}) },
+                        { label: "Market / Area *", placeholder: "Which mandi or market zone" },
+                        { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN" }
                       ]
                     },
                     {
-                      title: "Location & Compliance",
+                      title: "Financials & Credit Settings",
                       fields: [
-                        { label: "Address", placeholder: "Primary location", value: buyerForm.address, onChange: e => setBuyerForm({...buyerForm, address: e.target.value}) },
-                        { label: "City" },
-                        { label: "District" },
-                        { label: "State" },
-                        { label: "Pincode" },
-                        { label: "GST Number" },
-                        { label: "Credit Limit (₹)", type: "number", placeholder: "0.00" },
-                        { label: "Registration Date", type: "date", value: new Date().toISOString().slice(0, 10) }
+                        { label: "Credit Limit (₹) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
+                        { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
+                        { label: "Outstanding Balance (₹)", disabled: true, value: "Auto-calculated", placeholder: "Auto-calculated from invoices - payments" },
+                        { label: "Notes", placeholder: "Free-form notes" }
                       ]
                     }
                   ]} />
