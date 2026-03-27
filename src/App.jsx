@@ -1308,10 +1308,10 @@ export default function App() {
                 ))}
               </select>
               <div style={{ marginTop:"8px", padding:"10px 12px", background:"rgba(159,180,67,0.1)", borderRadius:"8px", border:"1px solid rgba(159,180,67,0.2)" }}>
-                 {authForm.role === "Owner / Admin" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Owner / Admin</b> Full access — all modules, reports, settings, user management, delete, void bills</p>}
-                 {authForm.role === "Accountant" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Accountant</b> Bills, invoices, payments, ledgers, reports — NO system configuration, NO delete</p>}
-                 {authForm.role === "Operations Staff" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Operations Staff</b> Create lots, allocate produce, create bills/invoices — NO payment records, NO ledger edits</p>}
-                 {authForm.role === "Viewer" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Viewer</b> Read-only access to reports and ledgers — NO create or edit</p>}
+                 {authForm.role === "Owner / Admin" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Full access — all modules, reports, settings, user management, delete, void bills</p>}
+                 {authForm.role === "Accountant" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Bills, invoices, payments, ledgers, reports — NO system configuration, NO delete</p>}
+                 {authForm.role === "Operations Staff" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Create lots, allocate produce, create bills/invoices — NO payment records, NO ledger edits</p>}
+                 {authForm.role === "Viewer" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}>Read-only access to reports and ledgers — NO create or edit</p>}
               </div>
             </div>
             <div>
@@ -1320,7 +1320,7 @@ export default function App() {
             </div>
           </div>
           <button className="spv-btn" onClick={handleLogin} style={{ width:"100%", height:"58px", fontSize:"16px", fontWeight:"900", marginTop:"28px", background:"linear-gradient(135deg, #375144 0%, #2d4137 100%)", color:"#ffffff", border:"none", borderRadius:"18px", cursor:"pointer", letterSpacing:"0.5px", boxShadow:"0 12px 30px rgba(55,81,68,0.3)", transition:"all 0.25s" }}>
-            🔐 Initialize Command Deck
+            🔐 Login
           </button>
           <div style={{ marginTop:"32px", paddingTop:"20px", borderTop:"1.5px solid rgba(159,180,67,0.2)", display:"flex", justifyContent:"center", alignItems:"center", gap:"8px" }}>
             <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
