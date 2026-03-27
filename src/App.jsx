@@ -484,6 +484,18 @@ export default function App() {
     notes: "",
     lineItems: [{ product: "", variety: "", grade: "A", grossWeight: 0, deductions: 0, boxes: 0, unit: "KG", estimatedRate: 0 }]
   });
+  const [buyerOrderForm, setBuyerOrderForm] = useState({
+    buyerId: "",
+    orderDate: new Date().toISOString().slice(0, 10),
+    product: "",
+    variety: "",
+    grade: "",
+    quantity: 0,
+    unit: "KG",
+    targetRate: 0,
+    vehicleRequired: "1",
+    notes: ""
+  });
   const [inventoryStats, setInventoryStats] = useState({
     totalLotsToday: 0,
     incomingKgToday: 0,
@@ -1597,42 +1609,16 @@ export default function App() {
                <div>
                   <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>System User Matrix</h2>
                   <div style={{ display: "flex", gap: "20px" }}>
-                    {["Dashboard", "Supplier", "Buyer"].map(tab => (
-                      <div 
-                        key={tab}
-                        onClick={() => setActiveUserRoleTab(tab)}
-                        style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === tab ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === tab ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
-                      >{tab === "Dashboard" ? "🏠 Summary" : tab === "Supplier" ? "🏢 Supplier Pipeline" : "💎 Buyer Pipeline"}</div>
-                    ))}
+                    <div 
+                      onClick={() => setActiveUserRoleTab("Supplier")}
+                      style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Supplier" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Supplier" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
+                    >🏢 Supplier Pipeline</div>
+                    <div 
+                      onClick={() => setActiveUserRoleTab("Buyer")}
+                      style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Buyer" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Buyer" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
+                    >💎 Buyer Pipeline</div>
                   </div>
                </div>
-            </div>
-          )}
-
-          {activeSection === "User Role" && activeUserRoleTab === "Dashboard" && (
-            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "32px" }}>
-                {[
-                  { label: "Active Suppliers", val: suppliers.length || 40, icon: "🏢", color: "#375144" },
-                  { label: "Onboarded Buyers", val: buyers.length || 25, icon: "💎", color: "#3b82f6" },
-                  { label: "Pending Settlements", val: "₹1,42,000", icon: "⚖️", color: "#f59e0b" },
-                  { label: "System Uptime", val: "99.9%", icon: "⚡", color: "#10b981" }
-                ].map((s,i) => (
-                  <Card key={i} style={{ padding: "24px", border: `1.5px solid ${s.color}20` }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <p style={{ margin: "0 0 6px 0", fontSize: "14px", color: COLORS.muted, fontWeight: "700" }}>{s.label}</p>
-                        <h2 style={{ margin: 0, fontSize: "28px", fontWeight: "900", color: COLORS.sidebar }}>{s.val}</h2>
-                      </div>
-                      <span style={{ fontSize: "32px" }}>{s.icon}</span>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-              <Card style={{ padding: "32px", background: "linear-gradient(135deg, #375144 0%, #2d4137 100%)", color: "#fff", borderRadius: "32px" }}>
-                <h3 style={{ margin: "0 0 12px 0", fontSize: "24px", fontWeight: "900" }}>Welcome to the User Management Portal</h3>
-                <p style={{ margin: 0, opacity: 0.8, fontWeight: "600" }}>Select a pipeline above to manage supplier registrations, dispatches and buyer invoicing settlements.</p>
-              </Card>
             </div>
           )}
 
@@ -1919,28 +1905,31 @@ export default function App() {
                     {
                       title: "Order Requirements",
                       fields: [
-                        { label: "Order ID", disabled: true, value: "ORD-PO-149" },
-                        { label: "Buyer Name", type: "select", options: ["Reliance Retail", "Kisan Markets", "BigBasket", "More Supermarkets"] },
+                        { label: "Order ID", disabled: true, value: `ORD-PO-${Math.floor(100 + Math.random() * 900)}` },
+                        { label: "Buyer Name", type: "select", options: ["Select Buyer", ...buyers.map(b => b.name)], value: buyerOrderForm.buyerId, onChange: e => setBuyerOrderForm({...buyerOrderForm, buyerId: e.target.value}) },
                         { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"], value: poType, onChange: (e) => setPoType(e.target.value) },
-                        { label: "Product Name", list: poType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: poProduct, onChange: (e) => setPoProduct(e.target.value) },
-                        { label: "Required Variety", type: "select", options: getProductData(poProduct).varieties },
-                        { label: "Required Size", type: "select", options: getProductData(poProduct).sizes },
-                        { label: "Required Color", type: "select", options: getProductData(poProduct).colors },
+                        { label: "Product Name", list: poType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: buyerOrderForm.product, onChange: (e) => {
+                           setPoProduct(e.target.value);
+                           setBuyerOrderForm({...buyerOrderForm, product: e.target.value});
+                        } },
+                        { label: "Required Variety", type: "select", options: getProductData(buyerOrderForm.product).varieties, value: buyerOrderForm.variety, onChange: e => setBuyerOrderForm({...buyerOrderForm, variety: e.target.value}) },
+                        { label: "Required Size", type: "select", options: getProductData(buyerOrderForm.product).sizes, value: buyerOrderForm.grade, onChange: e => setBuyerOrderForm({...buyerOrderForm, grade: e.target.value}) },
+                        { label: "Required Color", type: "select", options: getProductData(buyerOrderForm.product).colors },
                         { label: "Required Quality", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] }
                       ]
                     },
                     {
                       title: "Fulfillment Details",
                       fields: [
-                        { label: "Required Quantity", type: "number", placeholder: "0" },
-                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"] },
-                        { label: "Number of Trucks Required", type: "number", placeholder: "1" },
+                        { label: "Required Quantity", type: "number", placeholder: "0", value: buyerOrderForm.quantity, onChange: e => setBuyerOrderForm({...buyerOrderForm, quantity: e.target.value}) },
+                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"], value: buyerOrderForm.unit, onChange: e => setBuyerOrderForm({...buyerOrderForm, unit: e.target.value}) },
+                        { label: "Number of Trucks Required", type: "number", placeholder: "1", value: buyerOrderForm.vehicleRequired, onChange: e => setBuyerOrderForm({...buyerOrderForm, vehicleRequired: e.target.value}) },
                         { label: "Packing Type", type: "select", options: ["Standard Corrugated", "Plastic Crates", "Wooden Boxes", "Loose Loads"] },
-                        { label: "Delivery Date", type: "date", value: new Date().toISOString().slice(0, 10) },
+                        { label: "Delivery Date", type: "date", value: buyerOrderForm.orderDate, onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
                         { label: "Delivery Location", placeholder: "Destination Hub" },
-                        { label: "Preferred Rate (₹)", type: "number", placeholder: "Target max price" },
+                        { label: "Preferred Rate (₹)", type: "number", placeholder: "Target max price", value: buyerOrderForm.targetRate, onChange: e => setBuyerOrderForm({...buyerOrderForm, targetRate: e.target.value}) },
                         { label: "Urgency Level", type: "select", options: ["Normal", "High", "Critical (Same Day)"] },
-                        { label: "Notes" }
+                        { label: "Notes", value: buyerOrderForm.notes, onChange: e => setBuyerOrderForm({...buyerOrderForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
