@@ -1045,8 +1045,12 @@ export default function App() {
      if (res.status === "SUCCESS") {
         setIsBillLocked(true);
         setFarmerBillForm(res.data);
+        // Sync both global and farmer-specific records
         fetchData();
-        alert("🔒 BILL FINALIZED & SENT TO LEDGER");
+        handleFarmerSelectionForSettlement(farmerBillForm.farmerId);
+        alert("🔒 BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.");
+     } else {
+        alert(`❌ STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`);
      }
   };
 
