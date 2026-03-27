@@ -230,7 +230,11 @@ export default function App() {
   const [poType, setPoType] = useState("Fruits");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [authForm, setAuthForm] = useState({ username: "", password: "" });
+  const isAdmin = user?.role === "Owner / Admin";
+  const isAccountant = user?.role === "Accountant";
+  const isStaff = user?.role === "Operations Staff";
+  const isViewer = user?.role === "Viewer";
+  const [authForm, setAuthForm] = useState({ username: "", password: "", role: "Owner / Admin" });
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
@@ -937,7 +941,7 @@ export default function App() {
   };
 
   const handleLogin = async () => {
-    const res = await MandiService.login(authForm.username, authForm.password);
+    const res = await MandiService.login(authForm.username, authForm.password, authForm.role);
     if (res?.status === "SUCCESS") {
       setLoggedIn(true);
       setUser(res.data.user);
@@ -1225,9 +1229,13 @@ export default function App() {
   };
 
   const handleVoidBill = async (id) => {
-     const reason = prompt("Mandatory: Reason for voiding this finalized settlement?");
-     if (!reason) return;
-     const res = await MandiService.voidFarmerSettlementBill(id, reason);
+    if (user?.role !== "Owner / Admin") {
+      alert("🛡️ SECURITY: Only the Owner / Admin is authorized to void finalized bills.");
+      return;
+    }
+    const reason = prompt("Mandatory: Reason for voiding this finalized settlement?");
+    if (!reason) return;
+    const res = await MandiService.voidFarmerSettlementBill(id, reason);
      if (res.status === "SUCCESS") {
         alert("🚫 Settlement Voided. Entires reversed.");
         setIsBillLocked(false);
@@ -1243,20 +1251,20 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff", "Viewer"] },
-    { id: "User Role", icon: "👥", roles: ["Admin", "Operations Staff"], label: "Profiles" },
-    { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
-    { id: "Supplier Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant", "Viewer"] },
-    { id: "CONNECTION", icon: "🔗", roles: ["Admin", "Accountant", "Viewer"] },
-    { id: "Payment & Settlement Management", icon: "💳", roles: ["Admin", "Accountant"] },
-    { id: "Transportation Tracking", icon: "🚚", roles: ["Admin", "Operations Staff", "Accountant"] },
-    { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "Reports", icon: "📄", roles: ["Admin", "Accountant", "Viewer"] },
-    { id: "Product Master & Configuration", icon: "⚙️", roles: ["Admin"] },
-    { id: "User Roles, Access Control & Security", icon: "🛡️", roles: ["Admin"] },
-    { id: "Document Management", icon: "📂", roles: ["Admin"] }
+    { id: "Dashboard", icon: "📊", roles: ["Owner / Admin", "Accountant", "Operations Staff", "Viewer"] },
+    { id: "User Role", icon: "👥", roles: ["Owner / Admin", "Operations Staff"], label: "Profiles" },
+    { id: "Inventory Allocation", icon: "📦", roles: ["Owner / Admin", "Operations Staff"] },
+    { id: "Supplier Billing", icon: "⚖️", roles: ["Owner / Admin", "Accountant", "Operations Staff"] },
+    { id: "Buyer Invoicing", icon: "🧾", roles: ["Owner / Admin", "Accountant", "Operations Staff"] },
+    { id: "Ledger System", icon: "📖", roles: ["Owner / Admin", "Accountant", "Viewer"] },
+    { id: "CONNECTION", icon: "🔗", roles: ["Owner / Admin", "Accountant", "Viewer"] },
+    { id: "Payment & Settlement Management", icon: "💳", roles: ["Owner / Admin", "Accountant"] },
+    { id: "Transportation Tracking", icon: "🚚", roles: ["Owner / Admin", "Operations Staff", "Accountant"] },
+    { id: "Expense Management", icon: "💸", roles: ["Owner / Admin", "Accountant", "Operations Staff"] },
+    { id: "Reports", icon: "📄", roles: ["Owner / Admin", "Accountant", "Viewer"] },
+    { id: "Product Master & Configuration", icon: "⚙️", roles: ["Owner / Admin"] },
+    { id: "User Roles, Access Control & Security", icon: "🛡️", roles: ["Owner / Admin"] },
+    { id: "Document Management", icon: "📂", roles: ["Owner / Admin"] }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
@@ -1291,6 +1299,20 @@ export default function App() {
             <div style={{ marginBottom:"18px" }}>
               <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Identity</label>
               <input className="spv-input" type="text" placeholder="Enter username" value={authForm.username} onChange={e=>setAuthForm({...authForm,username:e.target.value})} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+            </div>
+            <div style={{ marginBottom:"18px" }}>
+              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Role</label>
+              <select className="spv-input" value={authForm.role} onChange={e=>setAuthForm({...authForm, role:e.target.value})} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s", appearance: "none" }}>
+                {["Owner / Admin", "Accountant", "Operations Staff", "Viewer"].map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+              <div style={{ marginTop:"8px", padding:"10px 12px", background:"rgba(159,180,67,0.1)", borderRadius:"8px", border:"1px solid rgba(159,180,67,0.2)" }}>
+                 {authForm.role === "Owner / Admin" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Owner / Admin</b> Full access — all modules, reports, settings, user management, delete, void bills</p>}
+                 {authForm.role === "Accountant" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Accountant</b> Bills, invoices, payments, ledgers, reports — NO system configuration, NO delete</p>}
+                 {authForm.role === "Operations Staff" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Operations Staff</b> Create lots, allocate produce, create bills/invoices — NO payment records, NO ledger edits</p>}
+                 {authForm.role === "Viewer" && <p style={{fontSize:"11px", color:"#375144", margin:0, lineHeight:"1.4"}}><b>Viewer</b> Read-only access to reports and ledgers — NO create or edit</p>}
+              </div>
             </div>
             <div>
               <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Secret Access Key</label>
@@ -1742,10 +1764,11 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }} onClick={handleSaveDispatch}>Save Record</Button>
-                    <Button variant="secondary">Update Record</Button>
-                    <Button style={{ background: COLORS.success }}>Generate Invoice</Button>
+                    {!isViewer && <Button style={{ background: COLORS.sidebar }} onClick={handleSaveDispatch}>Save Record</Button>}
+                    {!isViewer && <Button variant="secondary">Update Record</Button>}
+                    {!isViewer && !isStaff && <Button style={{ background: COLORS.success }}>Generate Invoice</Button>}
                     <Button variant="outline">Cancel Action</Button>
+                    {isViewer && <span style={{ fontSize: "12px", color: "#EF4444", fontWeight: "800", padding: "10px 16px", background: "#FEF2F2", borderRadius: "10px" }}>🔒 Viewer Mode — Read Only</span>}
                   </div>
 
                   <div style={{ marginTop: "40px" }}>
@@ -2023,9 +2046,10 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar }}>Save Record</Button>
-                    <Button variant="secondary">Update File</Button>
+                    {!isViewer && <Button style={{ background: COLORS.sidebar }}>Save Record</Button>}
+                    {!isViewer && <Button variant="secondary">Update File</Button>}
                     <Button variant="outline">Print Invoice</Button>
+                    {isViewer && <span style={{ fontSize: "12px", color: "#EF4444", fontWeight: "800", padding: "10px 16px", background: "#FEF2F2", borderRadius: "10px" }}>🔒 Viewer Mode — Read Only</span>}
                   </div>
 
                   <div style={{ marginTop: "40px" }}>
@@ -4072,47 +4096,171 @@ export default function App() {
                )}
 
                {activeSecurityTab === "Permissions" && (
-                  <Card title="Role-Based Access Matrix" subtitle="Define module-level visibility and edit rights">
-                     <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
-                        <thead>
-                           <tr style={{ background: "#f8fafc" }}>
-                              <th style={{ padding: "16px", textAlign: "left", border: "1px solid #e2e8f0" }}>Component / Module</th>
-                              {["Admin", "Accountant", "Ops Staff", "Viewer"].map(r => (
-                                 <th key={r} style={{ padding: "16px", border: "1px solid #e2e8f0" }}>{r}</th>
-                              ))}
-                           </tr>
-                        </thead>
-                        <tbody>
-                           {[
-                              { m: "System Config & Delete", p: ["Full", "None", "None", "None"] },
-                              { m: "Finalize Bills / Invoices", p: ["Full", "Full", "Limit", "None"] },
-                              { m: "Payment & Ledger Edits", p: ["Full", "Full", "None", "None"] },
-                              { m: "Reports & Financial Logs", p: ["Full", "Full", "Full", "Read"] },
-                              { m: "Traceability (Lot/Allocation)", p: ["Full", "Full", "Full", "Read"] }
-                           ].map((row, i) => (
-                              <tr key={i}>
-                                 <td style={{ padding: "16px", border: "1px solid #e2e8f0", fontWeight: "750", color: COLORS.secondary }}>{row.m}</td>
-                                 {row.p.map((perm, pi) => (
-                                    <td key={pi} style={{ padding: "16px", border: "1px solid #e2e8f0", textAlign: "center" }}>
-                                       <span style={{ 
-                                          fontSize: "11px", 
-                                          fontWeight: "900", 
-                                          padding: "4px 10px", 
-                                          borderRadius: "10px",
-                                          background: perm === "Full" ? "#f0fdf4" : perm === "None" ? "#fef2f2" : "#f1f5f9",
-                                          color: perm === "Full" ? "#166534" : perm === "None" ? "#991b1b" : "#475569"
-                                       }}>{perm}</span>
-                                    </td>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "slideUp 0.5s ease-out" }}>
+
+                     {/* Role Summary Cards */}
+                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+                        {[
+                           {
+                              role: "Owner / Admin",
+                              icon: "👑",
+                              color: "#375144",
+                              bg: "linear-gradient(135deg, #375144 0%, #2d4137 100%)",
+                              tagBg: "rgba(159,180,67,0.25)",
+                              tagColor: "#9fb443",
+                              desc: "Full access — all modules, reports, settings, user management, delete & void bills",
+                              perms: ["✅ All Modules", "✅ Delete & Void", "✅ User Management", "✅ System Config", "✅ Reports & Ledger", "✅ Payment Records"]
+                           },
+                           {
+                              role: "Accountant",
+                              icon: "📊",
+                              color: "#1d4ed8",
+                              bg: "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)",
+                              tagBg: "rgba(59,130,246,0.15)",
+                              tagColor: "#3b82f6",
+                              desc: "Bills, invoices, payments, ledgers, reports — NO system configuration, NO delete",
+                              perms: ["✅ Bills & Invoices", "✅ Payments", "✅ Ledger View", "✅ Reports", "❌ System Config", "❌ Delete / Void"]
+                           },
+                           {
+                              role: "Operations Staff",
+                              icon: "🏭",
+                              color: "#b45309",
+                              bg: "linear-gradient(135deg, #b45309 0%, #92400e 100%)",
+                              tagBg: "rgba(245,158,11,0.15)",
+                              tagColor: "#f59e0b",
+                              desc: "Create lots, allocate produce, create bills/invoices — NO payment records, NO ledger edits",
+                              perms: ["✅ Create Lots", "✅ Allocate Produce", "✅ Create Bills", "✅ Create Invoices", "❌ Payment Records", "❌ Ledger Edits"]
+                           },
+                           {
+                              role: "Viewer",
+                              icon: "👁️",
+                              color: "#475569",
+                              bg: "linear-gradient(135deg, #475569 0%, #334155 100%)",
+                              tagBg: "rgba(71,85,105,0.12)",
+                              tagColor: "#64748b",
+                              desc: "Read-only access to reports and ledgers — NO create or edit",
+                              perms: ["✅ View Reports", "✅ View Ledger", "❌ Create / Edit", "❌ Delete / Void", "❌ Payments", "❌ System Config"]
+                           }
+                        ].map((r, i) => (
+                           <div key={i} style={{ background: r.bg, borderRadius: "24px", padding: "28px 24px", color: "#fff", position: "relative", overflow: "hidden", boxShadow: `0 12px 32px ${r.color}30` }}>
+                              <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "90px", height: "90px", borderRadius: "50%", background: "rgba(255,255,255,0.07)" }} />
+                              <div style={{ position: "absolute", bottom: "-30px", left: "-20px", width: "110px", height: "110px", borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
+                              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                                 <div style={{ width: "44px", height: "44px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px" }}>{r.icon}</div>
+                                 <div>
+                                    <div style={{ fontSize: "14px", fontWeight: "900", letterSpacing: "-0.3px" }}>{r.role}</div>
+                                    <div style={{ fontSize: "10px", fontWeight: "700", opacity: 0.65, textTransform: "uppercase", letterSpacing: "1px", marginTop: "2px" }}>System Role</div>
+                                 </div>
+                              </div>
+                              <p style={{ fontSize: "12px", lineHeight: "1.6", opacity: 0.85, margin: "0 0 20px", fontWeight: "600" }}>{r.desc}</p>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                 {r.perms.map((p, pi) => (
+                                    <div key={pi} style={{ fontSize: "11px", fontWeight: "700", padding: "5px 10px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: "6px" }}>
+                                       {p}
+                                    </div>
                                  ))}
-                              </tr>
-                           ))}
-                        </tbody>
-                     </table>
-                     <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "10px", padding: "16px", background: "#fff9eb", borderRadius: "12px", border: "1px solid #feebc8" }}>
-                        <span style={{ fontSize: "20px" }}>⚠️</span>
-                        <p style={{ margin: 0, fontSize: "12px", color: "#92400e" }}>Modifying the Access Matrix will force-logout all active sessions to re-apply JWT tokens.</p>
+                              </div>
+                           </div>
+                        ))}
                      </div>
-                  </Card>
+
+                     {/* Detailed Module Permission Matrix */}
+                     <div style={{ background: "#fff", borderRadius: "24px", padding: "32px", border: "1.5px solid #f1f5f9", boxShadow: "0 10px 25px rgba(0,0,0,0.03)" }}>
+                        <div style={{ marginBottom: "28px" }}>
+                           <h3 style={{ margin: "0 0 6px", fontSize: "20px", fontWeight: "900", color: COLORS.secondary }}>Module-Level Access Matrix</h3>
+                           <p style={{ margin: 0, fontSize: "13px", color: COLORS.muted, fontWeight: "500" }}>Granular permission mapping for all 14 system modules</p>
+                        </div>
+
+                        <div style={{ overflowX: "auto" }}>
+                           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                              <thead>
+                                 <tr>
+                                    <th style={{ padding: "14px 16px", textAlign: "left", background: "#f8fafc", borderBottom: "2px solid #e2e8f0", fontWeight: "800", color: COLORS.muted, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", minWidth: "220px" }}>Module / Component</th>
+                                    {[
+                                       { label: "Owner / Admin", icon: "👑", color: "#375144", bg: "#f0f9f4" },
+                                       { label: "Accountant", icon: "📊", color: "#1d4ed8", bg: "#eff6ff" },
+                                       { label: "Ops Staff", icon: "🏭", color: "#b45309", bg: "#fffbeb" },
+                                       { label: "Viewer", icon: "👁️", color: "#475569", bg: "#f8fafc" }
+                                    ].map(col => (
+                                       <th key={col.label} style={{ padding: "14px 24px", background: col.bg, borderBottom: "2px solid #e2e8f0", textAlign: "center", minWidth: "150px" }}>
+                                          <div style={{ fontSize: "18px", marginBottom: "4px" }}>{col.icon}</div>
+                                          <div style={{ fontWeight: "900", color: col.color, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px" }}>{col.label}</div>
+                                       </th>
+                                    ))}
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 {[
+                                    { module: "📊 Dashboard", admin: "FULL", accountant: "FULL", ops: "FULL", viewer: "READ" },
+                                    { module: "👥 Profiles (Supplier/Buyer)", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "READ" },
+                                    { module: "📦 Inventory Allocation", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "READ" },
+                                    { module: "⚖️ Supplier Billing", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
+                                    { module: "🧾 Buyer Invoicing", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
+                                    { module: "📖 Ledger System", admin: "FULL", accountant: "FULL", ops: "NONE", viewer: "READ" },
+                                    { module: "🔗 Connection Intelligence", admin: "FULL", accountant: "FULL", ops: "NONE", viewer: "READ" },
+                                    { module: "💳 Payment & Settlement", admin: "FULL", accountant: "FULL", ops: "NONE", viewer: "NONE" },
+                                    { module: "🚚 Transportation Tracking", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "NONE" },
+                                    { module: "💸 Expense Management", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
+                                    { module: "📄 Reports", admin: "FULL", accountant: "FULL", ops: "FULL", viewer: "READ" },
+                                    { module: "⚙️ Product Master & Config", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
+                                    { module: "🛡️ User Roles & Security", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
+                                    { module: "📂 Document Management", admin: "FULL", accountant: "READ", ops: "NONE", viewer: "NONE" },
+                                    { module: "🗑️ Delete / Void Bills", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
+                                 ].map((row, i) => {
+                                    const badge = (perm) => {
+                                       const cfg = {
+                                          "FULL":   { bg: "#dcfce7", color: "#15803d", label: "Full Access" },
+                                          "CREATE": { bg: "#fef3c7", color: "#b45309", label: "Create Only" },
+                                          "READ":   { bg: "#dbeafe", color: "#1d4ed8", label: "Read Only" },
+                                          "NONE":   { bg: "#fee2e2", color: "#991b1b", label: "No Access" }
+                                       }[perm] || { bg: "#f1f5f9", color: "#475569", label: perm };
+                                       return (
+                                          <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "11px", fontWeight: "900", padding: "5px 12px", borderRadius: "20px", background: cfg.bg, color: cfg.color, letterSpacing: "0.2px" }}>
+                                             {perm === "FULL" ? "✅" : perm === "NONE" ? "🚫" : perm === "READ" ? "👁️" : "✏️"} {cfg.label}
+                                          </span>
+                                       );
+                                    };
+                                    return (
+                                       <tr key={i} style={{ borderBottom: "1px solid #f1f5f9", background: i % 2 === 0 ? "#fff" : "#fafafa", transition: "0.2s" }}
+                                          onMouseOver={e => e.currentTarget.style.background = "#f0f9f4"}
+                                          onMouseOut={e => e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"}
+                                       >
+                                          <td style={{ padding: "14px 16px", fontWeight: "750", color: COLORS.text, fontSize: "13px" }}>{row.module}</td>
+                                          <td style={{ padding: "14px 16px", textAlign: "center" }}>{badge(row.admin)}</td>
+                                          <td style={{ padding: "14px 16px", textAlign: "center" }}>{badge(row.accountant)}</td>
+                                          <td style={{ padding: "14px 16px", textAlign: "center" }}>{badge(row.ops)}</td>
+                                          <td style={{ padding: "14px 16px", textAlign: "center" }}>{badge(row.viewer)}</td>
+                                       </tr>
+                                    );
+                                 })}
+                              </tbody>
+                           </table>
+                        </div>
+
+                        {/* Legend */}
+                        <div style={{ marginTop: "24px", display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "center" }}>
+                           <span style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.5px" }}>Legend:</span>
+                           {[
+                              { bg: "#dcfce7", color: "#15803d", icon: "✅", label: "Full Access — Create, Edit, Delete, View" },
+                              { bg: "#fef3c7", color: "#b45309", icon: "✏️", label: "Create Only — No Edit/Delete" },
+                              { bg: "#dbeafe", color: "#1d4ed8", icon: "👁️", label: "Read Only — View without changes" },
+                              { bg: "#fee2e2", color: "#991b1b", icon: "🚫", label: "No Access — Module hidden" }
+                           ].map((l, i) => (
+                              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11px", fontWeight: "700", padding: "5px 12px", borderRadius: "20px", background: l.bg, color: l.color }}>
+                                 {l.icon} {l.label}
+                              </span>
+                           ))}
+                        </div>
+
+                        {/* Warning Banner */}
+                        <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px", background: "#fff9eb", borderRadius: "16px", border: "1.5px solid #feebc8" }}>
+                           <span style={{ fontSize: "22px" }}>⚠️</span>
+                           <p style={{ margin: 0, fontSize: "13px", color: "#92400e", fontWeight: "600" }}>
+                             Modifying the Access Matrix will force-logout all active sessions to re-apply JWT authorization tokens. Changes take effect after next login.
+                           </p>
+                        </div>
+                     </div>
+                  </div>
                )}
 
                {activeSecurityTab === "Security" && (

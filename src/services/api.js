@@ -38,9 +38,9 @@ const request = async (method, path, body = null) => {
 
 export const MandiService = {
   // --- AUTH ---
-  login: async (username, password) => {
+  login: async (username, password, role) => {
     // 🔓 GLOBAL BYPASS: Accepts any details natively
-    const mockUser = { username: username || "Admin", role: "Admin", name: username || "Super Admin" };
+    const mockUser = { username: username || "Admin", role: role || "Admin", name: username || "Super Admin" };
     localStorage.setItem('mandi_token', "MASTER_BYPASS_TOKEN");
     localStorage.setItem('mandi_user', JSON.stringify(mockUser));
     return { status: "SUCCESS", data: { user: mockUser, token: "MASTER_BYPASS_TOKEN" } };
