@@ -940,10 +940,11 @@ export default function App() {
 
   const calculateInvoiceTotals = (form) => {
     const subTotal = form.items.reduce((acc, item) => acc + (item.netWeight * item.rate), 0);
-    const totalCharges = Number(form.charges.commission || 0) + 
-                         Number(form.charges.handling || 0) + 
-                         Number(form.charges.transport || 0) + 
-                         Number(form.charges.other || 0);
+    // Dynamically sum all numeric values in form.charges
+    const totalCharges = Object.keys(form.charges).reduce((acc, key) => {
+       if (key === "otherLabel") return acc;
+       return acc + (Number(form.charges[key]) || 0);
+    }, 0);
     const grandTotal = subTotal + totalCharges;
     const balanceDue = Math.max(0, grandTotal - Number(form.amountReceived || 0));
     
@@ -2386,21 +2387,19 @@ export default function App() {
                               <h4 style={{ color: COLORS.secondary, margin: "0 0 24px 0", letterSpacing: "1px" }}>💸 ADDITIONAL SHIPMENT CHARGES</h4>
                               <div style={{ background: "#f8fafc", padding: "32px", borderRadius: "24px", border: "1px solid #e2e8f0" }}>
                                  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                                    {[
-                                      { label: "Commission (₹)", key: "commission", icon: "💎" },
-                                      { label: "Handling Charges (₹)", key: "handling", icon: "👷" },
-                                      { label: "Outward Transport (₹)", key: "transport", icon: "🚚" }
-                                    ].map(charge => (
-                                      <div key={charge.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    {/* Dynamic Charges from Expense Masters */}
+                                    {masterExpenses.filter(e=>e.active).map(charge => (
+                                      <div key={charge.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                            <span style={{ fontSize: "18px" }}>{charge.icon}</span>
-                                            <span style={{ fontWeight: "700", color: COLORS.secondary }}>{charge.label}</span>
+                                            <span style={{ fontSize: "18px" }}>{charge.name.includes("Transport") ? "🚚" : charge.name.includes("Handling") ? "👷" : "💎"}</span>
+                                            <span style={{ fontWeight: "700", color: COLORS.secondary }}>{charge.name} ({charge.type === "Percentage" ? "%" : "₹"})</span>
                                          </div>
                                          <input 
                                             type="number" 
-                                            value={buyerInvoiceForm.charges[charge.key]} 
+                                            value={buyerInvoiceForm.charges[charge.name.toLowerCase().replace(/\s/g, "")] || 0} 
                                             onChange={e => {
-                                              const updatedCharges = { ...buyerInvoiceForm.charges, [charge.key]: Number(e.target.value) };
+                                              const key = charge.name.toLowerCase().replace(/\s/g, "");
+                                              const updatedCharges = { ...buyerInvoiceForm.charges, [key]: Number(e.target.value) };
                                               setBuyerInvoiceForm(calculateInvoiceTotals({...buyerInvoiceForm, charges: updatedCharges}));
                                             }}
                                             style={{ width: "120px", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", textAlign: "right", fontWeight: "800" }}
