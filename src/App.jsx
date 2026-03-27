@@ -31,25 +31,6 @@ const COLORS = {
   sidebar: "#2d4137" // Darker brand green
 };
 
-// --- A-to-Z MASTER LISTS ---
-const FRUIT_LIST_AZ = [
-  "Select Fruit", "Apple (Fuji/Shimla)", "Apricot", "Avocado", "Banana (Yelakki/Robusta)", "Blackberry", "Blueberry", 
-  "Cherry", "Coconut", "Cranberry", "Date", "Dragonfruit", "Durian", "Elderberry", "Fig", "Gooseberry", "Grape (Black/Green)", 
-  "Grapefruit", "Guava", "Honeyberry", "Huckleberry", "Jackfruit", "Jambul", "Kiwi", "Kumquat", "Lemon", "Lime", "Lychee", 
-  "Mandarin", "Mango (Alphonso/Banganapalli)", "Mangosteen", "Melon (Water/Musk)", "Mulberry", "Nectarine", "Olive", "Orange", 
-  "Papaya", "Passionfruit", "Peach", "Pear", "Persimmon", "Pineapple", "Plum", "Pomegranate", "Quince", "Raspberry", 
-  "Redcurrant", "Starfruit", "Strawberry", "Tamarind", "Tangerine", "Watermelon"
-].sort();
-
-const VEG_LIST_AZ = [
-  "Select Vegetable", "Artichoke", "Asparagus", "Bamboo Shoot", "Beans (French/Cluster)", "Beetroot", "Bell Pepper (Capsicum)", 
-  "Bitter Gourd", "Bottle Gourd", "Broccoli", "Brussels Sprout", "Cabbage", "Carrot", "Cauliflower", "Celery", "Chard", 
-  "Chive", "Corn (Sweet/Baby)", "Cucumber", "Daikon", "Eggplant (Brinjal)", "Endive", "Fennel", "Garlic", "Ginger", 
-  "Green Bean", "Horseradish", "Jicama", "Kale", "Kohlrabi", "Leek", "Lettuce", "Mushroom", "Okra (Bhendi)", "Onion", 
-  "Parsley", "Parsnip", "Pea", "Potato", "Pumpkin", "Radish", "Rhubarb", "Rutabaga", "Shallot", "Spinach", "Squash", 
-  "Sweet Potato", "Taro", "Tomato (Hybrid/Local)", "Turnip", "Watercress", "Yam", "Zucchini"
-].sort();
-
 const Card = ({ children, title, subtitle, action, style = {} }) => (
   <div style={{
     background: COLORS.card,
@@ -496,24 +477,12 @@ export default function App() {
   };
   const [intakeForm, setIntakeForm] = useState({ 
     supplierId: "", 
-    entryDate: new Date().toISOString().slice(0, 10),
+    entryDate: new Date().toISOString().slice(0, 16),
     vehicleNumber: "",
     driverName: "",
     origin: "",
     notes: "",
-    lineItems: [{ product: "", variety: "", grade: "A", grossWeight: 0, deductions: 0, boxes: 0, unit: "KG", estimatedRate: 0 }]
-  });
-  const [buyerOrderForm, setBuyerOrderForm] = useState({
-    buyerId: "",
-    orderDate: new Date().toISOString().slice(0, 10),
-    product: "",
-    variety: "",
-    grade: "",
-    quantity: 0,
-    unit: "KG",
-    targetRate: 0,
-    vehicleRequired: "1",
-    notes: ""
+    lineItems: [{ product: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]
   });
   const [inventoryStats, setInventoryStats] = useState({
     totalLotsToday: 0,
@@ -1752,32 +1721,20 @@ export default function App() {
                     {
                       title: "Logistics & Commercials",
                       fields: [
-                        { label: "Unit Cost (₹)", type: "number", placeholder: "0.00", value: intakeForm?.lineItems?.[0]?.estimatedRate || 0, onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].estimatedRate = Number(e.target.value);
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Quantity", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].grossWeight = Number(e.target.value);
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Unit Type", type: "select", options: ["Select Unit Type", "KG", "Ton", "Crate", "Bag"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
-                           const newItems = [...(intakeForm?.lineItems || [])];
-                           if (newItems.length > 0) newItems[0].unit = e.target.value;
-                           setIntakeForm({...intakeForm, lineItems: newItems});
-                        }},
-                        { label: "Number of Trucks", type: "number", placeholder: "1", value: 1 },
-                        { label: "Truck Number", placeholder: "TS 09 EU 1234", value: intakeForm?.vehicleNumber || "", onChange: e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value}) },
-                        { label: "Driver Name", value: intakeForm?.driverName || "", onChange: e => setIntakeForm({...intakeForm, driverName: e.target.value}) },
+                        { label: "Unit Cost (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Quantity", type: "number", placeholder: "0" },
+                        { label: "Unit Type", type: "select", options: ["KG", "Ton", "Crate"] },
+                        { label: "Number of Trucks", type: "number", placeholder: "1" },
+                        { label: "Truck Number", placeholder: "TS 09 EU 1234" },
+                        { label: "Driver Name" },
                         { label: "Driver Mobile", type: "tel" },
-                        { label: "Loading Date", type: "date", value: intakeForm?.entryDate || new Date().toISOString().slice(0,10), onChange: e => setIntakeForm({...intakeForm, entryDate: e.target.value}) },
-                        { label: "Destination", placeholder: "Enter Destination Market", value: intakeForm?.origin || "", onChange: e => setIntakeForm({...intakeForm, origin: e.target.value}) },
-                        { label: "Total Cost (₹)", type: "number", disabled: true, value: (Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) || 0 },
+                        { label: "Loading Date", type: "date", value: new Date().toISOString().slice(0, 10) },
+                        { label: "Destination" },
+                        { label: "Total Cost (₹)", type: "number", disabled: true, value: "Auto-calculated" },
                         { label: "Tax (%)", type: "number", value: "5" },
                         { label: "Extra Charges (₹)", type: "number", placeholder: "0.00" },
-                        { label: "Net Total (₹)", type: "number", disabled: true, value: ((Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) * 1.05) || 0 },
-                        { label: "Remarks", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
+                        { label: "Net Total (₹)", type: "number", disabled: true, value: "Auto-calculated" },
+                        { label: "Remarks" }
                       ]
                     }
                   ]} />
@@ -1953,25 +1910,22 @@ export default function App() {
                         { label: "Order ID", disabled: true, value: `ORD-PO-${Math.floor(100 + Math.random() * 900)}` },
                         { label: "Buyer Name", type: "select", options: ["Select Buyer Name", ...buyers.map(b => b.name)], value: buyerOrderForm.buyerId, onChange: e => setBuyerOrderForm({...buyerOrderForm, buyerId: e.target.value}) },
                         { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: poType, onChange: (e) => setPoType(e.target.value) },
-                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: buyerOrderForm.product, onChange: (e) => {
-                           setPoProduct(e.target.value);
-                           setBuyerOrderForm({...buyerOrderForm, product: e.target.value});
-                        } },
-                        { label: "Required Variety", type: "select", options: ["Select Required Variety", ...getProductData(buyerOrderForm.product).varieties], value: buyerOrderForm.variety, onChange: e => setBuyerOrderForm({...buyerOrderForm, variety: e.target.value}) },
-                        { label: "Required Size", type: "select", options: ["Select Required Size", ...getProductData(buyerOrderForm.product).sizes], value: buyerOrderForm.grade, onChange: e => setBuyerOrderForm({...buyerOrderForm, grade: e.target.value}) },
-                        { label: "Required Color", type: "select", options: ["Select Required Color", ...getProductData(buyerOrderForm.product).colors] },
-                        { label: "Required Quality", type: "select", options: ["Select Required Quality", ...getProductData(buyerOrderForm.product).grades] }
+                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: poProduct, onChange: (e) => setPoProduct(e.target.value) },
+                        { label: "Required Variety", type: "select", options: ["Select Variety", ...getProductData(poProduct).varieties] },
+                        { label: "Required Size", type: "select", options: ["Select Size", ...getProductData(poProduct).sizes] },
+                        { label: "Required Color", type: "select", options: ["Select Color", ...getProductData(poProduct).colors] },
+                        { label: "Required Quality", type: "select", options: ["Select Quality", ...getProductData(poProduct).grades] }
                       ]
                     },
                     {
                       title: "Fulfillment Details",
                       fields: [
                         { label: "Required Quantity", type: "number", placeholder: "0", value: buyerOrderForm.quantity, onChange: e => setBuyerOrderForm({...buyerOrderForm, quantity: e.target.value}) },
-                        { label: "Unit Type", type: "select", options: ["Select Unit Type", "KG", "Ton", "Crate", "Bag"], value: buyerOrderForm.unit, onChange: e => setBuyerOrderForm({...buyerOrderForm, unit: e.target.value}) },
+                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"] },
                         { label: "Number of Trucks Required", type: "number", placeholder: "1", value: buyerOrderForm.vehicleRequired, onChange: e => setBuyerOrderForm({...buyerOrderForm, vehicleRequired: e.target.value}) },
-                        { label: "Packing Type", type: "select", options: ["Select Packing Type", "Retail Brand Packaging", "Standard Corrugated", "Plastic Crates", "Gunny Bags", "Loose Loads"] },
-                        { label: "Delivery Date", type: "date", value: buyerOrderForm.orderDate || new Date().toISOString().slice(0,10), onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
-                        { label: "Delivery Location", placeholder: "Destination Hub", value: buyerOrderForm.origin || "", onChange: e => setBuyerOrderForm({...buyerOrderForm, origin: e.target.value}) },
+                        { label: "Packing Type", type: "select", options: ["Select Packing Type", "Standard Corrugated", "Plastic Crates", "Wooden Boxes", "Loose Loads"] },
+                        { label: "Delivery Date", type: "date", value: buyerOrderForm.orderDate || new Date().toISOString().slice(0, 10), onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
+                        { label: "Delivery Location", placeholder: "Destination Hub" },
                         { label: "Preferred Rate (₹)", type: "number", placeholder: "Target max price", value: buyerOrderForm.targetRate, onChange: e => setBuyerOrderForm({...buyerOrderForm, targetRate: e.target.value}) },
                         { label: "Urgency Level", type: "select", options: ["Select Urgency Level", "Normal", "High", "Critical"] },
                         { label: "Notes", value: buyerOrderForm.notes, onChange: e => setBuyerOrderForm({...buyerOrderForm, notes: e.target.value}) }
@@ -1980,9 +1934,9 @@ export default function App() {
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar }} onClick={handleSavePurchaseOrder}>Save Order</Button>
-                    <Button variant="outline">Edit Order</Button>
+                    <Button variant="secondary">Edit Order</Button>
                     <Button style={{ background: COLORS.success }}>Generate Order Slip</Button>
-                    <Button variant="ghost" style={{ background: "#FDFBF4", color: "#9fb443" }}>Cancel Order</Button>
+                    <Button variant="outline">Cancel Order</Button>
                   </div>
 
                   <div style={{ marginTop: "40px" }}>
@@ -3157,25 +3111,17 @@ export default function App() {
               <div className="printable-area" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
                  <Card style={{ background: "#f8fafc", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: COLORS.muted, textTransform: "uppercase" }}>Total Volume Transacted</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#0f172a", fontSize: "28px" }}>
-                       { (lots && lots.length > 0) ? lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight) || 0), 0) : 24500 }
-                       <span style={{ fontSize: "14px", color: COLORS.muted }}> KG</span>
-                    </h2>
+                    <h2 style={{ margin: "5px 0 0", color: "#0f172a", fontSize: "28px" }}>24,500 <span style={{ fontSize: "14px", color: COLORS.muted }}>KG</span></h2>
                  </Card>
                  <Card style={{ background: "#f0fdf4", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: "#166534", textTransform: "uppercase" }}>Total Payments {ledgerTab === "Farmer" ? "Settled" : "Received"}</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#15803d", fontSize: "28px" }}>
-                       {formatCurrency((lots && lots.length > 0) ? (lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight || 0) * Number(current?.lineItems?.[0]?.estimatedRate || 0)), 0) * 0.8) : 1250000)}
-                    </h2>
+                    <h2 style={{ margin: "5px 0 0", color: "#15803d", fontSize: "28px" }}>{formatCurrency(1250000)}</h2>
                  </Card>
                  <Card style={{ background: "#fef2f2", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: "#991b1b", textTransform: "uppercase" }}>{ledgerTab === "Farmer" ? "Outstanding Dues to Farmer" : "Outstanding Balance (Due from Buyer)"}</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#b91c1c", fontSize: "28px" }}>
-                       {formatCurrency((lots && lots.length > 0) ? (lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight || 0) * Number(current?.lineItems?.[0]?.estimatedRate || 0)), 0) * 0.2) : 185000)}
-                    </h2>
+                    <h2 style={{ margin: "5px 0 0", color: "#b91c1c", fontSize: "28px" }}>{formatCurrency(185000)}</h2>
                  </Card>
               </div>
-
 
               {/* Main Ledger Book */}
               <Card style={{ padding: "0", overflow: "hidden" }} className="printable-area">
