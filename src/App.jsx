@@ -1499,21 +1499,12 @@ export default function App() {
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>Submit Details</Button>
                     <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Save Draft</Button>
-                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0   <td style={{ padding: "16px", color: COLORS.danger, fontWeight: "700" }}>{b.balance}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Edit</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Cancel All</Button>
                   </div>
                 </div>
               )}
             </div>
-          )}
-
-
-               </div>
-
           )}
 
 
