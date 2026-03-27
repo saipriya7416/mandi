@@ -2613,7 +2613,24 @@ export default function App() {
                           <Button variant="danger" onClick={() => handleVoidBill(farmerBillForm._id)} style={{ flex: 0.8, borderRadius: "18px" }}>🗑 Void Bill</Button>
                        </div>
                      )}
-                     <Button variant="outline" onClick={() => { setFarmerBillForm({...farmerBillForm, farmerId: ""}); setSettlementData([]); }} style={{ flex: 0.5, borderRadius: "18px" }}>Reset</Button>
+                      <Button variant="outline" onClick={() => { 
+                         setIsBillLocked(false);
+                         setFarmerBillForm({
+                            _id: null,
+                            billNo: `FB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+                            date: new Date().toISOString().slice(0, 10),
+                            farmerId: "",
+                            expenses: [
+                               { label: "Commission (5%)", value: 0 },
+                               { label: "Labour/Hamali", value: 0 },
+                               { label: "Freight/Transport", value: 0 },
+                               { label: "Market Fee", value: 0 }
+                            ],
+                            advance: 0,
+                            netPayable: 0
+                         }); 
+                         setSettlementData([]); 
+                      }} style={{ flex: 0.5, borderRadius: "18px" }}>Reset</Button>
                   </div>
 
                   {/* Enhanced Traceability Panel */}
