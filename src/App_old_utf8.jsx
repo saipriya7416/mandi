@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import "./index.css";
 import { MandiService } from "./services/api";
 import { Bar, Pie, Line } from "react-chartjs-2";
@@ -30,25 +30,6 @@ const COLORS = {
   accent: "#9fb443", // Use secondary for accent
   sidebar: "#2d4137" // Darker brand green
 };
-
-// --- A-to-Z MASTER LISTS ---
-const FRUIT_LIST_AZ = [
-  "Select Fruit", "Apple (Fuji/Shimla)", "Apricot", "Avocado", "Banana (Yelakki/Robusta)", "Blackberry", "Blueberry", 
-  "Cherry", "Coconut", "Cranberry", "Date", "Dragonfruit", "Durian", "Elderberry", "Fig", "Gooseberry", "Grape (Black/Green)", 
-  "Grapefruit", "Guava", "Honeyberry", "Huckleberry", "Jackfruit", "Jambul", "Kiwi", "Kumquat", "Lemon", "Lime", "Lychee", 
-  "Mandarin", "Mango (Alphonso/Banganapalli)", "Mangosteen", "Melon (Water/Musk)", "Mulberry", "Nectarine", "Olive", "Orange", 
-  "Papaya", "Passionfruit", "Peach", "Pear", "Persimmon", "Pineapple", "Plum", "Pomegranate", "Quince", "Raspberry", 
-  "Redcurrant", "Starfruit", "Strawberry", "Tamarind", "Tangerine", "Watermelon"
-].sort();
-
-const VEG_LIST_AZ = [
-  "Select Vegetable", "Artichoke", "Asparagus", "Bamboo Shoot", "Beans (French/Cluster)", "Beetroot", "Bell Pepper (Capsicum)", 
-  "Bitter Gourd", "Bottle Gourd", "Broccoli", "Brussels Sprout", "Cabbage", "Carrot", "Cauliflower", "Celery", "Chard", 
-  "Chive", "Corn (Sweet/Baby)", "Cucumber", "Daikon", "Eggplant (Brinjal)", "Endive", "Fennel", "Garlic", "Ginger", 
-  "Green Bean", "Horseradish", "Jicama", "Kale", "Kohlrabi", "Leek", "Lettuce", "Mushroom", "Okra (Bhendi)", "Onion", 
-  "Parsley", "Parsnip", "Pea", "Potato", "Pumpkin", "Radish", "Rhubarb", "Rutabaga", "Shallot", "Spinach", "Squash", 
-  "Sweet Potato", "Taro", "Tomato (Hybrid/Local)", "Turnip", "Watercress", "Yam", "Zucchini"
-].sort();
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
   <div style={{
@@ -295,7 +276,7 @@ export default function App() {
     try {
       const res = await MandiService.addSupplier(payload);
       if(res.status === "ERROR") return alert("Error adding supplier: " + res.message);
-      alert("✅ Supplier successfully stored in the Database!");
+      alert("Γ£à Supplier successfully stored in the Database!");
       setSupplierForm({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
       fetchData();
     } catch(err) {
@@ -317,7 +298,7 @@ export default function App() {
     try {
       const res = await MandiService.addBuyer(payload);
       if(res.status === "ERROR") return alert("Error adding buyer: " + res.message);
-      alert("✅ Buyer successfully stored in the Database!");
+      alert("Γ£à Buyer successfully stored in the Database!");
       setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
       fetchData();
     } catch(err) {
@@ -326,7 +307,7 @@ export default function App() {
   };
 
   const handleSaveDispatch = async () => {
-    if (!intakeForm.supplierId) return alert("⚠️ Supplier is required to record a dispatch.");
+    if (!intakeForm.supplierId) return alert("ΓÜá∩╕Å Supplier is required to record a dispatch.");
     const payload = {
       supplier: intakeForm.supplierId,
       entryDate: intakeForm.entryDate,
@@ -338,7 +319,7 @@ export default function App() {
     };
     const res = await MandiService.addLot(payload);
     if (res.status === "SUCCESS") {
-      alert(`📦 DISPATCH RECORDED: Lot ${res.data.lotId} logged to Database.`);
+      alert(`≡ƒôª DISPATCH RECORDED: Lot ${res.data.lotId} logged to Database.`);
       setIntakeForm({
         supplierId: "", 
         entryDate: new Date().toISOString().slice(0, 10),
@@ -347,26 +328,26 @@ export default function App() {
       });
       fetchData();
     } else {
-      alert(`❌ ERROR: ${res.message || "Failed to add lot"}`);
+      alert(`Γ¥î ERROR: ${res.message || "Failed to add lot"}`);
     }
   };
 
   const [expenseForm, setExpenseForm] = useState({ amount: "", lotId: "", memo: "", category: "Labour" });
 
   const handleSavePurchaseOrder = async () => {
-    alert("📋 ORDER RECORDED: Requirement logged and synced to Database.");
+    alert("≡ƒôï ORDER RECORDED: Requirement logged and synced to Database.");
     // This could also be wired to a specific PO service if available
     fetchData();
   };
 
   const handleVerifyKYC = async () => {
-    alert("🛡️ KYC AUDIT COMPLETE: Identity verified and stored in Vault.");
+    alert("≡ƒ¢í∩╕Å KYC AUDIT COMPLETE: Identity verified and stored in Vault.");
     // MandiService.verifyCompliance(...)
     fetchData();
   };
 
   const handleRecordInwardTransport = async () => {
-    if (!inwardTransportForm.lotId || !inwardTransportForm.freightAmount) return alert("⚠️ Lot and Amount are required");
+    if (!inwardTransportForm.lotId || !inwardTransportForm.freightAmount) return alert("ΓÜá∩╕Å Lot and Amount are required");
     const res = await MandiService.recordExpense({
       amount: Number(inwardTransportForm.freightAmount),
       category: "Transport",
@@ -375,15 +356,15 @@ export default function App() {
       date: inwardTransportForm.departureTime || new Date().toISOString()
     });
     if (res.status === "SUCCESS") {
-      alert("🚒 INWARD LOG COMMITTED: Data persisted to MongoDB.");
+      alert("≡ƒÜÆ INWARD LOG COMMITTED: Data persisted to MongoDB.");
       fetchData();
     } else {
-      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
+      alert(`Γ¥î LOG FAILED: ${res.message || "Error"}`);
     }
   };
 
   const handleRecordOutwardTransport = async () => {
-    if (!outwardTransportForm.invoiceNo || !outwardTransportForm.freightAmount) return alert("⚠️ Invoice and Amount are required");
+    if (!outwardTransportForm.invoiceNo || !outwardTransportForm.freightAmount) return alert("ΓÜá∩╕Å Invoice and Amount are required");
     const res = await MandiService.recordExpense({
       amount: Number(outwardTransportForm.freightAmount),
       category: "Transport",
@@ -391,16 +372,16 @@ export default function App() {
       date: outwardTransportForm.dispatchTime || new Date().toISOString()
     });
     if (res.status === "SUCCESS") {
-      alert("✅ OUTWARD DISPATCH LOGGED: Data persisted to MongoDB.");
+      alert("Γ£à OUTWARD DISPATCH LOGGED: Data persisted to MongoDB.");
       fetchData();
     } else {
-      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
+      alert(`Γ¥î LOG FAILED: ${res.message || "Error"}`);
     }
   };
 
   const handleCreateBuyerInvoice = async () => {
-    if (!buyerInvoiceForm.buyerId) return alert("⚠️ Buyer is required");
-    if (buyerInvoiceForm.items.some(i => !i.productLabel || (!i.netWeight && !i.grossWeight))) return alert("⚠️ Product and Weight are required for all items");
+    if (!buyerInvoiceForm.buyerId) return alert("ΓÜá∩╕Å Buyer is required");
+    if (buyerInvoiceForm.items.some(i => !i.productLabel || (!i.netWeight && !i.grossWeight))) return alert("ΓÜá∩╕Å Product and Weight are required for all items");
 
     // Map frontend structure to expected backend schema
     const mappedItems = buyerInvoiceForm.items.map(i => ({
@@ -416,7 +397,7 @@ export default function App() {
     };
     const res = await MandiService.generateBuyerInvoice(payload);
     if (res.status === "SUCCESS") {
-      alert(`🚀 INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`);
+      alert(`≡ƒÜÇ INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`);
       const newNo = `INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
       setBuyerInvoiceForm({
         ...buyerInvoiceForm,
@@ -429,12 +410,12 @@ export default function App() {
       });
       fetchData();
     } else {
-      alert(`❌ INVOICE FAILED: ${res.message || "Database Error"}`);
+      alert(`Γ¥î INVOICE FAILED: ${res.message || "Database Error"}`);
     }
   };
 
   const handleRecordBuyerPayment = async () => {
-    if (!buyerPaymentForm.buyerId || !buyerPaymentForm.amountReceived) return alert("⚠️ Buyer and Amount are required");
+    if (!buyerPaymentForm.buyerId || !buyerPaymentForm.amountReceived) return alert("ΓÜá∩╕Å Buyer and Amount are required");
     const payload = {
       partyType: "Buyer",
       partyId: buyerPaymentForm.buyerId,
@@ -447,16 +428,16 @@ export default function App() {
     };
     const res = await MandiService.recordPayment(payload);
     if (res.status === "SUCCESS") {
-      alert("💳 PAYMENT RECORDED: Database updated.");
+      alert("≡ƒÆ│ PAYMENT RECORDED: Database updated.");
       setBuyerPaymentForm({ ...buyerPaymentForm, buyerId: "", amountReceived: "", referenceNo: "", notes: "" });
       fetchData();
     } else {
-      alert(`❌ PAYMENT FAILED: ${res.message || "Error"}`);
+      alert(`Γ¥î PAYMENT FAILED: ${res.message || "Error"}`);
     }
   };
 
   const handleRecordFarmerPayment = async () => {
-     if (!farmerPaymentForm.farmerId || !farmerPaymentForm.amount) return alert("⚠️ Farmer and Amount are required");
+     if (!farmerPaymentForm.farmerId || !farmerPaymentForm.amount) return alert("ΓÜá∩╕Å Farmer and Amount are required");
      const payload = {
        partyType: "Supplier",
        partyId: farmerPaymentForm.farmerId,
@@ -469,16 +450,16 @@ export default function App() {
      };
      const res = await MandiService.recordPayment(payload);
      if (res.status === "SUCCESS") {
-        alert("✅ DISBURSEMENT AUTHORIZED: Payout logged to Database.");
+        alert("Γ£à DISBURSEMENT AUTHORIZED: Payout logged to Database.");
         setFarmerPaymentForm({ ...farmerPaymentForm, farmerId: "", amount: "", referenceNo: "", notes: "" });
         fetchData();
      } else {
-        alert(`❌ DISBURSEMENT FAILED: ${res.message || "Error"}`);
+        alert(`Γ¥î DISBURSEMENT FAILED: ${res.message || "Error"}`);
      }
   };
 
   const handleCreateExpense = async () => {
-    if (!expenseForm.amount) return alert("⚠️ Amount is required");
+    if (!expenseForm.amount) return alert("ΓÜá∩╕Å Amount is required");
     const res = await MandiService.recordExpense({
       amount: Number(expenseForm.amount),
       category: expenseForm.category,
@@ -487,11 +468,11 @@ export default function App() {
       date: new Date().toISOString()
     });
     if (res.status === "SUCCESS") {
-      alert("💸 EXPENSE COMMITTED: Record saved to Database.");
+      alert("≡ƒÆ╕ EXPENSE COMMITTED: Record saved to Database.");
       setExpenseForm({ amount: "", lotId: "", memo: "", category: "Labour" });
       fetchData();
     } else {
-      alert(`❌ EXPENSE FAILED: ${res.message || "Error"}`);
+      alert(`Γ¥î EXPENSE FAILED: ${res.message || "Error"}`);
     }
   };
   const [intakeForm, setIntakeForm] = useState({ 
@@ -502,18 +483,6 @@ export default function App() {
     origin: "",
     notes: "",
     lineItems: [{ product: "", variety: "", grade: "A", grossWeight: 0, deductions: 0, boxes: 0, unit: "KG", estimatedRate: 0 }]
-  });
-  const [buyerOrderForm, setBuyerOrderForm] = useState({
-    buyerId: "",
-    orderDate: new Date().toISOString().slice(0, 10),
-    product: "",
-    variety: "",
-    grade: "",
-    quantity: 0,
-    unit: "KG",
-    targetRate: 0,
-    vehicleRequired: "1",
-    notes: ""
   });
   const [inventoryStats, setInventoryStats] = useState({
     totalLotsToday: 0,
@@ -691,7 +660,7 @@ export default function App() {
 
   const handleRegisterProduct = () => {
      if (!newProductForm.coreProduct || !newProductForm.variety) {
-        alert("⚠️ Core Product and Variety name are mandatory.");
+        alert("ΓÜá∩╕Å Core Product and Variety name are mandatory.");
         return;
      }
 
@@ -706,7 +675,7 @@ export default function App() {
            updatedProducts[existingIdx].units.push(newProductForm.unit);
         }
         setMasterProducts(updatedProducts);
-        alert(`✅ Variety '${newProductForm.variety}' added to ${newProductForm.coreProduct}!`);
+        alert(`Γ£à Variety '${newProductForm.variety}' added to ${newProductForm.coreProduct}!`);
      } else {
         const newProduct = {
            name: newProductForm.coreProduct,
@@ -715,7 +684,7 @@ export default function App() {
            units: [newProductForm.unit]
         };
         setMasterProducts([...masterProducts, newProduct]);
-        alert(`✅ Core Product '${newProductForm.coreProduct}' registered in catalog!`);
+        alert(`Γ£à Core Product '${newProductForm.coreProduct}' registered in catalog!`);
      }
 
      setNewProductForm({
@@ -734,7 +703,7 @@ export default function App() {
 
   const handleRegisterExpenseCategory = () => {
      if (!newExpenseForm.label) {
-        alert("⚠️ Please enter a label for the expense.");
+        alert("ΓÜá∩╕Å Please enter a label for the expense.");
         return;
      }
 
@@ -752,7 +721,7 @@ export default function App() {
         type: "Percentage",
         defaultValue: 0
      });
-     alert(`✅ Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`);
+     alert(`Γ£à Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`);
   };
 
   const [masterExpenses, setMasterExpenses] = useState(() => {
@@ -797,7 +766,7 @@ export default function App() {
 
    const handleCreateStaff = () => {
       if (!newStaffForm.name || !newStaffForm.username) {
-         alert("⚠️ Please fill in all staff details.");
+         alert("ΓÜá∩╕Å Please fill in all staff details.");
          return;
       }
 
@@ -816,7 +785,7 @@ export default function App() {
          role: "Accountant",
          expiry: ""
       });
-      alert("✅ Staff Identity Created Successfully! User added to Directory.");
+      alert("Γ£à Staff Identity Created Successfully! User added to Directory.");
    };
 
    const [securityAuditLogs, setSecurityAuditLogs] = useState([
@@ -913,17 +882,17 @@ export default function App() {
     const file = event.target.files[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) return alert("❌ CLIP REACHED: Max size 10MB");
+    if (file.size > 10 * 1024 * 1024) return alert("Γ¥î CLIP REACHED: Max size 10MB");
 
     setUploading(true);
     const res = await MandiService.uploadFile(file, docType, relatedToType, relatedTo);
     setUploading(false);
 
     if (res.status === "SUCCESS") {
-      alert("☁️ ARCHIVED: File secured in Vault");
+      alert("Γÿü∩╕Å ARCHIVED: File secured in Vault");
       fetchData();
     } else {
-      alert(`❌ VAULT ERROR: ${res.message}`);
+      alert(`Γ¥î VAULT ERROR: ${res.message}`);
     }
   };
 
@@ -938,8 +907,8 @@ export default function App() {
     if (loggedIn && activeSection === "Supplier Billing" && settlementData.length === 0) {
        // Seed mock visuals for "duplicated data" requirement
        setSettlementData([
-          { _id: 's-mock-1', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '🥭 Mango', variety: 'Alphonso' }, quantity: 450, saleRate: 75, createdAt: new Date().toISOString() },
-          { _id: 's-mock-2', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '🥭 Mango', variety: 'Kesar' }, quantity: 300, saleRate: 55, createdAt: new Date().toISOString() }
+          { _id: 's-mock-1', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '≡ƒÑ¡ Mango', variety: 'Alphonso' }, quantity: 450, saleRate: 75, createdAt: new Date().toISOString() },
+          { _id: 's-mock-2', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '≡ƒÑ¡ Mango', variety: 'Kesar' }, quantity: 300, saleRate: 55, createdAt: new Date().toISOString() }
        ]);
        setFarmerBillsList([
           { _id: 'b-mock-1', billNo: 'FB-2026-9999', date: '2026-03-15', netPayable: 45000 },
@@ -961,7 +930,7 @@ export default function App() {
       setLoggedIn(true);
       setUser(res.data.user);
     } else {
-      alert(`❌ LOGIN FAILED: ${res?.message || 'Invalid Credentials'}`);
+      alert(`Γ¥î LOGIN FAILED: ${res?.message || 'Invalid Credentials'}`);
     }
   };
 
@@ -990,7 +959,7 @@ export default function App() {
     if (res.status === "SUCCESS") {
        setBuyerHistory(res.data);
        if (res.data.pendingBalance > 0) {
-          alert(`⚠️ ALERT: Buyer has a pending balance of ${formatCurrency(res.data.pendingBalance)}`);
+          alert(`ΓÜá∩╕Å ALERT: Buyer has a pending balance of ${formatCurrency(res.data.pendingBalance)}`);
        }
     }
   };
@@ -1062,8 +1031,8 @@ export default function App() {
   };
 
   const handleCreateLot = async () => {
-    if (!intakeForm.supplierId) return alert("⚠️ Supplier is required");
-    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ Product and Weight are required for all items");
+    if (!intakeForm.supplierId) return alert("ΓÜá∩╕Å Supplier is required");
+    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("ΓÜá∩╕Å Product and Weight are required for all items");
     
     const payload = {
        supplier: intakeForm.supplierId,
@@ -1085,7 +1054,7 @@ export default function App() {
     
     const res = await MandiService.addLot(payload);
     if (res.status === "SUCCESS") {
-      alert(`💾 SUCCESS: Lot ${res.data.lotId} recorded! Net weight added to Live Stock.`);
+      alert(`≡ƒÆ╛ SUCCESS: Lot ${res.data.lotId} recorded! Net weight added to Live Stock.`);
       setIntakeForm({ 
         supplierId: "", 
         entryDate: new Date().toISOString().slice(0, 16), // datetime-local format
@@ -1097,18 +1066,18 @@ export default function App() {
       });
       fetchData();
     } else {
-      alert(`❌ FAILED: ${res.message || "Database Error"}`);
+      alert(`Γ¥î FAILED: ${res.message || "Database Error"}`);
     }
   };
 
-  // --- HANDLE ALLOCATION (MISSING FUNCTION — WAS CRASHING ON BUTTON CLICK) ---
+  // --- HANDLE ALLOCATION (MISSING FUNCTION ΓÇö WAS CRASHING ON BUTTON CLICK) ---
   const handleAllocate = async () => {
-    if (!allocationForm.buyerId) return alert("⚠️ Please select a Buyer");
-    if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("⚠️ Please enter a valid Quantity");
-    if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("⚠️ Please enter a valid Sale Rate");
-    if (!selection.item || !selection.lot) return alert("⚠️ Please select a Lot Item from the left panel");
+    if (!allocationForm.buyerId) return alert("ΓÜá∩╕Å Please select a Buyer");
+    if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("ΓÜá∩╕Å Please enter a valid Quantity");
+    if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("ΓÜá∩╕Å Please enter a valid Sale Rate");
+    if (!selection.item || !selection.lot) return alert("ΓÜá∩╕Å Please select a Lot Item from the left panel");
     if (Number(allocationForm.quantity) > selection.item.remainingQuantity) {
-      return alert(`⚠️ Quantity entered (${allocationForm.quantity} KG) exceeds available stock (${selection.item.remainingQuantity} KG)`);
+      return alert(`ΓÜá∩╕Å Quantity entered (${allocationForm.quantity} KG) exceeds available stock (${selection.item.remainingQuantity} KG)`);
     }
 
     const payload = {
@@ -1123,15 +1092,15 @@ export default function App() {
     try {
       const res = await MandiService.allocateLot(payload);
       if (res.status === "SUCCESS") {
-        alert(`🚀 ALLOCATION AUTHORIZED: Invoice ${res.data?.invoiceNo || 'generated'} committed to database.`);
+        alert(`≡ƒÜÇ ALLOCATION AUTHORIZED: Invoice ${res.data?.invoiceNo || 'generated'} committed to database.`);
         setAllocationForm({ buyerId: "", quantity: "", saleRate: "", notes: "" });
         setSelection({ lot: null, item: null, buyerId: "", qty: "", rate: "", inv: "" });
         fetchData();
       } else {
-        alert(`❌ ALLOCATION FAILED: ${res.message || "Database Error"}`);
+        alert(`Γ¥î ALLOCATION FAILED: ${res.message || "Database Error"}`);
       }
     } catch (err) {
-      alert(`❌ ALLOCATION FAILED: ${err.message}`);
+      alert(`Γ¥î ALLOCATION FAILED: ${err.message}`);
     }
   };
 
@@ -1184,8 +1153,8 @@ export default function App() {
 
   const handleCreateFarmerBill = async () => {
      const targetFarmerId = farmerBillForm.farmerId;
-     if (!targetFarmerId) return alert("⚠️ Please select a farmer first.");
-     if (settlementData.length === 0) return alert("⚠️ No sale entries added to this bill. Please ensure items are present.");
+     if (!targetFarmerId) return alert("ΓÜá∩╕Å Please select a farmer first.");
+     if (settlementData.length === 0) return alert("ΓÜá∩╕Å No sale entries added to this bill. Please ensure items are present.");
 
      const gross = settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0);
      const totalExp = farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0);
@@ -1217,7 +1186,7 @@ export default function App() {
         // Finalize state and await global sync for immediate dashboard updates
         await fetchData();
         handleFarmerSelectionForSettlement(targetFarmerId);
-        alert("🔒 BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.");
+        alert("≡ƒöÆ BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.");
         
         if (confirm("Bill stored. Clear form for next settlement?")) {
            setIsBillLocked(false);
@@ -1239,7 +1208,7 @@ export default function App() {
            });
         }
      } else {
-        alert(`❌ STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`);
+        alert(`Γ¥î STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`);
      }
   };
 
@@ -1248,7 +1217,7 @@ export default function App() {
      if (!reason) return;
      const res = await MandiService.voidFarmerSettlementBill(id, reason);
      if (res.status === "SUCCESS") {
-        alert("🚫 Settlement Voided. Entires reversed.");
+        alert("≡ƒÜ½ Settlement Voided. Entires reversed.");
         setIsBillLocked(false);
         setFarmerBillForm({ ...farmerBillForm, farmerId: "" });
         fetchData();
@@ -1262,25 +1231,25 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "Dashboard", icon: "📊", roles: ["Admin", "Accountant", "Operations Staff", "Viewer"] },
-    { id: "User Role", icon: "👥", roles: ["Admin", "Operations Staff"], label: "Profiles" },
-    { id: "Inventory Allocation", icon: "📦", roles: ["Admin", "Operations Staff"] },
-    { id: "Supplier Billing", icon: "⚖️", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "Buyer Invoicing", icon: "🧾", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "Ledger System", icon: "📖", roles: ["Admin", "Accountant", "Viewer"] },
-    { id: "CONNECTION", icon: "🔗", roles: ["Admin", "Accountant", "Viewer"] },
-    { id: "Payment & Settlement Management", icon: "💳", roles: ["Admin", "Accountant"] },
-    { id: "Transportation Tracking", icon: "🚚", roles: ["Admin", "Operations Staff", "Accountant"] },
-    { id: "Expense Management", icon: "💸", roles: ["Admin", "Accountant", "Operations Staff"] },
-    { id: "Reports", icon: "📄", roles: ["Admin", "Accountant", "Viewer"] },
-    { id: "Product Master & Configuration", icon: "⚙️", roles: ["Admin"] },
-    { id: "User Roles, Access Control & Security", icon: "🛡️", roles: ["Admin"] },
-    { id: "Document Management", icon: "📂", roles: ["Admin"] }
+    { id: "Dashboard", icon: "≡ƒôè", roles: ["Admin", "Accountant", "Operations Staff", "Viewer"] },
+    { id: "User Role", icon: "≡ƒæÑ", roles: ["Admin", "Operations Staff"], label: "Profiles" },
+    { id: "Inventory Allocation", icon: "≡ƒôª", roles: ["Admin", "Operations Staff"] },
+    { id: "Supplier Billing", icon: "ΓÜû∩╕Å", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "Buyer Invoicing", icon: "≡ƒº╛", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "Ledger System", icon: "≡ƒôû", roles: ["Admin", "Accountant", "Viewer"] },
+    { id: "CONNECTION", icon: "≡ƒöù", roles: ["Admin", "Accountant", "Viewer"] },
+    { id: "Payment & Settlement Management", icon: "≡ƒÆ│", roles: ["Admin", "Accountant"] },
+    { id: "Transportation Tracking", icon: "≡ƒÜÜ", roles: ["Admin", "Operations Staff", "Accountant"] },
+    { id: "Expense Management", icon: "≡ƒÆ╕", roles: ["Admin", "Accountant", "Operations Staff"] },
+    { id: "Reports", icon: "≡ƒôä", roles: ["Admin", "Accountant", "Viewer"] },
+    { id: "Product Master & Configuration", icon: "ΓÜÖ∩╕Å", roles: ["Admin"] },
+    { id: "User Roles, Access Control & Security", icon: "≡ƒ¢í∩╕Å", roles: ["Admin"] },
+    { id: "Document Management", icon: "≡ƒôé", roles: ["Admin"] }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
 
-  if (loading) return <div style={{ height: "100vh", background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", color: "#fff" }}><h1>⚡ Syncing Matrix...</h1></div>;
+  if (loading) return <div style={{ height: "100vh", background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", color: "#fff" }}><h1>ΓÜí Syncing Matrix...</h1></div>;
 
   if (!loggedIn) {
     return (
@@ -1313,15 +1282,15 @@ export default function App() {
             </div>
             <div>
               <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Secret Access Key</label>
-              <input className="spv-input" type="password" placeholder="••••••••" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+              <input className="spv-input" type="password" placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
             </div>
           </div>
           <button className="spv-btn" onClick={handleLogin} style={{ width:"100%", height:"58px", fontSize:"16px", fontWeight:"900", marginTop:"28px", background:"linear-gradient(135deg, #375144 0%, #2d4137 100%)", color:"#ffffff", border:"none", borderRadius:"18px", cursor:"pointer", letterSpacing:"0.5px", boxShadow:"0 12px 30px rgba(55,81,68,0.3)", transition:"all 0.25s" }}>
-            🔐 Initialize Command Deck
+            ≡ƒöÉ Initialize Command Deck
           </button>
           <div style={{ marginTop:"32px", paddingTop:"20px", borderTop:"1.5px solid rgba(159,180,67,0.2)", display:"flex", justifyContent:"center", alignItems:"center", gap:"8px" }}>
             <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
-            <span style={{ fontSize:"10px", color:"#64748b", fontWeight:"700", letterSpacing:"0.5px" }}>SYSTEM v4.3.0 • SPV FRUITS ERP</span>
+            <span style={{ fontSize:"10px", color:"#64748b", fontWeight:"700", letterSpacing:"0.5px" }}>SYSTEM v4.3.0 ΓÇó SPV FRUITS ERP</span>
             <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
           </div>
         </div>
@@ -1359,7 +1328,7 @@ export default function App() {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}
           >
-            {sidebarOpen ? "✕" : "☰"}
+            {sidebarOpen ? "Γ£ò" : "Γÿ░"}
           </button>
         </div>
       )}
@@ -1422,7 +1391,7 @@ export default function App() {
                 <p style={{ color: "#ffffff", fontSize: "14px", margin: 0, fontWeight: "850", letterSpacing: "0.3px" }}>{user?.username || "Staff Identity"}</p>
                 <p style={{ color: "#AEC4BB", fontSize: "11px", margin: 0, fontWeight: "600", textTransform: "uppercase", opacity: 0.7 }}>{user?.role}</p>
              </div>
-             <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer", fontSize: "20px", padding: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.2)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>🚪</button>
+             <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer", fontSize: "20px", padding: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.2)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>≡ƒÜ¬</button>
           </div>
         </nav>
       )}
@@ -1451,10 +1420,10 @@ export default function App() {
                </div>
                <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                   <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "10px 20px", borderRadius: "24px", fontSize: "14px", fontWeight: "850", color: COLORS.primary, border: `1px solid ${COLORS.primary}20` }}>
-                    📅 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    ≡ƒôà {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
                   <div style={{ background: "#FFFFFF", border: `1.5px solid ${COLORS.secondary}15`, width: "48px", height: "48px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: COLORS.primary, boxShadow: "0 8px 15px rgba(0,0,0,0.04)", position: "relative" }}>
-                     🔔 <div style={{ position: "absolute", top: "12px", right: "12px", width: "8px", height: "8px", background: COLORS.danger, borderRadius: "4px", border: "2px solid #fff" }}></div>
+                     ≡ƒöö <div style={{ position: "absolute", top: "12px", right: "12px", width: "8px", height: "8px", background: COLORS.danger, borderRadius: "4px", border: "2px solid #fff" }}></div>
                   </div>
                </div>
             </div>
@@ -1468,10 +1437,10 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: "20px" }}>
                 {[
-                  { icon: "💰", label: "Net Revenue", period: "Total Net Sale", val: formatCurrency(inventoryStats.netRevenue || 0), trend: "Dynamic", trendUp: true, sub: "Live Database", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
-                  { icon: "⚖️", label: "Inventory", period: "Live Stock", val: `${inventoryStats.remainingStockKg} KG`, trend: "Real-time", trendUp: true, sub: "From DB Lots", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
-                  { icon: "📋", label: "Settlements", period: "Pending Invoices/Bills", val: `${inventoryStats.settlementsPending} Pending`, trend: formatCurrency(inventoryStats.settlementsPendingAmount || 0), trendUp: null, sub: "awaiting review", gradFrom: "#9fb443", gradTo: "#7a8d34", sparkW: "40%" },
-                  { icon: "🏪", label: "Procurement", period: "Active Lots", val: `${inventoryStats.activeProcurementLots} / ${inventoryStats.totalProcurementLots}`, trend: `${inventoryStats.lowStockAlerts} Low`, trendUp: false, sub: "restock alerts", gradFrom: "#c0392b", gradTo: "#a93226", sparkW: "25%" }
+                  { icon: "≡ƒÆ░", label: "Net Revenue", period: "Total Net Sale", val: formatCurrency(inventoryStats.netRevenue || 0), trend: "Dynamic", trendUp: true, sub: "Live Database", gradFrom: "#375144", gradTo: "#2d4137", sparkW: "72%" },
+                  { icon: "ΓÜû∩╕Å", label: "Inventory", period: "Live Stock", val: `${inventoryStats.remainingStockKg} KG`, trend: "Real-time", trendUp: true, sub: "From DB Lots", gradFrom: "#4a6741", gradTo: "#375144", sparkW: "58%" },
+                  { icon: "≡ƒôï", label: "Settlements", period: "Pending Invoices/Bills", val: `${inventoryStats.settlementsPending} Pending`, trend: formatCurrency(inventoryStats.settlementsPendingAmount || 0), trendUp: null, sub: "awaiting review", gradFrom: "#9fb443", gradTo: "#7a8d34", sparkW: "40%" },
+                  { icon: "≡ƒÅ¬", label: "Procurement", period: "Active Lots", val: `${inventoryStats.activeProcurementLots} / ${inventoryStats.totalProcurementLots}`, trend: `${inventoryStats.lowStockAlerts} Low`, trendUp: false, sub: "restock alerts", gradFrom: "#c0392b", gradTo: "#a93226", sparkW: "25%" }
                 ].map((m, i) => (
                   <div key={i} style={{ background: `linear-gradient(145deg, ${m.gradFrom} 0%, ${m.gradTo} 100%)`, borderRadius: "28px", padding: "28px 26px", position: "relative", overflow: "hidden", boxShadow: `0 16px 40px ${m.gradFrom}35`, cursor: "default", transition: "transform 0.25s, box-shadow 0.25s" }}
                     onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 24px 50px ${m.gradFrom}50`; }}
@@ -1491,7 +1460,7 @@ export default function App() {
                     </div>
                     <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
                       <span style={{ background:"rgba(255,255,255,0.18)", color:"#fff", padding:"3px 10px", borderRadius:"20px", fontSize:"11px", fontWeight:"900" }}>
-                        {m.trendUp !== null ? (m.trendUp ? "▲" : "▼") : "●"} {m.trend}
+                        {m.trendUp !== null ? (m.trendUp ? "Γû▓" : "Γû╝") : "ΓùÅ"} {m.trend}
                       </span>
                       <span style={{ fontSize:"11px", color:"rgba(255,255,255,0.55)", fontWeight:"600" }}>{m.sub}</span>
                     </div>
@@ -1503,46 +1472,46 @@ export default function App() {
                 <Card action={<span style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "12px", cursor: "pointer" }}>View all &rarr;</span>} title="Recent Orders" style={{ padding: "24px 0 0 0" }}>
                   <div className="menu-scroll" style={{ marginTop: "20px", maxHeight: "380px", overflowY: "auto", paddingRight: "8px" }}>
                     {[
-                      { initials: "PR", name: "Priya Reddy", desc: "2 x Alphonso KG • Hyderabad", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "SM", name: "Sanjay Mehta", desc: "5 x Kesar KG • Secunderabad", amount: "₹3,100", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "AK", name: "Ananya Kumar", desc: "1 x Langra KG • Banjara Hills", amount: "₹580", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "VS", name: "Vikram Sharma", desc: "3 x Alphonso KG • Jubilee Hills", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "DM", name: "Deepa Menon", desc: "4 x Kesar KG • Madhapur", amount: "₹2,480", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "SR", name: "Srinivas Rao", desc: "1 x Alphonso KG • Gachibowli", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "LN", name: "Lakshmi Narayana", desc: "10 x Kesar KG • Kukatpally", amount: "₹6,200", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "VB", name: "Venkatesh Babu", desc: "3 x Langra KG • Ameerpet", amount: "₹1,740", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "SK", name: "Sai Krishna", desc: "2 x Dasheri Box • Kondapur", amount: "₹1,100", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "BP", name: "Bhanu Prakash", desc: "5 x Alphonso Box • Miyapur", amount: "₹3,100", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "RS", name: "Ramya Sri", desc: "1 x Kesar Box • Dilsukhnagar", amount: "₹620", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "HN", name: "Harika Naidu", desc: "8 x Badami Box • SR Nagar", amount: "₹3,840", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "KV", name: "Karthik Varma", desc: "2 x Langra Box • RTC X Roads", amount: "₹1,160", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "PR", name: "Prasad Reddy", desc: "4 x Alphonso Box • LB Nagar", amount: "₹2,480", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "SC", name: "Swapna Chowdary", desc: "3 x Kesar Box • KPHB", amount: "₹1,860", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "TG", name: "Tejaswini Goud", desc: "1 x Banganapalli Box • Begumpet", amount: "₹450", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "SK", name: "Shiva Kumar", desc: "6 x Alphonso Box • Uppal", amount: "₹3,720", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "MB", name: "Mahesh Babu", desc: "2 x Kesar Box • Panjagutta", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "PA", name: "Pavani Akula", desc: "3 x Langra Box • Somajiguda", amount: "₹1,740", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "SD", name: "Sujatha Devi", desc: "1 x Alphonso Box • Tarnaka", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "MC", name: "Mohan Chandra", desc: "7 x Kesar Box • ECIL", amount: "₹4,340", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "SG", name: "Suresh Goud", desc: "4 x Banganapalli Box • Bowenpally", amount: "₹1,800", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "DS", name: "Divya Sree", desc: "2 x Alphonso Box • Malkajgiri", amount: "₹1,240", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "RR", name: "Rajeshwar Rao", desc: "5 x Kesar Box • Alwal", amount: "₹3,100", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "AK", name: "Anil Kumar", desc: "1 x Langra Box • Tolichowki", amount: "₹580", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "SN", name: "Surya Narayana", desc: "3 x Alphonso Box • Mehdipatnam", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "KR", name: "Kalyani Rani", desc: "2 x Kesar Box • Attapur", amount: "₹1,240", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "MY", name: "Manoj Yadav", desc: "4 x Banganapalli Box • Chandanagar", amount: "₹1,800", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "RR", name: "Rakesh Reddy", desc: "6 x Alphonso Box • Gachibowli", amount: "₹3,720", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "SR", name: "Swathi Reddy", desc: "1 x Kesar Box • Hitech City", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "MC", name: "Mounika Chowdary", desc: "3 x Langra Box • Madhapur", amount: "₹1,740", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "NB", name: "Nani Babu", desc: "2 x Alphonso Box • Jubilee Hills", amount: "₹1,240", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "PK", name: "Praveen Kumar", desc: "5 x Kesar Box • Banjara Hills", amount: "₹3,100", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "KR", name: "Koteswara Rao", desc: "1 x Banganapalli Box • Nanakramguda", amount: "₹450", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "RN", name: "Ramesh Naidu", desc: "4 x Alphonso Box • Manikonda", amount: "₹2,480", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "NR", name: "Nagarjuna Raju", desc: "3 x Kesar Box • Gachibowli", amount: "₹1,860", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "GM", name: "Geetha Madhuri", desc: "2 x Langra Box • Kondapur", amount: "₹1,160", status: "In Transit", statusCol: "#3B82F6" },
-                      { initials: "HK", name: "Hari Krishna", desc: "1 x Alphonso Box • Hafeezpet", amount: "₹620", status: "Confirmed", statusCol: "#4CAF50" },
-                      { initials: "VB", name: "Veera Babu", desc: "5 x Kesar Box • Miyapur", amount: "₹3,100", status: "Pending", statusCol: "#F59E0B" },
-                      { initials: "SV", name: "Sandeep Varma", desc: "4 x Banganapalli Box • Chandanagar", amount: "₹1,800", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "PR", name: "Priya Reddy", desc: "2 x Alphonso KG ΓÇó Hyderabad", amount: "Γé╣1,240", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SM", name: "Sanjay Mehta", desc: "5 x Kesar KG ΓÇó Secunderabad", amount: "Γé╣3,100", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "AK", name: "Ananya Kumar", desc: "1 x Langra KG ΓÇó Banjara Hills", amount: "Γé╣580", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "VS", name: "Vikram Sharma", desc: "3 x Alphonso KG ΓÇó Jubilee Hills", amount: "Γé╣1,860", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "DM", name: "Deepa Menon", desc: "4 x Kesar KG ΓÇó Madhapur", amount: "Γé╣2,480", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SR", name: "Srinivas Rao", desc: "1 x Alphonso KG ΓÇó Gachibowli", amount: "Γé╣620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "LN", name: "Lakshmi Narayana", desc: "10 x Kesar KG ΓÇó Kukatpally", amount: "Γé╣6,200", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "VB", name: "Venkatesh Babu", desc: "3 x Langra KG ΓÇó Ameerpet", amount: "Γé╣1,740", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SK", name: "Sai Krishna", desc: "2 x Dasheri Box ΓÇó Kondapur", amount: "Γé╣1,100", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "BP", name: "Bhanu Prakash", desc: "5 x Alphonso Box ΓÇó Miyapur", amount: "Γé╣3,100", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "RS", name: "Ramya Sri", desc: "1 x Kesar Box ΓÇó Dilsukhnagar", amount: "Γé╣620", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "HN", name: "Harika Naidu", desc: "8 x Badami Box ΓÇó SR Nagar", amount: "Γé╣3,840", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "KV", name: "Karthik Varma", desc: "2 x Langra Box ΓÇó RTC X Roads", amount: "Γé╣1,160", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "PR", name: "Prasad Reddy", desc: "4 x Alphonso Box ΓÇó LB Nagar", amount: "Γé╣2,480", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SC", name: "Swapna Chowdary", desc: "3 x Kesar Box ΓÇó KPHB", amount: "Γé╣1,860", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "TG", name: "Tejaswini Goud", desc: "1 x Banganapalli Box ΓÇó Begumpet", amount: "Γé╣450", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "SK", name: "Shiva Kumar", desc: "6 x Alphonso Box ΓÇó Uppal", amount: "Γé╣3,720", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "MB", name: "Mahesh Babu", desc: "2 x Kesar Box ΓÇó Panjagutta", amount: "Γé╣1,240", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "PA", name: "Pavani Akula", desc: "3 x Langra Box ΓÇó Somajiguda", amount: "Γé╣1,740", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "SD", name: "Sujatha Devi", desc: "1 x Alphonso Box ΓÇó Tarnaka", amount: "Γé╣620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "MC", name: "Mohan Chandra", desc: "7 x Kesar Box ΓÇó ECIL", amount: "Γé╣4,340", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SG", name: "Suresh Goud", desc: "4 x Banganapalli Box ΓÇó Bowenpally", amount: "Γé╣1,800", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "DS", name: "Divya Sree", desc: "2 x Alphonso Box ΓÇó Malkajgiri", amount: "Γé╣1,240", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "RR", name: "Rajeshwar Rao", desc: "5 x Kesar Box ΓÇó Alwal", amount: "Γé╣3,100", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "AK", name: "Anil Kumar", desc: "1 x Langra Box ΓÇó Tolichowki", amount: "Γé╣580", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SN", name: "Surya Narayana", desc: "3 x Alphonso Box ΓÇó Mehdipatnam", amount: "Γé╣1,860", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "KR", name: "Kalyani Rani", desc: "2 x Kesar Box ΓÇó Attapur", amount: "Γé╣1,240", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "MY", name: "Manoj Yadav", desc: "4 x Banganapalli Box ΓÇó Chandanagar", amount: "Γé╣1,800", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "RR", name: "Rakesh Reddy", desc: "6 x Alphonso Box ΓÇó Gachibowli", amount: "Γé╣3,720", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "SR", name: "Swathi Reddy", desc: "1 x Kesar Box ΓÇó Hitech City", amount: "Γé╣620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "MC", name: "Mounika Chowdary", desc: "3 x Langra Box ΓÇó Madhapur", amount: "Γé╣1,740", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "NB", name: "Nani Babu", desc: "2 x Alphonso Box ΓÇó Jubilee Hills", amount: "Γé╣1,240", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "PK", name: "Praveen Kumar", desc: "5 x Kesar Box ΓÇó Banjara Hills", amount: "Γé╣3,100", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "KR", name: "Koteswara Rao", desc: "1 x Banganapalli Box ΓÇó Nanakramguda", amount: "Γé╣450", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "RN", name: "Ramesh Naidu", desc: "4 x Alphonso Box ΓÇó Manikonda", amount: "Γé╣2,480", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "NR", name: "Nagarjuna Raju", desc: "3 x Kesar Box ΓÇó Gachibowli", amount: "Γé╣1,860", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "GM", name: "Geetha Madhuri", desc: "2 x Langra Box ΓÇó Kondapur", amount: "Γé╣1,160", status: "In Transit", statusCol: "#3B82F6" },
+                      { initials: "HK", name: "Hari Krishna", desc: "1 x Alphonso Box ΓÇó Hafeezpet", amount: "Γé╣620", status: "Confirmed", statusCol: "#4CAF50" },
+                      { initials: "VB", name: "Veera Babu", desc: "5 x Kesar Box ΓÇó Miyapur", amount: "Γé╣3,100", status: "Pending", statusCol: "#F59E0B" },
+                      { initials: "SV", name: "Sandeep Varma", desc: "4 x Banganapalli Box ΓÇó Chandanagar", amount: "Γé╣1,800", status: "Confirmed", statusCol: "#4CAF50" },
                     ].map((order, i) => (
                       <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", borderTop: "1px solid #EBE9E1", borderBottom: i === 39 ? "none" : "" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -1572,7 +1541,7 @@ export default function App() {
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"28px" }}>
                     <div>
                       <h3 style={{ margin:"0 0 4px", fontSize:"18px", fontWeight:"900", color:"#375144", letterSpacing:"-0.5px" }}>Sales Performance</h3>
-                      <p style={{ margin:0, fontSize:"12px", color:COLORS.muted, fontWeight:"600" }}>Weight (KGs/Tones) dispatched this week · Mon–Sun</p>
+                      <p style={{ margin:0, fontSize:"12px", color:COLORS.muted, fontWeight:"600" }}>Weight (KGs/Tones) dispatched this week ┬╖ MonΓÇôSun</p>
                     </div>
                     <div style={{ display:"flex", gap:"8px" }}>
                       {["Week","Month","Season"].map((t,i) => (
@@ -1606,10 +1575,10 @@ export default function App() {
                   </div>
                   <div style={{ display:"flex", gap:"24px", marginTop:"20px", paddingTop:"18px", borderTop:"1.5px solid rgba(55,81,68,0.08)" }}>
                     {[
-                      { label:"Peak Day", val:"Friday", icon:"🏆" },
-                      { label:"Total Weight (KG)", val:"4,850", icon:"⚖️" },
-                      { label:"Avg Daily", val:"69.3", icon:"📊" },
-                      { label:"Best Sale", val:"₹74,400", icon:"💰" }
+                      { label:"Peak Day", val:"Friday", icon:"≡ƒÅå" },
+                      { label:"Total Weight (KG)", val:"4,850", icon:"ΓÜû∩╕Å" },
+                      { label:"Avg Daily", val:"69.3", icon:"≡ƒôè" },
+                      { label:"Best Sale", val:"Γé╣74,400", icon:"≡ƒÆ░" }
                     ].map((s,i) => (
                       <div key={i}>
                         <p style={{ margin:"0 0 3px", fontSize:"10px", fontWeight:"800", color:COLORS.muted, textTransform:"uppercase", letterSpacing:"1px" }}>{s.icon} {s.label}</p>
@@ -1633,7 +1602,7 @@ export default function App() {
                         key={tab}
                         onClick={() => setActiveUserRoleTab(tab)}
                         style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === tab ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === tab ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
-                      >{tab === "Dashboard" ? "🏠 Summary" : tab === "Supplier" ? "🏢 Supplier Pipeline" : "💎 Buyer Pipeline"}</div>
+                      >{tab === "Dashboard" ? "≡ƒÅá Summary" : tab === "Supplier" ? "≡ƒÅó Supplier Pipeline" : "≡ƒÆÄ Buyer Pipeline"}</div>
                     ))}
                   </div>
                </div>
@@ -1644,10 +1613,10 @@ export default function App() {
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "32px" }}>
                 {[
-                  { label: "Active Suppliers", val: suppliers.length || 40, icon: "🏢", color: "#375144" },
-                  { label: "Onboarded Buyers", val: buyers.length || 25, icon: "💎", color: "#3b82f6" },
-                  { label: "Pending Settlements", val: "₹1,42,000", icon: "⚖️", color: "#f59e0b" },
-                  { label: "System Uptime", val: "99.9%", icon: "⚡", color: "#10b981" }
+                  { label: "Active Suppliers", val: suppliers.length || 40, icon: "≡ƒÅó", color: "#375144" },
+                  { label: "Onboarded Buyers", val: buyers.length || 25, icon: "≡ƒÆÄ", color: "#3b82f6" },
+                  { label: "Pending Settlements", val: "Γé╣1,42,000", icon: "ΓÜû∩╕Å", color: "#f59e0b" },
+                  { label: "System Uptime", val: "99.9%", icon: "ΓÜí", color: "#10b981" }
                 ].map((s,i) => (
                   <Card key={i} style={{ padding: "24px", border: `1.5px solid ${s.color}20` }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1702,7 +1671,7 @@ export default function App() {
                       title: "Additional Business Details",
                       fields: [
                         { label: "Preferred Payment Method", type: "select", options: ["Bank Transfer (RTGS/NEFT)", "UPI", "Cash", "Cheque"] },
-                        { label: "Credit Limit (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Credit Limit (Γé╣)", type: "number", placeholder: "0.00" },
                         { label: "Supplier Category", type: "select", options: ["Farmer", "Wholesaler", "Broker", "Agent"] },
                         { label: "Transport Availability", type: "select", options: ["Yes - Own Transport", "No - Requires Pickup"] },
                         { label: "Remarks / Notes" }
@@ -1727,19 +1696,18 @@ export default function App() {
                         { label: "Dispatch ID", disabled: true, value: `DSP-${Math.floor(10000 + Math.random() * 90000)}` },
                         { label: "Supplier Name", type: "select", options: ["Select Supplier", ...suppliers.map(s => s.name)], value: intakeForm?.supplierId || "", onChange: e => setIntakeForm({...intakeForm, supplierId: e.target.value}) },
                         { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Other"], value: dispatchType, onChange: (e) => setDispatchType(e.target.value) },
-                        { label: "Product Name (A to Z)", type: "select", options: dispatchType === "Fruits" ? FRUIT_LIST_AZ : (dispatchType === "Vegetables" ? VEG_LIST_AZ : ["Select Product"]), value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
+                        { label: "Product Name", list: "master-product-list", placeholder: "Type to search...", value: intakeForm?.lineItems?.[0]?.product || "", onChange: (e) => {
                            const val = e.target.value;
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].product = val;
                            setDispatchProduct(val);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Variety (Seed Type)", type: "select", options: getProductData(dispatchProduct).varieties, value: intakeForm?.lineItems?.[0]?.variety || "", onChange: e => {
+                        { label: "Variety", type: "select", options: getProductData(dispatchProduct).varieties, value: intakeForm?.lineItems?.[0]?.variety || "", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].variety = e.target.value;
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Seed Origin", type: "select", options: ["Hybrid", "Desi (Native)", "F1 Hybrid", "Imported", "Wild"] },
                         { label: "Size Grade", type: "select", options: getProductData(dispatchProduct).sizes, value: intakeForm?.lineItems?.[0]?.grade || "", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].grade = e.target.value;
@@ -1747,42 +1715,38 @@ export default function App() {
                         }},
                         { label: "Color Grade", type: "select", options: getProductData(dispatchProduct).colors },
                         { label: "Quality Grade", type: "select", options: getProductData(dispatchProduct).grades },
-                        { label: "Growth Method", type: "select", options: ["Conventional", "Organic (Certified)", "Chemical Free", "Zero Budget (ZBNF)"] },
-                        { label: "Category", type: "select", options: ["Premium (Export)", "Standard (A)", "Local (B)", "Processing (C)"] }
+                        { label: "Category", type: "select", options: ["Premium", "Standard", "Local", "Export"] }
                       ]
                     },
                     {
                       title: "Logistics & Commercials",
                       fields: [
-                        { label: "Unit Cost (₹)", type: "number", placeholder: "0.00", value: intakeForm?.lineItems?.[0]?.estimatedRate || 0, onChange: e => {
+                        { label: "Unit Cost (Γé╣)", type: "number", placeholder: "0.00", value: intakeForm?.lineItems?.[0]?.estimatedRate || 0, onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].estimatedRate = Number(e.target.value);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Total Quantity (Net)", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
+                        { label: "Quantity", type: "number", placeholder: "0", value: intakeForm?.lineItems?.[0]?.grossWeight || 0, onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].grossWeight = Number(e.target.value);
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Weight Unit", type: "select", options: ["KG", "Tones", "Quintals", "Crates", "Bags"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
+                        { label: "Unit Type", type: "select", options: ["KG", "Ton", "Crate"], value: intakeForm?.lineItems?.[0]?.unit || "KG", onChange: e => {
                            const newItems = [...(intakeForm?.lineItems || [])];
                            if (newItems.length > 0) newItems[0].unit = e.target.value;
                            setIntakeForm({...intakeForm, lineItems: newItems});
                         }},
-                        { label: "Packaging Type", type: "select", options: ["Plastic Crates", "Gunny Bags", "Wooden Boxes", "Corrugated", "Loose Load"] },
-                        { label: "Stacking / Load Type", type: "select", options: ["Single Stack", "Double Stack", "Bulk", "Cold Chain"] },
                         { label: "Number of Trucks", type: "number", placeholder: "1" },
                         { label: "Truck Number", placeholder: "TS 09 EU 1234", value: intakeForm?.vehicleNumber || "", onChange: e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value}) },
                         { label: "Driver Name", value: intakeForm?.driverName || "", onChange: e => setIntakeForm({...intakeForm, driverName: e.target.value}) },
                         { label: "Driver Mobile", type: "tel" },
                         { label: "Loading Date", type: "date", value: intakeForm?.entryDate || "", onChange: e => setIntakeForm({...intakeForm, entryDate: e.target.value}) },
-                        { label: "Origin (Village/Hub)", placeholder: "Specify source" },
-                        { label: "Destination (Market)", placeholder: "Madanapalle Market" },
-                        { label: "Total Cost (₹)", type: "number", disabled: true, value: (Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) || 0 },
-                        { label: "Tax / Mandi Fee (%)", type: "number", value: "5" },
-                        { label: "Extra Charges (Handling)", type: "number", placeholder: "0.00" },
-                        { label: "Net Total (₹)", type: "number", disabled: true, value: ((Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) * 1.05) || 0 },
-                        { label: "Remarks / Special Handling", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
+                        { label: "Destination" },
+                        { label: "Total Cost (Γé╣)", type: "number", disabled: true, value: (Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) || 0 },
+                        { label: "Tax (%)", type: "number", value: "5" },
+                        { label: "Extra Charges (Γé╣)", type: "number", placeholder: "0.00" },
+                        { label: "Net Total (Γé╣)", type: "number", disabled: true, value: ((Number(intakeForm?.lineItems?.[0]?.grossWeight || 0) * Number(intakeForm?.lineItems?.[0]?.estimatedRate || 0)) * 1.05) || 0 },
+                        { label: "Remarks", value: intakeForm?.notes || "", onChange: e => setIntakeForm({...intakeForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
@@ -1809,9 +1773,9 @@ export default function App() {
                         </thead>
                         <tbody>
                           {[
-                            { id: "DSP-55920", supplier: "Priya Reddy", product: "Apple (Fuji) • Premium", logistics: "20 KGs • TS09 EU 1234", amount: "₹45,000", status: "In Transit" },
-                            { id: "DSP-55919", supplier: "Srinivas Rao", product: "Mango (Alphonso) • A Grade", logistics: "50 KGs • AP28 BW 9091", amount: "₹82,500", status: "Delivered" },
-                            { id: "DSP-55918", supplier: "Mohan Chandra", product: "Tomato (Roma) • Standard", logistics: "15 Tons • TS07 CD 4455", amount: "₹18,000", status: "Delivered" }
+                            { id: "DSP-55920", supplier: "Priya Reddy", product: "Apple (Fuji) ΓÇó Premium", logistics: "20 KGs ΓÇó TS09 EU 1234", amount: "Γé╣45,000", status: "In Transit" },
+                            { id: "DSP-55919", supplier: "Srinivas Rao", product: "Mango (Alphonso) ΓÇó A Grade", logistics: "50 KGs ΓÇó AP28 BW 9091", amount: "Γé╣82,500", status: "Delivered" },
+                            { id: "DSP-55918", supplier: "Mohan Chandra", product: "Tomato (Roma) ΓÇó Standard", logistics: "15 Tons ΓÇó TS07 CD 4455", amount: "Γé╣18,000", status: "Delivered" }
                           ].map((d, i) => (
                             <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
                               <td style={{ padding: "16px", fontWeight: "600", color: COLORS.sidebar }}>{d.id}</td>
@@ -1840,9 +1804,9 @@ export default function App() {
                       title: "Account Overview",
                       fields: [
                         { label: "Supplier Name", type: "select", options: ["Srinivas Rao", "Sanjay Mehta"] },
-                        { label: "Total Amount (₹)", type: "number", placeholder: "0.00" },
-                        { label: "Paid Amount (₹)", type: "number", placeholder: "0.00" },
-                        { label: "Balance Amount (₹)", disabled: true, value: "Auto-calculated" },
+                        { label: "Total Amount (Γé╣)", type: "number", placeholder: "0.00" },
+                        { label: "Paid Amount (Γé╣)", type: "number", placeholder: "0.00" },
+                        { label: "Balance Amount (Γé╣)", disabled: true, value: "Auto-calculated" },
                         { label: "Credit Status", type: "select", options: ["Good Standing", "Overdue", "Locked"] }
                       ]
                     },
@@ -1881,9 +1845,9 @@ export default function App() {
                         </thead>
                         <tbody>
                           {[
-                            { date: "Oct 24, 2026", supplier: "Srinivas Rao", txn: "UTR-SBIN00489912", method: "Bank Transfer (RTGS)", amount: "₹1,50,000", status: "Completed" },
-                            { date: "Oct 22, 2026", supplier: "Sanjay Mehta", txn: "TXN-UPI-992011", method: "UPI", amount: "₹25,000", status: "Completed" },
-                            { date: "Oct 20, 2026", supplier: "Harika Naidu", txn: "CHQ-009212", method: "Cheque", amount: "₹80,000", status: "Pending Clearance" }
+                            { date: "Oct 24, 2026", supplier: "Srinivas Rao", txn: "UTR-SBIN00489912", method: "Bank Transfer (RTGS)", amount: "Γé╣1,50,000", status: "Completed" },
+                            { date: "Oct 22, 2026", supplier: "Sanjay Mehta", txn: "TXN-UPI-992011", method: "UPI", amount: "Γé╣25,000", status: "Completed" },
+                            { date: "Oct 20, 2026", supplier: "Harika Naidu", txn: "CHQ-009212", method: "Cheque", amount: "Γé╣80,000", status: "Pending Clearance" }
                           ].map((t, i) => (
                             <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
                               <td style={{ padding: "16px", color: COLORS.text }}>{t.date}</td>
@@ -1935,7 +1899,7 @@ export default function App() {
                         { label: "State" },
                         { label: "Pincode" },
                         { label: "GST Number" },
-                        { label: "Credit Limit (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Credit Limit (Γé╣)", type: "number", placeholder: "0.00" },
                         { label: "Registration Date", type: "date", value: new Date().toISOString().slice(0, 10) }
                       ]
                     }
@@ -1955,36 +1919,28 @@ export default function App() {
                     {
                       title: "Order Requirements",
                       fields: [
-                        { label: "Order ID", disabled: true, value: `ORD-PO-${Math.floor(100 + Math.random() * 900)}` },
-                        { label: "Buyer Name", type: "select", options: ["Select Buyer", ...buyers.map(b => b.name)], value: buyerOrderForm.buyerId, onChange: e => setBuyerOrderForm({...buyerOrderForm, buyerId: e.target.value}) },
-                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables", "Spices", "Grains", "Industrial"], value: poType, onChange: (e) => setPoType(e.target.value) },
-                        { label: "Product Name", list: poType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: buyerOrderForm.product, onChange: (e) => {
-                           setPoProduct(e.target.value);
-                           setBuyerOrderForm({...buyerOrderForm, product: e.target.value});
-                        } },
-                        { label: "Required Variety (Seed Type)", type: "select", options: getProductData(buyerOrderForm.product).varieties, value: buyerOrderForm.variety, onChange: e => setBuyerOrderForm({...buyerOrderForm, variety: e.target.value}) },
-                        { label: "Target Seed Origin", type: "select", options: ["Hybrid", "Desi (Native)", "F1 Hybrid", "Imported", "Any Market Grade"] },
-                        { label: "Required Size", type: "select", options: getProductData(buyerOrderForm.product).sizes, value: buyerOrderForm.grade, onChange: e => setBuyerOrderForm({...buyerOrderForm, grade: e.target.value}) },
-                        { label: "Color / Maturity", type: "select", options: getProductData(buyerOrderForm.product).colors },
-                        { label: "Required Quality", type: "select", options: ["Premium (Export)", "A Grade (Domestic)", "B Grade (Local)", "Processing"] },
-                        { label: "Growth Method Pref.", type: "select", options: ["Conventional", "Organic Pref.", "Natural / ZBNF Only", "Any"] }
+                        { label: "Order ID", disabled: true, value: "ORD-PO-149" },
+                        { label: "Buyer Name", type: "select", options: ["Reliance Retail", "Kisan Markets", "BigBasket", "More Supermarkets"] },
+                        { label: "Product Type", type: "select", options: ["Fruits", "Vegetables"], value: poType, onChange: (e) => setPoType(e.target.value) },
+                        { label: "Product Name", list: poType === "Fruits" ? "fruit-list" : "vegetable-list", placeholder: "Type to search...", value: poProduct, onChange: (e) => setPoProduct(e.target.value) },
+                        { label: "Required Variety", type: "select", options: getProductData(poProduct).varieties },
+                        { label: "Required Size", type: "select", options: getProductData(poProduct).sizes },
+                        { label: "Required Color", type: "select", options: getProductData(poProduct).colors },
+                        { label: "Required Quality", type: "select", options: ["A Grade (Premium)", "B Grade", "C Grade"] }
                       ]
                     },
                     {
                       title: "Fulfillment Details",
                       fields: [
-                        { label: "Required Quantity", type: "number", placeholder: "0", value: buyerOrderForm.quantity, onChange: e => setBuyerOrderForm({...buyerOrderForm, quantity: e.target.value}) },
-                        { label: "Weight Unit", type: "select", options: ["KG", "Tones", "Quintals", "Crates", "Bags"], value: buyerOrderForm.unit, onChange: e => setBuyerOrderForm({...buyerOrderForm, unit: e.target.value}) },
-                        { label: "Fulfillment Window", type: "select", options: ["Prompt (24h)", "2-3 Days", "Weekly", "Seasonal Contract"] },
-                        { label: "Truck Requirement", type: "select", options: ["Single LCV", "Heavy Multi-axle", "Cold Chain (Reefer)", "No Transport Needed"] },
-                        { label: "Number of Trucks Required", type: "number", placeholder: "1", value: buyerOrderForm.vehicleRequired, onChange: e => setBuyerOrderForm({...buyerOrderForm, vehicleRequired: e.target.value}) },
-                        { label: "Packing Requirement", type: "select", options: ["Retail Brand Packaging", "Standard Corrugated", "Plastic Crates", "Gunny Bags", "Loose Loads"] },
-                        { label: "Target Delivery Date", type: "date", value: buyerOrderForm.orderDate, onChange: e => setBuyerOrderForm({...buyerOrderForm, orderDate: e.target.value}) },
-                        { label: "Destination Hub / Stall", placeholder: "Hub ID or Stall Number" },
-                        { label: "Preferred Rate (₹)", type: "number", placeholder: "Target max price", value: buyerOrderForm.targetRate, onChange: e => setBuyerOrderForm({...buyerOrderForm, targetRate: e.target.value}) },
-                        { label: "Urgency Level", type: "select", options: ["Normal", "High", "Critical (Immediate)"] },
-                        { label: "Loading / Unloading Pref.", type: "select", options: ["Mechanical", "Manual (Labour)", "Mixed"] },
-                        { label: "Special Notes", value: buyerOrderForm.notes, onChange: e => setBuyerOrderForm({...buyerOrderForm, notes: e.target.value}) }
+                        { label: "Required Quantity", type: "number", placeholder: "0" },
+                        { label: "Unit Type", type: "select", options: ["KG", "Box", "Ton", "Crate"] },
+                        { label: "Number of Trucks Required", type: "number", placeholder: "1" },
+                        { label: "Packing Type", type: "select", options: ["Standard Corrugated", "Plastic Crates", "Wooden Boxes", "Loose Loads"] },
+                        { label: "Delivery Date", type: "date", value: new Date().toISOString().slice(0, 10) },
+                        { label: "Delivery Location", placeholder: "Destination Hub" },
+                        { label: "Preferred Rate (Γé╣)", type: "number", placeholder: "Target max price" },
+                        { label: "Urgency Level", type: "select", options: ["Normal", "High", "Critical (Same Day)"] },
+                        { label: "Notes" }
                       ]
                     }
                   ]} />
@@ -2011,9 +1967,9 @@ export default function App() {
                         </thead>
                         <tbody>
                           {[
-                            { id: "ORD-PO-148", buyer: "Reliance Retail", product: "Apple (Fuji) • Grade A", qty: "500 KG", rate: "₹120/KG", urgency: "High" },
-                            { id: "ORD-PO-147", buyer: "Kisan Markets", product: "Mango (Alphonso) • Premium", qty: "100 Tons", rate: "₹45,000/Ton", urgency: "Normal" },
-                            { id: "ORD-PO-146", buyer: "BigBasket", product: "Tomato (Grape) • Standard", qty: "2 Ton", rate: "₹15/KG", urgency: "Critical" }
+                            { id: "ORD-PO-148", buyer: "Reliance Retail", product: "Apple (Fuji) ΓÇó Grade A", qty: "500 KG", rate: "Γé╣120/KG", urgency: "High" },
+                            { id: "ORD-PO-147", buyer: "Kisan Markets", product: "Mango (Alphonso) ΓÇó Premium", qty: "100 Tons", rate: "Γé╣45,000/Ton", urgency: "Normal" },
+                            { id: "ORD-PO-146", buyer: "BigBasket", product: "Tomato (Grape) ΓÇó Standard", qty: "2 Ton", rate: "Γé╣15/KG", urgency: "Critical" }
                           ].map((o, i) => (
                             <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
                               <td style={{ padding: "16px", fontWeight: "600", color: COLORS.sidebar }}>{o.id}</td>
@@ -2047,22 +2003,22 @@ export default function App() {
                       title: "Billing Cycle",
                       fields: [
                         { label: "Buyer Name", type: "select", options: ["Reliance Retail", "Kisan Markets"] },
-                        { label: "Rate per Unit (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Rate per Unit (Γé╣)", type: "number", placeholder: "0.00" },
                         { label: "Quantity", type: "number", placeholder: "0" },
-                        { label: "Total Amount (₹)", disabled: true, value: "Auto-calculated" },
+                        { label: "Total Amount (Γé╣)", disabled: true, value: "Auto-calculated" },
                         { label: "Tax (%)", type: "number", placeholder: "5" },
-                        { label: "Discount (₹)", type: "number", placeholder: "0.00" }
+                        { label: "Discount (Γé╣)", type: "number", placeholder: "0.00" }
                       ]
                     },
                     {
                       title: "Payment Receipts",
                       fields: [
-                        { label: "Paid Amount (₹)", type: "number", placeholder: "0.00" },
+                        { label: "Paid Amount (Γé╣)", type: "number", placeholder: "0.00" },
                         { label: "Payment Mode", type: "select", options: ["Bank Transfer (RTGS/NEFT)", "UPI", "Cash", "Cheque", "Credit Account"] },
                         { label: "Transaction ID", placeholder: "UTR or Txn" },
                         { label: "Due Date", type: "date", value: new Date(Date.now() + 86400000*30).toISOString().slice(0, 10) },
-                        { label: "Outstanding Amount (₹)", disabled: true, value: "Auto-calculated" },
-                        { label: "Balance Amount (₹)", disabled: true, value: "Auto-calculated" },
+                        { label: "Outstanding Amount (Γé╣)", disabled: true, value: "Auto-calculated" },
+                        { label: "Balance Amount (Γé╣)", disabled: true, value: "Auto-calculated" },
                         { label: "Remarks" }
                       ]
                     }
@@ -2089,9 +2045,9 @@ export default function App() {
                         </thead>
                         <tbody>
                           {[
-                            { date: "Oct 25, 2026", buyer: "Reliance Retail", inv: "INV-2024-001", total: "₹2,50,000", paid: "₹2,00,000", balance: "₹50,000" },
-                            { date: "Oct 23, 2026", buyer: "More Supermarkets", inv: "INV-2024-002", total: "₹85,000", paid: "₹85,000", balance: "₹0" },
-                            { date: "Oct 21, 2026", buyer: "BigBasket", inv: "INV-2024-003", total: "₹1,20,000", paid: "₹50,000", balance: "₹70,000" }
+                            { date: "Oct 25, 2026", buyer: "Reliance Retail", inv: "INV-2024-001", total: "Γé╣2,50,000", paid: "Γé╣2,00,000", balance: "Γé╣50,000" },
+                            { date: "Oct 23, 2026", buyer: "More Supermarkets", inv: "INV-2024-002", total: "Γé╣85,000", paid: "Γé╣85,000", balance: "Γé╣0" },
+                            { date: "Oct 21, 2026", buyer: "BigBasket", inv: "INV-2024-003", total: "Γé╣1,20,000", paid: "Γé╣50,000", balance: "Γé╣70,000" }
                           ].map((b, i) => (
                             <tr key={i} style={{ borderBottom: i === 2 ? "none" : "1px solid #EBE9E1" }}>
                               <td style={{ padding: "16px", color: COLORS.text }}>{b.date}</td>
@@ -2119,23 +2075,23 @@ export default function App() {
                     onClick={() => setInvMode("Allocation")} 
                     style={{ padding: "12px 28px", borderRadius: "14px", border: "none", background: invMode === "Allocation" ? COLORS.primary : "transparent", color: invMode === "Allocation" ? "#fff" : COLORS.text, fontWeight: "800", cursor: "pointer", transition: "all 0.2s" }}
                   >
-                    📤 Live Stock & Allocation
+                    ≡ƒôñ Live Stock & Allocation
                   </button>
                   <button 
                     onClick={() => setInvMode("Intake")} 
                     style={{ padding: "12px 28px", borderRadius: "14px", border: "none", background: invMode === "Intake" ? COLORS.primary : "transparent", color: invMode === "Intake" ? "#fff" : COLORS.text, fontWeight: "800", cursor: "pointer", transition: "all 0.2s" }}
                   >
-                    📥 Register New Farmer Arrival
+                    ≡ƒôÑ Register New Farmer Arrival
                   </button>
                </div>
 
                {invMode === "Intake" ? (
                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", animation: "fadeIn 0.4s ease" }}>
-                    <Card title="📋 Lot Creation Engine" subtitle="Record new produce arrivals immediately">
+                    <Card title="≡ƒôï Lot Creation Engine" subtitle="Record new produce arrivals immediately">
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                          <Input label="📅 Arrival Date & Time" type="datetime-local" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
+                          <Input label="≡ƒôà Arrival Date & Time" type="datetime-local" value={intakeForm.entryDate} onChange={e => setIntakeForm({...intakeForm, entryDate: e.target.value})} />
                           <div style={{ marginBottom: "16px" }}>
-                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>👨‍🌾 Farmer Selection</label>
+                            <label style={{ display: "block", marginBottom: "6px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>≡ƒæ¿ΓÇì≡ƒî╛ Farmer Selection</label>
                             <select 
                               style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc" }}
                               value={intakeForm.supplierId}
@@ -2147,13 +2103,13 @@ export default function App() {
                           </div>
                        </div>
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                          <Input label="🚛 Vehicle Number" placeholder="Ex: TS 09..." value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
-                          <Input label="📍 Origin Point" placeholder="Ex: Guntur" value={intakeForm.origin} onChange={e => setIntakeForm({...intakeForm, origin: e.target.value})} />
-                          <Input label="👷 Driver Contact" placeholder="Optional" value={intakeForm.driverName} onChange={e => setIntakeForm({...intakeForm, driverName: e.target.value})} />
+                          <Input label="≡ƒÜ¢ Vehicle Number" placeholder="Ex: TS 09..." value={intakeForm.vehicleNumber} onChange={e => setIntakeForm({...intakeForm, vehicleNumber: e.target.value})} />
+                          <Input label="≡ƒôì Origin Point" placeholder="Ex: Guntur" value={intakeForm.origin} onChange={e => setIntakeForm({...intakeForm, origin: e.target.value})} />
+                          <Input label="≡ƒæ╖ Driver Contact" placeholder="Optional" value={intakeForm.driverName} onChange={e => setIntakeForm({...intakeForm, driverName: e.target.value})} />
                        </div>
                        <div style={{ marginTop: "24px" }}>
                           <h4 style={{ color: COLORS.secondary, marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            📦 Produce Breakdown
+                            ≡ƒôª Produce Breakdown
                             <Button variant="secondary" onClick={() => setIntakeForm({...intakeForm, lineItems: [...intakeForm.lineItems, { product: "", variety: "", grade: "", grossWeight: "", deductions: "", boxes: "", estimatedRate: "" }]})} style={{ padding: "6px 16px", fontSize: "12px" }}>+ Add Variant</Button>
                           </h4>
                           {intakeForm.lineItems.map((item, idx) => (
@@ -2210,7 +2166,7 @@ export default function App() {
                                        <b>{item.remainingQuantity} KG</b>
                                     </div>
                                   ))}
-                                  <button onClick={() => setInvMode("Allocation")} style={{ width: "100%", marginTop: "12px", padding: "8px", borderRadius: "8px", border: `1px solid ${COLORS.primary}`, color: COLORS.primary, background: "transparent", cursor: "pointer", fontWeight: "700" }}>Execute Allocation »</button>
+                                  <button onClick={() => setInvMode("Allocation")} style={{ width: "100%", marginTop: "12px", padding: "8px", borderRadius: "8px", border: `1px solid ${COLORS.primary}`, color: COLORS.primary, background: "transparent", cursor: "pointer", fontWeight: "700" }}>Execute Allocation ┬╗</button>
                                </div>
                             </div>
                           ))}
@@ -2219,7 +2175,7 @@ export default function App() {
                  </div>
                ) : (
                  <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "fadeIn 0.4s ease" }}>
-                    <Card title="📤 Enterprise Allocation Engine" subtitle="Precision matching of stock to buyer invoices">
+                    <Card title="≡ƒôñ Enterprise Allocation Engine" subtitle="Precision matching of stock to buyer invoices">
                         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.5fr", gap: "32px", minHeight: "700px" }}>
                           <div style={{ borderRight: "1px solid #f1f5f9", paddingRight: "32px" }}>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
@@ -2269,7 +2225,7 @@ export default function App() {
                                 <div style={{ animation: "fadeIn 0.4s ease" }}>
                                   <div style={{ background: COLORS.secondary, color: "#fff", padding: "28px", borderRadius: "24px", marginBottom: "32px", boxShadow: "0 12px 20px -5px rgba(0,0,0,0.2)" }}>
                                       <label style={{ fontSize: "11px", textTransform: "uppercase", opacity: 0.7 }}>EXECUTING ALLOCATION FOR</label>
-                                      <h2 style={{ margin: "4px 0", fontSize: "24px" }}>{selection.lot.lotId} » {selection.item.product}</h2>
+                                      <h2 style={{ margin: "4px 0", fontSize: "24px" }}>{selection.lot.lotId} ┬╗ {selection.item.product}</h2>
                                       <div style={{ display: "flex", gap: "20px", marginTop: "16px", borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: "16px" }}>
                                         <div><small style={{ opacity: 0.8 }}>AVL</small><br /><b>{selection.item.remainingQuantity} KG</b></div>
                                         <div><small style={{ opacity: 0.8 }}>FARMER</small><br /><b>{selection.lot.supplier?.name}</b></div>
@@ -2277,7 +2233,7 @@ export default function App() {
                                   </div>
                                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                                       <div style={{ marginBottom: "20px" }}>
-                                        <label style={{ display: "block", marginBottom: "8px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>🏙 Target Buyer</label>
+                                        <label style={{ display: "block", marginBottom: "8px", fontWeight: "700", color: COLORS.secondary, fontSize: "12px" }}>≡ƒÅÖ Target Buyer</label>
                                         <select 
                                           style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #EBE9E1", background: "#f8fafc" }}
                                           value={allocationForm.buyerId}
@@ -2287,9 +2243,9 @@ export default function App() {
                                             {buyers.map(b => <option key={b._id} value={b._id}>{b.name} - {b.shopName}</option>)}
                                         </select>
                                       </div>
-                                      <Input label="⚖️ Quantity (KG)" type="number" value={allocationForm.quantity} onChange={e => setAllocationForm({...allocationForm, quantity: e.target.value})} />
-                                      <Input label="💰 Sale Rate (₹/KG)" type="number" value={allocationForm.saleRate} onChange={e => setAllocationForm({...allocationForm, saleRate: e.target.value})} />
-                                      <Input label="📝 Transfer Memo" placeholder="Notes..." value={allocationForm.notes} onChange={e => setAllocationForm({...allocationForm, notes: e.target.value})} />
+                                      <Input label="ΓÜû∩╕Å Quantity (KG)" type="number" value={allocationForm.quantity} onChange={e => setAllocationForm({...allocationForm, quantity: e.target.value})} />
+                                      <Input label="≡ƒÆ░ Sale Rate (Γé╣/KG)" type="number" value={allocationForm.saleRate} onChange={e => setAllocationForm({...allocationForm, saleRate: e.target.value})} />
+                                      <Input label="≡ƒô¥ Transfer Memo" placeholder="Notes..." value={allocationForm.notes} onChange={e => setAllocationForm({...allocationForm, notes: e.target.value})} />
                                   </div>
                                   <div style={{ background: "#FDFBF4", padding: "24px", borderRadius: "20px", border: "1.5px dashed #D4B106", marginTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                       <div><p style={{ margin: 0, fontSize: "12px", color: "#856404" }}>EST VALUE</p><h2 style={{ margin: 0, color: COLORS.secondary }}>{formatCurrency((allocationForm.quantity * allocationForm.saleRate) || 0)}</h2></div>
@@ -2299,7 +2255,7 @@ export default function App() {
                                 </div>
                               ) : (
                                 <div style={{ padding: "100px 40px", textAlign: "center", background: "#f8fafc", borderRadius: "24px", border: "2px dashed #e2e8f0" }}>
-                                  <div style={{ fontSize: "64px", marginBottom: "20px" }}>📦</div>
+                                  <div style={{ fontSize: "64px", marginBottom: "20px" }}>≡ƒôª</div>
                                   <h3>Ready for Allocation</h3>
                                   <p style={{ color: COLORS.muted }}>Select an item from the left queue to begin.</p>
                                 </div>
@@ -2308,7 +2264,7 @@ export default function App() {
                         </div>
                     </Card>
 
-                    <Card title="📦 Live Stock Status Engine" subtitle="Real-time tracking of allocations">
+                    <Card title="≡ƒôª Live Stock Status Engine" subtitle="Real-time tracking of allocations">
                         <div style={{ overflowX: "auto" }}>
                           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                               <thead>
@@ -2343,7 +2299,7 @@ export default function App() {
                         </div>
                     </Card>
 
-                    <Card title="🤝 Holding Tracker" subtitle="Track undelivered produce currently held by buyers">
+                    <Card title="≡ƒñ¥ Holding Tracker" subtitle="Track undelivered produce currently held by buyers">
                         <div style={{ overflowX: "auto" }}>
                           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                               <thead>
@@ -2397,7 +2353,7 @@ export default function App() {
                                  </div>
                               </div>
                               {duplicateWarning && (
-                                <div style={{ background: "#ef4444", color: "#fff", padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: "700", marginTop: "12px", display: "inline-block", animation: "pulse 2s infinite" }}>⚠️ DUPLICATE WARNING: Match found for this buyer today</div>
+                                <div style={{ background: "#ef4444", color: "#fff", padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: "700", marginTop: "12px", display: "inline-block", animation: "pulse 2s infinite" }}>ΓÜá∩╕Å DUPLICATE WARNING: Match found for this buyer today</div>
                               )}
                            </div>
                            <div style={{ textAlign: "right" }}>
@@ -2439,7 +2395,7 @@ export default function App() {
 
                      {/* Item Selection Table */}
                      <div style={{ padding: "48px" }}>
-                        <h4 style={{ margin: "0 0 24px 0", color: COLORS.secondary, letterSpacing: "1px" }}>📦 MULTI-PRODUCT LINE ITEMS & TRACEABILITY</h4>
+                        <h4 style={{ margin: "0 0 24px 0", color: COLORS.secondary, letterSpacing: "1px" }}>≡ƒôª MULTI-PRODUCT LINE ITEMS & TRACEABILITY</h4>
                         <div style={{ overflowX: "auto" }}>
                            <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 10px" }}>
                               <thead>
@@ -2448,7 +2404,7 @@ export default function App() {
                                     {weightDisplayMode === "COMPREHENSIVE" && <th style={{ padding: "0 15px", textAlign: "right" }}>Gross</th>}
                                     {weightDisplayMode === "COMPREHENSIVE" && <th style={{ padding: "0 15px", textAlign: "right" }}>Deductions</th>}
                                     <th style={{ padding: "0 15px", textAlign: "right" }}>Net Qty</th>
-                                    <th style={{ padding: "0 15px", textAlign: "right" }}>Rate (₹)</th>
+                                    <th style={{ padding: "0 15px", textAlign: "right" }}>Rate (Γé╣)</th>
                                     <th style={{ padding: "0 15px", textAlign: "right" }}>Total</th>
                                     <th style={{ padding: "0 15px", width: "50px" }}></th>
                                  </tr>
@@ -2493,7 +2449,7 @@ export default function App() {
                                       </td>
                                       <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.secondary, fontSize: "16px" }}>{formatCurrency(item.amount)}</td>
                                       <td style={{ padding: "16px", borderRadius: "0 16px 16px 0", textAlign: "center" }}>
-                                         <button onClick={() => removeInvoiceItem(idx)} style={{ background: "#fee2e2", border: "none", color: "#dc2626", cursor: "pointer", width: "32px", height: "32px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900" }}>✕</button>
+                                         <button onClick={() => removeInvoiceItem(idx)} style={{ background: "#fee2e2", border: "none", color: "#dc2626", cursor: "pointer", width: "32px", height: "32px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900" }}>Γ£ò</button>
                                       </td>
                                    </tr>
                                  ))}
@@ -2505,15 +2461,15 @@ export default function App() {
                         {/* Financials & Charges Block */}
                         <div style={{ mt: "64px", borderTop: "2px solid #f1f5f9", paddingTop: "48px", display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "64px", marginTop: "48px" }}>
                            <div>
-                              <h4 style={{ color: COLORS.secondary, margin: "0 0 24px 0", letterSpacing: "1px" }}>💸 ADDITIONAL SHIPMENT CHARGES</h4>
+                              <h4 style={{ color: COLORS.secondary, margin: "0 0 24px 0", letterSpacing: "1px" }}>≡ƒÆ╕ ADDITIONAL SHIPMENT CHARGES</h4>
                               <div style={{ background: "#f8fafc", padding: "32px", borderRadius: "24px", border: "1px solid #e2e8f0" }}>
                                  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                                     {/* Dynamic Charges from Expense Masters */}
                                     {masterExpenses.filter(e=>e.active).map(charge => (
                                       <div key={charge.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                            <span style={{ fontSize: "18px" }}>{charge.name.includes("Transport") ? "🚚" : charge.name.includes("Handling") ? "👷" : "💎"}</span>
-                                            <span style={{ fontWeight: "700", color: COLORS.secondary }}>{charge.name} ({charge.type === "Percentage" ? charge.default + "%" : "₹"})</span>
+                                            <span style={{ fontSize: "18px" }}>{charge.name.includes("Transport") ? "≡ƒÜÜ" : charge.name.includes("Handling") ? "≡ƒæ╖" : "≡ƒÆÄ"}</span>
+                                            <span style={{ fontWeight: "700", color: COLORS.secondary }}>{charge.name} ({charge.type === "Percentage" ? charge.default + "%" : "Γé╣"})</span>
                                          </div>
                                          <input 
                                             type="number" 
@@ -2562,7 +2518,7 @@ export default function App() {
 
                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)", padding: "16px", borderRadius: "16px", marginTop: "10px" }}>
                                     <div>
-                                       <span style={{ fontSize: "11px", opacity: 0.5, textTransform: "uppercase", display: "block" }}>AMOUNT RECEIVED (₹)</span>
+                                       <span style={{ fontSize: "11px", opacity: 0.5, textTransform: "uppercase", display: "block" }}>AMOUNT RECEIVED (Γé╣)</span>
                                        <div style={{ fontSize: "11px", fontWeight: "700", color: buyerInvoiceForm.status === 'Fully Paid' ? "#4ade80" : "#fbbf24", marginTop: "4px" }}>Status: {buyerInvoiceForm.status}</div>
                                     </div>
                                     <input 
@@ -2599,10 +2555,10 @@ export default function App() {
                      <Button 
                         style={{ flex: 2, height: "72px", fontSize: "22px", borderRadius: "20px", background: "#0f172a", border: "none", boxShadow: "0 10px 25px rgba(0,0,0,0.2)" }} 
                         onClick={handleCreateBuyerInvoice}
-                     >🚀 Commit Invoice & Dispatch Ship</Button>
+                     >≡ƒÜÇ Commit Invoice & Dispatch Ship</Button>
                      <div style={{ flex: 1, display: "flex", gap: "12px" }}>
-                        <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "72px", fontSize: "14px", borderRadius: "20px" }}>🖨 Print (A5)</Button>
-                        <Button style={{ flex: 1, height: "72px", fontSize: "14px", borderRadius: "20px", background: "#25D366" }}>📱 WhatsApp</Button>
+                        <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "72px", fontSize: "14px", borderRadius: "20px" }}>≡ƒû¿ Print (A5)</Button>
+                        <Button style={{ flex: 1, height: "72px", fontSize: "14px", borderRadius: "20px", background: "#25D366" }}>≡ƒô▒ WhatsApp</Button>
                      </div>
                   </div>
                </div>
@@ -2632,7 +2588,7 @@ export default function App() {
                            </Card>
 
                            <div>
-                              <h4 style={{ color: COLORS.secondary, marginBottom: "12px", fontSize: "12px", opacity: 0.6 }}>🌾 HISTORICAL FARMER PURCHASE TRACE</h4>
+                              <h4 style={{ color: COLORS.secondary, marginBottom: "12px", fontSize: "12px", opacity: 0.6 }}>≡ƒî╛ HISTORICAL FARMER PURCHASE TRACE</h4>
                               <div style={{ overflowX: "auto", background: "#fff", borderRadius: "20px", border: "1px solid #f1f5f9" }}>
                                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
                                     <thead>
@@ -2654,7 +2610,7 @@ export default function App() {
                                             <td style={{ padding: "10px" }}>{h.lot}</td>
                                             <td style={{ padding: "10px" }}>{h.product}</td>
                                             <td style={{ padding: "10px", textAlign: "right" }}>{h.qty}</td>
-                                            <td style={{ padding: "10px", textAlign: "right", color: COLORS.success, fontWeight: "700" }}>₹{h.rate}</td>
+                                            <td style={{ padding: "10px", textAlign: "right", color: COLORS.success, fontWeight: "700" }}>Γé╣{h.rate}</td>
                                          </tr>
                                        ))}
                                     </tbody>
@@ -2664,10 +2620,10 @@ export default function App() {
 
                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                               {[
-                                 { l: "Total Weight", v: `${(buyerHistory.totalWeight || 32400).toLocaleString()} KG`, i: "📈" },
-                                 { l: "Total Lifetime", v: formatCurrency((buyerHistory.totalWeight || 32400) * 45), i: "💰" },
-                                 { l: "Pref. Product", v: "Mango Alphonso", i: "🥭" },
-                                 { l: "Trust Status", v: "Very High", i: "🎯", col: COLORS.success }
+                                 { l: "Total Weight", v: `${(buyerHistory.totalWeight || 32400).toLocaleString()} KG`, i: "≡ƒôê" },
+                                 { l: "Total Lifetime", v: formatCurrency((buyerHistory.totalWeight || 32400) * 45), i: "≡ƒÆ░" },
+                                 { l: "Pref. Product", v: "Mango Alphonso", i: "≡ƒÑ¡" },
+                                 { l: "Trust Status", v: "Very High", i: "≡ƒÄ»", col: COLORS.success }
                               ].map((x, i) => (
                                  <div key={i} style={{ background: "#fff", padding: "16px", borderRadius: "16px", border: "1px solid #f1f5f9" }}>
                                     <small style={{ fontWeight: "800", opacity: 0.5, fontSize: "9px", display: "block", marginBottom: "4px" }}>{x.i} {x.l}</small>
@@ -2679,7 +2635,7 @@ export default function App() {
                      ) : <p style={{ textAlign: "center", opacity: 0.5, padding: "40px" }}>Link a buyer to view historical purchase intelligence.</p>}
                   </div>
 
-                  <Card title="📑 Recent Invoices" subtitle="History of past 30 days">
+                  <Card title="≡ƒôæ Recent Invoices" subtitle="History of past 30 days">
                      <div className="menu-scroll" style={{ maxHeight: "500px", overflowY: "auto" }}>
                         {[
                            { no: "INV-2026-X01", buyer: "Harsha Wholesale", amt: 125400, date: "24/03", status: "Paid" },
@@ -2767,7 +2723,7 @@ export default function App() {
                                     <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>ITEM DESCRIPTION</th>
                                     <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, textAlign: "right", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>WEIGHT (KG)</th>
                                     <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, textAlign: "right", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>UNIT RATE</th>
-                                    <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, textAlign: "right", width: "180px", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>NET AMOUNT (₹)</th>
+                                    <th style={{ padding: "18px", border: `1.5px solid ${COLORS.secondary}15`, textAlign: "right", width: "180px", color: COLORS.secondary, fontWeight: "900", fontSize: "11px", textTransform: "uppercase" }}>NET AMOUNT (Γé╣)</th>
                                  </tr>
                               </thead>
                               <tbody>
@@ -2779,7 +2735,7 @@ export default function App() {
                                                onClick={() => removeSettlementRow(idx)}
                                                style={{ background: "none", border: "none", color: COLORS.primary, cursor: "pointer", fontWeight: "900", fontSize: "16px" }}
                                                title="Remove Item"
-                                            >✕</button>
+                                            >Γ£ò</button>
                                          ) : <span style={{ fontWeight: "900", opacity: 0.3 }}>-</span>}
                                       </td>
                                       <td style={{ padding: "10px", border: `1px solid ${COLORS.secondary}10`, minWidth: "250px" }}>
@@ -2810,7 +2766,7 @@ export default function App() {
                                                ) : (
                                                   <span style={{ fontSize: "11px", color: COLORS.muted, fontWeight: "600" }}>{item.lineItem?.variety}</span>
                                                )}
-                                               <span style={{ fontSize: "10px", opacity: 0.4 }}>•</span>
+                                               <span style={{ fontSize: "10px", opacity: 0.4 }}>ΓÇó</span>
                                                <span style={{ fontSize: "10px", color: COLORS.muted }}>Lot: {item.lotRef?.lotId || "N/A"}</span>
                                             </div>
                                          </div>
@@ -2833,7 +2789,7 @@ export default function App() {
                                       <td style={{ padding: "10px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right" }}>
                                          {!isBillLocked ? (
                                             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                                               <span style={{ fontSize: "12px", opacity: 0.5, marginRight: "4px" }}>₹</span>
+                                               <span style={{ fontSize: "12px", opacity: 0.5, marginRight: "4px" }}>Γé╣</span>
                                                <input 
                                                   type="number"
                                                   style={{ width: "80px", textAlign: "right", border: "1.5px solid transparent", borderBottomColor: COLORS.success, background: "#f0fdf4", borderRadius: "4px", fontWeight: "700", color: "#166534", padding: "4px 8px", outline: "none" }}
@@ -2842,7 +2798,7 @@ export default function App() {
                                                />
                                             </div>
                                          ) : (
-                                            <span style={{ color: COLORS.muted }}>₹{item.saleRate.toFixed(2)}</span>
+                                            <span style={{ color: COLORS.muted }}>Γé╣{item.saleRate.toFixed(2)}</span>
                                          )}
                                       </td>
                                       <td style={{ padding: "18px", border: `1px solid ${COLORS.secondary}10`, textAlign: "right", fontWeight: "900", color: COLORS.secondary }}>
@@ -2981,12 +2937,12 @@ export default function App() {
 
                   <div style={{ display: "flex", gap: "20px" }}>
                      {!isBillLocked ? (
-                       <Button style={{ flex: 2, height: "72px", fontSize: "22px", borderRadius: "20px", background: COLORS.primary, boxShadow: "0 8px 25px rgba(225, 29, 72, 0.3)" }} onClick={handleCreateFarmerBill}>🔥 Finalize & Issue Settlement Bill</Button>
+                       <Button style={{ flex: 2, height: "72px", fontSize: "22px", borderRadius: "20px", background: COLORS.primary, boxShadow: "0 8px 25px rgba(225, 29, 72, 0.3)" }} onClick={handleCreateFarmerBill}>≡ƒöÑ Finalize & Issue Settlement Bill</Button>
                      ) : (
                        <div style={{ display: "flex", gap: "16px", flex: 3 }}>
-                          <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "64px", fontSize: "16px", borderRadius: "18px" }}>🖨 Print Bill (Voucher)</Button>
-                          <Button onClick={() => alert("Sending WhatsApp...")} style={{ flex: 1, background: "#25D366", borderRadius: "18px" }}>📱 WhatsApp Details</Button>
-                          <Button variant="danger" onClick={() => handleVoidBill(farmerBillForm._id)} style={{ flex: 0.8, borderRadius: "18px" }}>🗑 Void Bill</Button>
+                          <Button variant="secondary" onClick={() => window.print()} style={{ flex: 1, height: "64px", fontSize: "16px", borderRadius: "18px" }}>≡ƒû¿ Print Bill (Voucher)</Button>
+                          <Button onClick={() => alert("Sending WhatsApp...")} style={{ flex: 1, background: "#25D366", borderRadius: "18px" }}>≡ƒô▒ WhatsApp Details</Button>
+                          <Button variant="danger" onClick={() => handleVoidBill(farmerBillForm._id)} style={{ flex: 0.8, borderRadius: "18px" }}>≡ƒùæ Void Bill</Button>
                        </div>
                      )}
                       <Button variant="outline" onClick={() => { 
@@ -3011,7 +2967,7 @@ export default function App() {
                   </div>
 
                   {/* Enhanced Traceability Panel */}
-                  <Card title="🌾 SOURCE TRACEABILITY MATRIX" subtitle="Verifiable buyer-farmer link log">
+                  <Card title="≡ƒî╛ SOURCE TRACEABILITY MATRIX" subtitle="Verifiable buyer-farmer link log">
                       <div style={{ overflowX: "auto" }}>
                          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" }}>
                             <thead>
@@ -3031,7 +2987,7 @@ export default function App() {
                                     <td style={{ padding: "16px" }}>{row.lineItem?.product}</td>
                                     <td style={{ padding: "16px" }}><span style={{ color: COLORS.accent, fontWeight: "800" }}>{row.lotRef?.lotId}</span></td>
                                     <td style={{ padding: "16px", textAlign: "right", fontWeight: "700" }}>{row.quantity}</td>
-                                    <td style={{ padding: "16px", textAlign: "right", color: COLORS.success }}><b>₹{row.saleRate}</b></td>
+                                    <td style={{ padding: "16px", textAlign: "right", color: COLORS.success }}><b>Γé╣{row.saleRate}</b></td>
                                     <td style={{ padding: "16px", fontSize: "11px", borderRadius: "0 12px 12px 0" }}>{new Date(row.createdAt).toLocaleDateString()}</td>
                                  </tr>
                                ))}
@@ -3052,16 +3008,16 @@ export default function App() {
                      boxShadow: "0 20px 40px rgba(0,0,0,0.05)"
                   }}>
                      <h3 style={{ margin: "0 0 20px 0", display: "flex", alignItems: "center", gap: "10px" }}>
-                        <span style={{ fontSize: "24px" }}>🧬</span> Farmer Intelligence
+                        <span style={{ fontSize: "24px" }}>≡ƒº¼</span> Farmer Intelligence
                      </h3>
                      {farmerHistory ? (
                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                           {[
-                            { label: "Lifetime Volume", value: `${(farmerHistory.totalQty || 12400).toLocaleString()} KG`, icon: "📦" },
-                            { label: "Trust Score", value: "98/100", icon: "💎", col: COLORS.success },
-                            { label: "Gross Payouts", value: formatCurrency(farmerHistory.totalGross || 850000), icon: "💰" },
-                            { label: "Avg Cycle Days", value: "14 Days", icon: "📅" },
-                            { label: "Current Liabilities", value: formatCurrency(farmerHistory.pendingBalance || 0), icon: "📉", col: COLORS.danger }
+                            { label: "Lifetime Volume", value: `${(farmerHistory.totalQty || 12400).toLocaleString()} KG`, icon: "≡ƒôª" },
+                            { label: "Trust Score", value: "98/100", icon: "≡ƒÆÄ", col: COLORS.success },
+                            { label: "Gross Payouts", value: formatCurrency(farmerHistory.totalGross || 850000), icon: "≡ƒÆ░" },
+                            { label: "Avg Cycle Days", value: "14 Days", icon: "≡ƒôà" },
+                            { label: "Current Liabilities", value: formatCurrency(farmerHistory.pendingBalance || 0), icon: "≡ƒôë", col: COLORS.danger }
                           ].map((item, i) => (
                             <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#fff", borderRadius: "20px", border: "1px solid #f1f5f9" }}>
                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -3076,7 +3032,7 @@ export default function App() {
                   </div>
 
                   <Card style={{ borderRadius: "32px", padding: "32px" }}>
-                     <h3 style={{ margin: "0 0 24px 0" }}>📜 Archival Records</h3>
+                     <h3 style={{ margin: "0 0 24px 0" }}>≡ƒô£ Archival Records</h3>
                      <div className="menu-scroll" style={{ maxHeight: "600px", overflowY: "auto" }}>
                         {farmerBillsList.length > 0 ? farmerBillsList.map(bill => (
                           <div key={bill._id} style={{ 
@@ -3117,15 +3073,15 @@ export default function App() {
                     <button 
                        onClick={() => setLedgerTab("Farmer")}
                        style={{ padding: "10px 24px", borderRadius: "8px", fontWeight: "800", fontSize: "14px", border: "none", cursor: "pointer", transition: "0.2s", background: ledgerTab === "Farmer" ? COLORS.primary : "transparent", color: ledgerTab === "Farmer" ? "#fff" : COLORS.muted }}
-                    >👨‍🌾 Farmer Ledger</button>
+                    >≡ƒæ¿ΓÇì≡ƒî╛ Farmer Ledger</button>
                     <button 
                        onClick={() => setLedgerTab("Buyer")}
                        style={{ padding: "10px 24px", borderRadius: "8px", fontWeight: "800", fontSize: "14px", border: "none", cursor: "pointer", transition: "0.2s", background: ledgerTab === "Buyer" ? COLORS.primary : "transparent", color: ledgerTab === "Buyer" ? "#fff" : COLORS.muted }}
-                    >🛒 Buyer Ledger</button>
+                    >≡ƒ¢Æ Buyer Ledger</button>
                  </div>
                  <div style={{ display: "flex", gap: "12px" }}>
-                    <Button variant="outline" onClick={() => setShowCorrectionModal(true)} style={{ borderColor: COLORS.accent, color: COLORS.accent, background: "#fff" }}>✍️ Add Correction Entry</Button>
-                    <Button variant="secondary" onClick={() => window.print()} style={{ background: "#0f172a", color: "#fff", border: "none" }}>🖨 Print / PDF Export</Button>
+                    <Button variant="outline" onClick={() => setShowCorrectionModal(true)} style={{ borderColor: COLORS.accent, color: COLORS.accent, background: "#fff" }}>Γ£ì∩╕Å Add Correction Entry</Button>
+                    <Button variant="secondary" onClick={() => window.print()} style={{ background: "#0f172a", color: "#fff", border: "none" }}>≡ƒû¿ Print / PDF Export</Button>
                  </div>
               </div>
 
@@ -3167,25 +3123,17 @@ export default function App() {
               <div className="printable-area" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
                  <Card style={{ background: "#f8fafc", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: COLORS.muted, textTransform: "uppercase" }}>Total Volume Transacted</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#0f172a", fontSize: "28px" }}>
-                       { (lots && lots.length > 0) ? lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight) || 0), 0) : 24500 }
-                       <span style={{ fontSize: "14px", color: COLORS.muted }}> KG</span>
-                    </h2>
+                    <h2 style={{ margin: "5px 0 0", color: "#0f172a", fontSize: "28px" }}>24,500 <span style={{ fontSize: "14px", color: COLORS.muted }}>KG</span></h2>
                  </Card>
                  <Card style={{ background: "#f0fdf4", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: "#166534", textTransform: "uppercase" }}>Total Payments {ledgerTab === "Farmer" ? "Settled" : "Received"}</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#15803d", fontSize: "28px" }}>
-                       {formatCurrency((lots && lots.length > 0) ? (lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight || 0) * Number(current?.lineItems?.[0]?.estimatedRate || 0)), 0) * 0.8) : 1250000)}
-                    </h2>
+                    <h2 style={{ margin: "5px 0 0", color: "#15803d", fontSize: "28px" }}>{formatCurrency(1250000)}</h2>
                  </Card>
                  <Card style={{ background: "#fef2f2", border: "none" }}>
                     <p style={{ margin: 0, fontWeight: "800", fontSize: "12px", color: "#991b1b", textTransform: "uppercase" }}>{ledgerTab === "Farmer" ? "Outstanding Dues to Farmer" : "Outstanding Balance (Due from Buyer)"}</p>
-                    <h2 style={{ margin: "5px 0 0", color: "#b91c1c", fontSize: "28px" }}>
-                       {formatCurrency((lots && lots.length > 0) ? (lots.reduce((acc, current) => acc + (Number(current?.lineItems?.[0]?.grossWeight || 0) * Number(current?.lineItems?.[0]?.estimatedRate || 0)), 0) * 0.2) : 185000)}
-                    </h2>
+                    <h2 style={{ margin: "5px 0 0", color: "#b91c1c", fontSize: "28px" }}>{formatCurrency(185000)}</h2>
                  </Card>
               </div>
-
 
               {/* Main Ledger Book */}
               <Card style={{ padding: "0", overflow: "hidden" }} className="printable-area">
@@ -3198,12 +3146,12 @@ export default function App() {
                                 <th style={{ padding: "16px" }}>Lot / Trace ID</th>
                                 <th style={{ padding: "16px" }}>Bill No.</th>
                                 <th style={{ padding: "16px", width: "200px" }}>Product(s) Summary</th>
-                                <th style={{ padding: "16px", textAlign: "right", color: "#60a5fa" }}>Gross Sale (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", color: "#fca5a5" }}>Expenses (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", color: "#86efac" }}>Net Sale (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", background: "rgba(255,255,255,0.05)" }}>Advance (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", background: "rgba(255,255,255,0.1)" }}>Payment Made (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: COLORS.secondary+ "20", color: COLORS.secondary }}>Running Balance (₹)</th>
+                                <th style={{ padding: "16px", textAlign: "right", color: "#60a5fa" }}>Gross Sale (Γé╣)</th>
+                                <th style={{ padding: "16px", textAlign: "right", color: "#fca5a5" }}>Expenses (Γé╣)</th>
+                                <th style={{ padding: "16px", textAlign: "right", color: "#86efac" }}>Net Sale (Γé╣)</th>
+                                <th style={{ padding: "16px", textAlign: "right", background: "rgba(255,255,255,0.05)" }}>Advance (Γé╣)</th>
+                                <th style={{ padding: "16px", textAlign: "right", background: "rgba(255,255,255,0.1)" }}>Payment Made (Γé╣)</th>
+                                <th style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: COLORS.secondary+ "20", color: COLORS.secondary }}>Running Balance (Γé╣)</th>
                              </tr>
                           </thead>
                           <tbody>
@@ -3236,9 +3184,9 @@ export default function App() {
                                 <th style={{ padding: "16px" }}>Invoice No.</th>
                                 <th style={{ padding: "16px", width: "250px" }}>Fruit / Variety</th>
                                 <th style={{ padding: "16px", textAlign: "right" }}>Quantity (KG)</th>
-                                <th style={{ padding: "16px", textAlign: "right" }}>Invoice Amount (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", color: "#86efac" }}>Payment Received (₹)</th>
-                                <th style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: "rgba(239, 68, 68, 0.2)", color: "#fca5a5" }}>Outstanding Balance (₹)</th>
+                                <th style={{ padding: "16px", textAlign: "right" }}>Invoice Amount (Γé╣)</th>
+                                <th style={{ padding: "16px", textAlign: "right", color: "#86efac" }}>Payment Received (Γé╣)</th>
+                                <th style={{ padding: "16px", textAlign: "right", fontWeight: "900", background: "rgba(239, 68, 68, 0.2)", color: "#fca5a5" }}>Outstanding Balance (Γé╣)</th>
                              </tr>
                           </thead>
                           <tbody>
@@ -3279,7 +3227,7 @@ export default function App() {
                          <Button onClick={() => setCorrectionForm({...correctionForm, type: "credit"})} variant={correctionForm.type === "credit" ? "primary" : "outline"} style={{ flex: 1 }}>Account Credit (+)</Button>
                       </div>
 
-                      <Input label="Correction Amount (₹)" type="number" placeholder="e.g. 500" value={correctionForm.amount} onChange={e => setCorrectionForm({...correctionForm, amount: e.target.value})} />
+                      <Input label="Correction Amount (Γé╣)" type="number" placeholder="e.g. 500" value={correctionForm.amount} onChange={e => setCorrectionForm({...correctionForm, amount: e.target.value})} />
                       
                       <label style={{ fontSize: "12px", fontWeight: "800", color: COLORS.secondary, marginBottom: "8px", display: "block", marginTop: "10px" }}>Reason / Justification</label>
                       <textarea 
@@ -3294,7 +3242,7 @@ export default function App() {
                          <Button 
                             style={{ flex: 2, background: "#ef4444" }} 
                             onClick={() => {
-                               alert("✅ Correction Entry logically applied to the " + ledgerTab + " ledger and sent for admin review.");
+                               alert("Γ£à Correction Entry logically applied to the " + ledgerTab + " ledger and sent for admin review.");
                                setShowCorrectionModal(false);
                             }}
                          >Authorize Correction</Button>
@@ -3335,11 +3283,11 @@ export default function App() {
                        <button 
                           onClick={() => setPaymentTab("Buyer")}
                           style={{ padding: "12px 30px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "800", background: paymentTab === "Buyer" ? COLORS.primary : "transparent", color: paymentTab === "Buyer" ? "#fff" : COLORS.muted, transition: "0.2s" }}
-                       >📥 Buyer Payments (Incoming)</button>
+                       >≡ƒôÑ Buyer Payments (Incoming)</button>
                        <button 
                           onClick={() => setPaymentTab("Farmer")}
                           style={{ padding: "12px 30px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "800", background: paymentTab === "Farmer" ? COLORS.primary : "transparent", color: paymentTab === "Farmer" ? "#fff" : COLORS.muted, transition: "0.2s" }}
-                       >📤 Farmer Payments (Outgoing)</button>
+                       >≡ƒôñ Farmer Payments (Outgoing)</button>
                     </div>
 
                     {paymentTab === "Buyer" ? (
@@ -3368,7 +3316,7 @@ export default function App() {
                                    <option>Cash</option><option>UPI / Scan</option><option>Bank Transfer</option><option>Cheque / NEFT</option>
                                 </select>
                              </div>
-                             <Input label="Amount Received (₹)" type="number" placeholder="0.00" value={buyerPaymentForm.amountReceived} onChange={e => setBuyerPaymentForm({...buyerPaymentForm, amountReceived: e.target.value})} />
+                             <Input label="Amount Received (Γé╣)" type="number" placeholder="0.00" value={buyerPaymentForm.amountReceived} onChange={e => setBuyerPaymentForm({...buyerPaymentForm, amountReceived: e.target.value})} />
                              
                              <Input label="Reference No. / UPI ID" placeholder="TXN12345678" value={buyerPaymentForm.referenceNo} onChange={e => setBuyerPaymentForm({...buyerPaymentForm, referenceNo: e.target.value})} />
                              <Input label="Collected By" placeholder="Staff Name" value={buyerPaymentForm.collectedBy} onChange={e => setBuyerPaymentForm({...buyerPaymentForm, collectedBy: e.target.value})} />
@@ -3391,7 +3339,7 @@ export default function App() {
 
                           <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
                              <Button style={{ flex: 1, height: "56px", fontSize: "16px" }} onClick={handleRecordBuyerPayment}>Confirm & Log Payment</Button>
-                             <Button variant="secondary" style={{ width: "140px" }}>🖨 Print Receipt</Button>
+                             <Button variant="secondary" style={{ width: "140px" }}>≡ƒû¿ Print Receipt</Button>
                           </div>
                        </Card>
                     ) : (
@@ -3420,7 +3368,7 @@ export default function App() {
                                    <option>Bank Transfer</option><option>Cash</option><option>UPI / PhonePe</option><option>Cheque Payment</option>
                                 </select>
                              </div>
-                             <Input label="Amount (₹)" type="number" placeholder="0.00" value={farmerPaymentForm.amount} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, amount: e.target.value})} />
+                             <Input label="Amount (Γé╣)" type="number" placeholder="0.00" value={farmerPaymentForm.amount} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, amount: e.target.value})} />
                              
                              <Input label="UPI Ref / Cheque No." placeholder="REF# 992200..." value={farmerPaymentForm.referenceNo} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, referenceNo: e.target.value})} />
                              <div>
@@ -3473,7 +3421,7 @@ export default function App() {
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                    <span style={{ fontSize: "14px", fontWeight: "900", color: "#991b1b" }}>{formatCurrency(alert.due)}</span>
-                                   <button style={{ background: "none", border: "none", color: COLORS.primary, fontWeight: "800", fontSize: "11px", cursor: "pointer" }}>Send Notice 📲</button>
+                                   <button style={{ background: "none", border: "none", color: COLORS.primary, fontWeight: "800", fontSize: "11px", cursor: "pointer" }}>Send Notice ≡ƒô▓</button>
                                 </div>
                              </div>
                           ))}
@@ -3513,11 +3461,11 @@ export default function App() {
                     <button 
                        onClick={() => setTransportTab("Inward")}
                        style={{ padding: "12px 24px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "800", background: transportTab === "Inward" ? COLORS.primary : "transparent", color: transportTab === "Inward" ? "#fff" : COLORS.muted, transition: "0.2s" }}
-                    >🛣️ Inward (Farmer ⮕ Mandi)</button>
+                    >≡ƒ¢ú∩╕Å Inward (Farmer Γ«ò Mandi)</button>
                     <button 
                        onClick={() => setTransportTab("Outward")}
                        style={{ padding: "12px 24px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "800", background: transportTab === "Outward" ? COLORS.primary : "transparent", color: transportTab === "Outward" ? "#fff" : COLORS.muted, transition: "0.2s" }}
-                    >🏁 Outward (Mandi ⮕ Buyer)</button>
+                    >≡ƒÅü Outward (Mandi Γ«ò Buyer)</button>
                  </div>
                  
                  <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
@@ -3527,9 +3475,9 @@ export default function App() {
                           style={{ padding: "12px 16px 12px 40px", borderRadius: "12px", border: "1.5px solid #e2e8f0", width: "260px", outline: "none", fontWeight: "600" }}
                           value={transportFilter} onChange={e => setTransportFilter(e.target.value)}
                        />
-                       <span style={{ position: "absolute", left: "14px", top: "12px", opacity: 0.4 }}>🔍</span>
+                       <span style={{ position: "absolute", left: "14px", top: "12px", opacity: 0.4 }}>≡ƒöì</span>
                     </div>
-                    <Button variant="secondary" onClick={() => alert("Generating Daily Dispatch Summary Report...")}>📄 Dispatch Report</Button>
+                    <Button variant="secondary" onClick={() => alert("Generating Daily Dispatch Summary Report...")}>≡ƒôä Dispatch Report</Button>
                  </div>
               </div>
 
@@ -3560,7 +3508,7 @@ export default function App() {
                              <Input label="Departure Date/Time" type="datetime-local" value={inwardTransportForm.departureTime} onChange={e => setInwardTransportForm({...inwardTransportForm, departureTime: e.target.value})} />
                              <Input label="Arrival Date/Time" type="datetime-local" value={inwardTransportForm.arrivalTime} onChange={e => setInwardTransportForm({...inwardTransportForm, arrivalTime: e.target.value})} />
                              
-                             <Input label="Freight Amount (₹)" type="number" placeholder="5,500" value={inwardTransportForm.freightAmount} onChange={e => setInwardTransportForm({...inwardTransportForm, freightAmount: e.target.value})} />
+                             <Input label="Freight Amount (Γé╣)" type="number" placeholder="5,500" value={inwardTransportForm.freightAmount} onChange={e => setInwardTransportForm({...inwardTransportForm, freightAmount: e.target.value})} />
                              <div>
                                 <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Freight Paid By</label>
                                 <div style={{ display: "flex", gap: "8px" }}>
@@ -3598,7 +3546,7 @@ export default function App() {
                              <Input label="Dispatch Date/Time" type="datetime-local" value={outwardTransportForm.dispatchTime} onChange={e => setOutwardTransportForm({...outwardTransportForm, dispatchTime: e.target.value})} />
                              
                              <Input label="Delivery Date/Time (Optional)" type="datetime-local" value={outwardTransportForm.deliveryTime} onChange={e => setOutwardTransportForm({...outwardTransportForm, deliveryTime: e.target.value})} />
-                             <Input label="Freight Amount (₹)" type="number" placeholder="1,200" value={outwardTransportForm.freightAmount} onChange={e => setOutwardTransportForm({...outwardTransportForm, freightAmount: e.target.value})} />
+                             <Input label="Freight Amount (Γé╣)" type="number" placeholder="1,200" value={outwardTransportForm.freightAmount} onChange={e => setOutwardTransportForm({...outwardTransportForm, freightAmount: e.target.value})} />
                              
                              <div>
                                 <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Freight Paid By</label>
@@ -3645,7 +3593,7 @@ export default function App() {
                                       {truck.origin} <br />
                                       {truck.time}
                                    </div>
-                                   <span style={{ fontSize: "11px", fontWeight: "800", color: truck.status === "Delayed" ? "#ef4444" : COLORS.primary }}>● {truck.status}</span>
+                                   <span style={{ fontSize: "11px", fontWeight: "800", color: truck.status === "Delayed" ? "#ef4444" : COLORS.primary }}>ΓùÅ {truck.status}</span>
                                 </div>
                              </div>
                           ))}
@@ -3657,14 +3605,14 @@ export default function App() {
                           <div>
                              <p style={{ fontSize: "12px", marginBottom: "15px" }}>Showing history for: <b>{transportFilter}</b></p>
                              <div style={{ padding: "12px", border: "1px solid #f1f5f9", borderRadius: "10px", fontSize: "12px" }}>
-                                📅 22/03 - Inward (Farmer A)<br />
-                                📅 24/03 - Outward (Buyer B)<br />
-                                <span style={{ color: COLORS.primary, cursor: "pointer", fontWeight: "800", display: "block", marginTop: "10px" }}>View Full Profile →</span>
+                                ≡ƒôà 22/03 - Inward (Farmer A)<br />
+                                ≡ƒôà 24/03 - Outward (Buyer B)<br />
+                                <span style={{ color: COLORS.primary, cursor: "pointer", fontWeight: "800", display: "block", marginTop: "10px" }}>View Full Profile ΓåÆ</span>
                              </div>
                           </div>
                        ) : (
                           <div style={{ textAlign: "center", padding: "20px", opacity: 0.5 }}>
-                             <span style={{ fontSize: "24px" }}>🔍</span>
+                             <span style={{ fontSize: "24px" }}>≡ƒöì</span>
                              <p style={{ fontSize: "11px", margin: "10px 0 0" }}>Enter a vehicle number above to view its complete log history.</p>
                           </div>
                        )}
@@ -3698,7 +3646,7 @@ export default function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <label style={{ fontSize: "12px", fontWeight: "800", color: COLORS.primary, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px", position: "relative", paddingLeft: "12px" }}>
-                        <span style={{ position: "absolute", left: 0, top: "2px", color: COLORS.accent }}>♦</span>
+                        <span style={{ position: "absolute", left: 0, top: "2px", color: COLORS.accent }}>ΓÖª</span>
                         CATEGORY
                       </label>
                       <select style={{ backgroundColor: "rgba(255,255,255,0.7)", border: "2px solid #e2e8f0", borderRadius: "12px", padding: "16px", fontSize: "15px", color: COLORS.text, outline: "none", width: "100%" }}
@@ -3711,7 +3659,7 @@ export default function App() {
                         <option value="Miscellaneous">Miscellaneous</option>
                       </select>
                     </div>
-                    <Input label="Amount Paid" type="number" placeholder="₹" value={expenseForm.amount} onChange={e => setExpenseForm({...expenseForm, amount: e.target.value})} />
+                    <Input label="Amount Paid" type="number" placeholder="Γé╣" value={expenseForm.amount} onChange={e => setExpenseForm({...expenseForm, amount: e.target.value})} />
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px", marginBottom: "12px" }}>
                     <Input label="Related Lot #" placeholder="Optional (TRX Link)" value={expenseForm.lotId} onChange={e => setExpenseForm({...expenseForm, lotId: e.target.value})} />
@@ -3738,7 +3686,7 @@ export default function App() {
                   <Input label="PAN Number" placeholder="Alpha-Numeric PAN" />
                   <Input label="Voter ID (Optional)" placeholder="Election ID #" />
                   <div style={{ padding: "40px", border: "3px dashed #f1f5f9", borderRadius: "20px", textAlign: "center", cursor: "pointer", marginBottom: "20px" }}>
-                    📁 Upload Identity Documents (Scan/Photo)
+                    ≡ƒôü Upload Identity Documents (Scan/Photo)
                   </div>
                   <Button style={{ width: "100%" }}>Run KYC Audit</Button>
                 </div>
@@ -3775,7 +3723,7 @@ export default function App() {
           {/* 15. Reports */}
           {activeSection === "Reports" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "slideUp 0.5s ease-out" }}>
-                {/* 📊 Intelligence Metric Cards */}
+                {/* ≡ƒôè Intelligence Metric Cards */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
                    <Card style={{ background: COLORS.secondary, color: "#fff", border: "none" }}>
                       <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "850", letterSpacing: "1px" }}>Today's Total Intake</p>
@@ -3805,7 +3753,7 @@ export default function App() {
                       <p style={{ margin: 0, fontSize: "11px", color: COLORS.muted, textTransform: "uppercase", fontWeight: "900", letterSpacing: "1px" }}>Total Farmer Outstanding</p>
                       <h2 style={{ margin: "8px 0 0", color: "#991b1b", fontSize: "36px", fontWeight: "900" }}>{formatCurrency(845000)}</h2>
                       <div style={{ marginTop: "12px", borderTop: `1px solid ${COLORS.secondary}10`, paddingTop: "8px", fontSize: "11px", fontWeight: "800", color: "#ef4444" }}>
-                         🛑 42 Suppliers with pending settlement balances
+                         ≡ƒ¢æ 42 Suppliers with pending settlement balances
                       </div>
                    </Card>
                 </div>
@@ -3816,10 +3764,10 @@ export default function App() {
                      <Card title="Business Intelligence Hub" subtitle="Generate, download and share audited records">
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                            {[
-                              { t: "Supplier Transaction Log", i: "🚜", d: "Date-wise intake & payment history" },
-                              { t: "Buyer Credit Analysis", i: "📈", d: "Outstanding aging & payment patterns" },
-                              { t: "Operational P&L Statement", i: "💹", d: "Revenue vs Expenses vs Commission" },
-                              { t: "Logistics Efficiency Report", i: "🚚", d: "Freight costs & vehicle utilization" },
+                              { t: "Supplier Transaction Log", i: "≡ƒÜ£", d: "Date-wise intake & payment history" },
+                              { t: "Buyer Credit Analysis", i: "≡ƒôê", d: "Outstanding aging & payment patterns" },
+                              { t: "Operational P&L Statement", i: "≡ƒÆ╣", d: "Revenue vs Expenses vs Commission" },
+                              { t: "Logistics Efficiency Report", i: "≡ƒÜÜ", d: "Freight costs & vehicle utilization" },
                            ].map((rep, i) => (
                               <div key={i} style={{ padding: "20px", background: "#f8fafc", borderRadius: "16px", border: "1.5px solid #e2e8f0", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.borderColor=COLORS.primary} onMouseOut={e=>e.currentTarget.style.borderColor="#e2e8f0"}>
                                  <div style={{ fontSize: "24px", marginBottom: "10px" }}>{rep.i}</div>
@@ -3885,7 +3833,7 @@ export default function App() {
                         onClick={() => setActiveConfigTab(tab)}
                         style={{ padding: "12px 28px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "850", transition: "0.2s", background: activeConfigTab === tab ? COLORS.primary : "transparent", color: activeConfigTab === tab ? "#fff" : COLORS.muted }}
                      >
-                        {tab === "Product" ? "🍏 Product Catalog" : tab === "Expense" ? "💸 Expense Masters" : "⚙️ System Settings"}
+                        {tab === "Product" ? "≡ƒìÅ Product Catalog" : tab === "Expense" ? "≡ƒÆ╕ Expense Masters" : "ΓÜÖ∩╕Å System Settings"}
                      </button>
                   ))}
                </div>
@@ -3946,7 +3894,7 @@ export default function App() {
                                  </div>
                                  <div style={{ marginTop: "12px", display: "flex", gap: "6px" }}>
                                     {p.grades.map(g => (
-                                       <span key={g} style={{ fontSize: "10px", color: COLORS.primary, fontWeight: "900" }}>• {g}</span>
+                                       <span key={g} style={{ fontSize: "10px", color: COLORS.primary, fontWeight: "900" }}>ΓÇó {g}</span>
                                     ))}
                                  </div>
                               </div>
@@ -3965,7 +3913,7 @@ export default function App() {
                               <div>
                                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Calculation Type</label>
                                  <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                                    <option>Percentage (%)</option><option>Fixed Amount (₹)</option>
+                                    <option>Percentage (%)</option><option>Fixed Amount (Γé╣)</option>
                                  </select>
                               </div>
                               <Input label="Default Value" placeholder="e.g. 4" value={newExpenseForm.defaultValue} onChange={e=>setNewExpenseForm({...newExpenseForm, defaultValue: e.target.value})} />
@@ -4007,7 +3955,7 @@ export default function App() {
                   <Card title="Global Governance & System Settings" subtitle="Branding, financial rules and automated communication">
                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>📦 Core Branding</h4>
+                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>≡ƒôª Core Branding</h4>
                            <Input label="Business Name" value={systemSettings.businessName} onChange={e=>setSystemSettings({...systemSettings, businessName: e.target.value})} />
                            <Input label="Business Address" value={systemSettings.address} onChange={e=>setSystemSettings({...systemSettings, address: e.target.value})} />
                            <div style={{ padding: "12px", border: "2px dashed #e2e8f0", borderRadius: "10px", textAlign: "center", fontSize: "11px" }}>
@@ -4016,20 +3964,20 @@ export default function App() {
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>💰 Financial Defaults</h4>
+                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>≡ƒÆ░ Financial Defaults</h4>
                            <Input label="Global Default Commission (%)" type="number" value={systemSettings.defaultCommission} onChange={e=>setSystemSettings({...systemSettings, defaultCommission: e.target.value})} />
                            <Input label="Standard Payment Terms" placeholder="7 Days" value={systemSettings.buyerPaymentTerms} onChange={e=>setSystemSettings({...systemSettings, buyerPaymentTerms: e.target.value})} />
                            <div>
                               <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Financial Year Cycle</label>
                               <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                                 <option>April–March (India)</option>
-                                 <option>January–December</option>
+                                 <option>AprilΓÇôMarch (India)</option>
+                                 <option>JanuaryΓÇôDecember</option>
                               </select>
                            </div>
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>📑 Documentation & Comms</h4>
+                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>≡ƒôæ Documentation & Comms</h4>
                            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "10px" }}>
                               <Input label="Invoice Prefix" value={systemSettings.invoicePrefix} onChange={e=>setSystemSettings({...systemSettings, invoicePrefix: e.target.value})} />
                               <Input label="Start #" placeholder="101" />
@@ -4042,7 +3990,7 @@ export default function App() {
                         </div>
                      </div>
                      <div style={{ marginTop: "40px", borderTop: "1.5px solid #f1f5f9", paddingTop: "24px", display: "flex", justifyContent: "flex-end" }}>
-                        <Button style={{ padding: "14px 40px" }} onClick={() => alert("💿 SYSTEM CONFIGURATION COLD-BOOTED: All settings persisted.")}>Commit Global Settings</Button>
+                        <Button style={{ padding: "14px 40px" }} onClick={() => alert("≡ƒÆ┐ SYSTEM CONFIGURATION COLD-BOOTED: All settings persisted.")}>Commit Global Settings</Button>
                      </div>
                   </Card>
                )}
@@ -4060,7 +4008,7 @@ export default function App() {
                         onClick={() => setActiveSecurityTab(tab)}
                         style={{ padding: "12px 28px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "850", transition: "0.2s", background: activeSecurityTab === tab ? COLORS.primary : "transparent", color: activeSecurityTab === tab ? "#fff" : COLORS.muted }}
                      >
-                        {tab === "Staff Hub" ? "👥 Staff Identity Hub" : tab === "Permissions" ? "🛡️ Role Matrix" : "🔐 Security Guard"}
+                        {tab === "Staff Hub" ? "≡ƒæÑ Staff Identity Hub" : tab === "Permissions" ? "≡ƒ¢í∩╕Å Role Matrix" : "≡ƒöÉ Security Guard"}
                      </button>
                   ))}
                </div>
@@ -4104,7 +4052,7 @@ export default function App() {
                                  <tr key={u.id} style={{ borderBottom: "1px solid #f8fafc" }}>
                                     <td style={{ padding: "12px" }}>
                                        <div style={{ fontWeight: "750" }}>{u.name}</div>
-                                       <div style={{ fontSize: "10px", color: COLORS.muted }}>{u.id} • <span style={{ color: u.status === "Active" ? "#22c55e" : "#ef4444" }}>{u.status}</span></div>
+                                       <div style={{ fontSize: "10px", color: COLORS.muted }}>{u.id} ΓÇó <span style={{ color: u.status === "Active" ? "#22c55e" : "#ef4444" }}>{u.status}</span></div>
                                     </td>
                                     <td style={{ padding: "12px" }}>
                                        <span style={{ fontSize: "11px", background: u.role === "Admin" ? "#fef3c7" : "#f1f5f9", padding: "4px 10px", borderRadius: "8px", fontWeight: "800" }}>{u.role}</span>
@@ -4162,7 +4110,7 @@ export default function App() {
                         </tbody>
                      </table>
                      <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "10px", padding: "16px", background: "#fff9eb", borderRadius: "12px", border: "1px solid #feebc8" }}>
-                        <span style={{ fontSize: "20px" }}>⚠️</span>
+                        <span style={{ fontSize: "20px" }}>ΓÜá∩╕Å</span>
                         <p style={{ margin: 0, fontSize: "12px", color: "#92400e" }}>Modifying the Access Matrix will force-logout all active sessions to re-apply JWT tokens.</p>
                      </div>
                   </Card>
@@ -4176,11 +4124,11 @@ export default function App() {
                               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                                  <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                                     <div style={{ padding: "8px", background: log.status === "SUCCESS" ? "#dcfce7" : "#fee2e2", borderRadius: "8px", color: log.status === "SUCCESS" ? "#166534" : "#991b1b" }}>
-                                       {log.status === "SUCCESS" ? "✅" : "🚫"}
+                                       {log.status === "SUCCESS" ? "Γ£à" : "≡ƒÜ½"}
                                     </div>
                                     <div>
                                        <div style={{ fontWeight: "800", fontSize: "13px" }}>{log.action}</div>
-                                       <div style={{ fontSize: "11px", color: COLORS.muted }}>By {log.user} • {log.timestamp}</div>
+                                       <div style={{ fontSize: "11px", color: COLORS.muted }}>By {log.user} ΓÇó {log.timestamp}</div>
                                     </div>
                                  </div>
                                  <button style={{ background: "none", border: "none", color: COLORS.primary, fontWeight: "800", fontSize: "11px", cursor: "pointer" }}>VIEW DETAILS</button>
@@ -4256,7 +4204,7 @@ export default function App() {
                                    <b style={{ color: COLORS.primary, fontSize: "15px" }}>{farmer.name}</b>
                                    <span style={{ fontSize: "10px", background: COLORS.secondary, color: "#fff", padding: "4px 8px", borderRadius: "12px", fontWeight: "800" }}>VERIFIED</span>
                                 </div>
-                                <span style={{fontSize: "12px", color: COLORS.muted, display: "block", marginTop: "4px", fontWeight: "600"}}>📱 {farmer.phone} • 📍 {farmer.village}</span>
+                                <span style={{fontSize: "12px", color: COLORS.muted, display: "block", marginTop: "4px", fontWeight: "600"}}>≡ƒô▒ {farmer.phone} ΓÇó ≡ƒôì {farmer.village}</span>
                              </div>
                          ))}
                       </div>
@@ -4274,7 +4222,7 @@ export default function App() {
                          </div>
                          <div style={{ background: "rgba(255,255,255,0.05)", padding: "16px 24px", borderRadius: "20px", textAlign: "right", minWidth: "150px" }}>
                             <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "1.5px", opacity: 0.6, fontWeight: "800", marginBottom: "4px" }}>Pending Settlement</div>
-                            <b style={{ fontSize: "28px", color: "#fbbf24", fontWeight: "900" }}>₹ 45,200</b>
+                            <b style={{ fontSize: "28px", color: "#fbbf24", fontWeight: "900" }}>Γé╣ 45,200</b>
                          </div>
                       </div>
 
@@ -4283,9 +4231,9 @@ export default function App() {
                             { l: "Lots Supplied", v: "14", c: "#fff", bg: "rgba(255,255,255,0.1)" },
                             { l: "QTY Supplied", v: "8,500 KG", c: "#fff", bg: "rgba(255,255,255,0.1)" },
                             { l: "QTY Sold", v: "7,900 KG", c: COLORS.secondary, bg: "rgba(159,180,67,0.1)" },
-                            { l: "Gross Sale", v: "₹ 4,25,000", c: "#fff", bg: "rgba(255,255,255,0.1)" },
-                            { l: "Expenses Deducted", v: "₹ 21,250", c: "#fca5a5", bg: "rgba(248, 113, 113, 0.1)" },
-                            { l: "Net Paid", v: "₹ 3,58,550", c: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
+                            { l: "Gross Sale", v: "Γé╣ 4,25,000", c: "#fff", bg: "rgba(255,255,255,0.1)" },
+                            { l: "Expenses Deducted", v: "Γé╣ 21,250", c: "#fca5a5", bg: "rgba(248, 113, 113, 0.1)" },
+                            { l: "Net Paid", v: "Γé╣ 3,58,550", c: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
                             { l: "Last Supply Date", v: "24/03/2026", c: "#fff", bg: "rgba(255,255,255,0.1)" }
                          ].map((x,i) => (
                             <div key={i} style={{ padding: "16px", background: x.bg, borderRadius: "16px" }}>
@@ -4298,7 +4246,7 @@ export default function App() {
                    ) : (
                    <Card style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "250px", color: COLORS.muted, background: "rgba(255,255,255,0.5)", backdropFilter: "blur(20px)" }}>
                       <div style={{ textAlign: "center" }}>
-                         <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>🔗</span>
+                         <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>≡ƒöù</span>
                          <h3 style={{ margin: 0, color: COLORS.sidebar }}>Connection Matrix Standby</h3>
                          <p style={{ margin: "8px 0 0 0", fontSize: "14px" }}>Select a farmer to generate exhaustive traceability intelligence.</p>
                       </div>
@@ -4310,10 +4258,10 @@ export default function App() {
                 <>
                 {/* SMART ALERT */}
                 <div style={{ background: "#fef2f2", color: "#991b1b", padding: "18px 24px", borderRadius: "20px", border: "1.5px solid #fecaca", display: "flex", alignItems: "center", gap: "16px", fontWeight: "800", boxShadow: "0 10px 20px rgba(220, 38, 38, 0.05)" }}>
-                   <span style={{ fontSize: "24px" }}>⚠️</span>
+                   <span style={{ fontSize: "24px" }}>ΓÜá∩╕Å</span>
                    <div>
                       <div style={{ fontSize: "14px", letterSpacing: "0.5px" }}>HIGH RISK ALERTS LINKED TO CURRENT PRODUCE:</div>
-                      <div style={{ fontSize: "12px", opacity: 0.8, fontWeight: "600", marginTop: "4px" }}>Buyer <b>'Reliance Fresh'</b> holds pending ₹1,45,000 affecting the liquidation of this farmer's supply. Escalate collection strategy.</div>
+                      <div style={{ fontSize: "12px", opacity: 0.8, fontWeight: "600", marginTop: "4px" }}>Buyer <b>'Reliance Fresh'</b> holds pending Γé╣1,45,000 affecting the liquidation of this farmer's supply. Escalate collection strategy.</div>
                    </div>
                 </div>
 
@@ -4338,8 +4286,8 @@ export default function App() {
                                      <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>PRODUCE SPEC</th>
                                      <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>QTY (KG)</th>
                                      <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>BUYER IDENTITY</th>
-                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>RATE (₹)</th>
-                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>AMOUNT (₹)</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>RATE (Γé╣)</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>AMOUNT (Γé╣)</th>
                                      <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>PAID</th>
                                      <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px", color: "#fbbf24" }}>BALANCE</th>
                                      <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px" }}>INVOICE</th>
@@ -4347,12 +4295,12 @@ export default function App() {
                                </thead>
                                <tbody>
                                   {/* Row 1 */}
-                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Reliance Fresh", phone: "9959012345", address: "Stall #102, Market Yard", totalPurchases: "₹ 4.5L", preferredProducts: ["Mango Alphonso (80%)", "Banana Yelakki (20%)"], paymentBehavior: "Delayed (15 days average)", outstanding: "₹ 1,45,000" })}>
+                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Reliance Fresh", phone: "9959012345", address: "Stall #102, Market Yard", totalPurchases: "Γé╣ 4.5L", preferredProducts: ["Mango Alphonso (80%)", "Banana Yelakki (20%)"], paymentBehavior: "Delayed (15 days average)", outstanding: "Γé╣ 1,45,000" })}>
                                      <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>24/03/2026</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Tuesday, 6:45 AM</span></td>
                                      <td style={{ padding: "16px", color: COLORS.primary, fontWeight: "900" }}>LOT-2026-X11</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Mango</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Alphonso • A Grade</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Mango</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Alphonso ΓÇó A Grade</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "13px" }}>1,200</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Reliance Fresh</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9959012345 • Stall #102</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Reliance Fresh</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9959012345 ΓÇó Stall #102</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", color: COLORS.success, fontWeight: "900", fontSize: "13px" }}>45.00</td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", fontSize: "13px" }}>54,000</td>
                                      <td style={{ padding: "16px", textAlign: "right" }}><b style={{ fontSize: "13px" }}>24,000</b><br/><span style={{ color: "#3b82f6", fontSize: "10px", fontWeight: "800", display: "inline-block", padding: "2px 6px", background: "#eff6ff", borderRadius: "6px", marginTop: "2px" }}>UPI Transfer</span></td>
@@ -4360,12 +4308,12 @@ export default function App() {
                                      <td style={{ padding: "16px" }}><span style={{ color: "#fff", background: "#334155", padding: "6px 10px", borderRadius: "8px", fontWeight: "800", fontSize: "10px" }}>INV-2026-X01</span></td>
                                   </tr>
                                   {/* Row 2 */}
-                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Harsha Wholesale", phone: "9898989898", address: "Stall #45, New Block", totalPurchases: "₹ 1.2L", preferredProducts: ["Banana Yelakki (100%)"], paymentBehavior: "Excellent (Same day cash)", outstanding: "₹ 0" })}>
+                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Harsha Wholesale", phone: "9898989898", address: "Stall #45, New Block", totalPurchases: "Γé╣ 1.2L", preferredProducts: ["Banana Yelakki (100%)"], paymentBehavior: "Excellent (Same day cash)", outstanding: "Γé╣ 0" })}>
                                      <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>23/03/2026</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Monday, 8:15 AM</span></td>
                                      <td style={{ padding: "16px", color: COLORS.primary, fontWeight: "900" }}>LOT-2026-X09</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Banana</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Yelakki • Premium</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Banana</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Yelakki ΓÇó Premium</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "13px" }}>850</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Harsha Wholesale</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9898989898 • Stall #45</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Harsha Wholesale</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9898989898 ΓÇó Stall #45</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", color: COLORS.success, fontWeight: "900", fontSize: "13px" }}>32.00</td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", fontSize: "13px" }}>27,200</td>
                                      <td style={{ padding: "16px", textAlign: "right" }}><b style={{ fontSize: "13px" }}>27,200</b><br/><span style={{ color: COLORS.success, fontSize: "10px", fontWeight: "800", display: "inline-block", padding: "2px 6px", background: "#f0fdf4", borderRadius: "6px", marginTop: "2px" }}>Cash Payment</span></td>
@@ -4386,8 +4334,8 @@ export default function App() {
                                <div style={{ background: "#f8fafc", padding: "24px", borderRadius: "20px", border: "1.5px solid #e2e8f0" }}>
                                   <h3 style={{ margin: "0 0 8px 0", color: COLORS.sidebar, fontSize: "20px" }}>{connSelectedBuyer.name}</h3>
                                   <div style={{ fontSize: "13px", color: COLORS.muted, fontWeight: "600", display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    <span>📞 {connSelectedBuyer.phone}</span>
-                                    <span>📍 {connSelectedBuyer.address}</span>
+                                    <span>≡ƒô₧ {connSelectedBuyer.phone}</span>
+                                    <span>≡ƒôì {connSelectedBuyer.address}</span>
                                   </div>
                                   
                                   <div style={{ marginTop: "24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
@@ -4397,13 +4345,13 @@ export default function App() {
                                      </div>
                                      <div>
                                         <small style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Unsettled Balance</small>
-                                        <div style={{ fontSize: "18px", fontWeight: "900", color: connSelectedBuyer.outstanding === "₹ 0" ? COLORS.success : COLORS.danger, marginTop: "4px" }}>{connSelectedBuyer.outstanding}</div>
+                                        <div style={{ fontSize: "18px", fontWeight: "900", color: connSelectedBuyer.outstanding === "Γé╣ 0" ? COLORS.success : COLORS.danger, marginTop: "4px" }}>{connSelectedBuyer.outstanding}</div>
                                      </div>
                                   </div>
                                </div>
                                <div>
                                   <small style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>Payment Habit Indicator</small>
-                                  <div style={{ padding: "16px", background: connSelectedBuyer.outstanding === "₹ 0" ? "#f0fdf4" : "#fef3c7", color: connSelectedBuyer.outstanding === "₹ 0" ? "#166534" : "#b45309", borderRadius: "16px", fontSize: "13px", fontWeight: "800" }}>
+                                  <div style={{ padding: "16px", background: connSelectedBuyer.outstanding === "Γé╣ 0" ? "#f0fdf4" : "#fef3c7", color: connSelectedBuyer.outstanding === "Γé╣ 0" ? "#166534" : "#b45309", borderRadius: "16px", fontSize: "13px", fontWeight: "800" }}>
                                      {connSelectedBuyer.paymentBehavior}
                                   </div>
                                </div>
@@ -4418,7 +4366,7 @@ export default function App() {
                             </div>
                          ) : (
                             <div style={{ textAlign: "center", opacity: 0.5, padding: "60px 0" }}>
-                               <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>👉</span>
+                               <span style={{ fontSize: "48px", display: "block", marginBottom: "16px" }}>≡ƒæë</span>
                                <p style={{ fontWeight: "600", fontSize: "15px", lineHeight: "1.5" }}>Click any transaction row in the matrix to unmask buyer intelligence.</p>
                             </div>
                          )}
@@ -4438,7 +4386,7 @@ export default function App() {
                             </div>
                             <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
                                <span>Supplies Cleared: <b style={{color: COLORS.text}}>4,000 KG</b></span>
-                               <span>Yield Rate: <b style={{color: COLORS.success}}>₹ 42.50 Avg</b></span>
+                               <span>Yield Rate: <b style={{color: COLORS.success}}>Γé╣ 42.50 Avg</b></span>
                             </div>
                             <div style={{ marginTop: "12px", fontSize: "12px", color: COLORS.text, background: "#fff", padding: "10px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>Major Acquirer: <b style={{ color: COLORS.primary }}>Harsha Wholesale (45%)</b></div>
                          </div>
@@ -4450,7 +4398,7 @@ export default function App() {
                             </div>
                             <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
                                <span>Supplies Cleared: <b style={{color: COLORS.text}}>2,500 KG</b></span>
-                               <span>Yield Rate: <b style={{color: COLORS.success}}>₹ 31.00 Avg</b></span>
+                               <span>Yield Rate: <b style={{color: COLORS.success}}>Γé╣ 31.00 Avg</b></span>
                             </div>
                             <div style={{ marginTop: "12px", fontSize: "12px", color: COLORS.text, background: "#fff", padding: "10px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>Major Acquirer: <b style={{ color: COLORS.primary }}>Reliance Fresh (82%)</b></div>
                          </div>
@@ -4462,30 +4410,30 @@ export default function App() {
                       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
                             <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Gross Generated</span>
-                            <b style={{ fontSize: "20px", color: COLORS.sidebar }}>₹ 4,25,000</b>
+                            <b style={{ fontSize: "20px", color: COLORS.sidebar }}>Γé╣ 4,25,000</b>
                          </div>
                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
                             <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.success, textTransform: "uppercase" }}>Amount Liquidated</span>
-                            <b style={{ fontSize: "20px", color: COLORS.success }}>₹ 3,45,000</b>
+                            <b style={{ fontSize: "20px", color: COLORS.success }}>Γé╣ 3,45,000</b>
                          </div>
                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
                             <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.danger, textTransform: "uppercase" }}>Deficit Balance</span>
-                            <b style={{ fontSize: "20px", color: COLORS.danger }}>₹ 80,000</b>
+                            <b style={{ fontSize: "20px", color: COLORS.danger }}>Γé╣ 80,000</b>
                          </div>
                          
                          <div style={{ marginTop: "8px" }}>
                             <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, letterSpacing: "1px", display: "block", marginBottom: "12px" }}>PAYMENT APPARATUS DISTRIBUTION</span>
                             <div style={{ display: "flex", gap: "12px" }}>
                                <div style={{ flex: 1, background: "#f8fafc", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #e2e8f0" }}>
-                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>💵</div>
+                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>≡ƒÆ╡</div>
                                   <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.sidebar }}>30% CASH</div>
                                </div>
                                <div style={{ flex: 1, background: "#f8fafc", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #e2e8f0" }}>
-                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>📱</div>
+                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>≡ƒô▒</div>
                                   <div style={{ fontSize: "11px", fontWeight: "900", color: "#3b82f6" }}>65% UPI</div>
                                </div>
                                <div style={{ flex: 1, background: "#fef2f2", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #fecaca" }}>
-                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>⏳</div>
+                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>ΓÅ│</div>
                                   <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.danger }}>5% DEBT</div>
                                </div>
                             </div>
@@ -4516,7 +4464,7 @@ export default function App() {
                          </table>
                       </div>
                       <div style={{ marginTop: "24px", background: "rgba(159, 180, 67, 0.1)", padding: "16px", borderRadius: "16px", border: `1px solid ${COLORS.secondary}40`, fontSize: "12px", color: COLORS.sidebar, fontWeight: "600", display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                         <span style={{ fontSize: "16px" }}>💡</span>
+                         <span style={{ fontSize: "16px" }}>≡ƒÆí</span>
                          <span>Insight: Produce supplied on Thursdays accounts for highest liquidation volumes despite late timing windows.</span>
                       </div>
                    </Card>
@@ -4542,7 +4490,7 @@ export default function App() {
                 <Button>Execute Lookup</Button>
               </div>
               <div style={{ padding: "100px", textAlign: "center", border: "2px solid #f1f5f9", borderRadius: "32px", marginTop: "40px", color: COLORS.muted }}>
-                <span style={{ fontSize: "48px" }}>🔎</span>
+                <span style={{ fontSize: "48px" }}>≡ƒöÄ</span>
                 <p>Results will populate here after a lookup is initialized.</p>
               </div>
             </Card>
@@ -4553,8 +4501,8 @@ export default function App() {
             <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "32px" }}>
               <Card title="Repository Vault" subtitle="Archive for physical bill scans and KYC docs">
                 <div style={{ padding: "60px", border: "4px dashed #f1f5f9", borderRadius: "32px", textAlign: "center", color: COLORS.muted, position: "relative" }}>
-                  <span style={{ fontSize: "64px" }}>📂</span>
-                  <h3 style={{ color: "#0f172a" }}>{uploading ? "⚡ Syncing Entry..." : "Vault Archive Queue"}</h3>
+                  <span style={{ fontSize: "64px" }}>≡ƒôé</span>
+                  <h3 style={{ color: "#0f172a" }}>{uploading ? "ΓÜí Syncing Entry..." : "Vault Archive Queue"}</h3>
                   <p>Click to browse or drag documents into storage.</p>
                   <input 
                     type="file" 
@@ -4575,17 +4523,17 @@ export default function App() {
                     documents.map((doc) => (
                       <div key={doc._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#f8fafc", borderRadius: "16px", marginBottom: "12px", border: "1px solid #e2e8f0" }}>
                         <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
-                          <span style={{ fontSize: "28px" }}>{doc.docType === "Produce Photo" ? "🖼️" : "📄"}</span>
+                          <span style={{ fontSize: "28px" }}>{doc.docType === "Produce Photo" ? "≡ƒû╝∩╕Å" : "≡ƒôä"}</span>
                           <div>
                             <p style={{ margin: 0, fontWeight: "800", fontSize: "14px" }}>{doc.originalName}</p>
-                            <small style={{ color: COLORS.muted }}>{doc.docType} • {(doc.fileSize / 1024).toFixed(1)} KB</small>
+                            <small style={{ color: COLORS.muted }}>{doc.docType} ΓÇó {(doc.fileSize / 1024).toFixed(1)} KB</small>
                           </div>
                         </div>
                         <div style={{ display: "flex", gap: "8px" }}>
                           <a href={doc.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
                             <Button variant="secondary" style={{ padding: "8px 12px", fontSize: "12px" }}>View</Button>
                           </a>
-                          <Button variant="danger" onClick={() => handleDeleteDoc(doc._id)} style={{ padding: "8px 12px", fontSize: "12px" }}>🗑️</Button>
+                          <Button variant="danger" onClick={() => handleDeleteDoc(doc._id)} style={{ padding: "8px 12px", fontSize: "12px" }}>≡ƒùæ∩╕Å</Button>
                         </div>
                       </div>
                     ))
