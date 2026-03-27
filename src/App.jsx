@@ -3314,12 +3314,29 @@ export default function App() {
               <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "32px" }}>
                 <div>
                   <h3>Register New Expense Entry</h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    <Input label="Amount Paid" placeholder="₹" />
-                    <Input label="Related Lot #" placeholder="Optional (TRX Link)" />
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <label style={{ fontSize: "12px", fontWeight: "800", color: COLORS.primary, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px", position: "relative", paddingLeft: "12px" }}>
+                        <span style={{ position: "absolute", left: 0, top: "2px", color: COLORS.accent }}>♦</span>
+                        CATEGORY
+                      </label>
+                      <select style={{ backgroundColor: "rgba(255,255,255,0.7)", border: "2px solid #e2e8f0", borderRadius: "12px", padding: "16px", fontSize: "15px", color: COLORS.text, outline: "none", width: "100%" }}
+                              value={expenseForm.category}
+                              onChange={(e) => setExpenseForm({...expenseForm, category: e.target.value})}>
+                        <option value="Labour">Labour</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Packing">Packing</option>
+                        <option value="Miscellaneous">Miscellaneous</option>
+                      </select>
+                    </div>
+                    <Input label="Amount Paid" type="number" placeholder="₹" value={expenseForm.amount} onChange={e => setExpenseForm({...expenseForm, amount: e.target.value})} />
                   </div>
-                  <Input label="Transaction Memo" placeholder="Fuel charges for Guntur route..." />
-                  <Button>Commit to Ledger</Button>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px", marginBottom: "12px" }}>
+                    <Input label="Related Lot #" placeholder="Optional (TRX Link)" value={expenseForm.lotId} onChange={e => setExpenseForm({...expenseForm, lotId: e.target.value})} />
+                  </div>
+                  <Input label="Transaction Memo" placeholder="Fuel charges for Guntur route..." value={expenseForm.memo} onChange={e => setExpenseForm({...expenseForm, memo: e.target.value})} />
+                  <Button onClick={handleCreateExpense} style={{ marginTop: "16px" }}>Commit to Ledger</Button>
                 </div>
                 <Card style={{ background: COLORS.secondary, color: "#fff" }}>
                   <h3>Audit Insights</h3>
