@@ -1535,16 +1535,16 @@ export default function App() {
         <div style={{ animation: "slideUp 0.6s ease-out", width:"100%", maxWidth:"520px", background:"#ffffff", borderRadius:"32px", padding:"40px 40px", boxShadow:"0 20px 60px rgba(0,0,0,0.04)", border:"1px solid #eef2ee", textAlign:"center" }}>
           
           <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
-            <div style={{ width: "90px", height: "90px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #f0f7f0" }}>
-              <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI Logo" style={{ width: "90%", height: "90%", objectFit: "contain", borderRadius: "50%" }} />
+            <div style={{ width: "90px", height: "90px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #f0f7f0", overflow: "hidden" }}>
+              <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           </div>
 
-          <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color:"#2d3a2d", fontSize:"38px", textTransform:"uppercase" }}>STACLI</h1>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "28px" }}>
-            <div style={{ height: "1px", width: "30px", background: "#d1dbd1" }} />
-            <span style={{ fontSize: "11px", fontWeight: "800", color: "#6b7c6b", letterSpacing: "2.5px", textTransform: "uppercase" }}>MANDI OS</span>
-            <div style={{ height: "1px", width: "30px", background: "#d1dbd1" }} />
+          <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color:"#1a1a1a", fontSize:"38px", textTransform:"uppercase" }}>STACLI</h1>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "32px" }}>
+            <div style={{ height: "1px", width: "30px", background: "#cbd5cb" }} />
+            <span style={{ fontSize: "11px", fontWeight: "900", color: "#1a1a1a", letterSpacing: "3px", textTransform: "uppercase" }}>MANDI OS</span>
+            <div style={{ height: "1px", width: "30px", background: "#cbd5cb" }} />
           </div>
 
           <div style={{ textAlign:"left" }}>
@@ -1553,11 +1553,11 @@ export default function App() {
               background: "#ffffff", 
               border: "1px solid #e5e9e5", 
               borderRadius: "18px", 
-              padding: "14px 18px", 
+              padding: "16px 18px", 
               display: "flex", 
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "24px",
+              marginBottom: "28px",
               boxShadow: "inset 0 2px 4px rgba(0,0,0,0.01)"
             }}>
               {[
@@ -1583,7 +1583,7 @@ export default function App() {
                         width: "14px",
                         height: "14px",
                         borderRadius: "50%",
-                        border: isSelected ? "4px solid #7db580" : "1.5px solid #d1dbd1",
+                        border: isSelected ? "4px solid #7db580" : "1.5px solid #cbd5cb",
                         background: "#fff",
                         display: "flex",
                         alignItems: "center",
@@ -1592,8 +1592,8 @@ export default function App() {
                       }} />
                       <span style={{ 
                         fontSize: "12px", 
-                        fontWeight: "750", 
-                        color: isSelected ? "#7db580" : "#9ca39c" 
+                        fontWeight: "800", 
+                        color: isSelected ? "#1a1a1a" : "#64748b" 
                       }}>
                         {r.id}
                       </span>
@@ -1603,25 +1603,25 @@ export default function App() {
               })}
             </div>
 
-            <div style={{ marginBottom:"20px" }}>
-              <label style={{ display:"block", fontSize:"12px", fontWeight:"700", color:"#3a4a3a", marginBottom:"10px" }}>Access ID (Email or Phone)</label>
+            <div style={{ marginBottom:"24px" }}>
+              <label style={{ display:"block", fontSize:"13px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Access ID (Email or Phone)</label>
               <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#cbd5cb", fontSize: "16px" }}>👤</span>
+                <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "16px" }}>👤</span>
                 <input 
                   className="stacli-input" 
                   type="text" 
                   placeholder="admin@stacli.io" 
                   value={authForm.username} 
                   onChange={e=>setAuthForm({...authForm,username:e.target.value})} 
-                  style={{ width:"100%", padding:"15px 15px 15px 48px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"14px", fontWeight:"600", color:"#2d372d", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                  style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"14px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
                 />
               </div>
             </div>
 
-            <div style={{ marginBottom:"28px" }}>
-              <label style={{ display:"block", fontSize:"12px", fontWeight:"700", color:"#3a4a3a", marginBottom:"10px" }}>Secure Passkey</label>
+            <div style={{ marginBottom:"32px" }}>
+              <label style={{ display:"block", fontSize:"13px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Secure Passkey</label>
               <div style={{ position: "relative" }}>
-                 <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#cbd5cb", fontSize: "16px" }}>🔒</span>
+                 <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "16px" }}>🔒</span>
                  <input 
                    className="stacli-input" 
                    type="password" 
@@ -1629,7 +1629,7 @@ export default function App() {
                    value={authForm.password} 
                    onChange={e=>setAuthForm({...authForm,password:e.target.value})} 
                    onKeyDown={e=>e.key==="Enter"&&handleLogin()} 
-                   style={{ width:"100%", padding:"15px 15px 15px 48px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"14px", fontWeight:"600", color:"#2d372d", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                   style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"14px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
                  />
               </div>
             </div>
@@ -1640,13 +1640,13 @@ export default function App() {
             onClick={handleLogin} 
             style={{ 
               width:"100%", 
-              height:"62px", 
-              fontSize:"18px", 
+              height:"64px", 
+              fontSize:"20px", 
               fontWeight:"900", 
               background: "linear-gradient(to right, #7db580, #5d8c60)",
               color:"#ffffff", 
               border:"none", 
-              borderRadius:"16px", 
+              borderRadius:"18px", 
               cursor:"pointer", 
               letterSpacing:"0.5px", 
               boxShadow:"0 12px 30px rgba(125, 181, 128, 0.2)"
@@ -1655,10 +1655,10 @@ export default function App() {
             Login
           </button>
 
-          <div style={{ marginTop:"32px", textAlign: "center" }}>
-            <p style={{ fontSize:"12px", color:"#9ca39c", fontWeight:"700", opacity: 0.8 }}>Restricted Access · Authorized Personnel Only</p>
-            <div style={{ marginTop: "20px" }}>
-              <a href="#" style={{ fontSize: "12px", color: "#7db580", fontWeight: "750", textDecoration: "none", borderBottom: "1.5px solid #eef2ee", paddingBottom: "2px" }}>Back to Store</a>
+          <div style={{ marginTop:"40px", textAlign: "center" }}>
+            <p style={{ fontSize:"13px", color:"#475569", fontWeight:"700", opacity: 0.9 }}>Restricted Access · Authorized Personnel Only</p>
+            <div style={{ marginTop: "24px" }}>
+              <a href="#" style={{ fontSize: "13px", color: "#1a1a1a", fontWeight: "800", textDecoration: "none", borderBottom: "1.5px solid #eef2ee", paddingBottom: "2px" }}>Back to Store</a>
             </div>
           </div>
         </div>
