@@ -1507,10 +1507,12 @@ export default function App() {
     { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation" },
     { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff"], label: "Supplier Billing" },
     { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff"], label: "Customer Billing" },
-    { id: "Supplier Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Supplier Ledger" },
-    { id: "Customer Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Customer Ledger" },
-    { id: "Supplier Payments", roles: ["Owner / Admin", "Operations Staff"], label: "Supplier Payments" },
-    { id: "Buyer Payments", roles: ["Owner / Admin", "Operations Staff"], label: "Buyer Payments" },
+    { id: "Supplier Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Ledger System (Overview)" },
+    { id: "Supplier Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Supplier Ledger", isSub: true },
+    { id: "Customer Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Customer Ledger", isSub: true },
+    { id: "Supplier Payments", roles: ["Owner / Admin", "Operations Staff"], label: "Payments & Settlement" },
+    { id: "Supplier Payments", roles: ["Owner / Admin", "Operations Staff"], label: "Supplier Payment", isSub: true },
+    { id: "Buyer Payments", roles: ["Owner / Admin", "Operations Staff"], label: "Customer Payment", isSub: true },
     { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "Transportation Tracking" },
     { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff"], label: "Dashboard & Reports" }
   ];
