@@ -2556,26 +2556,37 @@ export default function App() {
                           <input type="date" value={buyerInvoiceForm.date} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, date: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Buyer Name (M/s)</label>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Customer Name</label>
                           <select value={buyerInvoiceForm.buyerId} onChange={e => {
                              const selectedBuyer = buyers.find(b => b._id === e.target.value);
                              setBuyerInvoiceForm({...buyerInvoiceForm, buyerId: e.target.value, buyerPhone: selectedBuyer ? selectedBuyer.phone : ""});
                           }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                             <option value="" disabled>Select Buyer</option>
+                             <option value="" disabled>Select Customer</option>
                              {buyers.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
                           </select>
                        </div>
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Buyer Phone</label>
-                          <input type="text" disabled value={buyerInvoiceForm.buyerPhone} placeholder="Auto-filled from profile" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Customer Phone</label>
+                          <input type="text" disabled value={buyerInvoiceForm.buyerPhone} placeholder="Auto-filled" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot Reference</label>
-                          <input type="text" value={buyerInvoiceForm.lotReference} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, lotReference: e.target.value})} placeholder="Which lot(s) the produce came from" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot Reference (Source)</label>
+                          <select value={buyerInvoiceForm.lotReference} onChange={e => {
+                              const selectedLotId = e.target.value;
+                              const matchedLot = lots.find(l => l.lotId === selectedLotId);
+                              setBuyerInvoiceForm({
+                                 ...buyerInvoiceForm,
+                                 lotReference: selectedLotId,
+                                 // If it's a new lot selection, we could potentially reset items or prefill one
+                              });
+                          }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                              <option value="">Select Lot ID</option>
+                              {lots.map(l => <option key={l._id || l.lotId} value={l.lotId}>{l.lotId} ({l.supplierId?.name || l.supplierId || "Farmer"})</option>)}
+                          </select>
                        </div>
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Transport / Bice No.</label>
-                          <input type="text" value={buyerInvoiceForm.transportBiceNo} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, transportBiceNo: e.target.value})} placeholder="Vehicle used for buyer's delivery" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <input type="text" value={buyerInvoiceForm.transportBiceNo} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, transportBiceNo: e.target.value})} placeholder="Vehicle for delivery" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
@@ -2593,7 +2604,29 @@ export default function App() {
                                {idx > 0 && <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#E11D48", fontWeight: "900", fontSize: "10px", background: "#FFF1F2", padding: "4px 8px", borderRadius: "6px" }} onClick={() => handleBuyerInvoiceItemAction("Remove", idx)}>✕ REMOVE</div>}
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", gridColumn: "span 2" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Product + Variety + Grade</label>
-                                  <input type="text" value={item.productInfo} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "productInfo", e.target.value)} placeholder="E.g. Mango - Nillam - A Grade" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                                  <select value={item.productInfo} onChange={(e) => {
+                                      const label = e.target.value;
+                                      const matchedLot = lots.find(l => l.lotId === buyerInvoiceForm.lotReference);
+                                      const matchedItem = matchedLot ? matchedLot.lineItems.find(li => `${li.product || li.productId || ''} ${li.variety || ''}`.trim() === label || `${li.productId || ''} ${li.variety || ''}`.trim() === label) : null;
+                                      
+                                      handleBuyerInvoiceItemAction("Update", idx, "productInfo", label);
+                                      if (matchedItem) {
+                                          handleBuyerInvoiceItemAction("Update", idx, "grossWeight", Math.max(0, (Number(matchedItem.grossWeight) || 0) - (Number(matchedItem.deductions) || 0)));
+                                          if (matchedItem.rate || matchedItem.estimatedRate) {
+                                              handleBuyerInvoiceItemAction("Update", idx, "rate", matchedItem.rate || matchedItem.estimatedRate);
+                                          }
+                                      }
+                                  }} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                                      <option value="">-- Choose available item from Lot --</option>
+                                      {(() => {
+                                          const currentLot = lots.find(l => l.lotId === buyerInvoiceForm.lotReference);
+                                          if (!currentLot) return <option disabled>Select a Lot ID in Step 1 first</option>;
+                                          return currentLot.lineItems.map((li, lIdx) => {
+                                              const itemName = `${li.product || li.productId || ''} ${li.variety || ''}`.trim() || 'Produce';
+                                              return <option key={lIdx} value={itemName}>{itemName} (Available: {(Number(li.grossWeight)||0) - (Number(li.deductions)||0)} KG)</option>;
+                                          });
+                                      })()}
+                                  </select>
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Gross Wt (KG)</label>
