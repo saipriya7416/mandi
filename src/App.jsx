@@ -280,7 +280,11 @@ export default function App() {
 
   // --- FORM STATES ---
   // --- FORM STATES & HANDLERS ---
-  const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", village: "", state: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+  const [supplierForm, setSupplierForm] = useState({ 
+    name: "", phone: "", village: "", state: "", 
+    aadhaar: "", pan: "", voterId: "",
+    bankAccount: "", ifsc: "", advanceBalance: "", notes: "" 
+  });
   const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
   const [lotCreationForm, setLotCreationForm] = useState({
     lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-001`,
@@ -301,10 +305,13 @@ export default function App() {
       phone: supplierForm.phone,
       village: supplierForm.village,
       state: supplierForm.state,
-      address: supplierForm.address || "unknown",
-      govIdNumber: supplierForm.govIdNumber || "N/A",
-      idType: supplierForm.idType || "Aadhaar",
-      notes: "Registered via Unified Dashboard",
+      aadhaar: supplierForm.aadhaar,
+      pan: supplierForm.pan,
+      voterId: supplierForm.voterId,
+      bankAccount: supplierForm.bankAccount,
+      ifsc: supplierForm.ifsc,
+      advanceBalance: supplierForm.advanceBalance,
+      notes: supplierForm.notes || "Registered via Profile Hub",
     };
     try {
       let res;
@@ -324,7 +331,11 @@ export default function App() {
 
   const handleCancelAll = (type) => {
     if (type === 'Supplier') {
-      setSupplierForm({ name: "", phone: "", village: "", state: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+      setSupplierForm({ 
+        name: "", phone: "", village: "", state: "", 
+        aadhaar: "", pan: "", voterId: "",
+        bankAccount: "", ifsc: "", advanceBalance: "", notes: "" 
+      });
       setIsEditingSupplier(false);
       setEditingSupplierId(null);
     } else {
@@ -341,10 +352,12 @@ export default function App() {
         phone: record.phone,
         village: record.village || "",
         state: record.state || "",
-        address: record.address || "",
-        govIdNumber: record.govIdNumber || "",
-        idType: record.idType || "Aadhaar",
-        bankDetails: record.bankDetails || "",
+        aadhaar: record.aadhaar || "",
+        pan: record.pan || "",
+        voterId: record.voterId || "",
+        bankAccount: record.bankAccount || "",
+        ifsc: record.ifsc || "",
+        advanceBalance: record.advanceBalance || "",
         notes: record.notes || ""
       });
       setIsEditingSupplier(true);
@@ -1606,18 +1619,18 @@ export default function App() {
                     {
                       title: "KYC Details",
                       fields: [
-                        { label: "Aadhaar Number", type: "number", placeholder: "12-digit (For KYC compliance)" },
-                        { label: "PAN Number", placeholder: "For high-value transactions" },
-                        { label: "Voter ID", placeholder: "Alternate ID" }
+                        { label: "Aadhaar Number", type: "number", placeholder: "12-digit (For KYC compliance)", value: supplierForm.aadhaar, onChange: e => setSupplierForm({...supplierForm, aadhaar: e.target.value}) },
+                        { label: "PAN Number", placeholder: "For high-value transactions", value: supplierForm.pan, onChange: e => setSupplierForm({...supplierForm, pan: e.target.value}) },
+                        { label: "Voter ID", placeholder: "Alternate ID", value: supplierForm.voterId, onChange: e => setSupplierForm({...supplierForm, voterId: e.target.value}) }
                       ]
                     },
                     {
                       title: "Bank Details",
                       fields: [
-                        { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements" },
-                        { label: "IFSC Code", placeholder: "Bank branch code" },
-                        { label: "Advance Balance (₹)", type: "number", placeholder: "Running advance held by SPV" },
-                        { label: "Notes", placeholder: "Free-form notes" }
+                        { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: e => setSupplierForm({...supplierForm, bankAccount: e.target.value}) },
+                        { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: e => setSupplierForm({...supplierForm, ifsc: e.target.value}) },
+                        { label: "Advance Balance (₹)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: e => setSupplierForm({...supplierForm, advanceBalance: e.target.value}) },
+                        { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: e => setSupplierForm({...supplierForm, notes: e.target.value}) }
                       ]
                     }
                   ]} />
