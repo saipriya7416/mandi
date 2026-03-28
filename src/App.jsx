@@ -1790,6 +1790,20 @@ export default function App() {
     );
   }
 
+  const displayCustomerLedger = [
+    ...buyerInvoices.map(inv => ({
+        _id: inv._id,
+        date: inv.date,
+        invoiceNo: inv.invoiceNumber,
+        fruitSummary: (inv.items || []).map(it => it.productInfo).join(", "),
+        quantityKg: (inv.items || []).reduce((s, i) => s + (Number(i.grossWeight) || 0), 0),
+        invoiceAmount: (inv.items || []).reduce((s, it) => s + (Math.max(0, (Number(it.grossWeight)||0) - (Number(it.deductions)||0)) * (Number(it.rate)||0)), 0) + Object.values(inv.charges || {}).reduce((s, v) => s + (Number(v) || 0), 0),
+        paymentReceived: Number(inv.amountReceived) || 0,
+        isInvoice: true
+    })),
+    ...customerLedgerEntries.map(e => ({...e, isInvoice: false}))
+  ].sort((a,b) => new Date(a.date) - new Date(b.date));
+
   return (
     <div style={{ 
       minHeight: "100vh", 
@@ -3170,8 +3184,8 @@ export default function App() {
                                </tr>
                             </thead>
                             <tbody>
-                               {customerLedgerEntries.map((entry, idx) => {
-                                  const runningBal = customerLedgerEntries.slice(0, idx+1).reduce((sum, curr) => sum + (Number(curr.invoiceAmount) || 0) - (Number(curr.paymentReceived) || 0), 0);
+                               {displayCustomerLedger.map((entry, idx) => {
+                                  const runningBal = displayCustomerLedger.slice(0, idx+1).reduce((sum, curr) => sum + (Number(curr.invoiceAmount) || 0) - (Number(curr.paymentReceived) || 0), 0);
                                   return (
                                      <tr key={entry._id || idx} style={{ background: "#FFFFFF" }}>
                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px" }}>{formatDate(entry.date)}</td>
@@ -3184,7 +3198,7 @@ export default function App() {
                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0", textAlign: "right" }}>
                                            <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
                                               <button onClick={() => { setCustomerLedgerForm(entry); setIsEditingLedgerEntry(true); setEditingLedgerEntryId(entry._id); }} style={{ padding: "6px 12px", borderRadius: "6px", background: "#F1F5F9", border: "none", color: COLORS.sidebar, fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Modify</button>
-                                              <button onClick={async () => { if(confirm("Delete ledger record?")) { await MandiService.deleteLedgerEntry(entry._id); fetchData(); } }} style={{ padding: "6px 12px", borderRadius: "6px", background: "#FEF2F2", border: "none", color: "#DC2626", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Delete</button>
+                                              {!entry.isInvoice && <button onClick={async () => { if(confirm("Delete ledger record?")) { await MandiService.deleteLedgerEntry(entry._id); fetchData(); } }} style={{ padding: "6px 12px", borderRadius: "6px", background: "#FEF2F2", border: "none", color: "#DC2626", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Delete</button>}
                                            </div>
                                         </td>
                                      </tr>
