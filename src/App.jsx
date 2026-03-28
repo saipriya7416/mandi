@@ -232,6 +232,25 @@ const FormGrid = ({ sections }) => (
 
 // --- MAIN ARCHITECTURE ---
 export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [authForm, setAuthForm] = useState({ username: "", password: "", role: "Owner / Admin" });
+
+  // --- DATA STORAGE STATES (CORE REPOSITORY) ---
+  const [suppliers, setSuppliers] = useState([]);
+  const [buyers, setBuyers] = useState([]);
+  const [lots, setLots] = useState([]);
+  const [allocations, setAllocations] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [supplierBills, setSupplierBills] = useState([]);
+  const [buyerInvoices, setBuyerInvoices] = useState([]);
+  const [ledgerEntries, setLedgerEntries] = useState([]);
+  const [farmerBillsList, setFarmerBillsList] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  
+  // --- UI & UI-STATE ---
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [activeSupplierTab, setActiveSupplierTab] = useState("Supplier Registration");
   const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
@@ -241,30 +260,29 @@ export default function App() {
   const [activeLedgerTab, setActiveLedgerTab] = useState("Supplier");
   const [activePaymentTab, setActivePaymentTab] = useState("Supplier");
   const [activeUserRoleTab, setActiveUserRoleTab] = useState("Supplier");
-  const [dispatchProduct, setDispatchProduct] = useState("");
-  const [dispatchType, setDispatchType] = useState("Fruits");
-  const [poProduct, setPoProduct] = useState("");
-  const [poType, setPoType] = useState("Fruits");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  const isAdmin = user?.role === "Owner / Admin";
-  const isAccountant = user?.role === "Accountant";
-  const isStaff = user?.role === "Operations Staff";
-  const isViewer = user?.role === "Viewer";
-  const [authForm, setAuthForm] = useState({ username: "", password: "", role: "Owner / Admin" });
-  const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+  const [invMode, setInvMode] = useState("Allocation");
+  const [weightDisplayMode, setWeightDisplayMode] = useState("COMPREHENSIVE");
+
+  // --- EDITING & MODAL STATES ---
   const [isEditingSupplier, setIsEditingSupplier] = useState(false);
   const [editingSupplierId, setEditingSupplierId] = useState(null);
   const [isEditingBuyer, setIsEditingBuyer] = useState(false);
   const [editingBuyerId, setEditingBuyerId] = useState(null);
-  const [payments, setPayments] = useState([]);
   const [isEditingPayment, setIsEditingPayment] = useState(false);
   const [editingPaymentId, setEditingPaymentId] = useState(null);
-  const [ledgerEntries, setLedgerEntries] = useState([]);
   const [isEditingLedgerEntry, setIsEditingLedgerEntry] = useState(false);
   const [editingLedgerEntryId, setEditingLedgerEntryId] = useState(null);
+  const [isEditingSupplierBill, setIsEditingSupplierBill] = useState(false);
+  const [editingSupplierBillId, setEditingSupplierBillId] = useState(null);
+  const [isBillLocked, setIsBillLocked] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState(false);
+
+  // --- FORM STATES & COMPLEX DATA ---
+  const [settlementData, setSettlementData] = useState([]);
+  const [buyerHistory, setBuyerHistory] = useState(null);
+  
   const [ledgerForm, setLedgerForm] = useState({
     date: getISTDate(),
     supplierId: "",
@@ -278,51 +296,43 @@ export default function App() {
     paymentMade: 0,
     notes: ""
   });
+  
+  const [farmerBillForm, setFarmerBillForm] = useState({
+     _id: null,
+     billNo: `FB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+     date: new Date().toISOString().slice(0, 10),
+     farmerId: "",
+     expenses: [
+        { label: "Commission (5%)", value: 0 },
+        { label: "Labour/Hamali", value: 0 },
+        { label: "Freight/Transport", value: 0 },
+        { label: "Market Fee", value: 0 }
+     ],
+     advance: 0,
+     netPayable: 0
+  });
 
-  // --- INITIALIZE SESSION ---
-  useEffect(() => {
-    const savedToken = localStorage.getItem("mandi_token");
-    const savedUser = localStorage.getItem("mandi_user");
-    if (savedToken && savedUser) {
-      setLoggedIn(true);
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
+  const [supplierSettlementForm, setSupplierSettlementForm] = useState({
+    billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
+    date: getISTDate(),
+    supplierId: "",
+    lotId: "",
+    vehicleNumber: "",
+    items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
+    expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
+  });
+  
+  const [dispatchProduct, setDispatchProduct] = useState("");
+  const [dispatchType, setDispatchType] = useState("Fruits");
+  const [poProduct, setPoProduct] = useState("");
+  const [poType, setPoType] = useState("Fruits");
+  
+  const isAdmin = user?.role === "Owner / Admin";
+  const isAccountant = user?.role === "Accountant";
+  const isStaff = user?.role === "Operations Staff";
+  const isViewer = user?.role === "Viewer";
 
-  // --- RESPONSIVE STATE MONITOR ---
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth <= 1024;
-      setIsMobile(mobile);
-      if (!mobile) setSidebarOpen(true);
-      else setSidebarOpen(false);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
-  // --- LEDGER AUTO-CALC EFFECT ---
-  useEffect(() => {
-    if (ledgerForm.lotId) {
-      const bill = supplierBills.find(b => b.lotId === ledgerForm.lotId);
-      if (bill) {
-        const gross = (bill.produce || []).reduce((sum, it) => sum + (Number(it.quantity || it.qty) * Number(it.rate)), 0);
-        const exVal = Object.values(bill.charges || {}).reduce((sum, v) => sum + (Number(v) || 0), 0);
-        const pSummary = (bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}kg`).join(", ");
-        
-        setLedgerForm(prev => ({
-          ...prev,
-          billNumber: bill.billNumber,
-          productSummary: pSummary,
-          grossSale: gross,
-          expenses: exVal,
-          netSale: gross - exVal,
-          supplierId: bill.supplierId
-        }));
-      }
-    }
-  }, [ledgerForm.lotId, supplierBills]);
 
   // --- FORM STATES ---
   // --- FORM STATES & HANDLERS ---
@@ -953,51 +963,7 @@ export default function App() {
     notes: ""
   });
 
-  // --- DATA STORAGE STATES ---
-  const [suppliers, setSuppliers] = useState([]);
-  const [buyers, setBuyers] = useState([]);
-  const [lots, setLots] = useState([]);
-  const [allocations, setAllocations] = useState([]);
-  const [documents, setDocuments] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [invMode, setInvMode] = useState("Allocation"); // "Intake" or "Allocation"
-  
-  // --- FARMER BILLING STATES ---
-  const [settlementData, setSettlementData] = useState([]);
-  const [isBillLocked, setIsBillLocked] = useState(false);
-  const [buyerHistory, setBuyerHistory] = useState(null);
-  const [weightDisplayMode, setWeightDisplayMode] = useState("COMPREHENSIVE"); // or "MINIMAL"
-  const [duplicateWarning, setDuplicateWarning] = useState(false);
-  const [farmerBillsList, setFarmerBillsList] = useState([]);
-  const [farmerBillForm, setFarmerBillForm] = useState({
-     _id: null,
-     billNo: `FB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-     date: new Date().toISOString().slice(0, 10),
-     farmerId: "",
-     expenses: [
-        { label: "Commission (5%)", value: 0 },
-        { label: "Labour/Hamali", value: 0 },
-        { label: "Freight/Transport", value: 0 },
-        { label: "Market Fee", value: 0 }
-     ],
-     advance: 0,
-     netPayable: 0
-  });
 
-  const [supplierSettlementForm, setSupplierSettlementForm] = useState({
-    billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
-    date: getISTDate(),
-    supplierId: "",
-    lotId: "",
-    vehicleNumber: "",
-    items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
-    expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
-  });
-
-  const [supplierBills, setSupplierBills] = useState([]);
-  const [buyerInvoices, setBuyerInvoices] = useState([]);
-  const [isEditingSupplierBill, setIsEditingSupplierBill] = useState(false);
-  const [editingSupplierBillId, setEditingSupplierBillId] = useState(null);
 
   const [buyerInvoiceForm, setBuyerInvoiceForm] = useState({
     invoiceNumber: `INV-${Math.floor(100+Math.random()*900)}`,
@@ -1662,6 +1628,55 @@ export default function App() {
     { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "Transportation Tracking" },
     { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff"], label: "Dashboard & Reports" }
   ];
+
+  // --- INITIALIZE SESSION ---
+  useEffect(() => {
+    const savedToken = localStorage.getItem("mandi_token");
+    const savedUser = localStorage.getItem("mandi_user");
+    if (savedToken && savedUser) {
+      setLoggedIn(true);
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (loggedIn) fetchData();
+  }, [loggedIn]);
+
+  // --- RESPONSIVE STATE MONITOR ---
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      if (!mobile) setSidebarOpen(true);
+      else setSidebarOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // --- LEDGER AUTO-CALC EFFECT ---
+  useEffect(() => {
+    if (ledgerForm.lotId && supplierBills.length > 0) {
+      const bill = supplierBills.find(b => b.lotId === ledgerForm.lotId);
+      if (bill) {
+        const gross = (bill.produce || []).reduce((sum, it) => sum + (Number(it.quantity || it.qty) * Number(it.rate)), 0);
+        const exVal = Object.values(bill.charges || {}).reduce((sum, v) => sum + (Number(v) || 0), 0);
+        const pSummary = (bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}kg`).join(", ");
+        
+        setLedgerForm(prev => ({
+          ...prev,
+          billNumber: bill.billNumber,
+          productSummary: pSummary,
+          grossSale: gross,
+          expenses: exVal,
+          netSale: gross - exVal,
+          supplierId: bill.supplierId
+        }));
+      }
+    }
+  }, [ledgerForm.lotId, supplierBills]);
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
 
