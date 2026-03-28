@@ -286,11 +286,14 @@ export default function App() {
   // --- FORM STATES ---
   // --- FORM STATES & HANDLERS ---
   const [supplierForm, setSupplierForm] = useState({ 
-    name: "", phone: "", village: "", state: "", 
+    name: "", phone: "", villageOrTown: "Village", villageOrTownName: "", district: "", state: "", 
     aadhaar: "", pan: "", voterId: "",
     bankAccount: "", ifsc: "", advanceBalance: "", notes: "" 
   });
-  const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", marketArea: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+  const [buyerForm, setBuyerForm] = useState({ 
+    name: "", shopName: "", phone: "", address: "", villageOrTown: "Village", villageOrTownName: "", district: "", state: "",
+    govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" 
+  });
   const [lotCreationForm, setLotCreationForm] = useState({
     lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-001`,
     dateTime: new Date().toISOString().slice(0, 16),
@@ -308,7 +311,8 @@ export default function App() {
     const payload = {
       name: supplierForm.name,
       phone: supplierForm.phone,
-      village: supplierForm.village,
+      village: supplierForm.villageOrTownName,
+      district: supplierForm.district,
       state: supplierForm.state,
       aadhaar: supplierForm.aadhaar,
       pan: supplierForm.pan,
@@ -337,14 +341,17 @@ export default function App() {
   const handleCancelAll = (type) => {
     if (type === 'Supplier') {
       setSupplierForm({ 
-        name: "", phone: "", village: "", state: "", 
+        name: "", phone: "", villageOrTown: "Village", villageOrTownName: "", district: "", state: "", 
         aadhaar: "", pan: "", voterId: "",
         bankAccount: "", ifsc: "", advanceBalance: "", notes: "" 
       });
       setIsEditingSupplier(false);
       setEditingSupplierId(null);
     } else {
-      setBuyerForm({ name: "", shopName: "", phone: "", address: "", marketArea: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+      setBuyerForm({ 
+        name: "", shopName: "", phone: "", address: "", villageOrTown: "Village", villageOrTownName: "", district: "", state: "",
+        govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" 
+      });
       setIsEditingBuyer(false);
       setEditingBuyerId(null);
     }
@@ -355,7 +362,9 @@ export default function App() {
       setSupplierForm({
         name: record.name,
         phone: record.phone,
-        village: record.village || "",
+        villageOrTown: record.villageOrTown || "Village",
+        villageOrTownName: record.village || "",
+        district: record.district || "",
         state: record.state || "",
         aadhaar: record.aadhaar || "",
         pan: record.pan || "",
@@ -373,7 +382,10 @@ export default function App() {
         shopName: record.shopName,
         phone: record.phone,
         address: record.address,
-        marketArea: record.marketArea || "",
+        villageOrTown: record.villageOrTown || "Village",
+        villageOrTownName: record.village || "",
+        district: record.district || "",
+        state: record.state || "",
         govIdNumber: record.govIdNumber || "",
         idType: record.idType || "Aadhaar",
         creditLimit: record.creditLimit || "",
@@ -546,7 +558,9 @@ export default function App() {
       phone: buyerForm.phone,
       address: buyerForm.address || "unknown",
       shopName: buyerForm.shopName || buyerForm.name,
-      marketArea: buyerForm.marketArea,
+      village: buyerForm.villageOrTownName,
+      district: buyerForm.district,
+      state: buyerForm.state,
       govIdNumber: buyerForm.govIdNumber || "N/A",
       creditLimit: Number(buyerForm.creditLimit) || 0,
       notes: "Registered via Unified Dashboard",
@@ -1854,8 +1868,10 @@ export default function App() {
                       fields: [
                         { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: e => setSupplierForm({...supplierForm, name: e.target.value}) },
                         { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: e => setSupplierForm({...supplierForm, phone: e.target.value}) },
-                        { label: "Village/Town *", type: "select", options: ["Guntur", "Madanapalle", "Tenali", "Narasaraopet", "Nagpur", "Nashik", "Pune", "Mumbai", "Surat", "Ahmedabad", "Rajkot", "Vadodara", "Varanasi", "Lucknow", "Kanpur", "Prayagraj", "Patna", "Gaya", "Ranchi", "Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain", "Azadpur", "Ghazipur", "Warangal", "Karimnagar", "Nizamabad", "Khammam", "Ramagundam", "Siddipet", "Medak", "Chikballapur", "Kolar", "Hassan", "Mysuru", "Hubli", "Belagavi", "Davanagere", "Anantapur", "Chittoor", "Kadapa", "Nellore", "Kurnool", "Ongole", "Tirupati"], value: supplierForm.village, onChange: e => setSupplierForm({...supplierForm, village: e.target.value}) },
-                        { label: "District / State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: e => setSupplierForm({...supplierForm, state: e.target.value}) }
+                        { label: "Location Type *", type: "select", options: ["Village", "Town"], value: supplierForm.villageOrTown, onChange: e => setSupplierForm({...supplierForm, villageOrTown: e.target.value}) },
+                        { label: `${supplierForm.villageOrTown} Name *`, placeholder: `Enter ${supplierForm.villageOrTown} Name`, value: supplierForm.villageOrTownName, onChange: e => setSupplierForm({...supplierForm, villageOrTownName: e.target.value}) },
+                        { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: e => setSupplierForm({...supplierForm, district: e.target.value}) },
+                        { label: "State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: e => setSupplierForm({...supplierForm, state: e.target.value}) }
                       ]
                     },
                     {
@@ -1923,7 +1939,10 @@ export default function App() {
                         { label: "Shop / Business Name *", placeholder: "Shop / Business Name", value: buyerForm.shopName, onChange: e => setBuyerForm({...buyerForm, shopName: e.target.value}) },
                         { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: e => setBuyerForm({...buyerForm, phone: e.target.value}) },
                         { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: e => setBuyerForm({...buyerForm, address: e.target.value}) },
-                        { label: "Market / Area *", type: "select", options: ["Guntur", "Madanapalle", "Tenali", "Narasaraopet", "Nagpur", "Nashik", "Pune", "Mumbai", "Surat", "Ahmedabad", "Rajkot", "Vadodara", "Varanasi", "Lucknow", "Kanpur", "Prayagraj", "Patna", "Gaya", "Ranchi", "Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain", "Azadpur", "Ghazipur", "Warangal", "Karimnagar", "Nizamabad", "Khammam", "Ramagundam", "Siddipet", "Medak", "Chikballapur", "Kolar", "Hassan", "Mysuru", "Hubli", "Belagavi", "Davanagere", "Anantapur", "Chittoor", "Kadapa", "Nellore", "Kurnool", "Ongole", "Tirupati"], value: buyerForm.marketArea, onChange: e => setBuyerForm({...buyerForm, marketArea: e.target.value}) },
+                        { label: "Location Type *", type: "select", options: ["Village", "Town"], value: buyerForm.villageOrTown, onChange: e => setBuyerForm({...buyerForm, villageOrTown: e.target.value}) },
+                        { label: `${buyerForm.villageOrTown} Name *`, placeholder: `Enter ${buyerForm.villageOrTown} Name`, value: buyerForm.villageOrTownName, onChange: e => setBuyerForm({...buyerForm, villageOrTownName: e.target.value}) },
+                        { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: e => setBuyerForm({...buyerForm, district: e.target.value}) },
+                        { label: "State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: e => setBuyerForm({...buyerForm, state: e.target.value}) },
                         { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: e => setBuyerForm({...buyerForm, govIdNumber: e.target.value}) }
                       ]
                     },
