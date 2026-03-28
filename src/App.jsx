@@ -262,6 +262,25 @@ export default function App() {
   const [payments, setPayments] = useState([]);
   const [isEditingPayment, setIsEditingPayment] = useState(false);
   const [editingPaymentId, setEditingPaymentId] = useState(null);
+  const [ledgerEntries, setLedgerEntries] = useState([]);
+  const [isEditingLedgerEntry, setIsEditingLedgerEntry] = useState(false);
+  const [editingLedgerEntryId, setEditingLedgerEntryId] = useState(null);
+  const [ledgerForm, setLedgerForm] = useState({
+    date: getISTDate(),
+    supplierId: "",
+    lotId: "",
+    billNumber: "",
+    productSummary: "",
+    grossSale: 0,
+    expenses: 0,
+    netSale: 0,
+    advance: 0,
+    paymentMade: 0,
+    notes: ""
+  });
+  const [payments, setPayments] = useState([]);
+  const [isEditingPayment, setIsEditingPayment] = useState(false);
+  const [editingPaymentId, setEditingPaymentId] = useState(null);
 
   // --- INITIALIZE SESSION ---
   useEffect(() => {
@@ -285,6 +304,28 @@ export default function App() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // --- LEDGER AUTO-CALC EFFECT ---
+  useEffect(() => {
+    if (ledgerForm.lotId) {
+      const bill = supplierBills.find(b => b.lotId === ledgerForm.lotId);
+      if (bill) {
+        const gross = (bill.produce || []).reduce((sum, it) => sum + (Number(it.quantity || it.qty) * Number(it.rate)), 0);
+        const exVal = Object.values(bill.charges || {}).reduce((sum, v) => sum + (Number(v) || 0), 0);
+        const pSummary = (bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}kg`).join(", ");
+        
+        setLedgerForm(prev => ({
+          ...prev,
+          billNumber: bill.billNumber,
+          productSummary: pSummary,
+          grossSale: gross,
+          expenses: exVal,
+          netSale: gross - exVal,
+          supplierId: bill.supplierId
+        }));
+      }
+    }
+  }, [ledgerForm.lotId, supplierBills]);
 
   // --- FORM STATES ---
   // --- FORM STATES & HANDLERS ---
@@ -872,6 +913,35 @@ export default function App() {
   const [intelQuery, setIntelQuery] = useState("");
   const [lotTraceability, setLotTraceability] = useState([]);
   const [allocationTraceability, setAllocationTraceability] = useState(null);
+  const handleRecordLedgerEntry = async () => {
+    if (!ledgerForm.supplierId || !ledgerForm.lotId) return alert("⚠️ Supplier and Lot ID are required");
+    try {
+      let res;
+      if (isEditingLedgerEntry) {
+        res = await MandiService.updateLedgerEntry(editingLedgerEntryId, ledgerForm);
+      } else {
+        res = await MandiService.addLedgerEntry(ledgerForm);
+      }
+      if (res.status === "SUCCESS") {
+        alert("📊 LEDGER UPDATED: Transaction dynamic data synced.");
+        setLedgerForm({ ...ledgerForm, lotId: "", billNumber: "", productSummary: "", grossSale: 0, expenses: 0, netSale: 0, advance: 0, paymentMade: 0 });
+        setIsEditingLedgerEntry(false);
+        setEditingLedgerEntryId(null);
+        fetchData();
+      } else {
+        alert("❌ Failed: " + res.message);
+      }
+    } catch(err) {
+      alert("Ledger save error.");
+    }
+  };
+
+  const handleDeleteLedgerEntry = async (id) => {
+    if (!window.confirm("🗑️ Delete this ledger entry permanently?")) return;
+    const res = await MandiService.deleteLedgerEntry(id);
+    if (res.status === "SUCCESS") fetchData();
+  };
+
   const [buyerIQ, setBuyerIQ] = useState(null);
 
   // --- ALLOCATION FORM STATE (REQUIRED BY ENTERPRISE ALLOCATION ENGINE) ---
@@ -1218,6 +1288,12 @@ export default function App() {
 
       const invoicesRes = await MandiService.getBuyerInvoices();
       if (invoicesRes.status === "SUCCESS") setBuyerInvoices(invoicesRes.data);
+
+      const payRes = await MandiService.getPayments();
+      if (payRes.status === "SUCCESS") setPayments(payRes.data);
+
+      const ledRes = await MandiService.getLedgerEntries();
+      if (ledRes.status === "SUCCESS") setLedgerEntries(ledRes.data);
 
       const payRes = await MandiService.getPayments();
       if (payRes.status === "SUCCESS") setPayments(payRes.data);
@@ -2859,63 +2935,112 @@ export default function App() {
                </div>
 
                {activeLedgerTab === "Supplier" && (
-                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px" }}>
-                       <div>
-                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Supplier Party Ledger</h2>
-                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Financial statement of farmer accounts: Gross Sale (Credit) vs Charges (Debit).</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                    {/* LEDGER ENTRY FORM */}
+                    <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+                       <div style={{ borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px", marginBottom: "24px" }}>
+                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Record Ledger Transaction</h2>
+                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Update farmer account with bill data, advances, or settlement payments.</p>
                        </div>
-                       <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
+                       
+                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Transaction Date</label>
+                             <input type="date" value={ledgerForm.date} onChange={e => setLedgerForm({...ledgerForm, date: e.target.value})} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "600" }} />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Select Reference Lot</label>
+                             <select value={ledgerForm.lotId} onChange={e => setLedgerForm({...ledgerForm, lotId: e.target.value})} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "600" }}>
+                                <option value="">Choose Lot...</option>
+                                {supplierBills.map(b => <option key={b._id} value={b.lotId}>{b.lotId} ({b.billNumber})</option>)}
+                             </select>
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Bill Number</label>
+                             <input type="text" readOnly value={ledgerForm.billNumber} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, fontWeight: "700" }} />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Advance Given (₹)</label>
+                             <input type="number" value={ledgerForm.advance} onChange={e => setLedgerForm({...ledgerForm, advance: Number(e.target.value)})} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "800", color: "#b91c1c" }} />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Payment Made (₹)</label>
+                             <input type="number" value={ledgerForm.paymentMade} onChange={e => setLedgerForm({...ledgerForm, paymentMade: Number(e.target.value)})} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "800", color: "#15803D" }} />
+                          </div>
+                       </div>
+
+                       <div style={{ marginTop: "24px", padding: "16px", background: "#F8FAFC", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
+                          <p style={{ margin: 0, fontSize: "12px", fontWeight: "800", color: COLORS.sidebar }}>AUTO-SYNCED BILLING DATA: {ledgerForm.productSummary || "No Lot Selected"}</p>
+                          <div style={{ display: "flex", gap: "24px", marginTop: "8px" }}>
+                             <div style={{ fontSize: "13px" }}>Gross: <b>{formatCurrency(ledgerForm.grossSale)}</b></div>
+                             <div style={{ fontSize: "13px" }}>Expenses: <b>{formatCurrency(ledgerForm.expenses)}</b></div>
+                             <div style={{ fontSize: "13px" }}>Net Payable: <b>{formatCurrency(ledgerForm.netSale)}</b></div>
+                          </div>
+                       </div>
+
+                       <div style={{ marginTop: "20px", display: "flex", gap: "12px" }}>
+                          <Button style={{ background: COLORS.sidebar, fontWeight: "900", padding: "12px 32px" }} onClick={handleRecordLedgerEntry}>Post to Ledger</Button>
+                          <Button style={{ background: "#F1F5F9", color: COLORS.muted, fontWeight: "800" }} onClick={() => setLedgerForm({ date: getISTDate(), supplierId: "", lotId: "", billNumber: "", productSummary: "", grossSale: 0, expenses: 0, netSale: 0, advance: 0, paymentMade: 0 })}>Clear</Button>
+                       </div>
                     </div>
-                    
-                    <div style={{ overflowX: "auto" }}>
-                       <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
-                          <thead>
-                             <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Supplier / Party</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Description</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Gross Sale (+)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>All Charges (-)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payable Amount</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Type</th>
-                             </tr>
-                          </thead>
-                          <tbody>
-                             {supplierBills.map((bill, bIdx) => {
-                                const supplier = suppliers.find(s => s._id === bill.supplierId || s.name === bill.supplierId);
-                                const gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0);
-                                const expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                const net = gross - expenses;
-                                return (
-                                   <tr key={bill._id || bIdx} style={{ background: "#FFFFFF", boxShadow: "0 2px 4px rgba(0,0,0,0.01)" }}>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px" }}>{bill.date}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{bill.lotId}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{supplier?.name || bill.supplierId || "Unknown"}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted }}>
-                                         {(bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}kg`).join(", ")}
-                                      </td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#15803D" }}>{formatCurrency(gross)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#E11D48" }}>-{formatCurrency(expenses)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(net)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0" }}>
-                                         <span style={{ fontSize: "10px", fontWeight: "900", opacity: 0.6 }}>CR ACCOUNT</span>
-                                      </td>
-                                   </tr>
-                                );
-                             })}
-                             {supplierBills.length > 0 && (
-                                <tr style={{ background: "#F1F5F9", fontWeight: "900" }}>
-                                   <td colSpan="4" style={{ padding: "14px", textAlign: "right", borderRadius: "0 0 0 10px" }}>LEDGER TOTALS:</td>
-                                   <td style={{ padding: "14px" }}>{formatCurrency(supplierBills.reduce((s, bill) => s + (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0), 0))}</td>
-                                   <td style={{ padding: "14px", color: "#CC0000" }}>-{formatCurrency(supplierBills.reduce((s, bill) => s + Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0), 0))}</td>
-                                   <td style={{ padding: "14px", color: COLORS.sidebar }}>{formatCurrency(supplierBills.reduce((s, bill) => s + ((bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0) - Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0)), 0))}</td>
-                                   <td style={{ padding: "14px", borderRadius: "0 0 10px 0" }}></td>
+
+                    {/* LEDGER TABLE */}
+                    <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px" }}>
+                          <div>
+                             <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Supplier Party Ledger</h2>
+                             <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Historical account tracking of all amounts owed TO the farmer and all payments MADE.</p>
+                          </div>
+                          <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
+                        </div>
+                        
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "12px" }}>
+                             <thead>
+                                <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
+                                   <th style={{ padding: "14px" }}>Date</th>
+                                   <th style={{ padding: "14px" }}>Lot ID</th>
+                                   <th style={{ padding: "14px" }}>Bill Number</th>
+                                   <th style={{ padding: "14px" }}>Product Summary</th>
+                                   <th style={{ padding: "14px" }}>Gross Sale</th>
+                                   <th style={{ padding: "14px" }}>Expenses</th>
+                                   <th style={{ padding: "14px" }}>Net Sale</th>
+                                   <th style={{ padding: "14px" }}>Advance</th>
+                                   <th style={{ padding: "14px" }}>Payment</th>
+                                   <th style={{ padding: "14px" }}>Balance</th>
+                                   <th style={{ padding: "14px" }}>Actions</th>
                                 </tr>
-                             )}
-                          </tbody>
-                       </table>
+                             </thead>
+                             <tbody>
+                                {(() => {
+                                   let curBal = 0;
+                                   return ledgerEntries.map((ent, idx) => {
+                                      curBal += (Number(ent.netSale) || 0) - (Number(ent.advance) || 0) - (Number(ent.paymentMade) || 0);
+                                      return (
+                                         <tr key={ent._id || idx} style={{ background: "#FFFFFF" }}>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px" }}>{ent.date}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{ent.lotId}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{ent.billNumber || "—"}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={ent.productSummary}>{ent.productSummary}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#15803D" }}>{formatCurrency(ent.grossSale)}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#EF4444" }}>-{formatCurrency(ent.expenses)}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{formatCurrency(ent.netSale)}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#B91C1C" }}>{ent.advance > 0 ? `-${formatCurrency(ent.advance)}` : "—"}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#15803D" }}>{ent.paymentMade > 0 ? `-${formatCurrency(ent.paymentMade)}` : "—"}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar, background: "#FDFBF4" }}>{formatCurrency(curBal)}</td>
+                                            <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0" }}>
+                                               <div style={{ display: "flex", gap: "8px" }}>
+                                                  <button onClick={() => { setLedgerForm(ent); setIsEditingLedgerEntry(true); setEditingLedgerEntryId(ent._id); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ border: "none", background: "#f1f5f9", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}>✏️</button>
+                                                  <button onClick={() => handleDeleteLedgerEntry(ent._id || ent.id)} style={{ border: "none", background: "#fee2e2", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}>🗑️</button>
+                                               </div>
+                                            </td>
+                                         </tr>
+                                      );
+                                   });
+                                })()}
+                             </tbody>
+                          </table>
+                        </div>
                     </div>
                   </div>
                )}
