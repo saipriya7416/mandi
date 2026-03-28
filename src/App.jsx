@@ -1807,26 +1807,7 @@ export default function App() {
                 <p style={{ color: "#ffffff", fontSize: "14px", margin: 0, fontWeight: "850", letterSpacing: "0.3px" }}>{user?.username || "Staff Identity"}</p>
                 <p style={{ color: "#AEC4BB", fontSize: "11px", margin: 0, fontWeight: "600", textTransform: "uppercase", opacity: 0.7 }}>{user?.role}</p>
              </div>
-             <button 
-               onClick={handleLogout} 
-               style={{ 
-                 background: "#FFF1F2", 
-                 border: "none", 
-                 color: "#E11D48", 
-                 cursor: "pointer", 
-                 fontSize: "10px", 
-                 fontWeight: "900",
-                 padding: "8px 14px", 
-                 borderRadius: "12px",
-                 textTransform: "uppercase",
-                 letterSpacing: "0.8px",
-                 transition: "all 0.2s" 
-               }}
-               onMouseOver={e=>{e.currentTarget.style.background="#FFE4E6"; e.currentTarget.style.transform="translateY(-1px)"}}
-               onMouseOut={e=>{e.currentTarget.style.background="#FFF1F2"; e.currentTarget.style.transform="translateY(0)"}}
-             >
-               Log out
-             </button>
+             <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer", fontSize: "20px", padding: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.2)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>🚪</button>
           </div>
         </nav>
       )}
@@ -2835,7 +2816,7 @@ export default function App() {
                     <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Additional Charges</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Commission (₹)</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Commission</label>
                           <input type="number" value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
@@ -2843,7 +2824,7 @@ export default function App() {
                           <input type="number" value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Outward Transport (₹)</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Outward Transport</label>
                           <input type="number" value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
@@ -2944,20 +2925,29 @@ export default function App() {
 
                {activeLedgerTab === "Supplier" && (
                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-                    <div style={{ padding: "8px 0", borderBottom: "1px solid #EBE9E1", marginBottom: "20px", display: "flex", justifyContent: "space-between", fontSize: "11px", fontWeight: "750", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>
-                       <span>SPV FRUITS — Mandi Management ERP</span>
-                       <span style={{ color: "#E11D48" }}>Confidential — Internal Document Only</span>
-                    </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "10px" }}>
                        <div>
-                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Supplier Party Ledger</h2>
-                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Tracks all amounts owed TO the farmer and settlements made in real-time.</p>
+                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>SPV FRUITS: Supplier Party Ledger</h2>
+                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Audit-ready tracking of all amounts owed to farmers and settlement disbursements.</p>
                        </div>
                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
                     </div>
                     
                     <div style={{ overflowX: "auto" }}>
                        <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
+                          <thead>
+                             <tr style={{ background: COLORS.sidebar, color: "#FFFFFF", textAlign: "left" }}>
+                                <th title="Transaction date" style={{ padding: "16px 14px", whiteSpace: "nowrap", borderRadius: "10px 0 0 10px", fontWeight: "800" }}>Date</th>
+                                <th title="Reference lot" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Lot ID</th>
+                                <th title="Farmer bill number" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Bill Number</th>
+                                <th title="Brief: 'Mango 1754 KG + Banana 172 KG'" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Product(s) Summary</th>
+                                <th title="Total sale realized" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Gross Sale (₹)</th>
+                                <th title="Total deductions" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Expenses (₹)</th>
+                                <th title="Payable to farmer" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Net Sale (₹)</th>
+                                <th title="Advance given on that date" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Advance (₹)</th>
+                                <th title="Settlement payment made" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Payment Made (₹)</th>
+                                <th title="Cumulative outstanding due to farmer" style={{ padding: "16px 14px", whiteSpace: "nowrap", borderRadius: "0 10px 10px 0", fontWeight: "800" }}>Running Balance (₹)</th>
+                             </tr>
                           </thead>
                           <tbody>
                              {(() => {
@@ -3166,6 +3156,10 @@ export default function App() {
                {activePaymentTab === "Customer" && (
                   <>
                      <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+                    <div style={{ padding: "8px 0", borderBottom: "1px solid #EBE9E1", marginBottom: "20px", display: "flex", justifyContent: "space-between", fontSize: "11px", fontWeight: "750", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>
+                       <span>SPV FRUITS — Mandi Management ERP</span>
+                       <span style={{ color: "#E11D48" }}>Confidential — Internal Document Only</span>
+                    </div>
                         <div style={{ borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px", marginBottom: "24px" }}>
                            <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#15803D", margin: 0 }}>Buyer Payments (Incoming to SPV)</h2>
                            <p style={{ fontSize: "14px", color: COLORS.muted, margin: "4px 0 0 0" }}>Collections, receipts, and invoice payments received from auction buyers.</p>
