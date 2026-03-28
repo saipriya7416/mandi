@@ -1546,13 +1546,13 @@ export default function App() {
           .stacli-btn:hover { background: linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.sidebar} 100%) !important; transform: translateY(-2px); box-shadow: 0 10px 25px ${COLORS.primary}40 !important; }
           @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
           @keyframes logoBlink { 0%, 50% { opacity: 1; } 75% { opacity: 0.2; } 100% { opacity: 1; } }
-          .blinking-logo { animation: logoBlink 2s infinite ease-in-out; }
+          .blinking-logo { opacity: 1; }
         `}</style>
 
         <div style={{ animation: "slideUp 0.6s ease-out", width:"100%", maxWidth:"520px", background:"#ffffff", borderRadius:"32px", padding:"40px 40px", boxShadow:"0 20px 60px rgba(0,0,0,0.04)", border:"1px solid #eef2ee", textAlign:"center" }}>
           
           <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
-            <div className="blinking-logo" style={{ width: "95px", height: "95px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #fdfbf4", overflow: "hidden" }}>
+            <div style={{ width: "95px", height: "95px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #fdfbf4", overflow: "hidden" }}>
               <img src="https://i.ytimg.com/vi/KtVCkq9Evyc/mqdefault.jpg" alt="JAMANGO Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           </div>
@@ -1921,10 +1921,10 @@ export default function App() {
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{s.name}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>☎️ {s.phone} | 📍 {s.village || s.marketArea || 'Location N/A'}</p>
                                  </div>
-                                 <div style={{ display: "flex", gap: "8px" }}>
-                                    <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Supplier', s)}>Modify Profile</Button>
-                                    <Button style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", background: "#F1F5F9", color: "#CC0000", border: "1.5px solid #E2E8F0" }} onClick={() => handleDeleteSupplier(s._id)}>Delete</Button>
-                                 </div>
+                                 <div style={{ display: "flex", gap: "10px" }}>
+                                     <Button variant="outline" style={{ fontSize: "12px", padding: "8px 18px", fontWeight: "700", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px", background: "transparent" }} onClick={() => handleEditSelect('Supplier', s)}>Modify Profile</Button>
+                                     <Button style={{ fontSize: "12px", padding: "8px 20px", fontWeight: "800", background: "#f1f7ff", color: "#c2410c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteSupplier(s._id)}>Delete</Button>
+                                  </div>
                               </div>
                            ))}
                         </div>
@@ -1985,10 +1985,10 @@ export default function App() {
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.name}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🏬 {b.shopName} | ☎️ {b.phone}</p>
                                  </div>
-                                 <div style={{ display: "flex", gap: "8px" }}>
-                                    <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Buyer', b)}>Modify Profile</Button>
-                                    <Button style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", background: "#F1F5F9", color: "#CC0000", border: "1.5px solid #E2E8F0" }} onClick={() => handleDeleteBuyer(b._id)}>Delete</Button>
-                                 </div>
+                                 <div style={{ display: "flex", gap: "10px" }}>
+                                     <Button variant="outline" style={{ fontSize: "12px", padding: "8px 18px", fontWeight: "700", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px", background: "transparent" }} onClick={() => handleEditSelect('Buyer', b)}>Modify Profile</Button>
+                                     <Button style={{ fontSize: "12px", padding: "8px 20px", fontWeight: "800", background: "#f1f7ff", color: "#c2410c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteBuyer(b._id)}>Delete</Button>
+                                  </div>
                               </div>
                            ))}
                         </div>
@@ -2086,13 +2086,10 @@ export default function App() {
                                         <span style={{ fontSize: "11px", color: COLORS.sidebar, fontWeight: "800" }}>Weight: {((l.lineItems || []).reduce((sw, i) => sw + (i.weightUnit === 'Tones' ? Number(i.grossWeight)*1000 : Number(i.grossWeight)), 0) / 1000).toFixed(2)} Tones</span>
                                     </div>
                                  </div>
-                                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                                    <div style={{ textAlign: "right", marginRight: "16px" }}>
-                                       <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
-                                    </div>
-                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
-                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
-                                 </div>
+                                 <div style={{ display: "flex", gap: "10px" }}>
+                                     <Button variant="outline" style={{ fontSize: "11px", padding: "6px 14px", fontWeight: "700", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px", background: "transparent" }} onClick={() => handleEditLot(l)}>Modify</Button>
+                                     <Button style={{ fontSize: "11px", padding: "6px 14px", fontWeight: "800", background: "#f1f7ff", color: "#c2410c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteLot(l._id)}>Delete</Button>
+                                  </div>
                               </div>
                               );
                            })}
@@ -2247,13 +2244,10 @@ export default function App() {
                                         <span style={{ fontSize: "11px", color: COLORS.sidebar, fontWeight: "800" }}>Weight: {((l.lineItems || []).reduce((sw, i) => sw + (i.weightUnit === 'Tones' ? Number(i.grossWeight)*1000 : Number(i.grossWeight)), 0) / 1000).toFixed(2)} Tones</span>
                                     </div>
                                  </div>
-                                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                                    <div style={{ textAlign: "right", marginRight: "16px" }}>
-                                       <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
-                                    </div>
-                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
-                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
-                                 </div>
+                                 <div style={{ display: "flex", gap: "10px" }}>
+                                     <Button variant="outline" style={{ fontSize: "11px", padding: "6px 14px", fontWeight: "700", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px", background: "transparent" }} onClick={() => handleEditLot(l)}>Modify</Button>
+                                     <Button style={{ fontSize: "11px", padding: "6px 14px", fontWeight: "800", background: "#f1f7ff", color: "#c2410c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteLot(l._id)}>Delete</Button>
+                                  </div>
                               </div>
                               );
                            })}
@@ -2345,10 +2339,10 @@ export default function App() {
                                 <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{a.lotId} — {a.buyerId?.name || a.buyerId || "Buyer"}</b>
                                 <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📦 {a.lineItemId} | ⚖️ {a.quantity} KG @ ₹{a.rate}/KG | 📅 {a.allocationDate}</p>
                              </div>
-                             <div style={{ display: "flex", gap: "12px" }}>
-                                <button onClick={() => handleEditAllocation(a)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
-                                <button onClick={() => handleDeleteAllocation(a._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
-                             </div>
+                             <div style={{ display: "flex", gap: "10px" }}>
+                                 <Button variant="outline" style={{ fontSize: "11px", padding: "6px 14px", fontWeight: "700", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px", background: "transparent" }} onClick={() => handleEditAllocation(a)}>Modify</Button>
+                                 <Button style={{ fontSize: "11px", padding: "6px 14px", fontWeight: "800", background: "#f1f7ff", color: "#c2410c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteAllocation(a._id)}>Delete</Button>
+                              </div>
                           </div>
                        ))}
                        {allocations.length === 0 && <p style={{ textAlign: "center", color: COLORS.muted, padding: "20px" }}>No allocation records found.</p>}
