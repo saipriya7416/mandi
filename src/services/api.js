@@ -53,11 +53,12 @@ const request = async (method, path, body = null) => {
       if (path === '/lots') return { status: "SUCCESS", data: getLocal('lots') };
       if (path === '/allocations') return { status: "SUCCESS", data: getLocal('allocations') };
       if (path === '/bills/supplier') return { status: "SUCCESS", data: getLocal('supplierBills') };
+      if (path === '/invoices/buyer') return { status: "SUCCESS", data: getLocal('buyerInvoices') };
       return { status: "SUCCESS", data: [] };
     }
 
     if (method === 'POST') {
-      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : null))));
+      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : (path === '/invoice/buyer' ? 'buyerInvoices' : null)))));
       if (storeName) {
         const store = getLocal(storeName);
         const newItem = { ...body, _id: `sim_${Date.now()}`, createdAt: new Date() };
@@ -153,6 +154,7 @@ export const MandiService = {
   generateSupplierBill: async (data) => request('POST', '/bill/supplier', data),
   updateSupplierBill: async (id, data) => request('PUT', `/bill/supplier/${id}`, data),
   deleteSupplierBill: async (id) => request('DELETE', `/bill/supplier/${id}`),
+  getBuyerInvoices: async () => request('GET', '/invoices/buyer'),
   generateBuyerInvoice: async (data) => request('POST', '/invoice/buyer', data),
   recordPayment: async (data) => request('POST', '/payment', data),
   recordExpense: async (data) => request('POST', '/expense', data),
