@@ -326,7 +326,7 @@ export default function App() {
         res = await MandiService.addSupplier(payload);
       }
       if(res.status === "ERROR") return alert("Error processing supplier: " + res.message);
-      alert(`Γ£à Supplier successfully ${isEditingSupplier ? 'updated' : 'stored'} in the Database!`);
+      alert(`✅ Supplier successfully ${isEditingSupplier ? 'updated' : 'stored'} in the Database!`);
       handleCancelAll('Supplier');
       fetchData();
     } catch(err) {
@@ -389,10 +389,10 @@ export default function App() {
     try {
       const res = await MandiService.deleteSupplier(id);
       if (res.status === "SUCCESS") {
-        alert("Γ£à Supplier deleted successfully!");
+        alert("✅ Supplier deleted successfully!");
         fetchData();
       } else {
-        alert("Γ¥î Error deleting: " + res.message);
+        alert("❌ Error deleting: " + res.message);
       }
     } catch(err) {
       alert("Delete failed.");
@@ -404,10 +404,10 @@ export default function App() {
     try {
       const res = await MandiService.deleteBuyer(id);
       if (res.status === "SUCCESS") {
-        alert("Γ£à Customer deleted successfully!");
+        alert("✅ Customer deleted successfully!");
         fetchData();
       } else {
-        alert("Γ¥î Error deleting: " + res.message);
+        alert("❌ Error deleting: " + res.message);
       }
     } catch(err) {
       alert("Delete failed.");
@@ -456,7 +456,7 @@ export default function App() {
       const res = await MandiService.addLot(payload);
       if(res.status === "ERROR") return alert("Intake registration error: " + res.message);
       
-      alert(`Γ£à LOT CREATED: ${lotCreationForm.lotId} permanently stored in Database!`);
+      alert(`✅ LOT CREATED: ${lotCreationForm.lotId} permanently stored in Database!`);
       
       setLotCreationForm({
         ...lotCreationForm,
@@ -475,10 +475,10 @@ export default function App() {
     try {
       const res = await MandiService.deleteLot(id);
       if (res.status === "SUCCESS") {
-        alert("Γ£à Lot deleted successfully!");
+        alert("✅ Lot deleted successfully!");
         fetchData();
       } else {
-        alert("Γ¥î Error deleting: " + res.message);
+        alert("❌ Error deleting: " + res.message);
       }
     } catch(err) {
       alert("Delete failed.");
@@ -559,7 +559,7 @@ export default function App() {
         res = await MandiService.addBuyer(payload);
       }
       if(res.status === "ERROR") return alert("Error processing buyer: " + res.message);
-      alert(`Γ£à Buyer successfully ${isEditingBuyer ? 'updated' : 'stored'} in the Database!`);
+      alert(`✅ Buyer successfully ${isEditingBuyer ? 'updated' : 'stored'} in the Database!`);
       handleCancelAll('Buyer');
       fetchData();
     } catch(err) {
@@ -595,7 +595,7 @@ export default function App() {
     const res = await MandiService.addLot(payload);
     if (res.status === "SUCCESS") {
       const sName = suppliers.find(s => s._id === intakeForm.supplierId)?.name || "Farmer";
-      alert(`Γ£à LOT CREATED: Lot ${res.data.lotId} for ${sName} successfully committed to Database.`);
+      alert(`✅ LOT CREATED: Lot ${res.data.lotId} for ${sName} successfully committed to Database.`);
       setIntakeForm({
         supplierId: "", 
         entryDate: new Date().toISOString().slice(0, 16).replace('Z',''), 
@@ -604,7 +604,7 @@ export default function App() {
       });
       fetchData();
     } else {
-      alert(`Γ¥î FAILED: ${res.message || "Error"}`);
+      alert(`❌ FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -635,7 +635,7 @@ export default function App() {
       alert("≡ƒÜÆ INWARD LOG COMMITTED: Data persisted to MongoDB.");
       fetchData();
     } else {
-      alert(`Γ¥î LOG FAILED: ${res.message || "Error"}`);
+      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -648,10 +648,10 @@ export default function App() {
       date: outwardTransportForm.dispatchTime || new Date().toISOString()
     });
     if (res.status === "SUCCESS") {
-      alert("Γ£à OUTWARD DISPATCH LOGGED: Data persisted to MongoDB.");
+      alert("✅ OUTWARD DISPATCH LOGGED: Data persisted to MongoDB.");
       fetchData();
     } else {
-      alert(`Γ¥î LOG FAILED: ${res.message || "Error"}`);
+      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -686,7 +686,7 @@ export default function App() {
       });
       fetchData();
     } else {
-      alert(`Γ¥î INVOICE FAILED: ${res.message || "Database Error"}`);
+      alert(`❌ INVOICE FAILED: ${res.message || "Database Error"}`);
     }
   };
 
@@ -708,7 +708,7 @@ export default function App() {
       setBuyerPaymentForm({ ...buyerPaymentForm, buyerId: "", amountReceived: "", referenceNo: "", notes: "" });
       fetchData();
     } else {
-      alert(`Γ¥î PAYMENT FAILED: ${res.message || "Error"}`);
+      alert(`❌ PAYMENT FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -726,11 +726,11 @@ export default function App() {
      };
      const res = await MandiService.recordPayment(payload);
      if (res.status === "SUCCESS") {
-        alert("Γ£à DISBURSEMENT AUTHORIZED: Payout logged to Database.");
+        alert("✅ DISBURSEMENT AUTHORIZED: Payout logged to Database.");
         setFarmerPaymentForm({ ...farmerPaymentForm, farmerId: "", amount: "", referenceNo: "", notes: "" });
         fetchData();
      } else {
-        alert(`Γ¥î DISBURSEMENT FAILED: ${res.message || "Error"}`);
+        alert(`❌ DISBURSEMENT FAILED: ${res.message || "Error"}`);
      }
   };
 
@@ -748,7 +748,7 @@ export default function App() {
       setExpenseForm({ amount: "", lotId: "", memo: "", category: "Labour" });
       fetchData();
     } else {
-      alert(`Γ¥î EXPENSE FAILED: ${res.message || "Error"}`);
+      alert(`❌ EXPENSE FAILED: ${res.message || "Error"}`);
     }
   };
   const [intakeForm, setIntakeForm] = useState({ 
@@ -974,7 +974,7 @@ export default function App() {
            updatedProducts[existingIdx].units.push(newProductForm.unit);
         }
         setMasterProducts(updatedProducts);
-        alert(`Γ£à Variety '${newProductForm.variety}' added to ${newProductForm.coreProduct}!`);
+        alert(`✅ Variety '${newProductForm.variety}' added to ${newProductForm.coreProduct}!`);
      } else {
         const newProduct = {
            name: newProductForm.coreProduct,
@@ -983,7 +983,7 @@ export default function App() {
            units: [newProductForm.unit]
         };
         setMasterProducts([...masterProducts, newProduct]);
-        alert(`Γ£à Core Product '${newProductForm.coreProduct}' registered in catalog!`);
+        alert(`✅ Core Product '${newProductForm.coreProduct}' registered in catalog!`);
      }
 
      setNewProductForm({
@@ -1020,7 +1020,7 @@ export default function App() {
         type: "Percentage",
         defaultValue: 0
      });
-     alert(`Γ£à Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`);
+     alert(`✅ Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`);
   };
 
   const [masterExpenses, setMasterExpenses] = useState(() => {
@@ -1084,7 +1084,7 @@ export default function App() {
          role: "Accountant",
          expiry: ""
       });
-      alert("Γ£à Staff Identity Created Successfully! User added to Directory.");
+      alert("✅ Staff Identity Created Successfully! User added to Directory.");
    };
 
    const [securityAuditLogs, setSecurityAuditLogs] = useState([
@@ -1159,7 +1159,7 @@ export default function App() {
     const file = event.target.files[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) return alert("Γ¥î CLIP REACHED: Max size 10MB");
+    if (file.size > 10 * 1024 * 1024) return alert("❌ CLIP REACHED: Max size 10MB");
 
     setUploading(true);
     const res = await MandiService.uploadFile(file, docType, relatedToType, relatedTo);
@@ -1169,7 +1169,7 @@ export default function App() {
       alert("Γÿü∩╕Å ARCHIVED: File secured in Vault");
       fetchData();
     } else {
-      alert(`Γ¥î VAULT ERROR: ${res.message}`);
+      alert(`❌ VAULT ERROR: ${res.message}`);
     }
   };
 
@@ -1207,7 +1207,7 @@ export default function App() {
       setLoggedIn(true);
       setUser(res.data.user);
     } else {
-      alert(`Γ¥î LOGIN FAILED: ${res?.message || 'Invalid Credentials'}`);
+      alert(`❌ LOGIN FAILED: ${res?.message || 'Invalid Credentials'}`);
     }
   };
 
@@ -1333,14 +1333,14 @@ export default function App() {
     try {
       const res = await MandiService.allocateLot(payload);
       if (res.status === "SUCCESS") {
-        alert(`Γ£à Allocation recorded successfully!`);
+        alert(`✅ Allocation recorded successfully!`);
         setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" });
         fetchData();
       } else {
-        alert(`Γ¥î ALLOCATION FAILED: ${res.message || "Database Error"}`);
+        alert(`❌ ALLOCATION FAILED: ${res.message || "Database Error"}`);
       }
     } catch (err) {
-      alert(`Γ¥î ALLOCATION FAILED: ${err.message}`);
+      alert(`❌ ALLOCATION FAILED: ${err.message}`);
     }
   };
 
@@ -1349,10 +1349,10 @@ export default function App() {
     try {
       const res = await MandiService.deleteAllocation(id);
       if (res.status === "SUCCESS") {
-        alert("Γ£à Allocation deleted successfully!");
+        alert("✅ Allocation deleted successfully!");
         fetchData();
       } else {
-        alert("Γ¥î Error deleting: " + res.message);
+        alert("❌ Error deleting: " + res.message);
       }
     } catch(err) {
       alert("Delete failed.");
@@ -1477,7 +1477,7 @@ export default function App() {
            });
         }
      } else {
-        alert(`Γ¥î STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`);
+        alert(`❌ STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`);
      }
   };
 
@@ -1490,7 +1490,7 @@ export default function App() {
     if (!reason) return;
     const res = await MandiService.voidFarmerSettlementBill(id, reason);
      if (res.status === "SUCCESS") {
-        alert("≡ƒÜ½ Settlement Voided. Entires reversed.");
+        alert("🚫 Settlement Voided. Entires reversed.");
         setIsBillLocked(false);
         setFarmerBillForm({ ...farmerBillForm, farmerId: "" });
         fetchData();
@@ -1930,7 +1930,7 @@ export default function App() {
                               return (
                               <div key={l._id || l.lotId} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                                  <div style={{ flex: 1 }}>
-                                    <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} ΓÇö {l.supplierId?.name || l.supplierId || "Farmer"}</b>
+                                    <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒÜ¢ {l.vehicleNumber} | ≡ƒôì {l.origin} | ≡ƒôà {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
                                     <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
                                         <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross Sale: {formatCurrency(grossSale)}</span>
@@ -1941,7 +1941,7 @@ export default function App() {
                                     <div style={{ textAlign: "right", marginRight: "16px" }}>
                                        <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
                                     </div>
-                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">Γ£Å∩╕Å</button>
+                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
                                     <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
                                  </div>
                               </div>
@@ -1968,7 +1968,7 @@ export default function App() {
                           
                           {idx > 0 && (
                             <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
-                              Γ¥î Remove
+                              ❌ Remove
                             </div>
                           )}
 
@@ -2091,7 +2091,7 @@ export default function App() {
                               return (
                               <div key={l._id || l.lotId} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                                  <div style={{ flex: 1 }}>
-                                    <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} ΓÇö {l.supplierId?.name || l.supplierId || "Farmer"}</b>
+                                    <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒÜ¢ {l.vehicleNumber} | ≡ƒôì {l.origin} | ≡ƒôà {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
                                     <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
                                         <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross Sale: {formatCurrency(grossSale)}</span>
@@ -2102,7 +2102,7 @@ export default function App() {
                                     <div style={{ textAlign: "right", marginRight: "16px" }}>
                                        <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
                                     </div>
-                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">Γ£Å∩╕Å</button>
+                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
                                     <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
                                  </div>
                               </div>
@@ -2193,11 +2193,11 @@ export default function App() {
                        {allocations.slice().reverse().slice(0, 5).map(a => (
                           <div key={a._id || Date.now() + Math.random()} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                              <div style={{ flex: 1 }}>
-                                <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{a.lotId} ΓÇö {a.buyerId?.name || a.buyerId || "Buyer"}</b>
+                                <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{a.lotId} — {a.buyerId?.name || a.buyerId || "Buyer"}</b>
                                 <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒôª {a.lineItemId} | ΓÜû∩╕Å {a.quantity} KG @ Γé╣{a.rate}/KG | ≡ƒôà {a.allocationDate}</p>
                              </div>
                              <div style={{ display: "flex", gap: "12px" }}>
-                                <button onClick={() => handleEditAllocation(a)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">Γ£Å∩╕Å</button>
+                                <button onClick={() => handleEditAllocation(a)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
                                 <button onClick={() => handleDeleteAllocation(a._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
                              </div>
                           </div>
@@ -2466,7 +2466,7 @@ export default function App() {
                        }
                        
                        if (res.status === "SUCCESS") {
-                           alert(`Γ£à BILL ${isEditingSupplierBill ? 'UPDATED' : 'GENERATED'}: ${supplierSettlementForm.billNumber} has been recorded in the database.`);
+                           alert(`✅ BILL ${isEditingSupplierBill ? 'UPDATED' : 'GENERATED'}: ${supplierSettlementForm.billNumber} has been recorded in the database.`);
                            setSupplierSettlementForm({
                               billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
                               date: getISTDate(),
@@ -2481,7 +2481,7 @@ export default function App() {
                            setEditingSupplierBillId(null);
                            fetchData();
                        } else {
-                           alert(`Γ¥î FAILED: ${res.message || "Database Error"}`);
+                           alert(`❌ FAILED: ${res.message || "Database Error"}`);
                        }
                    } catch(e) {
                        alert("Error processing bill.");
@@ -2513,7 +2513,7 @@ export default function App() {
                        {supplierBills.slice().reverse().slice(0, 5).map(b => (
                           <div key={b._id || Date.now() + Math.random()} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                              <div style={{ flex: 1 }}>
-                                <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.billNumber} ΓÇö {b.supplierId || "Supplier"}</b>
+                                <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.billNumber} — {b.supplierId || "Supplier"}</b>
                                 <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒÜ¢ {b.vehicleNumber || 'N/A'} | ≡ƒôà {b.date}</p>
                              </div>
                              <div style={{ display: "flex", gap: "12px" }}>
@@ -2523,15 +2523,15 @@ export default function App() {
                                    setEditingSupplierBillId(b._id);
                                    setActiveSupplierBillTab("Bill Header");
                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                }} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">Γ£Å∩╕Å</button>
+                                }} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
                                 <button onClick={async () => {
                                    if (!window.confirm("≡ƒùæ∩╕Å Are you sure you want to PERMANENTLY delete this billing record?")) return;
                                    const res = await MandiService.deleteSupplierBill(b._id);
                                    if (res.status === "SUCCESS") {
-                                      alert("Γ£à Bill deleted successfully!");
+                                      alert("✅ Bill deleted successfully!");
                                       fetchData();
                                    } else {
-                                      alert("Γ¥î Error deleting: " + res.message);
+                                      alert("❌ Error deleting: " + res.message);
                                    }
                                 }} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
                              </div>
@@ -2742,13 +2742,13 @@ export default function App() {
                             try {
                                const res = await MandiService.generateBuyerInvoice(buyerInvoiceForm);
                                if (res.status === "SUCCESS") {
-                                  alert(`Γ£à INVOICE GENERATED: ${buyerInvoiceForm.invoiceNumber} saved!`);
+                                  alert(`✅ INVOICE GENERATED: ${buyerInvoiceForm.invoiceNumber} saved!`);
                                   setBuyerInvoiceForm({ invoiceNumber: `INV-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), buyerId: "", buyerPhone: "", lotReference: "", transportBiceNo: "", items: [{ id: Date.now(), productInfo: "", grossWeight: "", deductions: "", rate: "" }], charges: { commission: "", handling: "", transport: "", otherName: "", otherAmount: "" }, amountReceived: "" });
                                   fetchData();
                                   setActiveBuyerInvoiceTab("Invoice Header");
                                }
                             } catch (e) {
-                               alert("Γ¥î FAILED: " + e.message);
+                               alert("❌ FAILED: " + e.message);
                             }
                          }}>Generate Invoice</Button>
                         <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", padding: "16px 32px" }} onClick={() => {
@@ -2796,46 +2796,65 @@ export default function App() {
                              <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Supplier / Party</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Description</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Gross Sale (+)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>All Charges (-)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payable Amount</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Type</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Number</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Product(s) Summary</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Gross Sale (₹)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Expenses (₹)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Net Sale (₹)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Advance (₹)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Made (₹)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Running Balance (₹)</th>
                              </tr>
                           </thead>
                           <tbody>
-                             {supplierBills.map((bill, bIdx) => {
-                                const supplier = suppliers.find(s => s._id === bill.supplierId || s.name === bill.supplierId);
-                                const gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0);
-                                const expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                const net = gross - expenses;
+                             {(() => {
+                                let runningBalance = 0;
+                                return supplierBills.map((bill, bIdx) => {
+                                   const gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0);
+                                   const expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                                   const netSale = gross - expenses;
+                                   const advance = Number(bill.advancePayment || bill.advance || 0);
+                                   const paymentMade = Number(bill.amountPaid || bill.paymentMade || 0);
+                                   runningBalance = runningBalance + netSale - advance - paymentMade;
+                                   const productSummary = (bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}KG`).join(" + ") || "—";
+                                   return (
+                                      <tr key={bill._id || bIdx} style={{ background: "#FFFFFF", boxShadow: "0 2px 4px rgba(0,0,0,0.01)" }}>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{bill.date || formatDate(bill.createdAt)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", whiteSpace: "nowrap" }}>{bill.lotId || "—"}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{bill.billNumber || bill.invoiceNumber || `BILL-${bIdx + 1}`}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, maxWidth: "200px" }}>{productSummary}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#15803D", whiteSpace: "nowrap" }}>{formatCurrency(gross)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#E11D48", whiteSpace: "nowrap" }}>-{formatCurrency(expenses)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar, whiteSpace: "nowrap" }}>{formatCurrency(netSale)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#7C3AED", whiteSpace: "nowrap" }}>{formatCurrency(advance)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#0369A1", fontWeight: "700", whiteSpace: "nowrap" }}>{formatCurrency(paymentMade)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0", fontWeight: "900", color: runningBalance > 0 ? "#DC2626" : "#15803D", whiteSpace: "nowrap" }}>
+                                            {formatCurrency(Math.abs(runningBalance))}
+                                            <span style={{ fontSize: "9px", marginLeft: "4px", opacity: 0.6 }}>{runningBalance > 0 ? "DUE" : "PAID"}</span>
+                                         </td>
+                                      </tr>
+                                   );
+                                });
+                             })()}
+                             {supplierBills.length > 0 && (() => {
+                                const totalGross = supplierBills.reduce((s, bill) => s + (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0), 0);
+                                const totalExpenses = supplierBills.reduce((s, bill) => s + Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0), 0);
+                                const totalNet = totalGross - totalExpenses;
+                                const totalAdvance = supplierBills.reduce((s, bill) => s + Number(bill.advancePayment || bill.advance || 0), 0);
+                                const totalPaid = supplierBills.reduce((s, bill) => s + Number(bill.amountPaid || bill.paymentMade || 0), 0);
+                                const totalBalance = totalNet - totalAdvance - totalPaid;
                                 return (
-                                   <tr key={bill._id || bIdx} style={{ background: "#FFFFFF", boxShadow: "0 2px 4px rgba(0,0,0,0.01)" }}>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px" }}>{bill.date}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{bill.lotId}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{supplier?.name || bill.supplierId || "Unknown"}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted }}>
-                                         {(bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}kg`).join(", ")}
-                                      </td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#15803D" }}>{formatCurrency(gross)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#E11D48" }}>-{formatCurrency(expenses)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(net)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0" }}>
-                                         <span style={{ fontSize: "10px", fontWeight: "900", opacity: 0.6 }}>CR ACCOUNT</span>
-                                      </td>
+                                   <tr style={{ background: "#F0FDF4", fontWeight: "900", borderTop: "2px solid #BBF7D0" }}>
+                                      <td colSpan="4" style={{ padding: "14px", textAlign: "right", borderRadius: "10px 0 0 10px", color: COLORS.sidebar, fontSize: "12px", letterSpacing: "0.5px" }}>LEDGER TOTALS:</td>
+                                      <td style={{ padding: "14px", color: "#15803D" }}>{formatCurrency(totalGross)}</td>
+                                      <td style={{ padding: "14px", color: "#DC2626" }}>-{formatCurrency(totalExpenses)}</td>
+                                      <td style={{ padding: "14px", color: COLORS.sidebar }}>{formatCurrency(totalNet)}</td>
+                                      <td style={{ padding: "14px", color: "#7C3AED" }}>{formatCurrency(totalAdvance)}</td>
+                                      <td style={{ padding: "14px", color: "#0369A1" }}>{formatCurrency(totalPaid)}</td>
+                                      <td style={{ padding: "14px", borderRadius: "0 10px 10px 0", color: totalBalance > 0 ? "#DC2626" : "#15803D" }}>{formatCurrency(Math.abs(totalBalance))} {totalBalance > 0 ? "DUE" : "SETTLED"}</td>
                                    </tr>
                                 );
-                             })}
-                             {supplierBills.length > 0 && (
-                                <tr style={{ background: "#F1F5F9", fontWeight: "900" }}>
-                                   <td colSpan="4" style={{ padding: "14px", textAlign: "right", borderRadius: "0 0 0 10px" }}>LEDGER TOTALS:</td>
-                                   <td style={{ padding: "14px" }}>{formatCurrency(supplierBills.reduce((s, bill) => s + (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0), 0))}</td>
-                                   <td style={{ padding: "14px", color: "#CC0000" }}>-{formatCurrency(supplierBills.reduce((s, bill) => s + Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0), 0))}</td>
-                                   <td style={{ padding: "14px", color: COLORS.sidebar }}>{formatCurrency(supplierBills.reduce((s, bill) => s + ((bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0) - Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0)), 0))}</td>
-                                   <td style={{ padding: "14px", borderRadius: "0 0 10px 0" }}></td>
-                                </tr>
-                             )}
+                             })()}
                           </tbody>
                        </table>
                     </div>
@@ -2857,36 +2876,61 @@ export default function App() {
                           <thead>
                              <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice / Lot</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Customer Name</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Amount (+)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Received (-)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Running Balance</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Status</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice Amount (₹)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Received (₹)</th>
+                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Outstanding Balance (₹)</th>
                              </tr>
                           </thead>
-                          <tbody>
-                             {buyerInvoices.map((inv, iIdx) => {
-                                const cust = buyers.find(b => b._id === inv.buyerId);
-                                const subTotal = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)) * (Number(item.rate)||0)), 0);
-                                const addl = Object.values(inv.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                const total = subTotal + addl;
-                                const bal = total - (Number(inv.amountReceived) || 0);
-                                return (
-                                   <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px" }}>{inv.date}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{inv.invoiceNumber} <br/><span style={{ fontSize: "10px", opacity: 0.5 }}>lot: {inv.lotReference}</span></td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{cust?.name || "Ref: " + inv.buyerId}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#E11D48" }}>{formatCurrency(total)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#15803D", fontWeight: "700" }}>{formatCurrency(inv.amountReceived || 0)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(bal)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0" }}>
-                                         <span style={{ padding: "4px 10px", borderRadius: "20px", background: bal > 0 ? "#FFF7ED" : "#F0FDF4", color: bal > 0 ? "#C2410C" : "#15803D", fontSize: "11px", fontWeight: "800" }}>{bal > 0 ? "OUTSTANDING" : "PAID"}</span>
-                                      </td>
-                                   </tr>
-                                );
-                             })}
-                          </tbody>
+                                                     <tbody>
+                              {buyerInvoices.map((inv, iIdx) => {
+                                 const subTotal = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)) * (Number(item.rate)||0)), 0);
+                                 const addl = Object.values(inv.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                                 const total = subTotal + addl;
+                                 const received = Number(inv.amountReceived) || 0;
+                                 const outstanding = total - received;
+                                 const fruitVariety = (inv.items || []).map(item => {
+                                    const name = item.productInfo || item.product || item.productName || "";
+                                    const variety = item.variety ? ` ${item.variety}` : "";
+                                    return `${name}${variety}`.trim();
+                                 }).filter(Boolean).join(", ") || "�";
+                                 const totalQty = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0))), 0);
+                                 return (
+                                    <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{inv.date || formatDate(inv.createdAt)}</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{inv.invoiceNumber || `INV-${iIdx + 1}`}</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, maxWidth: "180px" }}>{fruitVariety}</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", whiteSpace: "nowrap" }}>{totalQty.toLocaleString("en-IN")} KG</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#E11D48", whiteSpace: "nowrap" }}>{formatCurrency(total)}</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#15803D", fontWeight: "700", whiteSpace: "nowrap" }}>{formatCurrency(received)}</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0", fontWeight: "900", whiteSpace: "nowrap" }}>
+                                          <span style={{ padding: "4px 10px", borderRadius: "20px", background: outstanding > 0 ? "#FFF7ED" : "#F0FDF4", color: outstanding > 0 ? "#C2410C" : "#15803D", fontSize: "12px", fontWeight: "800" }}>{formatCurrency(outstanding)}</span>
+                                       </td>
+                                    </tr>
+                                 );
+                              })}
+                              {buyerInvoices.length > 0 && (() => {
+                                 const tTotal = buyerInvoices.reduce((s, inv) => {
+                                    const sub = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)) * (Number(item.rate)||0)), 0);
+                                    const addl = Object.values(inv.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                                    return s + sub + addl;
+                                 }, 0);
+                                 const tReceived = buyerInvoices.reduce((s, inv) => s + (Number(inv.amountReceived) || 0), 0);
+                                 const tQty = buyerInvoices.reduce((s, inv) => s + (inv.items || []).reduce((sum, item) => sum + Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)), 0), 0);
+                                 const tOutstanding = tTotal - tReceived;
+                                 return (
+                                    <tr style={{ background: "#FFF7ED", fontWeight: "900", borderTop: "2px solid #FED7AA" }}>
+                                       <td colSpan="3" style={{ padding: "14px", textAlign: "right", borderRadius: "10px 0 0 10px", color: COLORS.sidebar, fontSize: "12px" }}>LEDGER TOTALS:</td>
+                                       <td style={{ padding: "14px" }}>{tQty.toLocaleString("en-IN")} KG</td>
+                                       <td style={{ padding: "14px", color: "#DC2626" }}>{formatCurrency(tTotal)}</td>
+                                       <td style={{ padding: "14px", color: "#15803D" }}>{formatCurrency(tReceived)}</td>
+                                       <td style={{ padding: "14px", borderRadius: "0 10px 10px 0", color: tOutstanding > 0 ? "#C2410C" : "#15803D" }}>{formatCurrency(tOutstanding)} {tOutstanding > 0 ? "OUTSTANDING" : "SETTLED"}</td>
+                                    </tr>
+                                 );
+                              })()}
+                           </tbody>
                        </table>
                     </div>
                   </div>
@@ -3387,9 +3431,9 @@ export default function App() {
           {activeSection === "Dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "slideUp 0.5s ease-out" }}>
                 
-                {/* ≡ƒôè 11.1 Dashboard ΓÇö Real-Time Overview */}
+                {/* ≡ƒôè 11.1 Dashboard — Real-Time Overview */}
                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
-                   <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>11.1 Dashboard ΓÇö Real-Time Overview</h2>
+                   <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>11.1 Dashboard — Real-Time Overview</h2>
                    <p style={{ fontSize: "13px", color: COLORS.muted, marginBottom: "24px", marginTop: 0 }}>The home screen dashboard gives the owner and accountant an instant snapshot of today's operations.</p>
                    
                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
@@ -3730,8 +3774,8 @@ export default function App() {
                               bg: "linear-gradient(135deg, #375144 0%, #2d4137 100%)",
                               tagBg: "rgba(159,180,67,0.25)",
                               tagColor: "#9fb443",
-                              desc: "Full access ΓÇö all modules, reports, settings, user management, delete & void bills",
-                              perms: ["Γ£à All Modules", "Γ£à Delete & Void", "Γ£à User Management", "Γ£à System Config", "Γ£à Reports & Ledger", "Γ£à Payment Records"]
+                              desc: "Full access — all modules, reports, settings, user management, delete & void bills",
+                              perms: ["✅ All Modules", "✅ Delete & Void", "✅ User Management", "✅ System Config", "✅ Reports & Ledger", "✅ Payment Records"]
                            },
                            {
                               role: "Accountant",
@@ -3740,8 +3784,8 @@ export default function App() {
                               bg: "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)",
                               tagBg: "rgba(59,130,246,0.15)",
                               tagColor: "#3b82f6",
-                              desc: "Bills, invoices, payments, ledgers, reports ΓÇö NO system configuration, NO delete",
-                              perms: ["Γ£à Bills & Invoices", "Γ£à Payments", "Γ£à Ledger View", "Γ£à Reports", "Γ¥î System Config", "Γ¥î Delete / Void"]
+                              desc: "Bills, invoices, payments, ledgers, reports — NO system configuration, NO delete",
+                              perms: ["✅ Bills & Invoices", "✅ Payments", "✅ Ledger View", "✅ Reports", "❌ System Config", "❌ Delete / Void"]
                            },
                            {
                               role: "Operations Staff",
@@ -3750,18 +3794,18 @@ export default function App() {
                               bg: "linear-gradient(135deg, #b45309 0%, #92400e 100%)",
                               tagBg: "rgba(245,158,11,0.15)",
                               tagColor: "#f59e0b",
-                              desc: "Create lots, allocate produce, create bills/invoices ΓÇö NO payment records, NO ledger edits",
-                              perms: ["Γ£à Create Lots", "Γ£à Allocate Produce", "Γ£à Create Bills", "Γ£à Create Invoices", "Γ¥î Payment Records", "Γ¥î Ledger Edits"]
+                              desc: "Create lots, allocate produce, create bills/invoices — NO payment records, NO ledger edits",
+                              perms: ["✅ Create Lots", "✅ Allocate Produce", "✅ Create Bills", "✅ Create Invoices", "❌ Payment Records", "❌ Ledger Edits"]
                            },
                            {
                               role: "Viewer",
-                              icon: "≡ƒæü∩╕Å",
+                              icon: "👁️",
                               color: "#475569",
                               bg: "linear-gradient(135deg, #475569 0%, #334155 100%)",
                               tagBg: "rgba(71,85,105,0.12)",
                               tagColor: "#64748b",
-                              desc: "Read-only access to reports and ledgers ΓÇö NO create or edit",
-                              perms: ["Γ£à View Reports", "Γ£à View Ledger", "Γ¥î Create / Edit", "Γ¥î Delete / Void", "Γ¥î Payments", "Γ¥î System Config"]
+                              desc: "Read-only access to reports and ledgers — NO create or edit",
+                              perms: ["✅ View Reports", "✅ View Ledger", "❌ Create / Edit", "❌ Delete / Void", "❌ Payments", "❌ System Config"]
                            }
                         ].map((r, i) => (
                            <div key={i} style={{ background: r.bg, borderRadius: "24px", padding: "28px 24px", color: "#fff", position: "relative", overflow: "hidden", boxShadow: `0 12px 32px ${r.color}30` }}>
@@ -3802,7 +3846,7 @@ export default function App() {
                                        { label: "Owner / Admin", icon: "≡ƒææ", color: "#375144", bg: "#f0f9f4" },
                                        { label: "Accountant", icon: "≡ƒôè", color: "#1d4ed8", bg: "#eff6ff" },
                                        { label: "Ops Staff", icon: "≡ƒÅ¡", color: "#b45309", bg: "#fffbeb" },
-                                       { label: "Viewer", icon: "≡ƒæü∩╕Å", color: "#475569", bg: "#f8fafc" }
+                                       { label: "Viewer", icon: "👁️", color: "#475569", bg: "#f8fafc" }
                                     ].map(col => (
                                        <th key={col.label} style={{ padding: "14px 24px", background: col.bg, borderBottom: "2px solid #e2e8f0", textAlign: "center", minWidth: "150px" }}>
                                           <div style={{ fontSize: "18px", marginBottom: "4px" }}>{col.icon}</div>
@@ -3838,7 +3882,7 @@ export default function App() {
                                        }[perm] || { bg: "#f1f5f9", color: "#475569", label: perm };
                                        return (
                                           <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "11px", fontWeight: "900", padding: "5px 12px", borderRadius: "20px", background: cfg.bg, color: cfg.color, letterSpacing: "0.2px" }}>
-                                             {perm === "FULL" ? "Γ£à" : perm === "NONE" ? "≡ƒÜ½" : perm === "READ" ? "≡ƒæü∩╕Å" : "Γ£Å∩╕Å"} {cfg.label}
+                                             {perm === "FULL" ? "✅" : perm === "NONE" ? "🚫" : perm === "READ" ? "👁️" : "✍️"} {cfg.label}
                                           </span>
                                        );
                                     };
@@ -3863,10 +3907,10 @@ export default function App() {
                         <div style={{ marginTop: "24px", display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "center" }}>
                            <span style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.5px" }}>Legend:</span>
                            {[
-                              { bg: "#dcfce7", color: "#15803d", icon: "Γ£à", label: "Full Access ΓÇö Create, Edit, Delete, View" },
-                              { bg: "#fef3c7", color: "#b45309", icon: "Γ£Å∩╕Å", label: "Create Only ΓÇö No Edit/Delete" },
-                              { bg: "#dbeafe", color: "#1d4ed8", icon: "≡ƒæü∩╕Å", label: "Read Only ΓÇö View without changes" },
-                              { bg: "#fee2e2", color: "#991b1b", icon: "≡ƒÜ½", label: "No Access ΓÇö Module hidden" }
+                              { bg: "#dcfce7", color: "#15803d", icon: "✅", label: "Full Access — Create, Edit, Delete, View" },
+                              { bg: "#fef3c7", color: "#b45309", icon: "✍️", label: "Create Only — No Edit/Delete" },
+                              { bg: "#dbeafe", color: "#1d4ed8", icon: "👁️", label: "Read Only — View without changes" },
+                              { bg: "#fee2e2", color: "#991b1b", icon: "🚫", label: "No Access — Module hidden" }
                            ].map((l, i) => (
                               <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11px", fontWeight: "700", padding: "5px 12px", borderRadius: "20px", background: l.bg, color: l.color }}>
                                  {l.icon} {l.label}
@@ -3893,7 +3937,7 @@ export default function App() {
                               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                                  <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                                     <div style={{ padding: "8px", background: log.status === "SUCCESS" ? "#dcfce7" : "#fee2e2", borderRadius: "8px", color: log.status === "SUCCESS" ? "#166534" : "#991b1b" }}>
-                                       {log.status === "SUCCESS" ? "Γ£à" : "≡ƒÜ½"}
+                                       {log.status === "SUCCESS" ? "✅" : "🚫"}
                                     </div>
                                     <div>
                                        <div style={{ fontWeight: "800", fontSize: "13px" }}>{log.action}</div>
