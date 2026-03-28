@@ -811,6 +811,7 @@ export default function App() {
   const [suppliers, setSuppliers] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [lots, setLots] = useState([]);
+  const [allocations, setAllocations] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [invMode, setInvMode] = useState("Allocation"); // "Intake" or "Allocation"
@@ -1109,6 +1110,9 @@ export default function App() {
       const lRes = await MandiService.getLots();
       setLots(lRes.status === "SUCCESS" ? lRes.data : dummyLots);
 
+      const aRes = await MandiService.getAllocations();
+      setAllocations(aRes.status === "SUCCESS" ? aRes.data : []);
+
       const dRes = await MandiService.getDocuments();
       if (dRes.status === "SUCCESS") {
          setDocuments(dRes.data);
@@ -1322,6 +1326,35 @@ export default function App() {
     } catch (err) {
       alert(`❌ ALLOCATION FAILED: ${err.message}`);
     }
+  };
+
+  const handleDeleteAllocation = async (id) => {
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this allocation record?")) return;
+    try {
+      const res = await MandiService.deleteAllocation(id);
+      if (res.status === "SUCCESS") {
+        alert("✅ Allocation deleted successfully!");
+        fetchData();
+      } else {
+        alert("❌ Error deleting: " + res.message);
+      }
+    } catch(err) {
+      alert("Delete failed.");
+    }
+  };
+
+  const handleEditAllocation = (record) => {
+    setAllocationForm({
+      lotId: record.lotId,
+      lineItemId: record.lineItemId,
+      buyerId: record.buyerId,
+      quantity: record.quantity,
+      saleRate: record.rate,
+      allocationDate: record.allocationDate || getISTDate(),
+      buyerInvoiceNo: record.invoiceNo || "",
+      notes: record.notes || ""
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleFarmerSelectionForSettlement = async (id) => {
@@ -1883,7 +1916,10 @@ export default function App() {
                                  <div style={{ flex: 1 }}>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚛 {l.vehicleNumber} | 📍 {l.origin} | 📅 {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
-                                    <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900", marginTop: "4px", display: "block" }}>Gross Sale: {formatCurrency(grossSale)}</span>
+                                    <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
+                                        <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross Sale: {formatCurrency(grossSale)}</span>
+                                        <span style={{ fontSize: "11px", color: COLORS.sidebar, fontWeight: "800" }}>Weight: {((l.lineItems || []).reduce((sw, i) => sw + (i.weightUnit === 'Tones' ? Number(i.grossWeight)*1000 : Number(i.grossWeight)), 0) / 1000).toFixed(2)} Tones</span>
+                                    </div>
                                  </div>
                                  <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                                     <div style={{ textAlign: "right", marginRight: "16px" }}>
@@ -2009,6 +2045,21 @@ export default function App() {
                       ))}
                       <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>+ Add Next Produce Item</Button>
                     </div>
+
+                    <div style={{ marginTop: "32px", padding: "24px", background: "#F1F5F9", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                            <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted, fontWeight: "700", textTransform: "uppercase" }}>Running Lot Totals</p>
+                            <h4 style={{ margin: "4px 0 0", color: COLORS.sidebar, fontSize: "18px", fontWeight: "900" }}>
+                                Total Lot Weight: { (lotCreationForm.lineItems.reduce((acc, i) => acc + (i.weightUnit === 'Tones' ? (Number(i.grossWeight)||0)*1000 : (Number(i.grossWeight)||0)), 0) / 1000).toFixed(3) } Tones
+                            </h4>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                            <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted, fontWeight: "700", textTransform: "uppercase" }}>Estimated Gross Sale</p>
+                            <h4 style={{ margin: "4px 0 0", color: COLORS.accent, fontSize: "22px", fontWeight: "900" }}>
+                                { formatCurrency(lotCreationForm.lineItems.reduce((acc, i) => acc + ((Number(i.grossWeight)||0) * (Number(i.estimatedRate)||0)), 0)) }
+                            </h4>
+                        </div>
+                    </div>
                   </div>
               
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
@@ -2041,7 +2092,10 @@ export default function App() {
                                  <div style={{ flex: 1 }}>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚛 {l.vehicleNumber} | 📍 {l.origin} | 📅 {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
-                                    <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900", marginTop: "4px", display: "block" }}>Gross Sale: {formatCurrency(grossSale)}</span>
+                                    <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
+                                        <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross Sale: {formatCurrency(grossSale)}</span>
+                                        <span style={{ fontSize: "11px", color: COLORS.sidebar, fontWeight: "800" }}>Weight: {((l.lineItems || []).reduce((sw, i) => sw + (i.weightUnit === 'Tones' ? Number(i.grossWeight)*1000 : Number(i.grossWeight)), 0) / 1000).toFixed(2)} Tones</span>
+                                    </div>
                                  </div>
                                  <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                                     <div style={{ textAlign: "right", marginRight: "16px" }}>
@@ -2071,11 +2125,39 @@ export default function App() {
                  </div>
               </div>
 
-              <FormGrid sections={[
+               <FormGrid sections={[
                 {
                   title: "Auction & Allocation Entry",
                   fields: [
-                    { label: "Lot ID *", type: "text", list: "lots-list", value: allocationForm.lotId, onChange: e => setAllocationForm({...allocationForm, lotId: e.target.value}), placeholder: "Select active lot" },
+                    { 
+                      label: "Lot ID *", 
+                      type: "text", 
+                      list: "lots-list", 
+                      value: allocationForm.lotId, 
+                      onChange: e => {
+                        const lotIdVal = e.target.value;
+                        const matchedLot = lots.find(l => l.lotId === lotIdVal);
+                        let autoItem = "";
+                        let autoQty = "";
+                        let autoRate = "";
+                        
+                        if (matchedLot && matchedLot.lineItems?.length > 0) {
+                           const firstItem = matchedLot.lineItems[0];
+                           autoItem = `${firstItem.productId} / ${firstItem.variety} / ${firstItem.grade}`;
+                           autoQty = (Number(firstItem.grossWeight) - Number(firstItem.deductions)).toString();
+                           autoRate = firstItem.estimatedRate || "";
+                        }
+
+                        setAllocationForm({
+                          ...allocationForm, 
+                          lotId: lotIdVal,
+                          lineItemId: autoItem,
+                          quantity: autoQty,
+                          saleRate: autoRate
+                        });
+                      }, 
+                      placeholder: "Select active lot" 
+                    },
                     { label: "Product / Variety / Grade *", type: "text", list: "items-list", value: allocationForm.lineItemId, onChange: e => setAllocationForm({...allocationForm, lineItemId: e.target.value}), placeholder: "Specific line item" },
                     { label: "Buyer Name *", type: "select", options: ["", ...buyers.map(b => b.name)], value: allocationForm.buyerId, onChange: e => setAllocationForm({...allocationForm, buyerId: e.target.value}) },
                     { label: "Quantity Allocated (KG) *", type: "number", value: allocationForm.quantity, onChange: e => setAllocationForm({...allocationForm, quantity: e.target.value}), placeholder: "Can be partial" },
@@ -2098,11 +2180,31 @@ export default function App() {
               </datalist>
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={() => {
-                   alert(`✅ ALLOCATION RECORDED for Lot ${allocationForm.lotId}!`);
-                   setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" });
-                }}>Record Allocation</Button>
+                <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleAllocate}>Record Allocation</Button>
                 <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" })}>Clear Form</Button>
+              </div>
+
+              {/* Recently Recorded Allocations (Vault) */}
+              <div style={{ marginTop: "48px" }}>
+                 <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Recently Recorded Allocations</h4>
+                 <div style={{ maxHeight: "400px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                    <div style={{ display: "grid", gap: "12px" }}>
+                       {allocations.slice().reverse().slice(0, 5).map(a => (
+                          <div key={a._id || Date.now() + Math.random()} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                             <div style={{ flex: 1 }}>
+                                <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{a.lotId} — {a.buyerId?.name || a.buyerId || "Buyer"}</b>
+                                <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📦 {a.lineItemId} | ⚖️ {a.quantity} KG @ ₹{a.rate}/KG | 📅 {a.allocationDate}</p>
+                                <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900", marginTop: "4px", display: "block" }}>Total Value: {formatCurrency(Number(a.quantity) * Number(a.rate))}</span>
+                             </div>
+                             <div style={{ display: "flex", gap: "12px" }}>
+                                <button onClick={() => handleEditAllocation(a)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✏️</button>
+                                <button onClick={() => handleDeleteAllocation(a._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
+                             </div>
+                          </div>
+                       ))}
+                       {allocations.length === 0 && <p style={{ textAlign: "center", color: COLORS.muted, padding: "20px" }}>No allocation records found.</p>}
+                    </div>
+                 </div>
               </div>
             </div>
           )}

@@ -51,11 +51,12 @@ const request = async (method, path, body = null) => {
       if (path === '/suppliers') return { status: "SUCCESS", data: getLocal('suppliers') };
       if (path === '/buyers') return { status: "SUCCESS", data: getLocal('buyers') };
       if (path === '/lots') return { status: "SUCCESS", data: getLocal('lots') };
+      if (path === '/allocations') return { status: "SUCCESS", data: getLocal('allocations') };
       return { status: "SUCCESS", data: [] };
     }
 
     if (method === 'POST') {
-      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : null));
+      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : null)));
       if (storeName) {
         const store = getLocal(storeName);
         const newItem = { ...body, _id: `sim_${Date.now()}`, createdAt: new Date() };
@@ -67,7 +68,7 @@ const request = async (method, path, body = null) => {
     if (method === 'PUT' || method === 'DELETE') {
       const pathParts = path.split('/');
       const id = pathParts[pathParts.length - 1];
-      const storeName = path.includes('supplier') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot') ? 'lots' : null));
+      const storeName = path.includes('supplier') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : null)));
       if (storeName && id) {
         const store = getLocal(storeName);
         if (method === 'DELETE') {
@@ -120,7 +121,9 @@ export const MandiService = {
   getLots: async () => request('GET', '/lots'),
   addLot: async (data) => request('POST', '/lot/intake', data),
   deleteLot: async (id) => request('DELETE', `/lot/intake/${id}`),
+  getAllocations: async () => request('GET', '/allocations'),
   allocateLot: async (data) => request('POST', '/lot/allocate', data),
+  deleteAllocation: async (id) => request('DELETE', `/lot/allocate/${id}`),
   getInventoryDashboard: async () => request('GET', '/inventory/dashboard'),
   getLotTraceability: async (lotId) => request('GET', `/traceability/lot/${lotId}`),
   getBuyerTraceability: async (allocationId) => request('GET', `/traceability/allocation/${allocationId}`),
