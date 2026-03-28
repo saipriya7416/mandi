@@ -1807,7 +1807,26 @@ export default function App() {
                 <p style={{ color: "#ffffff", fontSize: "14px", margin: 0, fontWeight: "850", letterSpacing: "0.3px" }}>{user?.username || "Staff Identity"}</p>
                 <p style={{ color: "#AEC4BB", fontSize: "11px", margin: 0, fontWeight: "600", textTransform: "uppercase", opacity: 0.7 }}>{user?.role}</p>
              </div>
-             <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer", fontSize: "20px", padding: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.2)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>🚪</button>
+             <button 
+               onClick={handleLogout} 
+               style={{ 
+                 background: "#FFF1F2", 
+                 border: "none", 
+                 color: "#E11D48", 
+                 cursor: "pointer", 
+                 fontSize: "10px", 
+                 fontWeight: "900",
+                 padding: "8px 14px", 
+                 borderRadius: "12px",
+                 textTransform: "uppercase",
+                 letterSpacing: "0.8px",
+                 transition: "all 0.2s" 
+               }}
+               onMouseOver={e=>{e.currentTarget.style.background="#FFE4E6"; e.currentTarget.style.transform="translateY(-1px)"}}
+               onMouseOut={e=>{e.currentTarget.style.background="#FFF1F2"; e.currentTarget.style.transform="translateY(0)"}}
+             >
+               Log out
+             </button>
           </div>
         </nav>
       )}
@@ -2816,15 +2835,15 @@ export default function App() {
                     <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Additional Charges</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🏛️ Commission (₹)</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Commission (₹)</label>
                           <input type="number" value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒ¢á∩╕Å Handling Charges (₹)</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Handling Charges</label>
                           <input type="number" value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🚚 Outward Transport (₹)</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Outward Transport (₹)</label>
                           <input type="number" value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
@@ -2925,29 +2944,20 @@ export default function App() {
 
                {activeLedgerTab === "Supplier" && (
                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px" }}>
+                    <div style={{ padding: "8px 0", borderBottom: "1px solid #EBE9E1", marginBottom: "20px", display: "flex", justifyContent: "space-between", fontSize: "11px", fontWeight: "750", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>
+                       <span>SPV FRUITS — Mandi Management ERP</span>
+                       <span style={{ color: "#E11D48" }}>Confidential — Internal Document Only</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "10px" }}>
                        <div>
                           <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Supplier Party Ledger</h2>
-                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Financial statement of farmer accounts: Gross Sale (Credit) vs Charges (Debit).</p>
+                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Tracks all amounts owed TO the farmer and settlements made in real-time.</p>
                        </div>
                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
                     </div>
                     
                     <div style={{ overflowX: "auto" }}>
                        <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
-                          <thead>
-                             <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Number</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Product(s) Summary</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Gross Sale (₹)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Expenses (₹)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Net Sale (₹)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Advance (₹)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Made (₹)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Running Balance (₹)</th>
-                             </tr>
                           </thead>
                           <tbody>
                              {(() => {
