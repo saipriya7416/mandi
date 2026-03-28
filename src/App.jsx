@@ -285,7 +285,7 @@ export default function App() {
     aadhaar: "", pan: "", voterId: "",
     bankAccount: "", ifsc: "", advanceBalance: "", notes: "" 
   });
-  const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+  const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", marketArea: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
   const [lotCreationForm, setLotCreationForm] = useState({
     lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-001`,
     dateTime: new Date().toISOString().slice(0, 16),
@@ -368,6 +368,7 @@ export default function App() {
         shopName: record.shopName,
         phone: record.phone,
         address: record.address,
+        marketArea: record.marketArea || "",
         govIdNumber: record.govIdNumber || "",
         idType: record.idType || "Aadhaar",
         creditLimit: record.creditLimit || "",
@@ -469,6 +470,7 @@ export default function App() {
       phone: buyerForm.phone,
       address: buyerForm.address || "unknown",
       shopName: buyerForm.shopName || buyerForm.name,
+      marketArea: buyerForm.marketArea,
       govIdNumber: buyerForm.govIdNumber || "N/A",
       creditLimit: Number(buyerForm.creditLimit) || 0,
       notes: "Registered via Unified Dashboard",
@@ -1641,19 +1643,21 @@ export default function App() {
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll('Supplier')}>Cancel All</Button>
                   </div>
                   
-                  {/* Recent Suppliers for Editing */}
+                  {/* Supplier Database Records */}
                   <div style={{ marginTop: "40px" }}>
-                     <h4 style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "850" }}>📋 Recent Suppliers (Click Edit to modify)</h4>
-                     <div style={{ display: "grid", gap: "12px" }}>
-                        {suppliers.slice(0, 5).map(s => (
-                           <div key={s._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <div>
-                                 <b style={{ color: COLORS.sidebar }}>{s.name}</b>
-                                 <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted }}>{s.phone} | {s.village}</p>
+                     <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Registered Supplier Vault</h4>
+                     <div style={{ maxHeight: "450px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                        <div style={{ display: "grid", gap: "12px" }}>
+                           {suppliers.map(s => (
+                              <div key={s._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                                 <div>
+                                    <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{s.name}</b>
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📞 {s.phone} | 📍 {s.village || s.marketArea || 'Location N/A'}</p>
+                                 </div>
+                                 <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Supplier', s)}>Modify Profile</Button>
                               </div>
-                              <Button variant="outline" style={{ fontSize: "12px", padding: "6px 12px" }} onClick={() => handleEditSelect('Supplier', s)}>Select for Edit</Button>
-                           </div>
-                        ))}
+                           ))}
+                        </div>
                      </div>
                   </div>
                 </div>
@@ -1676,8 +1680,8 @@ export default function App() {
                         { label: "Shop / Business Name *", placeholder: "Shop / Business Name", value: buyerForm.shopName, onChange: e => setBuyerForm({...buyerForm, shopName: e.target.value}) },
                         { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: e => setBuyerForm({...buyerForm, phone: e.target.value}) },
                         { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: e => setBuyerForm({...buyerForm, address: e.target.value}) },
-                        { label: "Market / Area *", list: "indian-towns", placeholder: "Which mandi or market zone" },
-                        { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN" }
+                        { label: "Market / Area *", type: "select", options: ["Guntur", "Madanapalle", "Tenali", "Narasaraopet", "Nagpur", "Nashik", "Pune", "Mumbai", "Surat", "Ahmedabad", "Rajkot", "Vadodara", "Varanasi", "Lucknow", "Kanpur", "Prayagraj", "Patna", "Gaya", "Ranchi", "Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain", "Azadpur", "Ghazipur", "Warangal", "Karimnagar", "Nizamabad", "Khammam", "Ramagundam", "Siddipet", "Medak", "Chikballapur", "Kolar", "Hassan", "Mysuru", "Hubli", "Belagavi", "Davanagere", "Anantapur", "Chittoor", "Kadapa", "Nellore", "Kurnool", "Ongole", "Tirupati"], value: buyerForm.marketArea, onChange: e => setBuyerForm({...buyerForm, marketArea: e.target.value}) },
+                        { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: e => setBuyerForm({...buyerForm, govIdNumber: e.target.value}) }
                       ]
                     },
                     {
@@ -1697,19 +1701,21 @@ export default function App() {
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll('Buyer')}>Cancel All</Button>
                   </div>
 
-                  {/* Recent Buyers for Editing */}
+                  {/* Customer Database Records */}
                   <div style={{ marginTop: "40px" }}>
-                     <h4 style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "850" }}>📋 Recent Customers (Click Edit to modify)</h4>
-                     <div style={{ display: "grid", gap: "12px" }}>
-                        {buyers.slice(0, 5).map(b => (
-                           <div key={b._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <div>
-                                 <b style={{ color: COLORS.sidebar }}>{b.name}</b>
-                                 <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted }}>{b.shopName} | {b.phone}</p>
+                     <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Registered Customer Vault</h4>
+                     <div style={{ maxHeight: "450px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                        <div style={{ display: "grid", gap: "12px" }}>
+                           {buyers.map(b => (
+                              <div key={b._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                                 <div>
+                                    <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.name}</b>
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🏬 {b.shopName} | 📞 {b.phone}</p>
+                                 </div>
+                                 <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Buyer', b)}>Modify Profile</Button>
                               </div>
-                              <Button variant="outline" style={{ fontSize: "12px", padding: "6px 12px" }} onClick={() => handleEditSelect('Buyer', b)}>Select for Edit</Button>
-                           </div>
-                        ))}
+                           ))}
+                        </div>
                      </div>
                   </div>
                 </div>
