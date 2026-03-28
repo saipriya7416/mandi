@@ -1707,11 +1707,11 @@ export default function App() {
         </div>
       )}
 
-      {/* 1. SIDE NAVIGATION (Jamango Style) */}
+      {/* 1. SIDE NAVIGATION (STACLI Modern Style) */}
       {loggedIn && (
         <nav style={{ 
           width: isMobile ? "280px" : "260px", 
-          background: COLORS.sidebar, 
+          background: "#0d130d", // Darker Deep Forest
           padding: "24px 0", 
           display: "flex", 
           flexDirection: "column",
@@ -1721,18 +1721,22 @@ export default function App() {
           bottom: 0,
           zIndex: 1100,
           transition: "left 0.3s ease-in-out",
-          boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
+          boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none",
+          borderRight: "1px solid #1a231a"
         }}>
-          <div style={{ padding: "0 24px 32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-            <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI" style={{ width: "64px", height: "64px", objectFit: "cover", borderRadius: "50%", border: "2px solid #3c4a3c" }} />
-            <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "1px", margin: 0 }}>STACLI</h2>
+          <div style={{ padding: "0 24px 32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+            <div style={{ position: "relative" }}>
+              <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI" style={{ width: "68px", height: "68px", objectFit: "cover", borderRadius: "50%", border: "2.5px solid #7db580", padding: "2px" }} />
+              <div style={{ position: "absolute", bottom: "4px", right: "4px", width: "12px", height: "12px", background: "#7db580", borderRadius: "50%", border: "2px solid #0d130d" }}></div>
+            </div>
+            <h2 style={{ color: "#ffffff", fontWeight: "900", fontSize: "19px", letterSpacing: "1.5px", margin: 0 }}>STACLI</h2>
           </div>
           
-          <div style={{ padding: "0 24px", marginBottom: "12px" }}>
-            <span style={{ fontSize: "10px", fontWeight: "700", color: "#548265", textTransform: "uppercase", letterSpacing: "1px" }}>Overview</span>
+          <div style={{ padding: "0 28px", marginBottom: "16px" }}>
+            <span style={{ fontSize: "10.5px", fontWeight: "900", color: "#7db580", textTransform: "uppercase", letterSpacing: "2px", opacity: 0.8 }}>OVERVIEW</span>
           </div>
 
-          <div style={{ flex: 1, overflowY: "auto", padding: "0 16px" }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "0 14px" }}>
             {MENU.map(item => (
               <div
                 key={item.id}
@@ -1741,19 +1745,26 @@ export default function App() {
                   if (isMobile) setSidebarOpen(false);
                 }}
                 style={{
-                  padding: item.isSub ? "8px 16px 8px 36px" : "12px 18px", borderRadius: "14px", marginBottom: "6px", cursor: "pointer",
-                  display: "flex", alignItems: "center", transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  background: activeSection === item.id ? "rgba(160, 183, 99, 0.15)" : "transparent",
-                  color: activeSection === item.id ? "#ffffff" : "#AEC4BB",
+                  padding: "14px 18px", 
+                  borderRadius: "14px", 
+                  marginBottom: "8px", 
+                  cursor: "pointer",
+                  display: "flex", 
+                  alignItems: "center", 
+                  transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                  background: activeSection === item.id ? "rgba(125, 181, 128, 0.12)" : "transparent",
+                  color: activeSection === item.id ? "#ffffff" : "#adb5ad",
+                  borderLeft: activeSection === item.id ? "4px solid #7db580" : "4px solid transparent",
+                  position: "relative",
+                  overflow: "hidden"
                 }}
               >
                 <span style={{ 
-                  fontWeight: activeSection === item.id ? "850" : "550", 
-                  fontSize: item.isSub ? "12px" : "13.5px", 
-                  letterSpacing: "0.2px",
+                  fontWeight: activeSection === item.id ? "900" : "600", 
+                  fontSize: "14px", 
+                  letterSpacing: "0.3px",
                   whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis"
+                  opacity: activeSection === item.id ? 1 : 0.85
                 }}>
                   {item.label || item.id}
                 </span>
