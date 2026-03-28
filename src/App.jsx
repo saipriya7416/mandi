@@ -235,6 +235,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [activeSupplierTab, setActiveSupplierTab] = useState("Supplier Registration");
   const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
+  const [activeLotTab, setActiveLotTab] = useState("LOT Creation");
   const [activeUserRoleTab, setActiveUserRoleTab] = useState("Supplier");
   const [dispatchProduct, setDispatchProduct] = useState("");
   const [dispatchType, setDispatchType] = useState("Fruits");
@@ -1762,116 +1763,168 @@ export default function App() {
           {/* LOT CREATION MODULE */}
           {activeSection === "Lot Creation" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <datalist id="suppliers-list">
-                 {suppliers.map(s => <option key={s._id} value={s.name} />)}
-              </datalist>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
-                 <div>
-                    <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Lot Creation</h2>
-                 </div>
-              </div>
-              
-              <FormGrid sections={[
-                {
-                  title: "Intake Details",
-                  fields: [
-                    { label: "Lot ID *", type: "text", value: lotCreationForm.lotId, disabled: true, placeholder: "Auto-generated sequence" },
-                    { label: "Date & Time *", type: "datetime-local", value: lotCreationForm.dateTime, onChange: e => setLotCreationForm({...lotCreationForm, dateTime: e.target.value}) },
-                    { label: "Supplier Name *", type: "text", list: "suppliers-list", value: lotCreationForm.farmerId, onChange: e => setLotCreationForm({...lotCreationForm, farmerId: e.target.value}), placeholder: "Search and select supplier" },
-                    { label: "Vehicle / Lorry Number *", type: "text", value: lotCreationForm.vehicleNumber, onChange: e => setLotCreationForm({...lotCreationForm, vehicleNumber: e.target.value}), placeholder: "Registration number of arriving vehicle" },
-                    { label: "Driver Name", type: "text", value: lotCreationForm.driverName, onChange: e => setLotCreationForm({...lotCreationForm, driverName: e.target.value}), placeholder: "Optional" },
-                    { label: "Origin / Source Location *", type: "text", value: lotCreationForm.origin, onChange: e => setLotCreationForm({...lotCreationForm, origin: e.target.value}), placeholder: "Village or farm location" },
-                    { label: "Attached Bill Photo", type: "file", onChange: e => setLotCreationForm({...lotCreationForm, attachedBill: e.target.files[0]}), placeholder: "Photo of paper bill / delivery challan from farmer" },
-                    { label: "Notes", type: "text", value: lotCreationForm.notes, onChange: e => setLotCreationForm({...lotCreationForm, notes: e.target.value}), placeholder: "Any special remarks about condition of produce" }
-                  ]
-                }
-              ]} />
-
-              <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", marginTop: "24px" }}>
-                <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", marginTop: 0 }}>Produce Details</h3>
-                
-                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                  {lotCreationForm.lineItems.map((item, idx) => (
-                    <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", padding: "24px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
-                      
-                      {idx > 0 && (
-                        <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
-                          ❌ Remove
-                        </div>
-                      )}
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
-                        <select value={item.productId} onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                           <option value="" disabled>Select Product</option>
-                           {Object.keys(PRODUCT_DATA).filter(k => k !== "default").map(p => <option key={p} value={p}>{p}</option>)}
-                        </select>
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Variety *</label>
-                        <select value={item.variety} onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                           <option value="" disabled>Select Variety</option>
-                           {(PRODUCT_DATA[item.productId]?.varieties || []).map(v => <option key={v} value={v}>{v}</option>)}
-                        </select>
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Grade</label>
-                        <select value={item.grade} onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                           <option value="A">A Grade</option>
-                           <option value="B">B Grade</option>
-                           <option value="C">C Grade</option>
-                           <option value="Export">Export</option>
-                           <option value="Local">Local</option>
-                        </select>
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Gross Weight (KG) *</label>
-                        <input type="number" value={item.grossWeight} onChange={(e) => handleLineItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Deductions (KG)</label>
-                        <input type="number" value={item.deductions} onChange={(e) => handleLineItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Net Weight (KG) Auto</label>
-                        <input type="number" disabled value={(Number(item.grossWeight) - Number(item.deductions)) || 0} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Boxes / Crates</label>
-                        <input type="number" value={item.boxes} onChange={(e) => handleLineItemAction("Update", idx, "boxes", e.target.value)} placeholder="Optional units/boxes" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (₹/KG)</label>
-                        <input type="number" value={item.estimatedRate} onChange={(e) => handleLineItemAction("Update", idx, "estimatedRate", e.target.value)} placeholder="Optional pre-auction estimate" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                      </div>
-
-                    </div>
-                  ))}
-                  <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>+ Add Next Produce Item</Button>
+              <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1" }}>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <div 
+                    onClick={() => setActiveLotTab("LOT Creation")}
+                    style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeLotTab === "LOT Creation" ? COLORS.sidebar : "#F3F1EA", color: activeLotTab === "LOT Creation" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
+                  >LOT Creation</div>
+                  <div 
+                    onClick={() => setActiveLotTab("Produce Details")}
+                    style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeLotTab === "Produce Details" ? COLORS.sidebar : "#F3F1EA", color: activeLotTab === "Produce Details" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}
+                  >Produce Details</div>
                 </div>
               </div>
-          
-              <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterLot}>Create Lot</Button>
-                
-                {isAdmin && (
-                  <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Edit Mode enabled for Admin")}>Edit</Button>
-                )}
 
-                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setLotCreationForm({
-                    ...lotCreationForm,
-                    lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
-                    vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
-                    lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "", status: "Pending Auction" }]
-                  })}>Clear Form</Button>
-              </div>
+              {activeLotTab === "LOT Creation" && (
+                <div>
+                  <datalist id="suppliers-list">
+                    {suppliers.map(s => <option key={s._id} value={s.name} />)}
+                  </datalist>
+                  <FormGrid sections={[
+                    {
+                      title: "Intake Details",
+                      fields: [
+                        { label: "Lot ID *", type: "text", value: lotCreationForm.lotId, disabled: true, placeholder: "Auto-generated sequence" },
+                        { label: "Date & Time *", type: "datetime-local", value: lotCreationForm.dateTime, onChange: e => setLotCreationForm({...lotCreationForm, dateTime: e.target.value}) },
+                        { 
+                          label: "Supplier Name *", 
+                          type: "select", 
+                          options: ["", ...suppliers.map(s => s.name)], 
+                          value: lotCreationForm.farmerId, 
+                          onChange: e => {
+                            const val = e.target.value;
+                            const foundS = suppliers.find(s => s.name === val);
+                            setLotCreationForm({
+                              ...lotCreationForm, 
+                              farmerId: val,
+                              origin: foundS ? (foundS.village || foundS.state || "") : lotCreationForm.origin
+                            });
+                          }
+                        },
+                        { label: "Vehicle / Lorry Number *", type: "text", value: lotCreationForm.vehicleNumber, onChange: e => setLotCreationForm({...lotCreationForm, vehicleNumber: e.target.value}), placeholder: "Registration number of arriving vehicle" },
+                        { label: "Driver Name", type: "text", value: lotCreationForm.driverName, onChange: e => setLotCreationForm({...lotCreationForm, driverName: e.target.value}), placeholder: "Optional" },
+                        { label: "Origin / Source Location *", type: "text", value: lotCreationForm.origin, onChange: e => setLotCreationForm({...lotCreationForm, origin: e.target.value}), placeholder: "Village or farm location" },
+                        { label: "Attached Bill Photo", type: "file", onChange: e => setLotCreationForm({...lotCreationForm, attachedBill: e.target.files[0]}), placeholder: "Photo of paper bill / delivery challan from farmer" },
+                        { label: "Notes", type: "text", value: lotCreationForm.notes, onChange: e => setLotCreationForm({...lotCreationForm, notes: e.target.value}), placeholder: "Any special remarks about condition of produce" }
+                      ]
+                    }
+                  ]} />
+
+                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", marginTop: "24px" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", marginTop: 0 }}>Produce Details</h3>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                      {lotCreationForm.lineItems.map((item, idx) => (
+                        <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", padding: "24px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
+                          
+                          {idx > 0 && (
+                            <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
+                              ❌ Remove
+                            </div>
+                          )}
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
+                            <select value={item.productId} onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                               <option value="" disabled>Select Product</option>
+                               {Object.keys(PRODUCT_DATA).filter(k => k !== "default").map(p => <option key={p} value={p}>{p}</option>)}
+                            </select>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Variety *</label>
+                            <select value={item.variety} onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                               <option value="" disabled>Select Variety</option>
+                               {(PRODUCT_DATA[item.productId]?.varieties || []).map(v => <option key={v} value={v}>{v}</option>)}
+                            </select>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Grade</label>
+                            <select value={item.grade} onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                               <option value="A">A Grade</option>
+                               <option value="B">B Grade</option>
+                               <option value="C">C Grade</option>
+                               <option value="Export">Export</option>
+                               <option value="Local">Local</option>
+                            </select>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Gross Weight (KG) *</label>
+                            <input type="number" value={item.grossWeight} onChange={(e) => handleLineItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Deductions (KG)</label>
+                            <input type="number" value={item.deductions} onChange={(e) => handleLineItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Net Weight (KG) Auto</label>
+                            <input type="number" disabled value={(Number(item.grossWeight) - Number(item.deductions)) || 0} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Boxes / Crates</label>
+                            <input type="number" value={item.boxes} onChange={(e) => handleLineItemAction("Update", idx, "boxes", e.target.value)} placeholder="Optional units/boxes" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (₹/KG)</label>
+                            <input type="number" value={item.estimatedRate} onChange={(e) => handleLineItemAction("Update", idx, "estimatedRate", e.target.value)} placeholder="Optional pre-auction estimate" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          </div>
+
+                        </div>
+                      ))}
+                      <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>+ Add Next Produce Item</Button>
+                    </div>
+                  </div>
+              
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterLot}>Create Lot</Button>
+                    
+                    {isAdmin && (
+                      <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Edit Mode enabled for Admin")}>Edit</Button>
+                    )}
+
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setLotCreationForm({
+                        ...lotCreationForm,
+                        lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+                        vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
+                        lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", boxes: "", estimatedRate: "", status: "Pending Auction" }]
+                      })}>Clear Form</Button>
+                  </div>
+                </div>
+              )}
+
+              {activeLotTab === "Produce Details" && (
+                <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                      <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "24px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Active Produce Inventory</h4>
+                      <div style={{ maxHeight: "600px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                        <div style={{ display: "grid", gap: "12px" }}>
+                          {lots.length === 0 ? (
+                            <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No active lots found. Register a new lot to see produce details here.</p>
+                          ) : (
+                            lots.flatMap(lot => (lot.lineItems || []).map(item => ({...item, lotId: lot.lotId, farmer: lot.farmerId}))).map((item, i) => (
+                              <div key={`${item.lotId}-${i}`} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                                <div>
+                                  <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{item.productId} • {item.variety}</b>
+                                  <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📦 Lot: {item.lotId} | ⚖️ Net: {Number(item.grossWeight) - Number(item.deductions)} KG | 🏷️ Grade: {item.grade}</p>
+                                </div>
+                                <div style={{ textAlign: "right" }}>
+                                  <span style={{ fontSize: "10px", background: item.status === "Pending Auction" ? "#FEF3C7" : "#DCFCE7", color: item.status === "Pending Auction" ? "#B45309" : "#15803D", padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{item.status}</span>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                   </div>
+                </div>
+              )}
             </div>
           )}
 
