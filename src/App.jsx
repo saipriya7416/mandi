@@ -237,6 +237,7 @@ export default function App() {
   const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
   const [activeLotTab, setActiveLotTab] = useState("LOT Creation");
   const [activeSupplierBillTab, setActiveSupplierBillTab] = useState("Bill Header");
+  const [activeBuyerInvoiceTab, setActiveBuyerInvoiceTab] = useState("Invoice Header");
   const [activeUserRoleTab, setActiveUserRoleTab] = useState("Supplier");
   const [dispatchProduct, setDispatchProduct] = useState("");
   const [dispatchType, setDispatchType] = useState("Fruits");
@@ -2536,23 +2537,24 @@ export default function App() {
 
           {activeSection === "Buyer Invoicing" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "flex-start" }}>
-                 {/* COLUMN 1: INVOICE HEADER */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>7.2 Invoice Header</h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                       
+              <TabHeader 
+                tabs={["Invoice Header", "Items Purchased", "Additional Charges", "Invoice Totals"]} 
+                active={activeBuyerInvoiceTab} 
+                set={setActiveBuyerInvoiceTab} 
+              />
+
+              {activeBuyerInvoiceTab === "Invoice Header" && (
+                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Invoice Header</h2>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Invoice Number</label>
                           <input type="text" disabled value={buyerInvoiceForm.invoiceNumber} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
-
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Date</label>
                           <input type="date" value={buyerInvoiceForm.date} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, date: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
-
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Buyer Name (M/s)</label>
                           <select value={buyerInvoiceForm.buyerId} onChange={e => {
@@ -2563,95 +2565,99 @@ export default function App() {
                              {buyers.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
                           </select>
                        </div>
-
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Buyer Phone</label>
                           <input type="text" disabled value={buyerInvoiceForm.buyerPhone} placeholder="Auto-filled from profile" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
-
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot Reference</label>
                           <input type="text" value={buyerInvoiceForm.lotReference} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, lotReference: e.target.value})} placeholder="Which lot(s) the produce came from" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
-
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Transport / Bice No.</label>
                           <input type="text" value={buyerInvoiceForm.transportBiceNo} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, transportBiceNo: e.target.value})} placeholder="Vehicle used for buyer's delivery" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
                     </div>
-                 </div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Items Purchased"); }}>Next →</Button>
+                    </div>
+                  </div>
+              )}
 
-                 {/* COLUMN 2: ITEM TABLE */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", flexDirection: "column", height: "100%" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>7.3 Item Table — Produce Purchased</h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "16px", flex: 1 }}>
+              {activeBuyerInvoiceTab === "Items Purchased" && (
+                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Items Purchased</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                        {buyerInvoiceForm.items.map((item, idx) => (
-                           <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", background: "#FDFBF4", padding: "20px", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
-                               {idx > 0 && <div style={{ position: "absolute", top: "8px", right: "8px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "10px" }} onClick={() => handleBuyerInvoiceItemAction("Remove", idx)}>❌ Remove</div>}
-                               
+                           <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "16px", background: "#FDFBF4", padding: "24px", borderRadius: "12px", border: "1px solid #EBE9E1", position: "relative" }}>
+                               {idx > 0 && <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#E11D48", fontWeight: "900", fontSize: "10px", background: "#FFF1F2", padding: "4px 8px", borderRadius: "6px" }} onClick={() => handleBuyerInvoiceItemAction("Remove", idx)}>✕ REMOVE</div>}
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", gridColumn: "span 2" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Product + Variety + Grade</label>
-                                  <input type="text" value={item.productInfo} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "productInfo", e.target.value)} placeholder="E.g. Mango - Nillam - A Grade" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <input type="text" value={item.productInfo} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "productInfo", e.target.value)} placeholder="E.g. Mango - Nillam - A Grade" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Gross Wt (KG)</label>
-                                  <input type="number" value={item.grossWeight} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <input type="number" value={item.grossWeight} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Deductions (KG)</label>
-                                  <input type="number" value={item.deductions} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <input type="number" value={item.deductions} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Net Wt (KG) Auto</label>
-                                  <input type="number" disabled value={Math.max(0, (Number(item.grossWeight) || 0) - (Number(item.deductions) || 0))} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <input type="number" disabled value={Math.max(0, (Number(item.grossWeight) || 0) - (Number(item.deductions) || 0))} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Rate (₹/KG)</label>
-                                  <input type="number" value={item.rate} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "rate", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <input type="number" value={item.rate} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "rate", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
-                               <div style={{ display: "flex", flexDirection: "column", gap: "8px", gridColumn: "span 2" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>AMOUNT (₹) Auto</label>
-                                  <input type="number" disabled value={(Math.max(0, (Number(item.grossWeight) || 0) - (Number(item.deductions) || 0)) * (Number(item.rate) || 0))} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Amount (₹) Auto</label>
+                                  <input type="number" disabled value={(Math.max(0, (Number(item.grossWeight) || 0) - (Number(item.deductions) || 0)) * (Number(item.rate) || 0))} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                                </div>
                            </div>
                        ))}
-                       <Button style={{ alignSelf: "flex-start", marginTop: "8px", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleBuyerInvoiceItemAction("Add")}>+ Add Line Item</Button>
+                       <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "900", marginTop: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleBuyerInvoiceItemAction("Add")}>+ Add Next Invoice Item</Button>
                     </div>
-                 </div>
-              </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Invoice Header"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Additional Charges"); }}>Next →</Button>
+                    </div>
+                  </div>
+              )}
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "flex-start", marginTop: "24px" }}>
-                 {/* COLUMN 1: ADDITIONAL CHARGES */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0" }}>7.4 Additional Charges</h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                       
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Commission (₹)</label>
-                          <input type="number" value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+              {activeBuyerInvoiceTab === "Additional Charges" && (
+                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Additional Charges</h2>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🏢 Commission (₹)</label>
+                          <input type="number" value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
-                       
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Handling Charges (₹)</label>
-                          <input type="number" value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🛠️ Handling Charges (₹)</label>
+                          <input type="number" value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
-
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Outward Transport (₹)</label>
-                          <input type="number" value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🚛 Outward Transport (₹)</label>
+                          <input type="number" value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
-
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <input type="text" value={buyerInvoiceForm.charges.otherName} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, otherName: e.target.value}})} placeholder="Other Charges label..." style={{ flex: 1, marginRight: "16px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                          <input type="number" value={buyerInvoiceForm.charges.otherAmount} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, otherAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <input type="text" value={buyerInvoiceForm.charges.otherName} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, otherName: e.target.value}})} placeholder="Other Charges label..." style={{ flex: 1, marginRight: "12px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", background: "transparent" }} />
+                          <input type="number" value={buyerInvoiceForm.charges.otherAmount} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, otherAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                     </div>
-                 </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Items Purchased"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Invoice Totals"); }}>Next →</Button>
+                    </div>
+                  </div>
+              )}
 
-                 {/* COLUMN 2: INVOICE TOTALS */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", flexDirection: "column", height: "100%" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>7.5 Invoice Totals</h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "20px", flex: 1 }}>
+              {activeBuyerInvoiceTab === "Invoice Totals" && (
+                  <div style={{ background: "#FFFFFF", padding: "40px", borderRadius: "16px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in", boxShadow: "0 10px 30px rgba(0,0,0,0.01)" }}>
+                    <h2 style={{ fontSize: "22px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 32px 0", borderBottom: "1.5px solid #F1F5F9", paddingBottom: "20px", letterSpacing: "-0.5px" }}>Financial Invoice Summary</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                        {(() => {
                           const subTotal = buyerInvoiceForm.items.reduce((sum, it) => sum + (Math.max(0, (Number(it.grossWeight) || 0) - (Number(it.deductions) || 0)) * (Number(it.rate) || 0)), 0);
                           const ch = buyerInvoiceForm.charges;
@@ -2662,40 +2668,48 @@ export default function App() {
 
                           return (
                              <>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #EBE9E1" }}>
-                                   <span style={{ fontSize: "14px", fontWeight: "600", color: COLORS.muted }}>Sub Total (₹)</span>
-                                   <span style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(subTotal)}</span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #EBE9E1" }}>
-                                   <span style={{ fontSize: "14px", fontWeight: "600", color: COLORS.muted }}>Total Additional Charges (₹)</span>
-                                   <span style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar }}>+ {formatCurrency(totalAdditional)}</span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "8px", marginBottom: "8px" }}>
-                                   <span style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar }}>Grand Total (₹)</span>
-                                   <span style={{ fontSize: "18px", fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(grandTotal)}</span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #EBE9E1" }}>
-                                   <span style={{ fontSize: "14px", fontWeight: "600", color: "#E67E22" }}>Amount Received (₹)</span>
-                                   <input type="number" value={buyerInvoiceForm.amountReceived} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, amountReceived: e.target.value})} placeholder="0" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #E67E22", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
-                                </div>
-                                <div style={{ marginTop: "auto", borderTop: "2px solid #EBE9E1", paddingTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                   <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "800", color: COLORS.sidebar }}>Balance Due (₹):</h3>
-                                   <h2 style={{ margin: 0, fontSize: "32px", color: COLORS.primary }}>{formatCurrency(balanceDue)}</h2>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
+                                      <span style={{ color: COLORS.muted, fontWeight: "600" }}>Sub Total</span>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "800" }}>{formatCurrency(subTotal)}</span>
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
+                                      <span style={{ color: COLORS.muted, fontWeight: "600" }}>Total Additional Charges</span>
+                                      <span style={{ color: COLORS.success, fontWeight: "800" }}>+ {formatCurrency(totalAdditional)}</span>
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", padding: "20px", background: "#FDFBF4", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "800", fontSize: "18px" }}>Grand Total</span>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "900", fontSize: "18px" }}>{formatCurrency(grandTotal)}</span>
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #F1F5F9" }}>
+                                      <span style={{ color: "#E67E22", fontWeight: "700" }}>Amount Received</span>
+                                      <input type="number" value={buyerInvoiceForm.amountReceived} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, amountReceived: e.target.value})} placeholder="0" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #E67E22", outline: "none", fontSize: "15px", fontWeight: "700", textAlign: "right" }} />
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "8px" }}>
+                                      <span style={{ color: COLORS.primary, fontWeight: "900", fontSize: "20px" }}>Balance Due</span>
+                                      <span style={{ color: COLORS.primary, fontWeight: "900", fontSize: "20px" }}>{formatCurrency(balanceDue)}</span>
+                                   </div>
                                 </div>
                              </>
                           );
                        })()}
                     </div>
-                 </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
-                <Button style={{ background: COLORS.primary, color: "#FFFFFF", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={() => {
-                   alert(`✅ INVOICE GENERATED: ${buyerInvoiceForm.invoiceNumber} saved!`);
-                   setBuyerInvoiceForm({ invoiceNumber: `INV-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), buyerId: "", buyerPhone: "", lotReference: "", transportBiceNo: "", items: [{ id: Date.now(), productInfo: "", grossWeight: "", deductions: "", rate: "" }], charges: { commission: "", handling: "", transport: "", otherName: "", otherAmount: "" }, amountReceived: "" });
-                }}>Generate Invoice</Button>
-                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setBuyerInvoiceForm({ invoiceNumber: `INV-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), buyerId: "", buyerPhone: "", lotReference: "", transportBiceNo: "", items: [{ id: Date.now(), productInfo: "", grossWeight: "", deductions: "", rate: "" }], charges: { commission: "", handling: "", transport: "", otherName: "", otherAmount: "" }, amountReceived: "" })}>Clear Data</Button>
-              </div>
+                    <div style={{ borderTop: "2px solid #F1F5F9", marginTop: "32px", paddingTop: "24px", display: "flex", gap: "16px" }}>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Additional Charges"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.primary, color: "#FFFFFF", fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(230,126,34,0.2)" }} onClick={() => {
+                           alert(`✅ INVOICE GENERATED: ${buyerInvoiceForm.invoiceNumber} saved!`);
+                           setBuyerInvoiceForm({ invoiceNumber: `INV-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), buyerId: "", buyerPhone: "", lotReference: "", transportBiceNo: "", items: [{ id: Date.now(), productInfo: "", grossWeight: "", deductions: "", rate: "" }], charges: { commission: "", handling: "", transport: "", otherName: "", otherAmount: "" }, amountReceived: "" });
+                           setActiveBuyerInvoiceTab("Invoice Header");
+                        }}>Generate Invoice</Button>
+                        <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", padding: "16px 32px" }} onClick={() => {
+                           if(window.confirm("Clear all invoice entries?")) {
+                              setBuyerInvoiceForm({ invoiceNumber: `INV-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), buyerId: "", buyerPhone: "", lotReference: "", transportBiceNo: "", items: [{ id: Date.now(), productInfo: "", grossWeight: "", deductions: "", rate: "" }], charges: { commission: "", handling: "", transport: "", otherName: "", otherAmount: "" }, amountReceived: "" });
+                              setActiveBuyerInvoiceTab("Invoice Header");
+                           }
+                        }}>Clear</Button>
+                    </div>
+                  </div>
+              )}
             </div>
           )}
 
