@@ -385,7 +385,7 @@ export default function App() {
   };
 
   const handleDeleteSupplier = async (id) => {
-    if (!window.confirm("≡ƒùæ∩╕Å Are you sure you want to PERMANENTLY delete this supplier?")) return;
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this supplier?")) return;
     try {
       const res = await MandiService.deleteSupplier(id);
       if (res.status === "SUCCESS") {
@@ -400,7 +400,7 @@ export default function App() {
   };
 
   const handleDeleteBuyer = async (id) => {
-    if (!window.confirm("≡ƒùæ∩╕Å Are you sure you want to PERMANENTLY delete this customer?")) return;
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this customer?")) return;
     try {
       const res = await MandiService.deleteBuyer(id);
       if (res.status === "SUCCESS") {
@@ -471,7 +471,7 @@ export default function App() {
   };
 
   const handleDeleteLot = async (id) => {
-    if (!window.confirm("≡ƒùæ∩╕Å Are you sure you want to PERMANENTLY delete this Lot record?")) return;
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this Lot record?")) return;
     try {
       const res = await MandiService.deleteLot(id);
       if (res.status === "SUCCESS") {
@@ -568,11 +568,11 @@ export default function App() {
   };
 
   const handleCreateLot = async () => {
-    if (!intakeForm.supplierId) return alert("ΓÜá∩╕Å Farmer selection is mandatory for traceability.");
-    if (!intakeForm.vehicleNumber) return alert("ΓÜá∩╕Å Vehicle / Lorry number is required.");
-    if (!intakeForm.origin) return alert("ΓÜá∩╕Å Origin / Source location is mandatory.");
-    if (!intakeForm.entryDate) return alert("ΓÜá∩╕Å Date & Time of arrival is mandatory.");
-    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("ΓÜá∩╕Å At least one Produce item with Weight is required.");
+    if (!intakeForm.supplierId) return alert("⚠️ Farmer selection is mandatory for traceability.");
+    if (!intakeForm.vehicleNumber) return alert("⚠️ Vehicle / Lorry number is required.");
+    if (!intakeForm.origin) return alert("⚠️ Origin / Source location is mandatory.");
+    if (!intakeForm.entryDate) return alert("⚠️ Date & Time of arrival is mandatory.");
+    if (intakeForm.lineItems.some(i => !i.product || !i.grossWeight)) return alert("⚠️ At least one Produce item with Weight is required.");
 
     const payload = {
       supplier: intakeForm.supplierId,
@@ -611,19 +611,19 @@ export default function App() {
   const [expenseForm, setExpenseForm] = useState({ amount: "", lotId: "", memo: "", category: "Labour" });
 
   const handleSavePurchaseOrder = async () => {
-    alert("≡ƒôï ORDER RECORDED: Requirement logged and synced to Database.");
+    alert("📋 ORDER RECORDED: Requirement logged and synced to Database.");
     // This could also be wired to a specific PO service if available
     fetchData();
   };
 
   const handleVerifyKYC = async () => {
-    alert("≡ƒ¢í∩╕Å KYC AUDIT COMPLETE: Identity verified and stored in Vault.");
+    alert("🛡️ KYC AUDIT COMPLETE: Identity verified and stored in Vault.");
     // MandiService.verifyCompliance(...)
     fetchData();
   };
 
   const handleRecordInwardTransport = async () => {
-    if (!inwardTransportForm.lotId || !inwardTransportForm.freightAmount) return alert("ΓÜá∩╕Å Lot and Amount are required");
+    if (!inwardTransportForm.lotId || !inwardTransportForm.freightAmount) return alert("⚠️ Lot and Amount are required");
     const res = await MandiService.recordExpense({
       amount: Number(inwardTransportForm.freightAmount),
       category: "Transport",
@@ -632,7 +632,7 @@ export default function App() {
       date: inwardTransportForm.departureTime || new Date().toISOString()
     });
     if (res.status === "SUCCESS") {
-      alert("≡ƒÜÆ INWARD LOG COMMITTED: Data persisted to MongoDB.");
+      alert("🚛 INWARD LOG COMMITTED: Data persisted to MongoDB.");
       fetchData();
     } else {
       alert(`❌ LOG FAILED: ${res.message || "Error"}`);
@@ -640,7 +640,7 @@ export default function App() {
   };
 
   const handleRecordOutwardTransport = async () => {
-    if (!outwardTransportForm.invoiceNo || !outwardTransportForm.freightAmount) return alert("ΓÜá∩╕Å Invoice and Amount are required");
+    if (!outwardTransportForm.invoiceNo || !outwardTransportForm.freightAmount) return alert("⚠️ Invoice and Amount are required");
     const res = await MandiService.recordExpense({
       amount: Number(outwardTransportForm.freightAmount),
       category: "Transport",
@@ -656,8 +656,8 @@ export default function App() {
   };
 
   const handleCreateBuyerInvoice = async () => {
-    if (!buyerInvoiceForm.buyerId) return alert("ΓÜá∩╕Å Buyer is required");
-    if (buyerInvoiceForm.items.some(i => !i.productLabel || (!i.netWeight && !i.grossWeight))) return alert("ΓÜá∩╕Å Product and Weight are required for all items");
+    if (!buyerInvoiceForm.buyerId) return alert("⚠️ Buyer is required");
+    if (buyerInvoiceForm.items.some(i => !i.productLabel || (!i.netWeight && !i.grossWeight))) return alert("⚠️ Product and Weight are required for all items");
 
     // Map frontend structure to expected backend schema
     const mappedItems = buyerInvoiceForm.items.map(i => ({
@@ -673,7 +673,7 @@ export default function App() {
     };
     const res = await MandiService.generateBuyerInvoice(payload);
     if (res.status === "SUCCESS") {
-      alert(`≡ƒÜÇ INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`);
+      alert(`🚀 INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`);
       const newNo = `INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
       setBuyerInvoiceForm({
         ...buyerInvoiceForm,
@@ -691,7 +691,7 @@ export default function App() {
   };
 
   const handleRecordBuyerPayment = async () => {
-    if (!buyerPaymentForm.buyerId || !buyerPaymentForm.amountReceived) return alert("ΓÜá∩╕Å Buyer and Amount are required");
+    if (!buyerPaymentForm.buyerId || !buyerPaymentForm.amountReceived) return alert("⚠️ Buyer and Amount are required");
     const payload = {
       partyType: "Buyer",
       partyId: buyerPaymentForm.buyerId,
@@ -704,7 +704,7 @@ export default function App() {
     };
     const res = await MandiService.recordPayment(payload);
     if (res.status === "SUCCESS") {
-      alert("≡ƒÆ│ PAYMENT RECORDED: Database updated.");
+      alert("💳 PAYMENT RECORDED: Database updated.");
       setBuyerPaymentForm({ ...buyerPaymentForm, buyerId: "", amountReceived: "", referenceNo: "", notes: "" });
       fetchData();
     } else {
@@ -713,7 +713,7 @@ export default function App() {
   };
 
   const handleRecordFarmerPayment = async () => {
-     if (!farmerPaymentForm.farmerId || !farmerPaymentForm.amount) return alert("ΓÜá∩╕Å Farmer and Amount are required");
+     if (!farmerPaymentForm.farmerId || !farmerPaymentForm.amount) return alert("⚠️ Farmer and Amount are required");
      const payload = {
        partyType: "Supplier",
        partyId: farmerPaymentForm.farmerId,
@@ -735,7 +735,7 @@ export default function App() {
   };
 
   const handleCreateExpense = async () => {
-    if (!expenseForm.amount) return alert("ΓÜá∩╕Å Amount is required");
+    if (!expenseForm.amount) return alert("⚠️ Amount is required");
     const res = await MandiService.recordExpense({
       amount: Number(expenseForm.amount),
       category: expenseForm.category,
@@ -744,7 +744,7 @@ export default function App() {
       date: new Date().toISOString()
     });
     if (res.status === "SUCCESS") {
-      alert("≡ƒÆ╕ EXPENSE COMMITTED: Record saved to Database.");
+      alert("💸 EXPENSE COMMITTED: Record saved to Database.");
       setExpenseForm({ amount: "", lotId: "", memo: "", category: "Labour" });
       fetchData();
     } else {
@@ -959,7 +959,7 @@ export default function App() {
 
   const handleRegisterProduct = () => {
      if (!newProductForm.coreProduct || !newProductForm.variety) {
-        alert("ΓÜá∩╕Å Core Product and Variety name are mandatory.");
+        alert("⚠️ Core Product and Variety name are mandatory.");
         return;
      }
 
@@ -1002,7 +1002,7 @@ export default function App() {
 
   const handleRegisterExpenseCategory = () => {
      if (!newExpenseForm.label) {
-        alert("ΓÜá∩╕Å Please enter a label for the expense.");
+        alert("⚠️ Please enter a label for the expense.");
         return;
      }
 
@@ -1065,7 +1065,7 @@ export default function App() {
 
    const handleCreateStaff = () => {
       if (!newStaffForm.name || !newStaffForm.username) {
-         alert("ΓÜá∩╕Å Please fill in all staff details.");
+         alert("⚠️ Please fill in all staff details.");
          return;
       }
 
@@ -1166,7 +1166,7 @@ export default function App() {
     setUploading(false);
 
     if (res.status === "SUCCESS") {
-      alert("Γÿü∩╕Å ARCHIVED: File secured in Vault");
+      alert("☁️ ARCHIVED: File secured in Vault");
       fetchData();
     } else {
       alert(`❌ VAULT ERROR: ${res.message}`);
@@ -1184,8 +1184,8 @@ export default function App() {
     if (loggedIn && activeSection === "Supplier Billing" && settlementData.length === 0) {
        // Seed mock visuals for "duplicated data" requirement
        setSettlementData([
-          { _id: 's-mock-1', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '≡ƒÑ¡ Mango', variety: 'Alphonso' }, quantity: 450, saleRate: 75, createdAt: new Date().toISOString() },
-          { _id: 's-mock-2', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '≡ƒÑ¡ Mango', variety: 'Kesar' }, quantity: 300, saleRate: 55, createdAt: new Date().toISOString() }
+          { _id: 's-mock-1', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '🥭 Mango', variety: 'Alphonso' }, quantity: 450, saleRate: 75, createdAt: new Date().toISOString() },
+          { _id: 's-mock-2', lotRef: { lotId: 'LOT-2026-X01', vehicleNumber: 'AP-02-TX-1234' }, lineItem: { product: '🥭 Mango', variety: 'Kesar' }, quantity: 300, saleRate: 55, createdAt: new Date().toISOString() }
        ]);
        setFarmerBillsList([
           { _id: 'b-mock-1', billNo: 'FB-2026-9999', date: '2026-03-15', netPayable: 45000 },
@@ -1236,7 +1236,7 @@ export default function App() {
     if (res.status === "SUCCESS") {
        setBuyerHistory(res.data);
        if (res.data.pendingBalance > 0) {
-          alert(`ΓÜá∩╕Å ALERT: Buyer has a pending balance of ${formatCurrency(res.data.pendingBalance)}`);
+          alert(`⚠️ ALERT: Buyer has a pending balance of ${formatCurrency(res.data.pendingBalance)}`);
        }
     }
   };
@@ -1311,12 +1311,12 @@ export default function App() {
 
   // --- HANDLE ALLOCATION ---
   const handleAllocate = async () => {
-    if (!allocationForm.lotId) return alert("ΓÜá∩╕Å Lot ID is required.");
-    if (!allocationForm.lineItemId) return alert("ΓÜá∩╕Å Product / Line Item is required.");
-    if (!allocationForm.buyerId) return alert("ΓÜá∩╕Å Customer Name is required.");
-    if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("ΓÜá∩╕Å Valid Quantity must be entered.");
-    if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("ΓÜá∩╕Å Sale Rate is required.");
-    if (!allocationForm.allocationDate) return alert("ΓÜá∩╕Å Allocation Date is mandatory.");
+    if (!allocationForm.lotId) return alert("⚠️ Lot ID is required.");
+    if (!allocationForm.lineItemId) return alert("⚠️ Product / Line Item is required.");
+    if (!allocationForm.buyerId) return alert("⚠️ Customer Name is required.");
+    if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("⚠️ Valid Quantity must be entered.");
+    if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("⚠️ Sale Rate is required.");
+    if (!allocationForm.allocationDate) return alert("⚠️ Allocation Date is mandatory.");
 
     const matchedLot = lots.find(l => l.lotId === allocationForm.lotId);
     const payload = {
@@ -1345,7 +1345,7 @@ export default function App() {
   };
 
   const handleDeleteAllocation = async (id) => {
-    if (!window.confirm("≡ƒùæ∩╕Å Are you sure you want to PERMANENTLY delete this allocation record?")) return;
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this allocation record?")) return;
     try {
       const res = await MandiService.deleteAllocation(id);
       if (res.status === "SUCCESS") {
@@ -1422,8 +1422,8 @@ export default function App() {
 
   const handleCreateFarmerBill = async () => {
      const targetFarmerId = farmerBillForm.farmerId;
-     if (!targetFarmerId) return alert("ΓÜá∩╕Å Please select a farmer first.");
-     if (settlementData.length === 0) return alert("ΓÜá∩╕Å No sale entries added to this bill. Please ensure items are present.");
+     if (!targetFarmerId) return alert("⚠️ Please select a farmer first.");
+     if (settlementData.length === 0) return alert("⚠️ No sale entries added to this bill. Please ensure items are present.");
 
      const gross = settlementData.reduce((acc, i) => acc + (i.quantity * i.saleRate), 0);
      const totalExp = farmerBillForm.expenses.reduce((acc, e) => acc + e.value, 0);
@@ -1455,7 +1455,7 @@ export default function App() {
         // Finalize state and await global sync for immediate dashboard updates
         await fetchData();
         handleFarmerSelectionForSettlement(targetFarmerId);
-        alert("≡ƒöÆ BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.");
+        alert("🔒 BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.");
         
         if (confirm("Bill stored. Clear form for next settlement?")) {
            setIsBillLocked(false);
@@ -1483,7 +1483,7 @@ export default function App() {
 
   const handleVoidBill = async (id) => {
     if (user?.role !== "Owner / Admin") {
-      alert("≡ƒ¢í∩╕Å SECURITY: Only the Owner / Admin is authorized to void finalized bills.");
+      alert("🛡️ SECURITY: Only the Owner / Admin is authorized to void finalized bills.");
       return;
     }
     const reason = prompt("Mandatory: Reason for voiding this finalized settlement?");
@@ -1517,7 +1517,7 @@ export default function App() {
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
 
-  if (loading) return <div style={{ height: "100vh", background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", color: "#fff" }}><h1>ΓÜí Syncing Matrix...</h1></div>;
+  if (loading) return <div style={{ height: "100vh", background: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", color: "#fff" }}><h1>⚡ Syncing Matrix...</h1></div>;
 
   if (!loggedIn) {
     return (
@@ -1552,11 +1552,11 @@ export default function App() {
             </div>
             <div>
               <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Password</label>
-              <input className="spv-input" type="password" placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+              <input className="spv-input" type="password" placeholder="Password" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
             </div>
           </div>
           <button className="spv-btn" onClick={handleLogin} style={{ width:"100%", height:"58px", fontSize:"16px", fontWeight:"900", marginTop:"28px", background:"linear-gradient(135deg, #375144 0%, #2d4137 100%)", color:"#ffffff", border:"none", borderRadius:"18px", cursor:"pointer", letterSpacing:"0.5px", boxShadow:"0 12px 30px rgba(55,81,68,0.3)", transition:"all 0.25s" }}>
-            ≡ƒöÉ Login
+            Login
           </button>
           <div style={{ marginTop:"32px", paddingTop:"20px", borderTop:"1.5px solid rgba(159,180,67,0.2)", display:"flex", justifyContent:"center", alignItems:"center", gap:"8px" }}>
             <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
@@ -1598,7 +1598,7 @@ export default function App() {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}
           >
-            {sidebarOpen ? "Γ£ò" : "Γÿ░"}
+            {sidebarOpen ? "✕" : "≡"}
           </button>
         </div>
       )}
@@ -1663,7 +1663,7 @@ export default function App() {
                 <p style={{ color: "#ffffff", fontSize: "14px", margin: 0, fontWeight: "850", letterSpacing: "0.3px" }}>{user?.username || "Staff Identity"}</p>
                 <p style={{ color: "#AEC4BB", fontSize: "11px", margin: 0, fontWeight: "600", textTransform: "uppercase", opacity: 0.7 }}>{user?.role}</p>
              </div>
-             <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer", fontSize: "20px", padding: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.2)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>≡ƒÜ¬</button>
+             <button onClick={handleLogout} style={{ background: "none", border: "none", color: COLORS.accent, cursor: "pointer", fontSize: "20px", padding: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.2)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>🚪</button>
           </div>
         </nav>
       )}
@@ -1691,7 +1691,7 @@ export default function App() {
                </div>
                <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                   <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "10px 20px", borderRadius: "24px", fontSize: "14px", fontWeight: "850", color: COLORS.primary, border: `1px solid ${COLORS.primary}20` }}>
-                    ≡ƒôà {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    📅 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
                </div>
             </div>
@@ -1752,7 +1752,7 @@ export default function App() {
                       fields: [
                         { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: e => setSupplierForm({...supplierForm, bankAccount: e.target.value}) },
                         { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: e => setSupplierForm({...supplierForm, ifsc: e.target.value}) },
-                        { label: "Advance Balance (Γé╣)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: e => setSupplierForm({...supplierForm, advanceBalance: e.target.value}) },
+                        { label: "Advance Balance (₹)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: e => setSupplierForm({...supplierForm, advanceBalance: e.target.value}) },
                         { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: e => setSupplierForm({...supplierForm, notes: e.target.value}) }
                       ]
                     }
@@ -1773,7 +1773,7 @@ export default function App() {
                               <div key={s._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                                  <div>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{s.name}</b>
-                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒô₧ {s.phone} | ≡ƒôì {s.village || s.marketArea || 'Location N/A'}</p>
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>☎️ {s.phone} | 📍 {s.village || s.marketArea || 'Location N/A'}</p>
                                  </div>
                                  <div style={{ display: "flex", gap: "8px" }}>
                                     <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Supplier', s)}>Modify Profile</Button>
@@ -1811,9 +1811,9 @@ export default function App() {
                     {
                       title: "Credit Details",
                       fields: [
-                        { label: "Credit Limit (Γé╣) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
+                        { label: "Credit Limit (₹) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
                         { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
-                        { label: "Outstanding Balance (Γé╣)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
+                        { label: "Outstanding Balance (₹)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
                         { label: "Notes", placeholder: "Free-form notes" }
                       ]
                     }
@@ -1834,7 +1834,7 @@ export default function App() {
                               <div key={b._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                                  <div>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.name}</b>
-                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒÅ¼ {b.shopName} | ≡ƒô₧ {b.phone}</p>
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🏬 {b.shopName} | ☎️ {b.phone}</p>
                                  </div>
                                  <div style={{ display: "flex", gap: "8px" }}>
                                     <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Buyer', b)}>Modify Profile</Button>
@@ -1931,7 +1931,7 @@ export default function App() {
                               <div key={l._id || l.lotId} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                                  <div style={{ flex: 1 }}>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
-                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒÜ¢ {l.vehicleNumber} | ≡ƒôì {l.origin} | ≡ƒôà {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚚 {l.vehicleNumber} | 📍 {l.origin} | 📅 {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
                                     <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
                                         <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross Sale: {formatCurrency(grossSale)}</span>
                                         <span style={{ fontSize: "11px", color: COLORS.sidebar, fontWeight: "800" }}>Weight: {((l.lineItems || []).reduce((sw, i) => sw + (i.weightUnit === 'Tones' ? Number(i.grossWeight)*1000 : Number(i.grossWeight)), 0) / 1000).toFixed(2)} Tones</span>
@@ -1942,7 +1942,7 @@ export default function App() {
                                        <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
                                     </div>
                                     <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
-                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
+                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
                                  </div>
                               </div>
                               );
@@ -2048,7 +2048,7 @@ export default function App() {
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (Γé╣/{item.weightUnit === 'Tones' ? 'Tone' : 'KG'})</label>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (₹/{item.weightUnit === 'Tones' ? 'Tone' : 'KG'})</label>
                             <input type="number" value={item.estimatedRate} onChange={(e) => handleLineItemAction("Update", idx, "estimatedRate", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
@@ -2092,7 +2092,7 @@ export default function App() {
                               <div key={l._id || l.lotId} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                                  <div style={{ flex: 1 }}>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
-                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒÜ¢ {l.vehicleNumber} | ≡ƒôì {l.origin} | ≡ƒôà {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚚 {l.vehicleNumber} | 📍 {l.origin} | 📅 {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
                                     <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
                                         <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross Sale: {formatCurrency(grossSale)}</span>
                                         <span style={{ fontSize: "11px", color: COLORS.sidebar, fontWeight: "800" }}>Weight: {((l.lineItems || []).reduce((sw, i) => sw + (i.weightUnit === 'Tones' ? Number(i.grossWeight)*1000 : Number(i.grossWeight)), 0) / 1000).toFixed(2)} Tones</span>
@@ -2103,7 +2103,7 @@ export default function App() {
                                        <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
                                     </div>
                                     <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
-                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
+                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
                                  </div>
                               </div>
                               );
@@ -2162,8 +2162,8 @@ export default function App() {
                     { label: "Product / Variety / Grade *", type: "text", list: "items-list", value: allocationForm.lineItemId, onChange: e => setAllocationForm({...allocationForm, lineItemId: e.target.value}), placeholder: "Specific line item" },
                     { label: "Customer Name *", type: "select", options: ["", ...buyers.map(b => b.name)], value: allocationForm.buyerId, onChange: e => setAllocationForm({...allocationForm, buyerId: e.target.value}) },
                     { label: "Quantity Allocated (KG) *", type: "number", value: allocationForm.quantity, onChange: e => setAllocationForm({...allocationForm, quantity: e.target.value}), placeholder: "Can be partial" },
-                    { label: "Sale Rate (Γé╣/KG) *", type: "number", value: allocationForm.saleRate, onChange: e => setAllocationForm({...allocationForm, saleRate: e.target.value}), placeholder: "Agreed rate" },
-                    { label: "Sale Amount (Γé╣) Auto", type: "number", disabled: true, value: (Number(allocationForm.quantity) * Number(allocationForm.saleRate)) || 0 },
+                    { label: "Sale Rate (₹/KG) *", type: "number", value: allocationForm.saleRate, onChange: e => setAllocationForm({...allocationForm, saleRate: e.target.value}), placeholder: "Agreed rate" },
+                    { label: "Sale Amount (₹) Auto", type: "number", disabled: true, value: (Number(allocationForm.quantity) * Number(allocationForm.saleRate)) || 0 },
                     { label: "Allocation Date *", type: "date", value: allocationForm.allocationDate, onChange: e => setAllocationForm({...allocationForm, allocationDate: e.target.value}) },
                     { label: "Customer Invoice No", type: "text", value: allocationForm.buyerInvoiceNo, onChange: e => setAllocationForm({...allocationForm, buyerInvoiceNo: e.target.value}), placeholder: "Record official invoice #" },
                     { label: "Notes", type: "text", value: allocationForm.notes, onChange: e => setAllocationForm({...allocationForm, notes: e.target.value}), placeholder: "E.g. 'Bice No. 111'" }
@@ -2194,11 +2194,11 @@ export default function App() {
                           <div key={a._id || Date.now() + Math.random()} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                              <div style={{ flex: 1 }}>
                                 <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{a.lotId} — {a.buyerId?.name || a.buyerId || "Buyer"}</b>
-                                <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒôª {a.lineItemId} | ΓÜû∩╕Å {a.quantity} KG @ Γé╣{a.rate}/KG | ≡ƒôà {a.allocationDate}</p>
+                                <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📦 {a.lineItemId} | ⚖️ {a.quantity} KG @ ₹{a.rate}/KG | 📅 {a.allocationDate}</p>
                              </div>
                              <div style={{ display: "flex", gap: "12px" }}>
                                 <button onClick={() => handleEditAllocation(a)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
-                                <button onClick={() => handleDeleteAllocation(a._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
+                                <button onClick={() => handleDeleteAllocation(a._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
                              </div>
                           </div>
                        ))}
@@ -2309,7 +2309,7 @@ export default function App() {
 
                      </div>
                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>Next ΓåÆ</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>Next →</Button>
                      </div>
                   </div>
               )}
@@ -2320,7 +2320,7 @@ export default function App() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                        {supplierSettlementForm.items.map((item, idx) => (
                            <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", background: "#FDFBF4", padding: "20px", borderRadius: "12px", border: "1.5px solid #EBE9E1", position: "relative", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                               {idx > 0 && <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#E11D48", fontWeight: "900", fontSize: "10px", background: "#FFF1F2", padding: "4px 8px", borderRadius: "6px" }} onClick={() => handleSupplierItemAction("Remove", idx)}>Γ£ò REMOVE</div>}
+                               {idx > 0 && <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#E11D48", fontWeight: "900", fontSize: "10px", background: "#FFF1F2", padding: "4px 8px", borderRadius: "6px" }} onClick={() => handleSupplierItemAction("Remove", idx)}>✕ REMOVE</div>}
                                
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Item / Product Name</label>
@@ -2331,11 +2331,11 @@ export default function App() {
                                   <input type="number" value={item.quantity} onChange={(e) => handleSupplierItemAction("Update", idx, "quantity", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Rate (Γé╣/KG)</label>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Rate (₹/KG)</label>
                                   <input type="number" value={item.rate} onChange={(e) => handleSupplierItemAction("Update", idx, "rate", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Total (Γé╣) Auto</label>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Total (₹) Auto</label>
                                   <input type="number" disabled value={(Number(item.quantity) * Number(item.rate)) || 0} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                                </div>
                            </div>
@@ -2343,8 +2343,8 @@ export default function App() {
                        <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "900", marginTop: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleSupplierItemAction("Add")}>+ Add Next Sale Item</Button>
                      </div>
                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Bill Header"); }}>ΓåÉ Previous</Button>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>Next ΓåÆ</Button>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Bill Header"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>Next →</Button>
                      </div>
                   </div>
               )}
@@ -2355,44 +2355,44 @@ export default function App() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒÜ¢ Lorry Freight / Transport</label>
-                          <input type="number" value={supplierSettlementForm.expenses.transport} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, transport: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🚚 Lorry Freight / Transport</label>
+                          <input type="number" value={supplierSettlementForm.expenses.transport} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒÅó Market Fee / Commission</label>
-                          <input type="text" value={supplierSettlementForm.expenses.commission} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})} placeholder="Γé╣ or %" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🏛️ Market Fee / Commission</label>
+                          <input type="text" value={supplierSettlementForm.expenses.commission} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})} placeholder="₹ or %" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒÆ¬ Labour / Hamali</label>
-                          <input type="number" value={supplierSettlementForm.expenses.labour} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, labour: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>💪 Labour / Hamali</label>
+                          <input type="number" value={supplierSettlementForm.expenses.labour} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, labour: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒÆ░ Cash Advance Paid</label>
-                          <input type="number" value={supplierSettlementForm.expenses.advance} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, advance: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>💰 Cash Advance Paid</label>
+                          <input type="number" value={supplierSettlementForm.expenses.advance} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, advance: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>ΓÜû∩╕Å Weighing Charges (Kata)</label>
-                          <input type="number" value={supplierSettlementForm.expenses.weighing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, weighing: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>⚖️ Weighing Charges (Kata)</label>
+                          <input type="number" value={supplierSettlementForm.expenses.weighing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, weighing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒôª Packing Material</label>
-                          <input type="number" value={supplierSettlementForm.expenses.packing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, packing: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>📦 Packing Material</label>
+                          <input type="number" value={supplierSettlementForm.expenses.packing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, packing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
                           <input type="text" value={supplierSettlementForm.expenses.miscName} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscName: e.target.value}})} placeholder="Other deduction label..." style={{ flex: 1, marginRight: "12px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", background: "transparent" }} />
-                          <input type="number" value={supplierSettlementForm.expenses.miscAmount} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscAmount: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <input type="number" value={supplierSettlementForm.expenses.miscAmount} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                      </div>
                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>ΓåÉ Previous</Button>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Financial Summary"); }}>Next ΓåÆ</Button>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Financial Summary"); }}>Next →</Button>
                      </div>
                   </div>
               )}
@@ -2453,11 +2453,11 @@ export default function App() {
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                 {activeSupplierBillTab === "Financial Summary" && (
-                   <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>ΓåÉ Previous</Button>
+                   <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>← Previous</Button>
                 )}
                 <Button style={{ background: COLORS.sidebar, fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(55,81,68,0.2)" }} onClick={async () => {
                    try {
-                       if (!supplierSettlementForm.supplierId) return alert("ΓÜá∩╕Å Supplier is required.");
+                       if (!supplierSettlementForm.supplierId) return alert("⚠️ Supplier is required.");
                        let res;
                        if (isEditingSupplierBill) {
                            res = await MandiService.updateSupplierBill(editingSupplierBillId, supplierSettlementForm);
@@ -2514,7 +2514,7 @@ export default function App() {
                           <div key={b._id || Date.now() + Math.random()} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
                              <div style={{ flex: 1 }}>
                                 <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.billNumber} — {b.supplierId || "Supplier"}</b>
-                                <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>≡ƒÜ¢ {b.vehicleNumber || 'N/A'} | ≡ƒôà {b.date}</p>
+                                <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚚 {b.vehicleNumber || 'N/A'} | 📅 {b.date}</p>
                              </div>
                              <div style={{ display: "flex", gap: "12px" }}>
                                 <button onClick={() => {
@@ -2525,7 +2525,7 @@ export default function App() {
                                    window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✍️</button>
                                 <button onClick={async () => {
-                                   if (!window.confirm("≡ƒùæ∩╕Å Are you sure you want to PERMANENTLY delete this billing record?")) return;
+                                   if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this billing record?")) return;
                                    const res = await MandiService.deleteSupplierBill(b._id);
                                    if (res.status === "SUCCESS") {
                                       alert("✅ Bill deleted successfully!");
@@ -2533,7 +2533,7 @@ export default function App() {
                                    } else {
                                       alert("❌ Error deleting: " + res.message);
                                    }
-                                }} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">≡ƒùæ∩╕Å</button>
+                                }} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
                              </div>
                           </div>
                        ))}
@@ -2599,7 +2599,7 @@ export default function App() {
                        </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Items Purchased"); }}>Next ΓåÆ</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Items Purchased"); }}>Next →</Button>
                     </div>
                   </div>
               )}
@@ -2610,7 +2610,7 @@ export default function App() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                        {buyerInvoiceForm.items.map((item, idx) => (
                            <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "16px", background: "#FDFBF4", padding: "24px", borderRadius: "12px", border: "1px solid #EBE9E1", position: "relative" }}>
-                               {idx > 0 && <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#E11D48", fontWeight: "900", fontSize: "10px", background: "#FFF1F2", padding: "4px 8px", borderRadius: "6px" }} onClick={() => handleBuyerInvoiceItemAction("Remove", idx)}>Γ£ò REMOVE</div>}
+                               {idx > 0 && <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#E11D48", fontWeight: "900", fontSize: "10px", background: "#FFF1F2", padding: "4px 8px", borderRadius: "6px" }} onClick={() => handleBuyerInvoiceItemAction("Remove", idx)}>✕ REMOVE</div>}
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", gridColumn: "span 2" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Product + Variety + Grade</label>
                                   <select value={item.productInfo} onChange={(e) => {
@@ -2650,11 +2650,11 @@ export default function App() {
                                   <input type="number" disabled value={Math.max(0, (Number(item.grossWeight) || 0) - (Number(item.deductions) || 0))} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Rate (Γé╣/KG)</label>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Rate (₹/KG)</label>
                                   <input type="number" value={item.rate} onChange={(e) => handleBuyerInvoiceItemAction("Update", idx, "rate", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Amount (Γé╣) Auto</label>
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Amount (₹) Auto</label>
                                   <input type="number" disabled value={(Math.max(0, (Number(item.grossWeight) || 0) - (Number(item.deductions) || 0)) * (Number(item.rate) || 0))} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                                </div>
                            </div>
@@ -2662,8 +2662,8 @@ export default function App() {
                        <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "900", marginTop: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleBuyerInvoiceItemAction("Add")}>+ Add Next Invoice Item</Button>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Invoice Header"); }}>ΓåÉ Previous</Button>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Additional Charges"); }}>Next ΓåÆ</Button>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Invoice Header"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Additional Charges"); }}>Next →</Button>
                     </div>
                   </div>
               )}
@@ -2673,25 +2673,25 @@ export default function App() {
                     <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Additional Charges</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒÅó Commission (Γé╣)</label>
-                          <input type="number" value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🏛️ Commission (₹)</label>
+                          <input type="number" value={buyerInvoiceForm.charges.commission} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, commission: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒ¢á∩╕Å Handling Charges (Γé╣)</label>
-                          <input type="number" value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒ¢á∩╕Å Handling Charges (₹)</label>
+                          <input type="number" value={buyerInvoiceForm.charges.handling} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, handling: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>≡ƒÜ¢ Outward Transport (Γé╣)</label>
-                          <input type="number" value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🚚 Outward Transport (₹)</label>
+                          <input type="number" value={buyerInvoiceForm.charges.transport} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
                           <input type="text" value={buyerInvoiceForm.charges.otherName} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, otherName: e.target.value}})} placeholder="Other Charges label..." style={{ flex: 1, marginRight: "12px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", background: "transparent" }} />
-                          <input type="number" value={buyerInvoiceForm.charges.otherAmount} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, otherAmount: e.target.value}})} placeholder="Γé╣" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <input type="number" value={buyerInvoiceForm.charges.otherAmount} onChange={e => setBuyerInvoiceForm({...buyerInvoiceForm, charges: {...buyerInvoiceForm.charges, otherAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Items Purchased"); }}>ΓåÉ Previous</Button>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Invoice Totals"); }}>Next ΓåÆ</Button>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Items Purchased"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Invoice Totals"); }}>Next →</Button>
                     </div>
                   </div>
               )}
@@ -2737,7 +2737,7 @@ export default function App() {
                        })()}
                     </div>
                     <div style={{ borderTop: "2px solid #F1F5F9", marginTop: "32px", paddingTop: "24px", display: "flex", gap: "16px" }}>
-                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Additional Charges"); }}>ΓåÉ Previous</Button>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveBuyerInvoiceTab("Additional Charges"); }}>← Previous</Button>
                         <Button style={{ background: COLORS.primary, color: "#FFFFFF", fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(230,126,34,0.2)" }} onClick={async () => {
                             try {
                                const res = await MandiService.generateBuyerInvoice(buyerInvoiceForm);
@@ -2979,7 +2979,7 @@ export default function App() {
 
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Amount (Γé╣)</label>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Amount (₹)</label>
                              <input type="number" placeholder="Enter amount" value={farmerPaymentForm.amount} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, amount: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -3035,7 +3035,7 @@ export default function App() {
 
                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                 <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Received Amount (Γé╣)</label>
+                                 <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Received Amount (₹)</label>
                                  <input type="number" placeholder="Enter amount" value={buyerPaymentForm.amountReceived} onChange={e => setBuyerPaymentForm({...buyerPaymentForm, amountReceived: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                               </div>
                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -3090,7 +3090,7 @@ export default function App() {
                                    </div>
                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                       <span style={{ fontSize: "14px", fontWeight: "900", color: "#991b1b" }}>{formatCurrency(alert.due)}</span>
-                                      <button style={{ background: "none", border: "none", color: COLORS.primary, fontWeight: "800", fontSize: "11px", cursor: "pointer" }}>Send Notice ≡ƒô▓</button>
+                                      <button style={{ background: "none", border: "none", color: COLORS.primary, fontWeight: "800", fontSize: "11px", cursor: "pointer" }}>Send Notice 📲</button>
                                    </div>
                                 </div>
                              ))}
@@ -3182,7 +3182,7 @@ export default function App() {
 
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "flex-end" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Freight Amount (Γé╣)</label>
+                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Freight Amount (₹)</label>
                              <input type="number" placeholder="Transport cost" value={inwardTransportForm.freightAmount} onChange={e => setInwardTransportForm({...inwardTransportForm, freightAmount: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -3253,7 +3253,7 @@ export default function App() {
 
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "flex-end" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Freight Amount (Γé╣)</label>
+                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Freight Amount (₹)</label>
                              <input type="number" placeholder="Outward freight" value={outwardTransportForm.freightAmount} onChange={e => setOutwardTransportForm({...outwardTransportForm, freightAmount: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -3300,7 +3300,7 @@ export default function App() {
                              </div>
                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                                 <div style={{ fontSize: "11px", color: COLORS.muted }}>{truck.origin} <br /> {truck.time}</div>
-                                <span style={{ fontSize: "11px", fontWeight: "800", color: truck.status === "Delayed" ? "#ef4444" : COLORS.primary }}>ΓùÅ {truck.status}</span>
+                                <span style={{ fontSize: "11px", fontWeight: "800", color: truck.status === "Delayed" ? "#ef4444" : COLORS.primary }}>● {truck.status}</span>
                              </div>
                           </div>
                        ))}
@@ -3313,13 +3313,13 @@ export default function App() {
                     </div>
                     {transportFilter ? (
                        <div style={{ padding: "12px", border: "1px solid #f1f5f9", borderRadius: "10px", fontSize: "12px" }}>
-                          ≡ƒôà 22/03 - Inward (Farmer A)<br />
-                          ≡ƒôà 24/03 - Outward (Buyer B)<br />
-                          <span style={{ color: COLORS.primary, cursor: "pointer", fontWeight: "800", display: "block", marginTop: "10px" }}>View Full Profile ΓåÆ</span>
+                          📅 22/03 - Inward (Farmer A)<br />
+                          📅 24/03 - Outward (Buyer B)<br />
+                          <span style={{ color: COLORS.primary, cursor: "pointer", fontWeight: "800", display: "block", marginTop: "10px" }}>View Full Profile →</span>
                        </div>
                     ) : (
                        <div style={{ textAlign: "center", padding: "20px", opacity: 0.5 }}>
-                          <span style={{ fontSize: "20px" }}>≡ƒöì</span>
+                          <span style={{ fontSize: "20px" }}>🔍</span>
                           <p style={{ fontSize: "11px", margin: "10px 0 0" }}>Enter a vehicle number to view history.</p>
                        </div>
                     )}
@@ -3353,7 +3353,7 @@ export default function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <label style={{ fontSize: "12px", fontWeight: "800", color: COLORS.primary, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px", position: "relative", paddingLeft: "12px" }}>
-                        <span style={{ position: "absolute", left: 0, top: "2px", color: COLORS.accent }}>ΓÖª</span>
+                        <span style={{ position: "absolute", left: 0, top: "2px", color: COLORS.accent }}>♦</span>
                         CATEGORY
                       </label>
                       <select style={{ backgroundColor: "rgba(255,255,255,0.7)", border: "2px solid #e2e8f0", borderRadius: "12px", padding: "16px", fontSize: "15px", color: COLORS.text, outline: "none", width: "100%" }}
@@ -3366,7 +3366,7 @@ export default function App() {
                         <option value="Miscellaneous">Miscellaneous</option>
                       </select>
                     </div>
-                    <Input label="Amount Paid" type="number" placeholder="Γé╣" value={expenseForm.amount} onChange={e => setExpenseForm({...expenseForm, amount: e.target.value})} />
+                    <Input label="Amount Paid" type="number" placeholder="₹" value={expenseForm.amount} onChange={e => setExpenseForm({...expenseForm, amount: e.target.value})} />
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px", marginBottom: "12px" }}>
                     <Input label="Related Lot #" placeholder="Optional (TRX Link)" value={expenseForm.lotId} onChange={e => setExpenseForm({...expenseForm, lotId: e.target.value})} />
@@ -3393,7 +3393,7 @@ export default function App() {
                   <Input label="PAN Number" placeholder="Alpha-Numeric PAN" />
                   <Input label="Voter ID (Optional)" placeholder="Election ID #" />
                   <div style={{ padding: "40px", border: "3px dashed #f1f5f9", borderRadius: "20px", textAlign: "center", cursor: "pointer", marginBottom: "20px" }}>
-                    ≡ƒôü Upload Identity Documents (Scan/Photo)
+                    📁 Upload Identity Documents (Scan/Photo)
                   </div>
                   <Button style={{ width: "100%" }}>Run KYC Audit</Button>
                 </div>
@@ -3431,7 +3431,7 @@ export default function App() {
           {activeSection === "Dashboard" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "32px", animation: "slideUp 0.5s ease-out" }}>
                 
-                {/* ≡ƒôè 11.1 Dashboard — Real-Time Overview */}
+                {/* 📊 11.1 Dashboard — Real-Time Overview */}
                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>11.1 Dashboard — Real-Time Overview</h2>
                    <p style={{ fontSize: "13px", color: COLORS.muted, marginBottom: "24px", marginTop: 0 }}>The home screen dashboard gives the owner and accountant an instant snapshot of today's operations.</p>
@@ -3439,7 +3439,7 @@ export default function App() {
                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
                       {[
                          { label: "Today's Intake", val: "4,250 KG", sub: "Total KG received from farmers today", bg: COLORS.secondary, col: "#fff" },
-                         { label: "Today's Sales", val: formatCurrency(185400), sub: "Total Γé╣ invoiced to buyers today", bg: COLORS.primary, col: "#fff" },
+                         { label: "Today's Sales", val: formatCurrency(185400), sub: "Total ₹ invoiced to buyers today", bg: COLORS.primary, col: "#fff" },
                          { label: "Pending Auctions", val: "07 Lots", sub: "Lots received but not yet allocated", bg: "#1e293b", col: "#fff" },
                          { label: "Total Farmer Outstanding", val: formatCurrency(845000), sub: "Total amount SPV owes to all farmers", bg: "#fff", col: "#991b1b", border: true },
                          { label: "Total Buyer Outstanding", val: formatCurrency(1250000), sub: "Total amount all buyers owe to SPV", bg: "#fff", col: COLORS.primary, border: true },
@@ -3466,10 +3466,10 @@ export default function App() {
                       <Card title="Business Intelligence Hub" subtitle="Generate, download and share audited records">
                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                             {[
-                               { t: "Supplier Transaction Log", i: "≡ƒÜ£", d: "Date-wise intake & payment history" },
-                               { t: "Buyer Credit Analysis", i: "≡ƒôê", d: "Outstanding aging & payment patterns" },
-                               { t: "Operational P&L Statement", i: "≡ƒÆ╣", d: "Revenue vs Expenses vs Commission" },
-                               { t: "Logistics Efficiency Report", i: "≡ƒÜÜ", d: "Freight costs & vehicle utilization" },
+                               { t: "Supplier Transaction Log", i: "🚚", d: "Date-wise intake & payment history" },
+                               { t: "Buyer Credit Analysis", i: "📈", d: "Outstanding aging & payment patterns" },
+                               { t: "Operational P&L Statement", i: "💸", d: "Revenue vs Expenses vs Commission" },
+                               { t: "Logistics Efficiency Report", i: "🚚", d: "Freight costs & vehicle utilization" },
                             ].map((rep, i) => (
                                <div key={i} style={{ padding: "20px", background: "#f8fafc", borderRadius: "16px", border: "1.5px solid #e2e8f0", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.borderColor=COLORS.primary} onMouseOut={e=>e.currentTarget.style.borderColor="#e2e8f0"}>
                                   <div style={{ fontSize: "24px", marginBottom: "10px" }}>{rep.i}</div>
@@ -3522,7 +3522,7 @@ export default function App() {
                         onClick={() => setActiveConfigTab(tab)}
                         style={{ padding: "12px 28px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "850", transition: "0.2s", background: activeConfigTab === tab ? COLORS.primary : "transparent", color: activeConfigTab === tab ? "#fff" : COLORS.muted }}
                      >
-                        {tab === "Product" ? "≡ƒìÅ Product Catalog" : tab === "Expense" ? "≡ƒÆ╕ Expense Masters" : "ΓÜÖ∩╕Å System Settings"}
+                        {tab === "Product" ? "🍎 Product Catalog" : tab === "Expense" ? "💸 Expense Masters" : "⚙️ System Settings"}
                      </button>
                   ))}
                </div>
@@ -3583,7 +3583,7 @@ export default function App() {
                                  </div>
                                  <div style={{ marginTop: "12px", display: "flex", gap: "6px" }}>
                                     {p.grades.map(g => (
-                                       <span key={g} style={{ fontSize: "10px", color: COLORS.primary, fontWeight: "900" }}>ΓÇó {g}</span>
+                                       <span key={g} style={{ fontSize: "10px", color: COLORS.primary, fontWeight: "900" }}>• {g}</span>
                                     ))}
                                  </div>
                               </div>
@@ -3602,7 +3602,7 @@ export default function App() {
                               <div>
                                  <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Calculation Type</label>
                                  <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                                    <option>Percentage (%)</option><option>Fixed Amount (Γé╣)</option>
+                                    <option>Percentage (%)</option><option>Fixed Amount (₹)</option>
                                  </select>
                               </div>
                               <Input label="Default Value" placeholder="e.g. 4" value={newExpenseForm.defaultValue} onChange={e=>setNewExpenseForm({...newExpenseForm, defaultValue: e.target.value})} />
@@ -3644,7 +3644,7 @@ export default function App() {
                   <Card title="Global Governance & System Settings" subtitle="Branding, financial rules and automated communication">
                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "32px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>≡ƒôª Core Branding</h4>
+                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>📦 Core Branding</h4>
                            <Input label="Business Name" value={systemSettings.businessName} onChange={e=>setSystemSettings({...systemSettings, businessName: e.target.value})} />
                            <Input label="Business Address" value={systemSettings.address} onChange={e=>setSystemSettings({...systemSettings, address: e.target.value})} />
                            <div style={{ padding: "12px", border: "2px dashed #e2e8f0", borderRadius: "10px", textAlign: "center", fontSize: "11px" }}>
@@ -3653,20 +3653,20 @@ export default function App() {
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>≡ƒÆ░ Financial Defaults</h4>
+                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>💰 Financial Defaults</h4>
                            <Input label="Global Default Commission (%)" type="number" value={systemSettings.defaultCommission} onChange={e=>setSystemSettings({...systemSettings, defaultCommission: e.target.value})} />
                            <Input label="Standard Payment Terms" placeholder="7 Days" value={systemSettings.buyerPaymentTerms} onChange={e=>setSystemSettings({...systemSettings, buyerPaymentTerms: e.target.value})} />
                            <div>
                               <label style={{ display: "block", marginBottom: "6px", fontWeight: "800", color: COLORS.secondary, fontSize: "11px" }}>Financial Year Cycle</label>
                               <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                                 <option>AprilΓÇôMarch (India)</option>
-                                 <option>JanuaryΓÇôDecember</option>
+                                 <option>April–March (India)</option>
+                                 <option>January–December</option>
                               </select>
                            </div>
                         </div>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>≡ƒôæ Documentation & Comms</h4>
+                           <h4 style={{ color: COLORS.primary, borderBottom: `2px solid ${COLORS.primary}`, paddingBottom: "8px", margin: "0 0 8px" }}>📑 Documentation & Comms</h4>
                            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "10px" }}>
                               <Input label="Invoice Prefix" value={systemSettings.invoicePrefix} onChange={e=>setSystemSettings({...systemSettings, invoicePrefix: e.target.value})} />
                               <Input label="Start #" placeholder="101" />
@@ -3679,7 +3679,7 @@ export default function App() {
                         </div>
                      </div>
                      <div style={{ marginTop: "40px", borderTop: "1.5px solid #f1f5f9", paddingTop: "24px", display: "flex", justifyContent: "flex-end" }}>
-                        <Button style={{ padding: "14px 40px" }} onClick={() => alert("≡ƒÆ┐ SYSTEM CONFIGURATION COLD-BOOTED: All settings persisted.")}>Commit Global Settings</Button>
+                        <Button style={{ padding: "14px 40px" }} onClick={() => alert("💿 SYSTEM CONFIGURATION COLD-BOOTED: All settings persisted.")}>Commit Global Settings</Button>
                      </div>
                   </Card>
                )}
@@ -3697,7 +3697,7 @@ export default function App() {
                         onClick={() => setActiveSecurityTab(tab)}
                         style={{ padding: "12px 28px", borderRadius: "10px", border: "none", cursor: "pointer", fontWeight: "850", transition: "0.2s", background: activeSecurityTab === tab ? COLORS.primary : "transparent", color: activeSecurityTab === tab ? "#fff" : COLORS.muted }}
                      >
-                        {tab === "Staff Hub" ? "≡ƒæÑ Staff Identity Hub" : tab === "Permissions" ? "≡ƒ¢í∩╕Å Role Matrix" : "≡ƒöÉ Security Guard"}
+                        {tab === "Staff Hub" ? "👥 Staff Identity Hub" : tab === "Permissions" ? "🛡️ Role Matrix" : "≡ƒöÉ Security Guard"}
                      </button>
                   ))}
                </div>
@@ -3741,7 +3741,7 @@ export default function App() {
                                  <tr key={u.id} style={{ borderBottom: "1px solid #f8fafc" }}>
                                     <td style={{ padding: "12px" }}>
                                        <div style={{ fontWeight: "750" }}>{u.name}</div>
-                                       <div style={{ fontSize: "10px", color: COLORS.muted }}>{u.id} ΓÇó <span style={{ color: u.status === "Active" ? "#22c55e" : "#ef4444" }}>{u.status}</span></div>
+                                       <div style={{ fontSize: "10px", color: COLORS.muted }}>{u.id} • <span style={{ color: u.status === "Active" ? "#22c55e" : "#ef4444" }}>{u.status}</span></div>
                                     </td>
                                     <td style={{ padding: "12px" }}>
                                        <span style={{ fontSize: "11px", background: u.role === "Admin" ? "#fef3c7" : "#f1f5f9", padding: "4px 10px", borderRadius: "8px", fontWeight: "800" }}>{u.role}</span>
@@ -3769,7 +3769,7 @@ export default function App() {
                         {[
                            {
                               role: "Owner / Admin",
-                              icon: "≡ƒææ",
+                              icon: "👑",
                               color: "#375144",
                               bg: "linear-gradient(135deg, #375144 0%, #2d4137 100%)",
                               tagBg: "rgba(159,180,67,0.25)",
@@ -3779,7 +3779,7 @@ export default function App() {
                            },
                            {
                               role: "Accountant",
-                              icon: "≡ƒôè",
+                              icon: "📊",
                               color: "#1d4ed8",
                               bg: "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)",
                               tagBg: "rgba(59,130,246,0.15)",
@@ -3789,7 +3789,7 @@ export default function App() {
                            },
                            {
                               role: "Operations Staff",
-                              icon: "≡ƒÅ¡",
+                              icon: "🏭",
                               color: "#b45309",
                               bg: "linear-gradient(135deg, #b45309 0%, #92400e 100%)",
                               tagBg: "rgba(245,158,11,0.15)",
@@ -3843,9 +3843,9 @@ export default function App() {
                                  <tr>
                                     <th style={{ padding: "14px 16px", textAlign: "left", background: "#f8fafc", borderBottom: "2px solid #e2e8f0", fontWeight: "800", color: COLORS.muted, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", minWidth: "220px" }}>Module / Component</th>
                                     {[
-                                       { label: "Owner / Admin", icon: "≡ƒææ", color: "#375144", bg: "#f0f9f4" },
-                                       { label: "Accountant", icon: "≡ƒôè", color: "#1d4ed8", bg: "#eff6ff" },
-                                       { label: "Ops Staff", icon: "≡ƒÅ¡", color: "#b45309", bg: "#fffbeb" },
+                                       { label: "Owner / Admin", icon: "👑", color: "#375144", bg: "#f0f9f4" },
+                                       { label: "Accountant", icon: "📊", color: "#1d4ed8", bg: "#eff6ff" },
+                                       { label: "Ops Staff", icon: "🏭", color: "#b45309", bg: "#fffbeb" },
                                        { label: "Viewer", icon: "👁️", color: "#475569", bg: "#f8fafc" }
                                     ].map(col => (
                                        <th key={col.label} style={{ padding: "14px 24px", background: col.bg, borderBottom: "2px solid #e2e8f0", textAlign: "center", minWidth: "150px" }}>
@@ -3857,21 +3857,21 @@ export default function App() {
                               </thead>
                               <tbody>
                                  {[
-                                    { module: "≡ƒôè Dashboard", admin: "FULL", accountant: "FULL", ops: "FULL", viewer: "READ" },
-                                    { module: "≡ƒæÑ Profiles (Supplier/Buyer)", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "READ" },
-                                    { module: "≡ƒôª Inventory Allocation", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "READ" },
-                                    { module: "ΓÜû∩╕Å Supplier Billing", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
+                                    { module: "📊 Dashboard", admin: "FULL", accountant: "FULL", ops: "FULL", viewer: "READ" },
+                                    { module: "👥 Profiles (Supplier/Buyer)", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "READ" },
+                                    { module: "📦 Inventory Allocation", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "READ" },
+                                    { module: "⚖️ Supplier Billing", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
                                     { module: "≡ƒº╛ Buyer Invoicing", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
                                     { module: "≡ƒôû Ledger System", admin: "FULL", accountant: "FULL", ops: "NONE", viewer: "READ" },
                                     { module: "≡ƒöù Connection Intelligence", admin: "FULL", accountant: "FULL", ops: "NONE", viewer: "READ" },
-                                    { module: "≡ƒÆ│ Payment & Settlement", admin: "FULL", accountant: "FULL", ops: "NONE", viewer: "NONE" },
+                                    { module: "💳 Payment & Settlement", admin: "FULL", accountant: "FULL", ops: "NONE", viewer: "NONE" },
                                     { module: "≡ƒÜÜ Transportation Tracking", admin: "FULL", accountant: "READ", ops: "CREATE", viewer: "NONE" },
-                                    { module: "≡ƒÆ╕ Expense Management", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
+                                    { module: "💸 Expense Management", admin: "FULL", accountant: "FULL", ops: "CREATE", viewer: "NONE" },
                                     { module: "≡ƒôä Reports", admin: "FULL", accountant: "FULL", ops: "FULL", viewer: "READ" },
-                                    { module: "ΓÜÖ∩╕Å Product Master & Config", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
-                                    { module: "≡ƒ¢í∩╕Å User Roles & Security", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
+                                    { module: "⚙️ Product Master & Config", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
+                                    { module: "🛡️ User Roles & Security", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
                                     { module: "≡ƒôé Document Management", admin: "FULL", accountant: "READ", ops: "NONE", viewer: "NONE" },
-                                    { module: "≡ƒùæ∩╕Å Delete / Void Bills", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
+                                    { module: "🗑️ Delete / Void Bills", admin: "FULL", accountant: "NONE", ops: "NONE", viewer: "NONE" },
                                  ].map((row, i) => {
                                     const badge = (perm) => {
                                        const cfg = {
@@ -3920,7 +3920,7 @@ export default function App() {
 
                         {/* Warning Banner */}
                         <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px", background: "#fff9eb", borderRadius: "16px", border: "1.5px solid #feebc8" }}>
-                           <span style={{ fontSize: "22px" }}>ΓÜá∩╕Å</span>
+                           <span style={{ fontSize: "22px" }}>⚠️</span>
                            <p style={{ margin: 0, fontSize: "13px", color: "#92400e", fontWeight: "600" }}>
                              Modifying the Access Matrix will force-logout all active sessions to re-apply JWT authorization tokens. Changes take effect after next login.
                            </p>
@@ -3941,7 +3941,7 @@ export default function App() {
                                     </div>
                                     <div>
                                        <div style={{ fontWeight: "800", fontSize: "13px" }}>{log.action}</div>
-                                       <div style={{ fontSize: "11px", color: COLORS.muted }}>By {log.user} ΓÇó {log.timestamp}</div>
+                                       <div style={{ fontSize: "11px", color: COLORS.muted }}>By {log.user} • {log.timestamp}</div>
                                     </div>
                                  </div>
                                  <button style={{ background: "none", border: "none", color: COLORS.primary, fontWeight: "800", fontSize: "11px", cursor: "pointer" }}>VIEW DETAILS</button>
@@ -4017,7 +4017,7 @@ export default function App() {
                                    <b style={{ color: COLORS.primary, fontSize: "15px" }}>{farmer.name}</b>
                                    <span style={{ fontSize: "10px", background: COLORS.secondary, color: "#fff", padding: "4px 8px", borderRadius: "12px", fontWeight: "800" }}>VERIFIED</span>
                                 </div>
-                                <span style={{fontSize: "12px", color: COLORS.muted, display: "block", marginTop: "4px", fontWeight: "600"}}>≡ƒô▒ {farmer.phone} ΓÇó ≡ƒôì {farmer.village}</span>
+                                <span style={{fontSize: "12px", color: COLORS.muted, display: "block", marginTop: "4px", fontWeight: "600"}}>📱 {farmer.phone} • 📍 {farmer.village}</span>
                              </div>
                          ))}
                       </div>
@@ -4035,7 +4035,7 @@ export default function App() {
                          </div>
                          <div style={{ background: "rgba(255,255,255,0.05)", padding: "16px 24px", borderRadius: "20px", textAlign: "right", minWidth: "150px" }}>
                             <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "1.5px", opacity: 0.6, fontWeight: "800", marginBottom: "4px" }}>Pending Settlement</div>
-                            <b style={{ fontSize: "28px", color: "#fbbf24", fontWeight: "900" }}>Γé╣ 45,200</b>
+                            <b style={{ fontSize: "28px", color: "#fbbf24", fontWeight: "900" }}>₹ 45,200</b>
                          </div>
                       </div>
 
@@ -4044,9 +4044,9 @@ export default function App() {
                             { l: "Lots Supplied", v: "14", c: "#fff", bg: "rgba(255,255,255,0.1)" },
                             { l: "QTY Supplied", v: "8,500 KG", c: "#fff", bg: "rgba(255,255,255,0.1)" },
                             { l: "QTY Sold", v: "7,900 KG", c: COLORS.secondary, bg: "rgba(159,180,67,0.1)" },
-                            { l: "Gross Sale", v: "Γé╣ 4,25,000", c: "#fff", bg: "rgba(255,255,255,0.1)" },
-                            { l: "Expenses Deducted", v: "Γé╣ 21,250", c: "#fca5a5", bg: "rgba(248, 113, 113, 0.1)" },
-                            { l: "Net Paid", v: "Γé╣ 3,58,550", c: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
+                            { l: "Gross Sale", v: "₹ 4,25,000", c: "#fff", bg: "rgba(255,255,255,0.1)" },
+                            { l: "Expenses Deducted", v: "₹ 21,250", c: "#fca5a5", bg: "rgba(248, 113, 113, 0.1)" },
+                            { l: "Net Paid", v: "₹ 3,58,550", c: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
                             { l: "Last Supply Date", v: "24/03/2026", c: "#fff", bg: "rgba(255,255,255,0.1)" }
                          ].map((x,i) => (
                             <div key={i} style={{ padding: "16px", background: x.bg, borderRadius: "16px" }}>
@@ -4071,10 +4071,10 @@ export default function App() {
                 <>
                 {/* SMART ALERT */}
                 <div style={{ background: "#fef2f2", color: "#991b1b", padding: "18px 24px", borderRadius: "20px", border: "1.5px solid #fecaca", display: "flex", alignItems: "center", gap: "16px", fontWeight: "800", boxShadow: "0 10px 20px rgba(220, 38, 38, 0.05)" }}>
-                   <span style={{ fontSize: "24px" }}>ΓÜá∩╕Å</span>
+                   <span style={{ fontSize: "24px" }}>⚠️</span>
                    <div>
                       <div style={{ fontSize: "14px", letterSpacing: "0.5px" }}>HIGH RISK ALERTS LINKED TO CURRENT PRODUCE:</div>
-                      <div style={{ fontSize: "12px", opacity: 0.8, fontWeight: "600", marginTop: "4px" }}>Buyer <b>'Reliance Fresh'</b> holds pending Γé╣1,45,000 affecting the liquidation of this farmer's supply. Escalate collection strategy.</div>
+                      <div style={{ fontSize: "12px", opacity: 0.8, fontWeight: "600", marginTop: "4px" }}>Buyer <b>'Reliance Fresh'</b> holds pending ₹1,45,000 affecting the liquidation of this farmer's supply. Escalate collection strategy.</div>
                    </div>
                 </div>
 
@@ -4099,8 +4099,8 @@ export default function App() {
                                      <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>PRODUCE SPEC</th>
                                      <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>QTY (KG)</th>
                                      <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>BUYER IDENTITY</th>
-                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>RATE (Γé╣)</th>
-                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>AMOUNT (Γé╣)</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>RATE (₹)</th>
+                                     <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>AMOUNT (₹)</th>
                                      <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px" }}>PAID</th>
                                      <th style={{ padding: "18px", textAlign: "right", fontWeight: "800", fontSize: "11px", color: "#fbbf24" }}>BALANCE</th>
                                      <th style={{ padding: "18px", fontWeight: "800", fontSize: "11px" }}>INVOICE</th>
@@ -4108,12 +4108,12 @@ export default function App() {
                                </thead>
                                <tbody>
                                   {/* Row 1 */}
-                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Reliance Fresh", phone: "9959012345", address: "Stall #102, Market Yard", totalPurchases: "Γé╣ 4.5L", preferredProducts: ["Mango Alphonso (80%)", "Banana Yelakki (20%)"], paymentBehavior: "Delayed (15 days average)", outstanding: "Γé╣ 1,45,000" })}>
+                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Reliance Fresh", phone: "9959012345", address: "Stall #102, Market Yard", totalPurchases: "₹ 4.5L", preferredProducts: ["Mango Alphonso (80%)", "Banana Yelakki (20%)"], paymentBehavior: "Delayed (15 days average)", outstanding: "₹ 1,45,000" })}>
                                      <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>24/03/2026</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Tuesday, 6:45 AM</span></td>
                                      <td style={{ padding: "16px", color: COLORS.primary, fontWeight: "900" }}>LOT-2026-X11</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Mango</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Alphonso ΓÇó A Grade</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Mango</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Alphonso • A Grade</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "13px" }}>1,200</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Reliance Fresh</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9959012345 ΓÇó Stall #102</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Reliance Fresh</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9959012345 • Stall #102</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", color: COLORS.success, fontWeight: "900", fontSize: "13px" }}>45.00</td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", fontSize: "13px" }}>54,000</td>
                                      <td style={{ padding: "16px", textAlign: "right" }}><b style={{ fontSize: "13px" }}>24,000</b><br/><span style={{ color: "#3b82f6", fontSize: "10px", fontWeight: "800", display: "inline-block", padding: "2px 6px", background: "#eff6ff", borderRadius: "6px", marginTop: "2px" }}>UPI Transfer</span></td>
@@ -4121,12 +4121,12 @@ export default function App() {
                                      <td style={{ padding: "16px" }}><span style={{ color: "#fff", background: "#334155", padding: "6px 10px", borderRadius: "8px", fontWeight: "800", fontSize: "10px" }}>INV-2026-X01</span></td>
                                   </tr>
                                   {/* Row 2 */}
-                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Harsha Wholesale", phone: "9898989898", address: "Stall #45, New Block", totalPurchases: "Γé╣ 1.2L", preferredProducts: ["Banana Yelakki (100%)"], paymentBehavior: "Excellent (Same day cash)", outstanding: "Γé╣ 0" })}>
+                                  <tr style={{ cursor: "pointer", borderBottom: "1px solid #f1f5f9", transition: "0.2s" }} onClick={() => setConnSelectedBuyer({ name: "Harsha Wholesale", phone: "9898989898", address: "Stall #45, New Block", totalPurchases: "₹ 1.2L", preferredProducts: ["Banana Yelakki (100%)"], paymentBehavior: "Excellent (Same day cash)", outstanding: "₹ 0" })}>
                                      <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>23/03/2026</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Monday, 8:15 AM</span></td>
                                      <td style={{ padding: "16px", color: COLORS.primary, fontWeight: "900" }}>LOT-2026-X09</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Banana</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Yelakki ΓÇó Premium</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Banana</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>Yelakki • Premium</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "13px" }}>850</td>
-                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Harsha Wholesale</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9898989898 ΓÇó Stall #45</span></td>
+                                     <td style={{ padding: "16px" }}><b style={{ color: COLORS.sidebar, fontSize: "13px" }}>Harsha Wholesale</b><br/><span style={{ opacity: 0.6, fontSize: "10px", fontWeight: "700" }}>9898989898 • Stall #45</span></td>
                                      <td style={{ padding: "16px", textAlign: "right", color: COLORS.success, fontWeight: "900", fontSize: "13px" }}>32.00</td>
                                      <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", fontSize: "13px" }}>27,200</td>
                                      <td style={{ padding: "16px", textAlign: "right" }}><b style={{ fontSize: "13px" }}>27,200</b><br/><span style={{ color: COLORS.success, fontSize: "10px", fontWeight: "800", display: "inline-block", padding: "2px 6px", background: "#f0fdf4", borderRadius: "6px", marginTop: "2px" }}>Cash Payment</span></td>
@@ -4147,8 +4147,8 @@ export default function App() {
                                <div style={{ background: "#f8fafc", padding: "24px", borderRadius: "20px", border: "1.5px solid #e2e8f0" }}>
                                   <h3 style={{ margin: "0 0 8px 0", color: COLORS.sidebar, fontSize: "20px" }}>{connSelectedBuyer.name}</h3>
                                   <div style={{ fontSize: "13px", color: COLORS.muted, fontWeight: "600", display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    <span>≡ƒô₧ {connSelectedBuyer.phone}</span>
-                                    <span>≡ƒôì {connSelectedBuyer.address}</span>
+                                    <span>☎️ {connSelectedBuyer.phone}</span>
+                                    <span>📍 {connSelectedBuyer.address}</span>
                                   </div>
                                   
                                   <div style={{ marginTop: "24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
@@ -4158,13 +4158,13 @@ export default function App() {
                                      </div>
                                      <div>
                                         <small style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Unsettled Balance</small>
-                                        <div style={{ fontSize: "18px", fontWeight: "900", color: connSelectedBuyer.outstanding === "Γé╣ 0" ? COLORS.success : COLORS.danger, marginTop: "4px" }}>{connSelectedBuyer.outstanding}</div>
+                                        <div style={{ fontSize: "18px", fontWeight: "900", color: connSelectedBuyer.outstanding === "₹ 0" ? COLORS.success : COLORS.danger, marginTop: "4px" }}>{connSelectedBuyer.outstanding}</div>
                                      </div>
                                   </div>
                                </div>
                                <div>
                                   <small style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, display: "block", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>Payment Habit Indicator</small>
-                                  <div style={{ padding: "16px", background: connSelectedBuyer.outstanding === "Γé╣ 0" ? "#f0fdf4" : "#fef3c7", color: connSelectedBuyer.outstanding === "Γé╣ 0" ? "#166534" : "#b45309", borderRadius: "16px", fontSize: "13px", fontWeight: "800" }}>
+                                  <div style={{ padding: "16px", background: connSelectedBuyer.outstanding === "₹ 0" ? "#f0fdf4" : "#fef3c7", color: connSelectedBuyer.outstanding === "₹ 0" ? "#166534" : "#b45309", borderRadius: "16px", fontSize: "13px", fontWeight: "800" }}>
                                      {connSelectedBuyer.paymentBehavior}
                                   </div>
                                </div>
@@ -4199,7 +4199,7 @@ export default function App() {
                             </div>
                             <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
                                <span>Supplies Cleared: <b style={{color: COLORS.text}}>4,000 KG</b></span>
-                               <span>Yield Rate: <b style={{color: COLORS.success}}>Γé╣ 42.50 Avg</b></span>
+                               <span>Yield Rate: <b style={{color: COLORS.success}}>₹ 42.50 Avg</b></span>
                             </div>
                             <div style={{ marginTop: "12px", fontSize: "12px", color: COLORS.text, background: "#fff", padding: "10px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>Major Acquirer: <b style={{ color: COLORS.primary }}>Harsha Wholesale (45%)</b></div>
                          </div>
@@ -4211,7 +4211,7 @@ export default function App() {
                             </div>
                             <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
                                <span>Supplies Cleared: <b style={{color: COLORS.text}}>2,500 KG</b></span>
-                               <span>Yield Rate: <b style={{color: COLORS.success}}>Γé╣ 31.00 Avg</b></span>
+                               <span>Yield Rate: <b style={{color: COLORS.success}}>₹ 31.00 Avg</b></span>
                             </div>
                             <div style={{ marginTop: "12px", fontSize: "12px", color: COLORS.text, background: "#fff", padding: "10px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>Major Acquirer: <b style={{ color: COLORS.primary }}>Reliance Fresh (82%)</b></div>
                          </div>
@@ -4223,15 +4223,15 @@ export default function App() {
                       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
                             <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Gross Generated</span>
-                            <b style={{ fontSize: "20px", color: COLORS.sidebar }}>Γé╣ 4,25,000</b>
+                            <b style={{ fontSize: "20px", color: COLORS.sidebar }}>₹ 4,25,000</b>
                          </div>
                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
                             <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.success, textTransform: "uppercase" }}>Amount Liquidated</span>
-                            <b style={{ fontSize: "20px", color: COLORS.success }}>Γé╣ 3,45,000</b>
+                            <b style={{ fontSize: "20px", color: COLORS.success }}>₹ 3,45,000</b>
                          </div>
                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px dashed #e2e8f0", paddingBottom: "16px" }}>
                             <span style={{ fontSize: "13px", fontWeight: "800", color: COLORS.danger, textTransform: "uppercase" }}>Deficit Balance</span>
-                            <b style={{ fontSize: "20px", color: COLORS.danger }}>Γé╣ 80,000</b>
+                            <b style={{ fontSize: "20px", color: COLORS.danger }}>₹ 80,000</b>
                          </div>
                          
                          <div style={{ marginTop: "8px" }}>
@@ -4242,7 +4242,7 @@ export default function App() {
                                   <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.sidebar }}>30% CASH</div>
                                </div>
                                <div style={{ flex: 1, background: "#f8fafc", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #e2e8f0" }}>
-                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>≡ƒô▒</div>
+                                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>📱</div>
                                   <div style={{ fontSize: "11px", fontWeight: "900", color: "#3b82f6" }}>65% UPI</div>
                                </div>
                                <div style={{ flex: 1, background: "#fef2f2", padding: "16px", borderRadius: "16px", textAlign: "center", border: "1px solid #fecaca" }}>
@@ -4315,7 +4315,7 @@ export default function App() {
               <Card title="Repository Vault" subtitle="Archive for physical bill scans and KYC docs">
                 <div style={{ padding: "60px", border: "4px dashed #f1f5f9", borderRadius: "32px", textAlign: "center", color: COLORS.muted, position: "relative" }}>
                   <span style={{ fontSize: "64px" }}>≡ƒôé</span>
-                  <h3 style={{ color: "#0f172a" }}>{uploading ? "ΓÜí Syncing Entry..." : "Vault Archive Queue"}</h3>
+                  <h3 style={{ color: "#0f172a" }}>{uploading ? "⚡ Syncing Entry..." : "Vault Archive Queue"}</h3>
                   <p>Click to browse or drag documents into storage.</p>
                   <input 
                     type="file" 
@@ -4339,14 +4339,14 @@ export default function App() {
                           <span style={{ fontSize: "28px" }}>{doc.docType === "Produce Photo" ? "≡ƒû╝∩╕Å" : "≡ƒôä"}</span>
                           <div>
                             <p style={{ margin: 0, fontWeight: "800", fontSize: "14px" }}>{doc.originalName}</p>
-                            <small style={{ color: COLORS.muted }}>{doc.docType} ΓÇó {(doc.fileSize / 1024).toFixed(1)} KB</small>
+                            <small style={{ color: COLORS.muted }}>{doc.docType} • {(doc.fileSize / 1024).toFixed(1)} KB</small>
                           </div>
                         </div>
                         <div style={{ display: "flex", gap: "8px" }}>
                           <a href={doc.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
                             <Button variant="secondary" style={{ padding: "8px 12px", fontSize: "12px" }}>View</Button>
                           </a>
-                          <Button variant="danger" onClick={() => handleDeleteDoc(doc._id)} style={{ padding: "8px 12px", fontSize: "12px" }}>≡ƒùæ∩╕Å</Button>
+                          <Button variant="danger" onClick={() => handleDeleteDoc(doc._id)} style={{ padding: "8px 12px", fontSize: "12px" }}>🗑️</Button>
                         </div>
                       </div>
                     ))

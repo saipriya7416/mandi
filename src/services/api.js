@@ -23,7 +23,7 @@ const request = async (method, path, body = null) => {
   const isHttps = window.location.protocol === 'https:';
   const isLocalBackend = BASE_URL.includes('localhost');
   
-  // ΓÜí∩╕Å MIXED CONTENT PROTECTION: Force simulation if on HTTPS trying to reach Localhost
+  // ⚡ MIXED CONTENT PROTECTION: Force simulation if on HTTPS trying to reach Localhost
   const forceSim = isHttps && isLocalBackend;
 
   try {
@@ -44,7 +44,7 @@ const request = async (method, path, body = null) => {
     
     return await res.json();
   } catch (err) {
-    console.warn(`≡ƒîë [BRIDGE] Mandi Service redirected to Local Simulation Store (${path})`);
+    console.warn(`🌉 [BRIDGE] Mandi Service redirected to Local Simulation Store (${path})`);
     
     // --- LOCAL SIMULATION STORE ---
     if (method === 'GET') {
@@ -91,7 +91,7 @@ const request = async (method, path, body = null) => {
 export const MandiService = {
   // --- AUTH ---
   login: async (username, password, role) => {
-    // ≡ƒöô GLOBAL BYPASS: Accepts any details natively
+    // 🔓 GLOBAL BYPASS: Accepts any details natively
     const mockUser = { username: username || "Admin", role: role || "Admin", name: username || "Super Admin" };
     localStorage.setItem('mandi_token', "MASTER_BYPASS_TOKEN");
     localStorage.setItem('mandi_user', JSON.stringify(mockUser));
