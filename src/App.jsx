@@ -849,6 +849,10 @@ export default function App() {
     expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
   });
 
+  const [supplierBills, setSupplierBills] = useState([]);
+  const [isEditingSupplierBill, setIsEditingSupplierBill] = useState(false);
+  const [editingSupplierBillId, setEditingSupplierBillId] = useState(null);
+
   const [buyerInvoiceForm, setBuyerInvoiceForm] = useState({
     invoiceNumber: `INV-${Math.floor(100+Math.random()*900)}`,
     date: getISTDate(),
@@ -1114,6 +1118,9 @@ export default function App() {
       const aRes = await MandiService.getAllocations();
       setAllocations(aRes.status === "SUCCESS" ? aRes.data : []);
 
+      const sbRes = await MandiService.getSupplierBills();
+      setSupplierBills(sbRes.status === "SUCCESS" ? sbRes.data : []);
+
       const dRes = await MandiService.getDocuments();
       if (dRes.status === "SUCCESS") {
          setDocuments(dRes.data);
@@ -1133,6 +1140,7 @@ export default function App() {
       setSuppliers(dummySuppliers);
       setBuyers(dummyBuyers);
       setLots(dummyLots);
+      setSupplierBills([]);
       setInventoryStats({ totalLotsToday: 14, incomingKgToday: 8500, totalSoldKg: 12400, remainingStockKg: 3200, pendingDeliveryKg: 850, netRevenue: 284560, settlementsPending: 15, settlementsPendingAmount: 45200, activeProcurementLots: 6, totalProcurementLots: 8, lowStockAlerts: 2 });
     }
   };
@@ -2229,20 +2237,31 @@ export default function App() {
                        </div>
 
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Farmer Name (M/s)</label>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Supplier Name</label>
                           <select value={supplierSettlementForm.supplierId} onChange={e => {
                              const selectedName = e.target.value;
-                             // find the most recent lot for this farmer
+                             // find the most recent lot for this supplier
                              const farmerLots = lots.filter(l => l.supplierId === selectedName || l.supplierId?.name === selectedName || l.farmerId === selectedName);
                              const latestLot = farmerLots.length > 0 ? farmerLots[farmerLots.length - 1] : null;
+                             
+                             const itemsToAdd = latestLot && latestLot.lineItems && latestLot.lineItems.length > 0
+                                ? latestLot.lineItems.map((iter, idx) => ({
+                                   id: Date.now() + idx,
+                                   productName: `${iter.productId || ''} ${iter.variety || ''}`.trim() || 'Produce',
+                                   quantity: Math.max(0, (Number(iter.grossWeight) || 0) - (Number(iter.deductions) || 0)),
+                                   rate: iter.estimatedRate || ""
+                                }))
+                                : [{ id: Date.now(), productName: "", quantity: "", rate: "" }];
+
                              setSupplierSettlementForm(prev => ({
                                ...prev,
                                supplierId: selectedName,
                                lotId: latestLot ? latestLot.lotId : "",
-                               vehicleNumber: latestLot ? (latestLot.vehicleNumber || "") : ""
+                               vehicleNumber: latestLot ? (latestLot.vehicleNumber || "") : "",
+                               items: itemsToAdd
                              }));
                           }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                             <option value="" disabled>Select Farmer</option>
+                             <option value="" disabled>Select Supplier</option>
                              {suppliers.map(s => <option key={s._id} value={s.name}>{s.name}</option>)}
                           </select>
                        </div>
@@ -2258,7 +2277,7 @@ export default function App() {
                                vehicleNumber: matchedLot ? (matchedLot.vehicleNumber || prev.vehicleNumber) : prev.vehicleNumber
                              }));
                           }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                             <option value="">-- Auto-filled from Farmer --</option>
+                             <option value="">-- Auto-filled from Supplier --</option>
                              {lots.filter(l => l.supplierId === supplierSettlementForm.supplierId || l.supplierId?.name === supplierSettlementForm.supplierId || l.farmerId === supplierSettlementForm.supplierId || !supplierSettlementForm.supplierId).map(l => <option key={l._id || l.lotId} value={l.lotId}>{l.lotId}</option>)}
                           </select>
                        </div>
@@ -2300,20 +2319,12 @@ export default function App() {
                        ))}
                        <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "900", marginTop: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleSupplierItemAction("Add")}>+ Add Next Sale Item</Button>
                     </div>
-
-                    <div style={{ borderTop: "2px solid #F1F5F9", marginTop: "32px", paddingTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "850", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "0.5px" }}>Gross Amount:</h3>
-                        <h2 style={{ margin: 0, fontSize: "32px", fontWeight: "900", color: COLORS.primary }}>
-                            {formatCurrency(supplierSettlementForm.items.reduce((sum, it) => sum + ((Number(it.quantity) * Number(it.rate)) || 0), 0))}
-                        </h2>
-                    </div>
                  </div>
               )}
 
               {activeSupplierBillTab === "Expense Deductions" && (
                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
                     <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Expense Deductions</h2>
-                    <p style={{ fontSize: "13px", color: COLORS.muted, marginBottom: "32px", marginTop: 0, fontWeight: "600" }}>All expenses are deducted from Gross Sale to calculate Net Settlement.</p>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
@@ -2359,7 +2370,7 @@ export default function App() {
                  <div style={{ background: "#FFFFFF", padding: "40px", borderRadius: "16px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in", boxShadow: "0 10px 30px rgba(0,0,0,0.01)" }}>
                     <h2 style={{ fontSize: "22px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 32px 0", borderBottom: "1.5px solid #F1F5F9", paddingBottom: "20px", letterSpacing: "-0.5px" }}>Financial Settlement Summary</h2>
                     
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "40px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                        
                        {(() => {
                           const grossSale = supplierSettlementForm.items.reduce((sum, it) => sum + ((Number(it.quantity) * Number(it.rate)) || 0), 0);
@@ -2381,14 +2392,17 @@ export default function App() {
                                       <span style={{ color: "#CC0000", fontWeight: "800" }}>- {formatCurrency(totalExpenses)}</span>
                                    </div>
                                    <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
-                                      <span style={{ color: COLORS.muted, fontWeight: "600" }}>Cash Advance</span>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "700" }}>Net Sale</span>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "800" }}>{formatCurrency(netSale)}</span>
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
+                                      <span style={{ color: COLORS.muted, fontWeight: "600" }}>Advance Payment</span>
                                       <span style={{ color: "#CC0000", fontWeight: "800" }}>- {formatCurrency(advance)}</span>
                                    </div>
-                                </div>
-                                <div style={{ background: "linear-gradient(135deg, #375144 0%, #2d4137 100%)", padding: "32px", borderRadius: "16px", color: "#fff", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", boxShadow: "0 15px 35px rgba(55,81,68,0.2)" }}>
-                                   <p style={{ margin: "0 0 12px 0", fontSize: "13px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", opacity: 0.85 }}>Net Payable to Supplier</p>
-                                   <h1 style={{ margin: 0, fontSize: "44px", fontWeight: "900", letterSpacing: "-1px" }}>{formatCurrency(balancePayable)}</h1>
-                                   <p style={{ margin: "16px 0 0 0", fontSize: "11px", fontWeight: "700", opacity: 0.7, textTransform: "uppercase" }}>Ready for disbursement</p>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "8px" }}>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "700", fontSize: "16px" }}>Net Payable to Supplier</span>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "900", fontSize: "16px" }}>{formatCurrency(balancePayable)}</span>
+                                   </div>
                                 </div>
                              </>
                           );
@@ -2398,21 +2412,40 @@ export default function App() {
               )}
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                <Button style={{ background: COLORS.sidebar, fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(55,81,68,0.2)" }} onClick={() => {
-                   alert(`✅ BILL GENERATED: ${supplierSettlementForm.billNumber} has been recorded in the database and sent to account ledger.`);
-                   setSupplierSettlementForm({
-                      billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
-                      date: getISTDate(),
-                      supplierId: "",
-                      lotId: "",
-                      vehicleNumber: "",
-                      items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
-                      expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
-                   });
-                   setActiveSupplierBillTab("Bill Header");
-                }}>Finish & Record Bill</Button>
+                <Button style={{ background: COLORS.sidebar, fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(55,81,68,0.2)" }} onClick={async () => {
+                   try {
+                       if (!supplierSettlementForm.supplierId) return alert("⚠️ Supplier is required.");
+                       let res;
+                       if (isEditingSupplierBill) {
+                           res = await MandiService.updateSupplierBill(editingSupplierBillId, supplierSettlementForm);
+                       } else {
+                           res = await MandiService.generateSupplierBill(supplierSettlementForm);
+                       }
+                       
+                       if (res.status === "SUCCESS") {
+                           alert(`✅ BILL ${isEditingSupplierBill ? 'UPDATED' : 'GENERATED'}: ${supplierSettlementForm.billNumber} has been recorded in the database.`);
+                           setSupplierSettlementForm({
+                              billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
+                              date: getISTDate(),
+                              supplierId: "",
+                              lotId: "",
+                              vehicleNumber: "",
+                              items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
+                              expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
+                           });
+                           setActiveSupplierBillTab("Bill Header");
+                           setIsEditingSupplierBill(false);
+                           setEditingSupplierBillId(null);
+                           fetchData();
+                       } else {
+                           alert(`❌ FAILED: ${res.message || "Database Error"}`);
+                       }
+                   } catch(e) {
+                       alert("Error processing bill.");
+                   }
+                }}>Finish & Save</Button>
                 <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", padding: "16px 32px" }} onClick={() => {
-                   if(confirm("Are you sure you want to clear this entire billing draft?")) {
+                   if(window.confirm("Are you sure you want to clear this entire billing draft?")) {
                       setSupplierSettlementForm({
                          billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
                          date: getISTDate(),
@@ -2422,9 +2455,48 @@ export default function App() {
                          items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
                          expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
                       });
+                      setIsEditingSupplierBill(false);
+                      setEditingSupplierBillId(null);
                       setActiveSupplierBillTab("Bill Header");
                    }
                 }}>Clear</Button>
+              </div>
+
+              {/* Recently Recorded Supplier Bills */}
+              <div style={{ marginTop: "48px" }}>
+                 <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Recently Generated Bills</h4>
+                 <div style={{ maxHeight: "400px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                    <div style={{ display: "grid", gap: "12px" }}>
+                       {supplierBills.slice().reverse().slice(0, 5).map(b => (
+                          <div key={b._id || Date.now() + Math.random()} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                             <div style={{ flex: 1 }}>
+                                <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.billNumber} — {b.supplierId || "Supplier"}</b>
+                                <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚛 {b.vehicleNumber || 'N/A'} | 📅 {b.date}</p>
+                             </div>
+                             <div style={{ display: "flex", gap: "12px" }}>
+                                <button onClick={() => {
+                                   setSupplierSettlementForm(b);
+                                   setIsEditingSupplierBill(true);
+                                   setEditingSupplierBillId(b._id);
+                                   setActiveSupplierBillTab("Bill Header");
+                                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✏️</button>
+                                <button onClick={async () => {
+                                   if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this billing record?")) return;
+                                   const res = await MandiService.deleteSupplierBill(b._id);
+                                   if (res.status === "SUCCESS") {
+                                      alert("✅ Bill deleted successfully!");
+                                      fetchData();
+                                   } else {
+                                      alert("❌ Error deleting: " + res.message);
+                                   }
+                                }} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
+                             </div>
+                          </div>
+                       ))}
+                       {supplierBills.length === 0 && <p style={{ textAlign: "center", color: COLORS.muted, padding: "20px" }}>No billing records found.</p>}
+                    </div>
+                 </div>
               </div>
             </div>
           )}

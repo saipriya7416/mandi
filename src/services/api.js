@@ -52,11 +52,12 @@ const request = async (method, path, body = null) => {
       if (path === '/buyers') return { status: "SUCCESS", data: getLocal('buyers') };
       if (path === '/lots') return { status: "SUCCESS", data: getLocal('lots') };
       if (path === '/allocations') return { status: "SUCCESS", data: getLocal('allocations') };
+      if (path === '/bills/supplier') return { status: "SUCCESS", data: getLocal('supplierBills') };
       return { status: "SUCCESS", data: [] };
     }
 
     if (method === 'POST') {
-      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : null)));
+      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : null))));
       if (storeName) {
         const store = getLocal(storeName);
         const newItem = { ...body, _id: `sim_${Date.now()}`, createdAt: new Date() };
@@ -68,7 +69,7 @@ const request = async (method, path, body = null) => {
     if (method === 'PUT' || method === 'DELETE') {
       const pathParts = path.split('/');
       const id = pathParts[pathParts.length - 1];
-      const storeName = path.includes('supplier') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : null)));
+      const storeName = path.includes('supplier') && !path.includes('bill') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : (path.includes('bill/supplier') ? 'supplierBills' : null))));
       if (storeName && id) {
         const store = getLocal(storeName);
         if (method === 'DELETE') {
@@ -148,7 +149,10 @@ export const MandiService = {
   deleteDocument: async (id) => request('DELETE', `/document/${id}`),
 
   // --- FINANCE ---
+  getSupplierBills: async () => request('GET', '/bills/supplier'),
   generateSupplierBill: async (data) => request('POST', '/bill/supplier', data),
+  updateSupplierBill: async (id, data) => request('PUT', `/bill/supplier/${id}`, data),
+  deleteSupplierBill: async (id) => request('DELETE', `/bill/supplier/${id}`),
   generateBuyerInvoice: async (data) => request('POST', '/invoice/buyer', data),
   recordPayment: async (data) => request('POST', '/payment', data),
   recordExpense: async (data) => request('POST', '/expense', data),
