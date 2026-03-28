@@ -1558,6 +1558,7 @@ export default function App() {
           </div>
 
           <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color:"#1a1a1a", fontSize:"42px", textTransform:"uppercase" }}>STACLI</h1>
+          <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.primary, letterSpacing: "4px", textTransform: "uppercase", marginBottom: "8px" }}>SPV FRUITS</div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "32px" }}>
             <div style={{ height: "1.5px", width: "40px", background: "#cbd5cb" }} />
             <span style={{ fontSize: "12px", fontWeight: "900", color: "#1a1a1a", letterSpacing: "4px", textTransform: "uppercase" }}>MANDI OS</span>
@@ -1748,6 +1749,7 @@ export default function App() {
               <div style={{ position: "absolute", bottom: "4px", right: "4px", width: "12px", height: "12px", background: "#7db580", borderRadius: "50%", border: "2px solid #0d130d" }}></div>
             </div>
             <h2 style={{ color: "#ffffff", fontWeight: "900", fontSize: "19px", letterSpacing: "1.5px", margin: 0 }}>STACLI</h2>
+            <div style={{ fontSize: "11px", fontWeight: "850", color: COLORS.primary, letterSpacing: "2.5px", textTransform: "uppercase", marginTop: "4px", opacity: 0.9 }}>SPV Fruits</div>
           </div>
           
           <div style={{ padding: "0 24px", marginBottom: "12px" }}>
