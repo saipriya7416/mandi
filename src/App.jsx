@@ -1309,15 +1309,15 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff"], label: "DASHBOARD & REPORTS" },
     { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
-    { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "LOT / INVENTORY INTAKE FROM FARMERS" },
-    { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "AUCTION & LOT ALLOCATION TO BUYERS" },
-    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff"], label: "SUPPLIERS BILLING (SETTLEMENT BILL)" },
-    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff"], label: "BUYERS INVOICING (SALE BILL)" },
-    { id: "Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "LEDGER SYSTEM" },
-    { id: "Payment & Settlement Management", roles: ["Owner / Admin", "Operations Staff"], label: "PAYMENT & SETTLEMENT MANAGEMENT" },
-    { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "TRANSPORTATION TRACKING" }
+    { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot/Inventory Intake" },
+    { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation" },
+    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff"], label: "Farmer Billing" },
+    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff"], label: "Buyer Invoicing" },
+    { id: "Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Ledger System" },
+    { id: "Payment & Settlement Management", roles: ["Owner / Admin", "Operations Staff"], label: "Payment & Settlement" },
+    { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "Transportation Tracking" },
+    { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff"], label: "Dashboard & Reports" }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
@@ -1450,7 +1450,16 @@ export default function App() {
                   color: activeSection === item.id ? "#ffffff" : "#AEC4BB",
                 }}
               >
-                <span style={{ fontWeight: activeSection === item.id ? "850" : "550", fontSize: item.isSub ? "12px" : "14px", letterSpacing: "0.2px" }}>{item.label || item.id}</span>
+                <span style={{ 
+                  fontWeight: activeSection === item.id ? "850" : "550", 
+                  fontSize: item.isSub ? "12px" : "13.5px", 
+                  letterSpacing: "0.2px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis"
+                }}>
+                  {item.label || item.id}
+                </span>
               </div>
             ))}
           </div>
