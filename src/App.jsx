@@ -236,6 +236,7 @@ export default function App() {
   const [activeSupplierTab, setActiveSupplierTab] = useState("Supplier Registration");
   const [activeBuyerTab, setActiveBuyerTab] = useState("Buyer Registration");
   const [activeLotTab, setActiveLotTab] = useState("LOT Creation");
+  const [activeSupplierBillTab, setActiveSupplierBillTab] = useState("Bill Header");
   const [activeUserRoleTab, setActiveUserRoleTab] = useState("Supplier");
   const [dispatchProduct, setDispatchProduct] = useState("");
   const [dispatchType, setDispatchType] = useState("Fruits");
@@ -1491,8 +1492,8 @@ export default function App() {
     { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
     { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot/Inventory Intake" },
     { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation" },
-    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff"], label: "Farmer Billing" },
-    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff"], label: "Buyer Invoicing" },
+    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff"], label: "Supplier Billing" },
+    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff"], label: "Customer Billing" },
     { id: "Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Ledger System" },
     { id: "Payment & Settlement Management", roles: ["Owner / Admin", "Operations Staff"], label: "Payment & Settlement" },
     { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "Transportation Tracking" },
@@ -2049,9 +2050,7 @@ export default function App() {
                     <div style={{ marginTop: "32px", padding: "24px", background: "#F1F5F9", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
                             <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted, fontWeight: "700", textTransform: "uppercase" }}>Running Lot Totals</p>
-                            <h4 style={{ margin: "4px 0 0", color: COLORS.sidebar, fontSize: "18px", fontWeight: "900" }}>
-                                Total Lot Weight: { (lotCreationForm.lineItems.reduce((acc, i) => acc + (i.weightUnit === 'Tones' ? (Number(i.grossWeight)||0)*1000 : (Number(i.grossWeight)||0)), 0) / 1000).toFixed(3) } Tones
-                            </h4>
+                            <h4 style={{ margin: "4px 0 0", color: COLORS.sidebar, fontSize: "18px", fontWeight: "900" }}>Lot Value Summary</h4>
                         </div>
                         <div style={{ textAlign: "right" }}>
                             <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted, fontWeight: "700", textTransform: "uppercase" }}>Estimated Gross Sale</p>
@@ -2159,12 +2158,12 @@ export default function App() {
                       placeholder: "Select active lot" 
                     },
                     { label: "Product / Variety / Grade *", type: "text", list: "items-list", value: allocationForm.lineItemId, onChange: e => setAllocationForm({...allocationForm, lineItemId: e.target.value}), placeholder: "Specific line item" },
-                    { label: "Buyer Name *", type: "select", options: ["", ...buyers.map(b => b.name)], value: allocationForm.buyerId, onChange: e => setAllocationForm({...allocationForm, buyerId: e.target.value}) },
+                    { label: "Customer Name *", type: "select", options: ["", ...buyers.map(b => b.name)], value: allocationForm.buyerId, onChange: e => setAllocationForm({...allocationForm, buyerId: e.target.value}) },
                     { label: "Quantity Allocated (KG) *", type: "number", value: allocationForm.quantity, onChange: e => setAllocationForm({...allocationForm, quantity: e.target.value}), placeholder: "Can be partial" },
                     { label: "Sale Rate (₹/KG) *", type: "number", value: allocationForm.saleRate, onChange: e => setAllocationForm({...allocationForm, saleRate: e.target.value}), placeholder: "Agreed rate" },
                     { label: "Sale Amount (₹) Auto", type: "number", disabled: true, value: (Number(allocationForm.quantity) * Number(allocationForm.saleRate)) || 0 },
                     { label: "Allocation Date *", type: "date", value: allocationForm.allocationDate, onChange: e => setAllocationForm({...allocationForm, allocationDate: e.target.value}) },
-                    { label: "Buyer Invoice No.", type: "text", value: allocationForm.buyerInvoiceNo, onChange: e => setAllocationForm({...allocationForm, buyerInvoiceNo: e.target.value}), placeholder: "Generated invoice number" },
+                    { label: "Customer Invoice No", type: "text", value: allocationForm.buyerInvoiceNo, onChange: e => setAllocationForm({...allocationForm, buyerInvoiceNo: e.target.value}), placeholder: "Record official invoice #" },
                     { label: "Notes", type: "text", value: allocationForm.notes, onChange: e => setAllocationForm({...allocationForm, notes: e.target.value}), placeholder: "E.g. 'Bice No. 111'" }
                   ]
                 }
@@ -2180,8 +2179,8 @@ export default function App() {
               </datalist>
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleAllocate}>Record Allocation</Button>
-                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" })}>Clear Form</Button>
+                <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleAllocate}>Record</Button>
+                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" })}>Clear</Button>
               </div>
 
               {/* Recently Recorded Allocations (Vault) */}
@@ -2194,7 +2193,6 @@ export default function App() {
                              <div style={{ flex: 1 }}>
                                 <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{a.lotId} — {a.buyerId?.name || a.buyerId || "Buyer"}</b>
                                 <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📦 {a.lineItemId} | ⚖️ {a.quantity} KG @ ₹{a.rate}/KG | 📅 {a.allocationDate}</p>
-                                <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900", marginTop: "4px", display: "block" }}>Total Value: {formatCurrency(Number(a.quantity) * Number(a.rate))}</span>
                              </div>
                              <div style={{ display: "flex", gap: "12px" }}>
                                 <button onClick={() => handleEditAllocation(a)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✏️</button>
@@ -2212,12 +2210,22 @@ export default function App() {
           {/* SUPPLIER BILLING MODULE */}
           {activeSection === "Supplier Billing" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "flex-start" }}>
-                 
-                 {/* COLUMN 1: BILL HEADER */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
+                 <div>
+                    <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Supplier Billing Management</h2>
+                 </div>
+              </div>
+
+              <TabHeader 
+                tabs={["Bill Header", "Item Table — Produce Sold", "Expense Deductions Block", "Financial Summary Block"]} 
+                active={activeSupplierBillTab} 
+                set={setActiveSupplierBillTab} 
+              />
+
+              {activeSupplierBillTab === "Bill Header" && (
+                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
                     <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Bill Header</h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
                        
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Bill Number</label>
@@ -2247,101 +2255,101 @@ export default function App() {
 
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Vehicle Number</label>
-                          <input type="text" value={supplierSettlementForm.vehicleNumber} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, vehicleNumber: e.target.value})} placeholder="Lorry/truck that brought the produce" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <input type="text" value={supplierSettlementForm.vehicleNumber} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, vehicleNumber: e.target.value})} placeholder="Lorry/truck information" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                        </div>
 
                     </div>
                  </div>
+              )}
 
-                 {/* COLUMN 2: ITEM TABLE */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", flexDirection: "column", height: "100%" }}>
+              {activeSupplierBillTab === "Item Table — Produce Sold" && (
+                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
                     <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Item Table — Produce Sold</h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "16px", flex: 1 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                        {supplierSettlementForm.items.map((item, idx) => (
-                           <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", background: "#FDFBF4", padding: "20px", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
-                               {idx > 0 && <div style={{ position: "absolute", top: "8px", right: "8px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "10px" }} onClick={() => handleSupplierItemAction("Remove", idx)}>❌ Remove</div>}
+                           <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", background: "#FDFBF4", padding: "20px", borderRadius: "12px", border: "1.5px solid #EBE9E1", position: "relative", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                               {idx > 0 && <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#E11D48", fontWeight: "900", fontSize: "10px", background: "#FFF1F2", padding: "4px 8px", borderRadius: "6px" }} onClick={() => handleSupplierItemAction("Remove", idx)}>✕ REMOVE</div>}
                                
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Item / Product Name</label>
-                                  <input type="text" value={item.productName} onChange={(e) => handleSupplierItemAction("Update", idx, "productName", e.target.value)} placeholder="E.g. Mango - Alphonso" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <input type="text" value={item.productName} onChange={(e) => handleSupplierItemAction("Update", idx, "productName", e.target.value)} placeholder="E.g. Mango - Alphonso" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>KGS (Quantity)</label>
-                                  <input type="number" value={item.quantity} onChange={(e) => handleSupplierItemAction("Update", idx, "quantity", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Quantity (KGs)</label>
+                                  <input type="number" value={item.quantity} onChange={(e) => handleSupplierItemAction("Update", idx, "quantity", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>RATE (₹/KG)</label>
-                                  <input type="number" value={item.rate} onChange={(e) => handleSupplierItemAction("Update", idx, "rate", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Rate (₹/KG)</label>
+                                  <input type="number" value={item.rate} onChange={(e) => handleSupplierItemAction("Update", idx, "rate", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                                </div>
                                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>AMOUNT (₹) Auto</label>
-                                  <input type="number" disabled value={(Number(item.quantity) * Number(item.rate)) || 0} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "12px", fontWeight: "600" }} />
+                                  <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Total (₹) Auto</label>
+                                  <input type="number" disabled value={(Number(item.quantity) * Number(item.rate)) || 0} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                                </div>
                            </div>
                        ))}
-                       <Button style={{ alignSelf: "flex-start", marginTop: "8px", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleSupplierItemAction("Add")}>+ Add Line Item</Button>
+                       <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "900", marginTop: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleSupplierItemAction("Add")}>+ Add Next Sale Item</Button>
                     </div>
 
-                    <div style={{ borderTop: "2px solid #EBE9E1", marginTop: "32px", paddingTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "800", color: COLORS.sidebar }}>Total Amount:</h3>
-                        <h2 style={{ margin: 0, fontSize: "28px", color: COLORS.primary }}>
+                    <div style={{ borderTop: "2px solid #F1F5F9", marginTop: "32px", paddingTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "850", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "0.5px" }}>Gross Amount:</h3>
+                        <h2 style={{ margin: 0, fontSize: "32px", fontWeight: "900", color: COLORS.primary }}>
                             {formatCurrency(supplierSettlementForm.items.reduce((sum, it) => sum + ((Number(it.quantity) * Number(it.rate)) || 0), 0))}
                         </h2>
                     </div>
                  </div>
+              )}
 
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "flex-start", marginTop: "24px" }}>
-                 {/* COLUMN 1: EXPENSE DEDUCTIONS BLOCK */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0" }}>Expense Deductions Block</h2>
-                    <p style={{ fontSize: "13px", color: COLORS.muted, marginBottom: "24px", marginTop: 0 }}>All expenses are deducted from Gross Sale to arrive at Net Sale payable to the farmer.</p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {activeSupplierBillTab === "Expense Deductions Block" && (
+                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Expense Deductions Block</h2>
+                    <p style={{ fontSize: "13px", color: COLORS.muted, marginBottom: "32px", marginTop: 0, fontWeight: "600" }}>All expenses are deducted from Gross Sale to calculate Net Settlement.</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Lorry Freight / Transport</label>
-                          <input type="number" value={supplierSettlementForm.expenses.transport} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🚛 Lorry Freight / Transport</label>
+                          <input type="number" value={supplierSettlementForm.expenses.transport} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Marketing / Commission</label>
-                          <input type="number" value={supplierSettlementForm.expenses.commission} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})} placeholder="₹ or %" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🏢 Market Fee / Commission</label>
+                          <input type="number" value={supplierSettlementForm.expenses.commission} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})} placeholder="₹ or %" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Coolie / Labour</label>
-                          <input type="number" value={supplierSettlementForm.expenses.labour} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, labour: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>💪 Labour / Hamali</label>
+                          <input type="number" value={supplierSettlementForm.expenses.labour} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, labour: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Cash (Advance)</label>
-                          <input type="number" value={supplierSettlementForm.expenses.advance} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, advance: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>💰 Cash Advance Paid</label>
+                          <input type="number" value={supplierSettlementForm.expenses.advance} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, advance: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Kata (Weighing Charges)</label>
-                          <input type="number" value={supplierSettlementForm.expenses.weighing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, weighing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>⚖️ Weighing Charges (Kata)</label>
+                          <input type="number" value={supplierSettlementForm.expenses.weighing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, weighing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "12px", borderBottom: "1px dashed #EBE9E1" }}>
-                          <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>Packing</label>
-                          <input type="number" value={supplierSettlementForm.expenses.packing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, packing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>📦 Packing Material</label>
+                          <input type="number" value={supplierSettlementForm.expenses.packing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, packing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <input type="text" value={supplierSettlementForm.expenses.miscName} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscName: e.target.value}})} placeholder="Miscellaneous label..." style={{ flex: 1, marginRight: "16px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                          <input type="number" value={supplierSettlementForm.expenses.miscAmount} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px 12px", borderRadius: "6px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", textAlign: "right" }} />
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
+                          <input type="text" value={supplierSettlementForm.expenses.miscName} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscName: e.target.value}})} placeholder="Other deduction label..." style={{ flex: 1, marginRight: "12px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "13px", fontWeight: "600", background: "transparent" }} />
+                          <input type="number" value={supplierSettlementForm.expenses.miscAmount} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                     </div>
                  </div>
+              )}
 
-                 {/* COLUMN 2: FINANCIAL SUMMARY BLOCK */}
-                 <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", flexDirection: "column", height: "100%" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Financial Summary Block</h2>
+              {activeSupplierBillTab === "Financial Summary Block" && (
+                 <div style={{ background: "#FFFFFF", padding: "40px", borderRadius: "16px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in", boxShadow: "0 10px 30px rgba(0,0,0,0.01)" }}>
+                    <h2 style={{ fontSize: "22px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 32px 0", borderBottom: "1.5px solid #F1F5F9", paddingBottom: "20px", letterSpacing: "-0.5px" }}>Financial Settlement Summary</h2>
                     
-                    <div style={{ display: "flex", flexDirection: "column", gap: "20px", flex: 1 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "40px" }}>
                        
                        {(() => {
                           const grossSale = supplierSettlementForm.items.reduce((sum, it) => sum + ((Number(it.quantity) * Number(it.rate)) || 0), 0);
@@ -2353,49 +2361,64 @@ export default function App() {
 
                           return (
                              <>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #EBE9E1" }}>
-                                   <span style={{ fontSize: "14px", fontWeight: "600", color: COLORS.muted }}>Gross Sale (₹)</span>
-                                   <span style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(grossSale)}</span>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
+                                      <span style={{ color: COLORS.muted, fontWeight: "600" }}>Gross Sale</span>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "800" }}>{formatCurrency(grossSale)}</span>
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
+                                      <span style={{ color: COLORS.muted, fontWeight: "600" }}>Total Expenses</span>
+                                      <span style={{ color: "#CC0000", fontWeight: "800" }}>- {formatCurrency(totalExpenses)}</span>
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
+                                      <span style={{ color: COLORS.muted, fontWeight: "600" }}>Cash Advance</span>
+                                      <span style={{ color: "#CC0000", fontWeight: "800" }}>- {formatCurrency(advance)}</span>
+                                   </div>
                                 </div>
-
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #EBE9E1" }}>
-                                   <span style={{ fontSize: "14px", fontWeight: "600", color: "#CC0000" }}>Total Expenses (₹)</span>
-                                   <span style={{ fontSize: "16px", fontWeight: "800", color: "#CC0000" }}>- {formatCurrency(totalExpenses)}</span>
-                                </div>
-
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "8px" }}>
-                                   <span style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar }}>Net Sale (₹)</span>
-                                   <span style={{ fontSize: "18px", fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(netSale)}</span>
-                                </div>
-
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #EBE9E1" }}>
-                                   <span style={{ fontSize: "14px", fontWeight: "600", color: "#E67E22" }}>Advance Payment (₹)</span>
-                                   <span style={{ fontSize: "16px", fontWeight: "800", color: "#E67E22" }}>- {formatCurrency(advance)}</span>
-                                </div>
-                                
-                                <div style={{ marginTop: "auto", borderTop: "2px solid #EBE9E1", paddingTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                   <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "800", color: COLORS.sidebar }}>Balance Payable (₹):</h3>
-                                   <h2 style={{ margin: 0, fontSize: "32px", color: COLORS.primary }}>{formatCurrency(balancePayable)}</h2>
+                                <div style={{ background: "linear-gradient(135deg, #375144 0%, #2d4137 100%)", padding: "32px", borderRadius: "16px", color: "#fff", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", boxShadow: "0 15px 35px rgba(55,81,68,0.2)" }}>
+                                   <p style={{ margin: "0 0 12px 0", fontSize: "13px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", opacity: 0.85 }}>Net Payable to Supplier</p>
+                                   <h1 style={{ margin: 0, fontSize: "44px", fontWeight: "900", letterSpacing: "-1px" }}>{formatCurrency(balancePayable)}</h1>
+                                   <p style={{ margin: "16px 0 0 0", fontSize: "11px", fontWeight: "700", opacity: 0.7, textTransform: "uppercase" }}>Ready for disbursement</p>
                                 </div>
                              </>
                           );
                        })()}
-
                     </div>
                  </div>
-              </div>
+              )}
 
-              <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
-                <Button style={{ background: COLORS.primary, color: "#FFFFFF", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={() => {
-                   alert(`✅ BILL GENERATED: ${supplierSettlementForm.billNumber} saved into the database!`);
-                   setSupplierSettlementForm({ billNumber: `BILL-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), supplierId: "", lotId: "", vehicleNumber: "", items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }], expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" } });
-                }}>Generate Bill</Button>
-                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setSupplierSettlementForm({ billNumber: `BILL-${Math.floor(100+Math.random()*900)}`, date: getISTDate(), supplierId: "", lotId: "", vehicleNumber: "", items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }], expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" } })}>Clear Data</Button>
+              <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                <Button style={{ background: COLORS.sidebar, fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(55,81,68,0.2)" }} onClick={() => {
+                   alert(`✅ BILL GENERATED: ${supplierSettlementForm.billNumber} has been recorded in the database and sent to account ledger.`);
+                   setSupplierSettlementForm({
+                      billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
+                      date: getISTDate(),
+                      supplierId: "",
+                      lotId: "",
+                      vehicleNumber: "",
+                      items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
+                      expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
+                   });
+                   setActiveSupplierBillTab("Bill Header");
+                }}>Finish & Record Bill</Button>
+                <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", padding: "16px 32px" }} onClick={() => {
+                   if(confirm("Are you sure you want to clear this entire billing draft?")) {
+                      setSupplierSettlementForm({
+                         billNumber: `BILL-${Math.floor(100+Math.random()*900)}`,
+                         date: getISTDate(),
+                         supplierId: "",
+                         lotId: "",
+                         vehicleNumber: "",
+                         items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
+                         expenses: { transport: "", commission: "", labour: "", advance: "", weighing: "", packing: "", miscName: "", miscAmount: "" }
+                      });
+                      setActiveSupplierBillTab("Bill Header");
+                   }
+                }}>Clear</Button>
               </div>
             </div>
           )}
 
-          {/* BUYER INVOICING MODULE */}
           {activeSection === "Buyer Invoicing" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
               
