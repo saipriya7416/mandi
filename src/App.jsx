@@ -296,6 +296,17 @@ export default function App() {
     paymentMade: 0,
     notes: ""
   });
+
+  const [customerLedgerForm, setCustomerLedgerForm] = useState({
+    date: getISTDate(),
+    buyerId: "",
+    invoiceNo: "",
+    fruitSummary: "",
+    quantityKg: 0,
+    invoiceAmount: 0,
+    paymentReceived: 0,
+    notes: ""
+  });
   
   const [farmerBillForm, setFarmerBillForm] = useState({
      _id: null,
@@ -949,6 +960,30 @@ export default function App() {
     if (res.status === "SUCCESS") fetchData();
   };
 
+  const handleRecordCustomerLedgerEntry = async () => {
+    if (!customerLedgerForm.buyerId || !customerLedgerForm.invoiceNo) return alert("⚠️ Customer and Invoice No are required");
+    try {
+      const payload = { ...customerLedgerForm, type: "Buyer" };
+      let res;
+      if (isEditingLedgerEntry) {
+        res = await MandiService.updateLedgerEntry(editingLedgerEntryId, payload);
+      } else {
+        res = await MandiService.addLedgerEntry(payload);
+      }
+      if (res.status === "SUCCESS") {
+        alert("📚 CUSTOMER LEDGER UPDATED!");
+        setCustomerLedgerForm({ ...customerLedgerForm, invoiceNo: "", fruitSummary: "", quantityKg: 0, invoiceAmount: 0, paymentReceived: 0 });
+        setIsEditingLedgerEntry(false);
+        setEditingLedgerEntryId(null);
+        fetchData();
+      } else {
+        alert("❌ Failed: " + res.message);
+      }
+    } catch(err) {
+      alert("Ledger save error.");
+    }
+  };
+
   const [buyerIQ, setBuyerIQ] = useState(null);
 
   // --- ALLOCATION FORM STATE (REQUIRED BY ENTERPRISE ALLOCATION ENGINE) ---
@@ -1256,7 +1291,10 @@ export default function App() {
       if (payRes.status === "SUCCESS") setPayments(payRes.data);
 
       const ledRes = await MandiService.getLedgerEntries();
-      if (ledRes.status === "SUCCESS") setLedgerEntries(ledRes.data);
+      if (ledRes.status === "SUCCESS") {
+        setLedgerEntries(ledRes.data.filter(e => e.type !== "Buyer"));
+        setCustomerLedgerEntries(ledRes.data.filter(e => e.type === "Buyer"));
+      }
 
     } catch (err) {
       console.warn("Backend Unreachable - Using Local Data Engine:", err.message);
@@ -1677,6 +1715,27 @@ export default function App() {
       }
     }
   }, [ledgerForm.lotId, supplierBills]);
+
+  // --- CUSTOMER LEDGER AUTO-CALC EFFECT ---
+  useEffect(() => {
+    if (customerLedgerForm.invoiceNo) {
+      const inv = buyerInvoices.find(v => v.invoiceNumber === customerLedgerForm.invoiceNo);
+      if (inv) {
+        const qty = (inv.items || []).reduce((sum, item) => sum + (Number(item.grossWeight) || 0), 0);
+        const subTotal = (inv.items || []).reduce((sum, it) => sum + (Math.max(0, (Number(it.grossWeight)||0) - (Number(it.deductions)||0)) * (Number(it.rate)||0)), 0);
+        const addl = Object.values(inv.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+        const summary = (inv.items || []).map(it => `${it.productInfo} (${it.grossWeight}kg)`).join(", ");
+        
+        setCustomerLedgerForm(prev => ({
+          ...prev,
+          buyerId: inv.buyerId,
+          fruitSummary: summary,
+          quantityKg: qty,
+          invoiceAmount: subTotal + addl
+        }));
+      }
+    }
+  }, [customerLedgerForm.invoiceNo, buyerInvoices]);
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
 
@@ -2947,10 +3006,6 @@ export default function App() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
                     {/* LEDGER ENTRY FORM */}
                     <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-                       <div style={{ borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px", marginBottom: "24px" }}>
-                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Record Ledger Transaction</h2>
-                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Update farmer account with bill data, advances, or settlement payments.</p>
-                       </div>
                        
                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -3054,55 +3109,93 @@ export default function App() {
                   </div>
                )}
 
-               {activeLedgerTab === "Customer" && (
-                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px" }}>
-                       <div>
-                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Customer Party Ledger</h2>
-                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Financial history of sales activity and outstanding dues (DR Account).</p>
+                {activeLedgerTab === "Customer" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+                    {/* CUSTOMER LEDGER ENTRY FORM */}
+                    <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Transaction Date</label>
+                             <input type="date" value={customerLedgerForm.date} onChange={e => setCustomerLedgerForm({...customerLedgerForm, date: e.target.value})} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "600" }} />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Select Invoice No.</label>
+                             <select value={customerLedgerForm.invoiceNo} onChange={e => setCustomerLedgerForm({...customerLedgerForm, invoiceNo: e.target.value})} style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "600" }}>
+                                <option value="">Choose Invoice...</option>
+                                {buyerInvoices.map(inv => <option key={inv._id} value={inv.invoiceNumber}>{inv.invoiceNumber} ({inv.date})</option>)}
+                             </select>
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Fruit / Variety</label>
+                             <input type="text" readOnly value={customerLedgerForm.fruitSummary} placeholder="Auto-filled" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "600" }} />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Quantity (KG)</label>
+                             <input type="number" readOnly value={customerLedgerForm.quantityKg} placeholder="0" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F8FAFC", fontWeight: "700" }} />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Invoice Amount (₹)</label>
+                             <input type="number" readOnly value={customerLedgerForm.invoiceAmount} placeholder="0" style={{ padding: "12px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", fontWeight: "800", color: "#E11D48" }} />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Payment Received (₹)</label>
+                             <input type="number" value={customerLedgerForm.paymentReceived} onChange={e => setCustomerLedgerForm({...customerLedgerForm, paymentReceived: e.target.value})} placeholder="Enter amount" style={{ padding: "12px", borderRadius: "8px", border: "2px solid #9fb443", fontWeight: "800", color: "#15803D" }} />
+                          </div>
                        </div>
-                       <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
+                       
+                       <div style={{ marginTop: "24px", display: "flex", gap: "12px" }}>
+                          <Button onClick={handleRecordCustomerLedgerEntry} style={{ flex: 1, height: "48px", background: COLORS.sidebar }}>{isEditingLedgerEntry ? "Update Entry" : "Record Entry"}</Button>
+                          <Button onClick={() => { setCustomerLedgerForm({ date: getISTDate(), buyerId: "", invoiceNo: "", fruitSummary: "", quantityKg: 0, invoiceAmount: 0, paymentReceived: 0 }); setIsEditingLedgerEntry(false); }} variant="outline">Clear</Button>
+                       </div>
                     </div>
-                    
-                    <div style={{ overflowX: "auto" }}>
-                       <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
-                          <thead>
-                             <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice / Lot</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Customer Name</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Amount (+)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Received (-)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Running Balance</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Status</th>
-                             </tr>
-                          </thead>
-                          <tbody>
-                             {buyerInvoices.map((inv, iIdx) => {
-                                const cust = buyers.find(b => b._id === inv.buyerId);
-                                const subTotal = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)) * (Number(item.rate)||0)), 0);
-                                const addl = Object.values(inv.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                const total = subTotal + addl;
-                                const bal = total - (Number(inv.amountReceived) || 0);
-                                return (
-                                   <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px" }}>{inv.date}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{inv.invoiceNumber} <br/><span style={{ fontSize: "10px", opacity: 0.5 }}>lot: {inv.lotReference}</span></td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{cust?.name || "Ref: " + inv.buyerId}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#E11D48" }}>{formatCurrency(total)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#15803D", fontWeight: "700" }}>{formatCurrency(inv.amountReceived || 0)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(bal)}</td>
-                                      <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0" }}>
-                                         <span style={{ padding: "4px 10px", borderRadius: "20px", background: bal > 0 ? "#FFF7ED" : "#F0FDF4", color: bal > 0 ? "#C2410C" : "#15803D", fontSize: "11px", fontWeight: "800" }}>{bal > 0 ? "OUTSTANDING" : "PAID"}</span>
-                                      </td>
-                                   </tr>
-                                );
-                             })}
-                          </tbody>
-                       </table>
+
+                    <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px" }}>
+                         <h2 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Customer Ledger Statement</h2>
+                         <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
+                      </div>
+                      
+                      <div style={{ overflowX: "auto" }}>
+                         <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
+                            <thead>
+                               <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice Amount (₹)</th>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Received (₹)</th>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Outstanding Balance (₹)</th>
+                                  <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Actions</th>
+                               </tr>
+                            </thead>
+                            <tbody>
+                               {customerLedgerEntries.map((entry, idx) => {
+                                  const runningBal = customerLedgerEntries.slice(0, idx+1).reduce((sum, curr) => sum + (Number(curr.invoiceAmount) || 0) - (Number(curr.paymentReceived) || 0), 0);
+                                  return (
+                                     <tr key={entry._id || idx} style={{ background: "#FFFFFF" }}>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px" }}>{formatDate(entry.date)}</td>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{entry.invoiceNo}</td>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{entry.fruitSummary}</td>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "600" }}>{entry.quantityKg} kg</td>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#E11D48" }}>{formatCurrency(entry.invoiceAmount)}</td>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#15803D", fontWeight: "700" }}>{formatCurrency(entry.paymentReceived)}</td>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar, background: "#FDFBF4" }}>{formatCurrency(runningBal)}</td>
+                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0", textAlign: "right" }}>
+                                           <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+                                              <button onClick={() => { setCustomerLedgerForm(entry); setIsEditingLedgerEntry(true); setEditingLedgerEntryId(entry._id); }} style={{ padding: "6px 12px", borderRadius: "6px", background: "#F1F5F9", border: "none", color: COLORS.sidebar, fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Modify</button>
+                                              <button onClick={async () => { if(confirm("Delete ledger record?")) { await MandiService.deleteLedgerEntry(entry._id); fetchData(); } }} style={{ padding: "6px 12px", borderRadius: "6px", background: "#FEF2F2", border: "none", color: "#DC2626", fontSize: "11px", fontWeight: "700", cursor: "pointer" }}>Delete</button>
+                                           </div>
+                                        </td>
+                                     </tr>
+                                  );
+                               })}
+                            </tbody>
+                         </table>
+                      </div>
                     </div>
                   </div>
-               )}
+                )}
             </div>
           )}
 
