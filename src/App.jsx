@@ -1291,35 +1291,32 @@ export default function App() {
 
 
 
-  // --- HANDLE ALLOCATION (MISSING FUNCTION — WAS CRASHING ON BUTTON CLICK) ---
+  // --- HANDLE ALLOCATION ---
   const handleAllocate = async () => {
-    if (!allocationForm.buyerId) return alert("⚠️ Buyer is required for auction record.");
+    if (!allocationForm.lotId) return alert("⚠️ Lot ID is required.");
+    if (!allocationForm.lineItemId) return alert("⚠️ Product / Line Item is required.");
+    if (!allocationForm.buyerId) return alert("⚠️ Customer Name is required.");
     if (!allocationForm.quantity || Number(allocationForm.quantity) <= 0) return alert("⚠️ Valid Quantity must be entered.");
     if (!allocationForm.saleRate || Number(allocationForm.saleRate) <= 0) return alert("⚠️ Sale Rate is required.");
     if (!allocationForm.allocationDate) return alert("⚠️ Allocation Date is mandatory.");
-    if (!allocationForm.notes || allocationForm.notes.length < 3) return alert("⚠️ Transfer Notes are mandatory for tracking.");
-    if (!selection.item || !selection.lot) return alert("⚠️ Select a Lot Item to allocate.");
-    
-    if (Number(allocationForm.quantity) > selection.item.remainingQuantity) {
-      return alert(`⚠️ Stock Deficit: Only ${selection.item.remainingQuantity} KG available.`);
-    }
 
+    const matchedLot = lots.find(l => l.lotId === allocationForm.lotId);
     const payload = {
-      lotId: selection.lot._id,
-      lineItemId: selection.item._id,
+      lotId: matchedLot?._id || allocationForm.lotId,
+      lineItemId: allocationForm.lineItemId,
       buyerId: allocationForm.buyerId,
       quantity: Number(allocationForm.quantity),
       rate: Number(allocationForm.saleRate),
       allocationDate: allocationForm.allocationDate,
-      notes: allocationForm.notes
+      buyerInvoiceNo: allocationForm.buyerInvoiceNo || "",
+      notes: allocationForm.notes || ""
     };
 
     try {
       const res = await MandiService.allocateLot(payload);
       if (res.status === "SUCCESS") {
-        alert(`🚀 ALLOCATION AUTHORIZED: Invoice ${res.data?.invoiceNo || 'generated'} committed to database.`);
-        setAllocationForm({ buyerId: "", quantity: "", saleRate: "", notes: "" });
-        setSelection({ lot: null, item: null, buyerId: "", qty: "", rate: "", inv: "" });
+        alert(`✅ Allocation recorded successfully!`);
+        setAllocationForm({ lotId: "", lineItemId: "", buyerId: "", quantity: "", saleRate: "", allocationDate: getISTDate(), buyerInvoiceNo: "", notes: "" });
         fetchData();
       } else {
         alert(`❌ ALLOCATION FAILED: ${res.message || "Database Error"}`);
@@ -2210,14 +2207,8 @@ export default function App() {
           {/* SUPPLIER BILLING MODULE */}
           {activeSection === "Supplier Billing" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
-                 <div>
-                    <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Supplier Billing Management</h2>
-                 </div>
-              </div>
-
               <TabHeader 
-                tabs={["Bill Header", "Item Table — Produce Sold", "Expense Deductions Block", "Financial Summary Block"]} 
+                tabs={["Bill Header", "Produce Sold", "Expense Deductions", "Financial Summary"]} 
                 active={activeSupplierBillTab} 
                 set={setActiveSupplierBillTab} 
               />
@@ -2239,32 +2230,51 @@ export default function App() {
 
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Farmer Name (M/s)</label>
-                          <select value={supplierSettlementForm.supplierId} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, supplierId: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                          <select value={supplierSettlementForm.supplierId} onChange={e => {
+                             const selectedName = e.target.value;
+                             // find the most recent lot for this farmer
+                             const farmerLots = lots.filter(l => l.supplierId === selectedName || l.supplierId?.name === selectedName || l.farmerId === selectedName);
+                             const latestLot = farmerLots.length > 0 ? farmerLots[farmerLots.length - 1] : null;
+                             setSupplierSettlementForm(prev => ({
+                               ...prev,
+                               supplierId: selectedName,
+                               lotId: latestLot ? latestLot.lotId : "",
+                               vehicleNumber: latestLot ? (latestLot.vehicleNumber || "") : ""
+                             }));
+                          }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
                              <option value="" disabled>Select Farmer</option>
                              {suppliers.map(s => <option key={s._id} value={s.name}>{s.name}</option>)}
                           </select>
                        </div>
 
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot ID Reference</label>
-                          <select value={supplierSettlementForm.lotId} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, lotId: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                             <option value="" disabled>Select Lot</option>
-                             {lots.filter(l => l.supplierId === supplierSettlementForm.supplierId || !supplierSettlementForm.supplierId).map(l => <option key={l._id || l.lotId} value={l.lotId}>{l.lotId}</option>)}
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot ID Reference <span style={{ fontSize: "10px", color: COLORS.primary, fontWeight: "800" }}>AUTO</span></label>
+                          <select value={supplierSettlementForm.lotId} onChange={e => {
+                             const selectedLotId = e.target.value;
+                             const matchedLot = lots.find(l => l.lotId === selectedLotId);
+                             setSupplierSettlementForm(prev => ({
+                               ...prev,
+                               lotId: selectedLotId,
+                               vehicleNumber: matchedLot ? (matchedLot.vehicleNumber || prev.vehicleNumber) : prev.vehicleNumber
+                             }));
+                          }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                             <option value="">-- Auto-filled from Farmer --</option>
+                             {lots.filter(l => l.supplierId === supplierSettlementForm.supplierId || l.supplierId?.name === supplierSettlementForm.supplierId || l.farmerId === supplierSettlementForm.supplierId || !supplierSettlementForm.supplierId).map(l => <option key={l._id || l.lotId} value={l.lotId}>{l.lotId}</option>)}
                           </select>
                        </div>
 
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Vehicle Number</label>
-                          <input type="text" value={supplierSettlementForm.vehicleNumber} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, vehicleNumber: e.target.value})} placeholder="Lorry/truck information" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Vehicle Number <span style={{ fontSize: "10px", color: COLORS.primary, fontWeight: "800" }}>AUTO</span></label>
+                          <input type="text" value={supplierSettlementForm.vehicleNumber} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, vehicleNumber: e.target.value})} placeholder="Auto-filled from Lot" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: supplierSettlementForm.vehicleNumber ? "#FDFBF4" : "#FFFFFF" }} />
                        </div>
 
                     </div>
                  </div>
               )}
 
-              {activeSupplierBillTab === "Item Table — Produce Sold" && (
+              {activeSupplierBillTab === "Produce Sold" && (
                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Item Table — Produce Sold</h2>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 24px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Produce Sold</h2>
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                        {supplierSettlementForm.items.map((item, idx) => (
                            <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", background: "#FDFBF4", padding: "20px", borderRadius: "12px", border: "1.5px solid #EBE9E1", position: "relative", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
@@ -2300,9 +2310,9 @@ export default function App() {
                  </div>
               )}
 
-              {activeSupplierBillTab === "Expense Deductions Block" && (
+              {activeSupplierBillTab === "Expense Deductions" && (
                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in" }}>
-                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Expense Deductions Block</h2>
+                    <h2 style={{ fontSize: "20px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 16px 0", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>Expense Deductions</h2>
                     <p style={{ fontSize: "13px", color: COLORS.muted, marginBottom: "32px", marginTop: 0, fontWeight: "600" }}>All expenses are deducted from Gross Sale to calculate Net Settlement.</p>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        
@@ -2345,7 +2355,7 @@ export default function App() {
                  </div>
               )}
 
-              {activeSupplierBillTab === "Financial Summary Block" && (
+              {activeSupplierBillTab === "Financial Summary" && (
                  <div style={{ background: "#FFFFFF", padding: "40px", borderRadius: "16px", border: "1px solid #EBE9E1", animation: "fadeIn 0.3s ease-in", boxShadow: "0 10px 30px rgba(0,0,0,0.01)" }}>
                     <h2 style={{ fontSize: "22px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 32px 0", borderBottom: "1.5px solid #F1F5F9", paddingBottom: "20px", letterSpacing: "-0.5px" }}>Financial Settlement Summary</h2>
                     
