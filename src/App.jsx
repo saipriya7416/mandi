@@ -1504,15 +1504,15 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "User Role", roles: ["Owner / Admin", "Operations Staff"], label: "Party Management" },
+    { id: "User Role", roles: ["Owner / Admin"], label: "Party Management" },
     { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot/Inventory Intake" },
     { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation" },
-    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff"], label: "Supplier Billing" },
-    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff"], label: "Customer Billing" },
-    { id: "Ledger", roles: ["Owner / Admin", "Operations Staff"], label: "Ledger System" },
-    { id: "Payments", roles: ["Owner / Admin", "Operations Staff"], label: "Payments & Settlement" },
+    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff", "Accountant"], label: "Supplier Billing" },
+    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff", "Accountant"], label: "Customer Billing" },
+    { id: "Ledger", roles: ["Owner / Admin", "Accountant"], label: "Ledger System" },
+    { id: "Payments", roles: ["Owner / Admin", "Accountant"], label: "Payments & Settlement" },
     { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "Transportation Tracking" },
-    { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff"], label: "Dashboard & Reports" }
+    { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"], label: "Dashboard & Reports" }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
@@ -1697,7 +1697,7 @@ export default function App() {
           zIndex: 1000,
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
         }}>
-          <h2 style={{ color: "#f59e0b", margin: 0, fontSize: "20px", fontWeight:"900" }}>STACLI</h2>
+          <h2 style={{ color: "#7db580", margin: 0, fontSize: "20px", fontWeight:"900" }}>STACLI</h2>
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}
@@ -1724,7 +1724,7 @@ export default function App() {
           boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
         }}>
           <div style={{ padding: "0 24px 32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-            <img src="/src/assets/logo.png" alt="STACLI" style={{ width: "64px", height: "64px", objectFit: "contain", borderRadius: "50%", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
+            <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI" style={{ width: "64px", height: "64px", objectFit: "cover", borderRadius: "50%", border: "2px solid #3c4a3c" }} />
             <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "1px", margin: 0 }}>STACLI</h2>
           </div>
           
