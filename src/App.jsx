@@ -1743,47 +1743,50 @@ export default function App() {
 
   if (!loggedIn) {
     return (
-      <div style={{ height:"100vh", background:"#fcf9f1", display:"flex", justifyContent:"center", alignItems:"center", position:"relative", overflow:"hidden" }}>
+      <div style={{ height:"100vh", background:"#F7F4EB", display:"flex", justifyContent:"center", alignItems:"center", position:"relative", overflow:"hidden" }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
           * { font-family: 'Plus Jakarta Sans', sans-serif; }
-          .font-display { font-family: 'Outfit', sans-serif !important; }
-          @keyframes floatUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-          .spv-input:focus { border-color: #9fb443 !important; }
-          .spv-btn:hover { transform:translateY(-3px) !important; box-shadow:0 20px 45px rgba(55,81,68,0.45) !important; }
+          .spv-input { transition: all 0.2s ease; border: 1px solid transparent !important; }
+          .spv-input:focus { background: #FFFFFF !important; border-color: #9fb443 !important; box-shadow: 0 4px 12px rgba(159,180,67,0.1); }
+          .spv-btn:hover { background: #375144 !important; transform: scale(1.01); }
         `}</style>
-        <div style={{ position:"absolute", top:"-150px", right:"-120px", width:"550px", height:"550px", background:"#375144", borderRadius:"50%", opacity:0.05 }} />
-        <div style={{ position:"absolute", bottom:"-120px", left:"-100px", width:"420px", height:"420px", background:"#9fb443", borderRadius:"50%", opacity:0.07 }} />
-        <div style={{ animation:"floatUp 0.5s ease-out", width:"460px", background:"#ffffff", borderRadius:"40px", padding:"56px 50px 48px", boxShadow:"0 30px 70px rgba(55,81,68,0.15)", border:"1.5px solid rgba(159,180,67,0.2)", textAlign:"center", position:"relative", zIndex:1 }}>
-          <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
-            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits Logo" style={{ width: "96px", height: "96px", objectFit: "contain", filter: "drop-shadow(0 10px 20px rgba(55,81,68,0.15))" }} />
-          </div>
-          <h1 style={{ margin:"0 0 44px", fontWeight:"900", color:"#375144", fontSize:"32px", letterSpacing:"-1.5px" }}>SPV FRUITS</h1>
-          <div style={{ textAlign:"left" }}>
-            <div style={{ marginBottom:"18px" }}>
-              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Name</label>
-              <input className="spv-input" type="text" placeholder="Enter username" value={authForm.username} onChange={e=>setAuthForm({...authForm,username:e.target.value})} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+        
+        {/* Soft abstract backgrounds */}
+        <div style={{ position:"absolute", top:"-5%", right:"-5%", width:"500px", height:"500px", background:"#EBE9DF", borderRadius:"50%", opacity:0.4 }} />
+        <div style={{ position:"absolute", bottom:"-10%", left:"-10%", width:"400px", height:"400px", background:"#EDEBE1", borderRadius:"50%", opacity:0.5 }} />
+
+        <div style={{ width:"100%", maxWidth:"380px", background:"#FFFFFF", borderRadius:"32px", padding:"48px 36px", boxShadow:"0 20px 60px rgba(45,65,55,0.08)", position:"relative", zIndex:2, margin: "20px" }}>
+          
+          <h2 style={{ textAlign: "center", fontSize: "18px", fontWeight: "800", color: "#2D4137", letterSpacing: "2px", marginBottom: "40px", textTransform: "uppercase" }}>SPV FRUITS</h2>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "9px", fontWeight: "800", color: "#8E8C82", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", marginLeft: "4px" }}>Staff Name</label>
+              <input type="text" placeholder="Enter username" value={authForm.username} onChange={e => setAuthForm({...authForm, username: e.target.value})} className="spv-input" style={{ width: "100%", padding: "14px 20px", borderRadius: "12px", background: "#FEFBE9", border: "none", outline: "none", fontSize: "14px", fontWeight: "600", color: "#2D4137", boxSizing: "border-box" }} />
             </div>
-            <div style={{ marginBottom:"18px" }}>
-              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Role</label>
-              <select className="spv-input" value={authForm.role} onChange={e=>setAuthForm({...authForm, role:e.target.value})} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s", appearance: "none" }}>
-                {["Owner / Admin", "Accountant", "Operations Staff", "Viewer"].map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
+
+            <div>
+              <label style={{ display: "block", fontSize: "9px", fontWeight: "800", color: "#8E8C82", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", marginLeft: "4px" }}>Staff Role</label>
+              <select value={authForm.role} onChange={e => setAuthForm({...authForm, role: e.target.value})} className="spv-input" style={{ width: "100%", padding: "14px 20px", borderRadius: "12px", background: "#FEFBE9", border: "none", outline: "none", fontSize: "14px", fontWeight: "600", color: "#2D4137", boxSizing: "border-box", appearance: "none" }}>
+                 {["Owner / Admin", "Accountant", "Operations Staff", "Viewer"].map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
+
             <div>
-              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Password</label>
-              <input className="spv-input" type="password" placeholder="••••••••" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+              <label style={{ display: "block", fontSize: "9px", fontWeight: "800", color: "#8E8C82", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", marginLeft: "4px" }}>Password</label>
+              <input type="password" placeholder="••••••••" value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} onKeyDown={e => e.key === "Enter" && handleLogin()} className="spv-input" style={{ width: "100%", padding: "14px 20px", borderRadius: "12px", background: "#FEFBE9", border: "none", outline: "none", fontSize: "14px", fontWeight: "600", color: "#2D4137", boxSizing: "border-box" }} />
             </div>
+
+            <button onClick={handleLogin} className="spv-btn" style={{ width: "100%", height: "54px", background: "#2D4137", color: "#FFFFFF", border: "none", borderRadius: "12px", fontSize: "14px", fontWeight: "800", cursor: "pointer", marginTop: "12px", display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", transition: "all 0.2s ease" }}>
+               <span>🔒 Login</span>
+            </button>
           </div>
-          <button className="spv-btn" onClick={handleLogin} style={{ width:"100%", height:"58px", fontSize:"16px", fontWeight:"900", marginTop:"28px", background:"linear-gradient(135deg, #375144 0%, #2d4137 100%)", color:"#ffffff", border:"none", borderRadius:"18px", cursor:"pointer", letterSpacing:"0.5px", boxShadow:"0 12px 30px rgba(55,81,68,0.3)", transition:"all 0.25s" }}>
-            🔐 Login
-          </button>
-          <div style={{ marginTop:"32px", paddingTop:"20px", borderTop:"1.5px solid rgba(159,180,67,0.2)", display:"flex", justifyContent:"center", alignItems:"center", gap:"8px" }}>
-            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
-            <span style={{ fontSize:"10px", color:"#64748b", fontWeight:"700", letterSpacing:"0.5px" }}>SPV FRUITS</span>
-            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
+
+          <div style={{ textAlign: "center", marginTop: "40px", display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+             <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#9fb443" }} />
+             <span style={{ fontSize: "9px", fontWeight: "800", color: "#B1AFA3", letterSpacing: "1px" }}>SPV FRUITS</span>
+             <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#9fb443" }} />
           </div>
         </div>
       </div>
@@ -3075,18 +3078,18 @@ export default function App() {
                         <div style={{ overflowX: "auto" }}>
                           <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "12px" }}>
                              <thead>
-                                <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
-                                   <th style={{ padding: "14px" }}>Date</th>
-                                   <th style={{ padding: "14px" }}>Lot ID</th>
-                                   <th style={{ padding: "14px" }}>Bill Number</th>
-                                   <th style={{ padding: "14px" }}>Product Summary</th>
-                                   <th style={{ padding: "14px" }}>Gross Sale</th>
-                                   <th style={{ padding: "14px" }}>Expenses</th>
-                                   <th style={{ padding: "14px" }}>Net Sale</th>
-                                   <th style={{ padding: "14px" }}>Advance</th>
-                                   <th style={{ padding: "14px" }}>Payment</th>
-                                   <th style={{ padding: "14px" }}>Balance</th>
-                                   <th style={{ padding: "14px" }}>Actions</th>
+                                <tr style={{ background: "#2D4137", color: "#FFFFFF", fontWeight: "700", textAlign: "left" }}>
+                                   <th style={{ padding: "16px", borderRadius: "8px 0 0 8px" }}>Date</th>
+                                   <th style={{ padding: "16px" }}>Lot ID</th>
+                                   <th style={{ padding: "16px" }}>Bill Number</th>
+                                   <th style={{ padding: "16px" }}>Product(s) Summary</th>
+                                   <th style={{ padding: "16px" }}>Gross Sale (₹)</th>
+                                   <th style={{ padding: "16px" }}>Expenses (₹)</th>
+                                   <th style={{ padding: "16px" }}>Net Sale (₹)</th>
+                                   <th style={{ padding: "16px" }}>Advance (₹)</th>
+                                   <th style={{ padding: "16px" }}>Payment Made (₹)</th>
+                                   <th style={{ padding: "16px" }}>Running Balance (₹)</th>
+                                   <th style={{ padding: "16px", borderRadius: "0 8px 8px 0", textAlign: "right" }}>Actions</th>
                                 </tr>
                              </thead>
                              <tbody>
@@ -3172,15 +3175,15 @@ export default function App() {
                       <div style={{ overflowX: "auto" }}>
                          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
                             <thead>
-                               <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice Amount (₹)</th>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Received (₹)</th>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Outstanding Balance (₹)</th>
-                                  <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Actions</th>
+                               <tr style={{ background: "#2D4137", color: "#FFFFFF", fontWeight: "700", textAlign: "left" }}>
+                                  <th style={{ padding: "16px", borderRadius: "8px 0 0 8px" }}>Date</th>
+                                  <th style={{ padding: "16px" }}>Invoice No.</th>
+                                  <th style={{ padding: "16px" }}>Fruit / Variety</th>
+                                  <th style={{ padding: "16px" }}>Quantity (KG)</th>
+                                  <th style={{ padding: "16px" }}>Invoice Amount (₹)</th>
+                                  <th style={{ padding: "16px" }}>Payment Received (₹)</th>
+                                  <th style={{ padding: "16px" }}>Outstanding Balance (₹)</th>
+                                  <th style={{ padding: "16px", borderRadius: "0 8px 8px 0", textAlign: "right" }}>Actions</th>
                                </tr>
                             </thead>
                             <tbody>
