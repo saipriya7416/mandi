@@ -1586,7 +1586,7 @@ export default function App() {
                         width: "16px",
                         height: "16px",
                         borderRadius: "50%",
-                        border: isSelected ? "5.5px solid #3b82f6" : "1.5px solid #cbd5cb",
+                        border: isSelected ? "5.5px solid #7db580" : "1.5px solid #cbd5cb",
                         background: "#fff",
                         display: "flex",
                         alignItems: "center",
