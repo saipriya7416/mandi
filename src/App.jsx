@@ -18,17 +18,18 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
 
 // --- JAMANGO DESIGN SYSTEM ---
+// --- SPV / STACLI DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#7db580", // Stacli Sage Green
-  secondary: "#2d3a2d", // Dark Forest Green
-  bg: "#f7f9f7", // Ultra Light Sage
+  primary: "#f59e0b", // SPV Orange
+  secondary: "#0f172a", // Navy Blue
+  bg: "#f8fafc", // Light Sky
   card: "#FFFFFF",
-  text: "#2d3a2d",
-  muted: "#9ca39c",
-  success: "#7db580", 
+  text: "#0f172a",
+  muted: "#64748b",
+  success: "#10b981", 
   danger: "#ef4444",
-  accent: "#7db580",
-  sidebar: "#1a1a1a" // Keeping Sidebar dark for contrast
+  accent: "#f59e0b",
+  sidebar: "#111827" 
 };
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -1697,7 +1698,7 @@ export default function App() {
           zIndex: 1000,
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
         }}>
-          <h2 style={{ color: "#7db580", margin: 0, fontSize: "20px", fontWeight:"900" }}>STACLI</h2>
+          <h2 style={{ color: "#f59e0b", margin: 0, fontSize: "20px", fontWeight:"900" }}>STACLI</h2>
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}
@@ -1732,8 +1733,8 @@ export default function App() {
             <h2 style={{ color: "#ffffff", fontWeight: "900", fontSize: "19px", letterSpacing: "1.5px", margin: 0 }}>STACLI</h2>
           </div>
           
-          <div style={{ padding: "0 28px", marginBottom: "16px" }}>
-            <span style={{ fontSize: "10.5px", fontWeight: "900", color: "#7db580", textTransform: "uppercase", letterSpacing: "2px", opacity: 0.8 }}>OVERVIEW</span>
+          <div style={{ padding: "0 24px", marginBottom: "12px" }}>
+            <span style={{ fontSize: "10px", fontWeight: "700", color: COLORS.primary, textTransform: "uppercase", letterSpacing: "1px" }}>Overview</span>
           </div>
 
           <div style={{ flex: 1, overflowY: "auto", padding: "0 14px" }}>
@@ -3553,21 +3554,21 @@ export default function App() {
                    
                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
                       {[
-                         { label: "Today's Intake", val: "4,250 KG", sub: "Total KG received from farmers today", bg: COLORS.secondary, col: "#fff" },
-                         { label: "Today's Sales", val: formatCurrency(185400), sub: "Total ₹ invoiced to buyers today", bg: COLORS.primary, col: "#fff" },
-                         { label: "Pending Auctions", val: "07 Lots", sub: "Lots received but not yet allocated", bg: "#1e293b", col: "#fff" },
-                         { label: "Total Farmer Outstanding", val: formatCurrency(845000), sub: "Total amount SPV owes to all farmers", bg: "#fff", col: "#991b1b", border: true },
-                         { label: "Total Buyer Outstanding", val: formatCurrency(1250000), sub: "Total amount all buyers owe to SPV", bg: "#fff", col: COLORS.primary, border: true },
-                         { label: "Today's Cash Collected", val: formatCurrency(320000), sub: "Payments received from buyers today", bg: COLORS.success, col: "#fff" },
-                         { label: "Today's Cash Paid", val: formatCurrency(150000), sub: "Payments made to farmers today", bg: "#CC0000", col: "#fff" },
-                         { label: "Active In-Transit Vehicles", val: "14 Lorries", sub: "Lorries currently on the road", bg: COLORS.sidebar, col: "#fff" }
+                         { label: "Today's Intake", val: "4,250 KG", sub: "Weight intake from farmers", bg: COLORS.secondary, col: "#fff" },
+                         { label: "Today's Sales", val: formatCurrency(185400), sub: "Total invoiced to buyers", bg: COLORS.primary, col: "#fff" },
+                         { label: "Pending Auctions", val: "07 Lots", sub: "Lots awaiting allocation", bg: "#334155", col: "#fff" },
+                         { label: "Total Farmer Outstanding", val: formatCurrency(845000), sub: "Payable to Suppliers", bg: "#fff", col: "#991b1b", border: true },
+                         { label: "Total Buyer Outstanding", val: formatCurrency(1250000), sub: "Receivable from Buyers", bg: "#fff", col: COLORS.primary, border: true },
+                         { label: "Today's Cash Collected", val: formatCurrency(320000), sub: "Payments received today", bg: COLORS.success, col: "#fff" },
+                         { label: "Today's Cash Paid", val: formatCurrency(150000), sub: "Payments made today", bg: "#CC0000", col: "#fff" },
+                         { label: "Active In-Transit Vehicles", val: "14 Lorries", sub: " Lorries on the road", bg: "#000", col: "#fff" }
                       ].map((m, i) => (
-                         <Card key={i} style={{ background: m.bg, color: m.col, border: m.border ? `2px solid ${COLORS.sidebar}10` : "none", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
+                         <Card key={i} style={{ background: m.bg, color: m.col, border: m.border ? `2px solid #e2e8f0` : "none", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
                             <div>
                                <p style={{ margin: 0, fontSize: "11px", opacity: 0.8, textTransform: "uppercase", fontWeight: "900", letterSpacing: "1px" }}>{m.label}</p>
                                <h2 style={{ margin: "12px 0 0", fontSize: "28px", fontWeight: "900" }}>{m.val}</h2>
                             </div>
-                            <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "8px", fontSize: "11px", fontWeight: "600", opacity: 0.8 }}>
+                            <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.15)", paddingTop: "12px", fontSize: "11px", fontWeight: "600", opacity: 0.8 }}>
                                {m.sub}
                             </div>
                          </Card>
