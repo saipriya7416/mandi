@@ -17,19 +17,18 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
 
-// --- JAMANGO DESIGN SYSTEM ---
-// --- SPV / STACLI DESIGN SYSTEM ---
+// --- STACLI / MANDI OS DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#f59e0b", // SPV Orange
-  secondary: "#0f172a", // Navy Blue
-  bg: "#f8fafc", // Light Sky
+  primary: "#7db580", // Stacli Sage Green
+  secondary: "#1a231a", // Deep Midnight Green
+  bg: "#f8faf8", // Ghost Sage (Ultra Light)
   card: "#FFFFFF",
-  text: "#0f172a",
+  text: "#1a231a",
   muted: "#64748b",
   success: "#10b981", 
   danger: "#ef4444",
-  accent: "#f59e0b",
-  sidebar: "#111827" 
+  accent: "#7db580",
+  sidebar: "#0d130d" // Modern Deep Forest
 };
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -1682,8 +1681,12 @@ export default function App() {
       fontFamily: "'Outfit', 'Inter', -apple-system, sans-serif" 
     }}>
       <style>{`
-        * { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .font-display { font-family: 'Outfit', sans-serif !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        * { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif !important; letter-spacing: -0.02em; }
+        .font-modern { font-family: 'Outfit', sans-serif !important; }
+        .font-display { font-family: 'Outfit', sans-serif !important; letter-spacing: 0.05em; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
