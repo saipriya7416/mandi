@@ -2240,8 +2240,11 @@ export default function App() {
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Supplier Name</label>
                           <select value={supplierSettlementForm.supplierId} onChange={e => {
                              const selectedName = e.target.value;
-                             // find the most recent lot for this supplier
-                             const farmerLots = lots.filter(l => l.supplierId === selectedName || l.supplierId?.name === selectedName || l.farmerId === selectedName);
+                             const matchedSupplier = suppliers.find(s => s.name === selectedName);
+                             const selectedId = matchedSupplier ? matchedSupplier._id : null;
+                             
+                             // find the most recent lot for this supplier (matching by ID or Name)
+                             const farmerLots = lots.filter(l => l.supplierId === selectedId || l.supplierId === selectedName || l.supplierId?.name === selectedName || l.farmerId === selectedName);
                              const latestLot = farmerLots.length > 0 ? farmerLots[farmerLots.length - 1] : null;
                              
                              const itemsToAdd = latestLot && latestLot.lineItems && latestLot.lineItems.length > 0
@@ -2270,17 +2273,34 @@ export default function App() {
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot ID Reference <span style={{ fontSize: "10px", color: COLORS.primary, fontWeight: "800" }}>AUTO</span></label>
                           <select value={supplierSettlementForm.lotId} onChange={e => {
-                             const selectedLotId = e.target.value;
-                             const matchedLot = lots.find(l => l.lotId === selectedLotId);
-                             setSupplierSettlementForm(prev => ({
-                               ...prev,
-                               lotId: selectedLotId,
-                               vehicleNumber: matchedLot ? (matchedLot.vehicleNumber || prev.vehicleNumber) : prev.vehicleNumber
-                             }));
-                          }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                             <option value="">-- Auto-filled from Supplier --</option>
-                             {lots.filter(l => l.supplierId === supplierSettlementForm.supplierId || l.supplierId?.name === supplierSettlementForm.supplierId || l.farmerId === supplierSettlementForm.supplierId || !supplierSettlementForm.supplierId).map(l => <option key={l._id || l.lotId} value={l.lotId}>{l.lotId}</option>)}
-                          </select>
+                              const selectedLotId = e.target.value;
+                              const matchedLot = lots.find(l => l.lotId === selectedLotId);
+                              
+                              const itemsToAdd = matchedLot && matchedLot.lineItems && matchedLot.lineItems.length > 0
+                                 ? matchedLot.lineItems.map((iter, idx) => ({
+                                    id: Date.now() + idx,
+                                    productName: `${iter.productId || ''} ${iter.variety || ''}`.trim() || 'Produce',
+                                    quantity: Math.max(0, (Number(iter.grossWeight) || 0) - (Number(iter.deductions) || 0)),
+                                    rate: iter.estimatedRate || ""
+                                 }))
+                                 : [{ id: Date.now(), productName: "", quantity: "", rate: "" }];
+
+                              setSupplierSettlementForm(prev => ({
+                                ...prev,
+                                lotId: selectedLotId,
+                                supplierId: matchedLot ? (matchedLot.supplierId?.name || matchedLot.supplierId || matchedLot.farmerId || prev.supplierId) : prev.supplierId,
+                                vehicleNumber: matchedLot ? (matchedLot.vehicleNumber || prev.vehicleNumber) : prev.vehicleNumber,
+                                date: matchedLot && matchedLot.entryDate ? matchedLot.entryDate.slice(0, 10) : prev.date,
+                                items: itemsToAdd
+                              }));
+                           }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                              <option value="">-- Auto-filled from Supplier --</option>
+                              {lots.filter(l => {
+                                 const matchedSupp = suppliers.find(s => s.name === supplierSettlementForm.supplierId);
+                                 const suppId = matchedSupp ? matchedSupp._id : null;
+                                 return !supplierSettlementForm.supplierId || l.supplierId === suppId || l.supplierId === supplierSettlementForm.supplierId || l.supplierId?.name === supplierSettlementForm.supplierId || l.farmerId === supplierSettlementForm.supplierId;
+                              }).map(l => <option key={l._id || l.lotId} value={l.lotId}>{l.lotId}</option>)}
+                           </select>
                        </div>
 
                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
