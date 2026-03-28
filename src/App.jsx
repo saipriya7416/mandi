@@ -250,6 +250,10 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+  const [isEditingSupplier, setIsEditingSupplier] = useState(false);
+  const [editingSupplierId, setEditingSupplierId] = useState(null);
+  const [isEditingBuyer, setIsEditingBuyer] = useState(false);
+  const [editingBuyerId, setEditingBuyerId] = useState(null);
 
   // --- INITIALIZE SESSION ---
   useEffect(() => {
@@ -276,7 +280,7 @@ export default function App() {
 
   // --- FORM STATES ---
   // --- FORM STATES & HANDLERS ---
-  const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+  const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", village: "", state: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
   const [buyerForm, setBuyerForm] = useState({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
   const [lotCreationForm, setLotCreationForm] = useState({
     lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-001`,
@@ -295,19 +299,69 @@ export default function App() {
     const payload = {
       name: supplierForm.name,
       phone: supplierForm.phone,
+      village: supplierForm.village,
+      state: supplierForm.state,
       address: supplierForm.address || "unknown",
       govIdNumber: supplierForm.govIdNumber || "N/A",
       idType: supplierForm.idType || "Aadhaar",
       notes: "Registered via Unified Dashboard",
     };
     try {
-      const res = await MandiService.addSupplier(payload);
-      if(res.status === "ERROR") return alert("Error adding supplier: " + res.message);
-      alert("✅ Supplier successfully stored in the Database!");
-      setSupplierForm({ name: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+      let res;
+      if (isEditingSupplier) {
+        res = await MandiService.updateSupplier(editingSupplierId, payload);
+      } else {
+        res = await MandiService.addSupplier(payload);
+      }
+      if(res.status === "ERROR") return alert("Error processing supplier: " + res.message);
+      alert(`✅ Supplier successfully ${isEditingSupplier ? 'updated' : 'stored'} in the Database!`);
+      handleCancelAll('Supplier');
       fetchData();
     } catch(err) {
-      alert("Registration Failed.");
+      alert("Registration/Update Failed.");
+    }
+  };
+
+  const handleCancelAll = (type) => {
+    if (type === 'Supplier') {
+      setSupplierForm({ name: "", phone: "", village: "", state: "", address: "", govIdNumber: "", idType: "Aadhaar", bankDetails: "", notes: "" });
+      setIsEditingSupplier(false);
+      setEditingSupplierId(null);
+    } else {
+      setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+      setIsEditingBuyer(false);
+      setEditingBuyerId(null);
+    }
+  };
+
+  const handleEditSelect = (type, record) => {
+    if (type === 'Supplier') {
+      setSupplierForm({
+        name: record.name,
+        phone: record.phone,
+        village: record.village || "",
+        state: record.state || "",
+        address: record.address || "",
+        govIdNumber: record.govIdNumber || "",
+        idType: record.idType || "Aadhaar",
+        bankDetails: record.bankDetails || "",
+        notes: record.notes || ""
+      });
+      setIsEditingSupplier(true);
+      setEditingSupplierId(record._id);
+    } else {
+      setBuyerForm({
+        name: record.name,
+        shopName: record.shopName,
+        phone: record.phone,
+        address: record.address,
+        govIdNumber: record.govIdNumber || "",
+        idType: record.idType || "Aadhaar",
+        creditLimit: record.creditLimit || "",
+        notes: record.notes || ""
+      });
+      setIsEditingBuyer(true);
+      setEditingBuyerId(record._id);
     }
   };
 
@@ -407,13 +461,18 @@ export default function App() {
       notes: "Registered via Unified Dashboard",
     };
     try {
-      const res = await MandiService.addBuyer(payload);
-      if(res.status === "ERROR") return alert("Error adding buyer: " + res.message);
-      alert("✅ Buyer successfully stored in the Database!");
-      setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+      let res;
+      if (isEditingBuyer) {
+        res = await MandiService.updateBuyer(editingBuyerId, payload);
+      } else {
+        res = await MandiService.addBuyer(payload);
+      }
+      if(res.status === "ERROR") return alert("Error processing buyer: " + res.message);
+      alert(`✅ Buyer successfully ${isEditingBuyer ? 'updated' : 'stored'} in the Database!`);
+      handleCancelAll('Buyer');
       fetchData();
     } catch(err) {
-      alert("Registration Failed.");
+      alert("Registration/Update Failed.");
     }
   };
 
@@ -1424,11 +1483,9 @@ export default function App() {
           transition: "left 0.3s ease-in-out",
           boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
         }}>
-          <div style={{ padding: "0 24px 32px 24px", display: "flex", alignItems: "center", gap: "14px" }}>
-            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits" style={{ width: "48px", height: "48px", objectFit: "contain", borderRadius: "50%", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
-            <div>
-              <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "-0.5px", margin: 0 }}>SPV FRUITS</h2>
-            </div>
+          <div style={{ padding: "0 24px 32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits" style={{ width: "64px", height: "64px", objectFit: "contain", borderRadius: "50%", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
+            <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "1px", margin: 0 }}>SPV FRUITS</h2>
           </div>
           
           <div style={{ padding: "0 24px", marginBottom: "12px" }}>
@@ -1517,9 +1574,7 @@ export default function App() {
 
 
           {activeSection === "User Role" && (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "24px" }}>
-               <div>
-                  <h2 style={{ fontSize: "28px", fontWeight: "800", color: COLORS.sidebar, margin: "0 0 12px 0", letterSpacing: "-0.5px" }}>Party Management</h2>
+               <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1" }}>
                   <div style={{ display: "flex", gap: "20px" }}>
                     <div 
                       onClick={() => setActiveUserRoleTab("Supplier")}
@@ -1531,27 +1586,25 @@ export default function App() {
                     >Customer Registration</div>
                   </div>
                </div>
-            </div>
           )}
 
           {/* Supplier Role Module (Handles both direct "Supplier" and nested "User Role") */}
           {(activeSection === "Supplier" || (activeSection === "User Role" && activeUserRoleTab === "Supplier")) && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-
               {activeSupplierTab === "Supplier Registration" && (
                 <div>
                   <FormGrid sections={[
                     {
-                      title: "Farmer / Supplier Profile",
+                      title: "Supplier Profile",
                       fields: [
                         { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: e => setSupplierForm({...supplierForm, name: e.target.value}) },
                         { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: e => setSupplierForm({...supplierForm, phone: e.target.value}) },
-                        { label: "Village / Town *", list: "indian-towns", placeholder: "Origin of produce (Type to search)" },
-                        { label: "District / State *", list: "indian-states", placeholder: "District / State (Type to search)" }
+                        { label: "Village/Town *", type: "select", options: ["Guntur", "Madanapalle", "Tenali", "Narasaraopet", "Nagpur", "Nashik", "Pune", "Mumbai", "Surat", "Ahmedabad", "Rajkot", "Vadodara", "Varanasi", "Lucknow", "Kanpur", "Prayagraj", "Patna", "Gaya", "Ranchi", "Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain", "Azadpur", "Ghazipur", "Warangal", "Karimnagar", "Nizamabad", "Khammam", "Ramagundam", "Siddipet", "Medak", "Chikballapur", "Kolar", "Hassan", "Mysuru", "Hubli", "Belagavi", "Davanagere", "Anantapur", "Chittoor", "Kadapa", "Nellore", "Kurnool", "Ongole", "Tirupati"], value: supplierForm.village, onChange: e => setSupplierForm({...supplierForm, village: e.target.value}) },
+                        { label: "District / State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: e => setSupplierForm({...supplierForm, state: e.target.value}) }
                       ]
                     },
                     {
-                      title: "KYC Compliance",
+                      title: "KYC Details",
                       fields: [
                         { label: "Aadhaar Number", type: "number", placeholder: "12-digit (For KYC compliance)" },
                         { label: "PAN Number", placeholder: "For high-value transactions" },
@@ -1559,7 +1612,7 @@ export default function App() {
                       ]
                     },
                     {
-                      title: "Banking & Settlement",
+                      title: "Bank Details",
                       fields: [
                         { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements" },
                         { label: "IFSC Code", placeholder: "Bank branch code" },
@@ -1569,10 +1622,26 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>Submit Details</Button>
-                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Save Draft</Button>
-                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Edit</Button>
-                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Cancel All</Button>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? 'Update Records' : 'Submit Details'}</Button>
+                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Draft saved locally for " + (supplierForm.name || 'Supplier'))}>Save Draft</Button>
+                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Select a supplier from the list below to edit their profile.")}>Edit Mode</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll('Supplier')}>Cancel All</Button>
+                  </div>
+                  
+                  {/* Recent Suppliers for Editing */}
+                  <div style={{ marginTop: "40px" }}>
+                     <h4 style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "850" }}>📋 Recent Suppliers (Click Edit to modify)</h4>
+                     <div style={{ display: "grid", gap: "12px" }}>
+                        {suppliers.slice(0, 5).map(s => (
+                           <div key={s._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div>
+                                 <b style={{ color: COLORS.sidebar }}>{s.name}</b>
+                                 <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted }}>{s.phone} | {s.village}</p>
+                              </div>
+                              <Button variant="outline" style={{ fontSize: "12px", padding: "6px 12px" }} onClick={() => handleEditSelect('Supplier', s)}>Select for Edit</Button>
+                           </div>
+                        ))}
+                     </div>
                   </div>
                 </div>
               )}
@@ -1599,7 +1668,7 @@ export default function App() {
                       ]
                     },
                     {
-                      title: "Financials & Credit Settings",
+                      title: "Credit Details",
                       fields: [
                         { label: "Credit Limit (₹) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
                         { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
@@ -1609,10 +1678,26 @@ export default function App() {
                     }
                   ]} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>Submit Details</Button>
-                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Save Draft</Button>
-                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Edit</Button>
-                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>Cancel All</Button>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? 'Update Records' : 'Submit Details'}</Button>
+                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Buyer draft saved.")}>Save Draft</Button>
+                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Use the list below to select a buyer for editing.")}>Edit Mode</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll('Buyer')}>Cancel All</Button>
+                  </div>
+
+                  {/* Recent Buyers for Editing */}
+                  <div style={{ marginTop: "40px" }}>
+                     <h4 style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "850" }}>📋 Recent Customers (Click Edit to modify)</h4>
+                     <div style={{ display: "grid", gap: "12px" }}>
+                        {buyers.slice(0, 5).map(b => (
+                           <div key={b._id} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div>
+                                 <b style={{ color: COLORS.sidebar }}>{b.name}</b>
+                                 <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted }}>{b.shopName} | {b.phone}</p>
+                              </div>
+                              <Button variant="outline" style={{ fontSize: "12px", padding: "6px 12px" }} onClick={() => handleEditSelect('Buyer', b)}>Select for Edit</Button>
+                           </div>
+                        ))}
+                     </div>
                   </div>
                 </div>
               )}
