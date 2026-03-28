@@ -1535,15 +1535,15 @@ export default function App() {
 
   if (!loggedIn) {
     return (
-      <div style={{ minHeight:"100vh", background:"#f7f9f7", display:"flex", justifyContent:"center", alignItems:"center", padding: "20px" }}>
+      <div style={{ minHeight:"100vh", background: COLORS.bg, display:"flex", justifyContent:"center", alignItems:"center", padding: "20px" }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
           * { font-family: 'Plus Jakarta Sans', sans-serif; }
           .stacli-title { font-family: 'Playfair Display', serif !important; letter-spacing: 1px; }
           .stacli-label { font-family: 'Plus Jakarta Sans', sans-serif !important; letter-spacing: 0.5px; }
           .stacli-btn-text { font-family: 'Outfit', sans-serif !important; letter-spacing: 0.5px; }
-          .stacli-input:focus { border-color: #7db580 !important; box-shadow: 0 0 0 4px rgba(125, 181, 128, 0.1) !important; }
-          .stacli-btn:hover { background: linear-gradient(135deg, #7db580 0%, #5d8c60 100%) !important; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(125, 181, 128, 0.4) !important; }
+          .stacli-input:focus { border-color: ${COLORS.primary} !important; box-shadow: 0 0 0 4px ${COLORS.primary}15 !important; }
+          .stacli-btn:hover { background: linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.sidebar} 100%) !important; transform: translateY(-2px); box-shadow: 0 10px 25px ${COLORS.primary}40 !important; }
           @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
           @keyframes logoBlink { 0%, 50% { opacity: 1; } 75% { opacity: 0.2; } 100% { opacity: 1; } }
           .blinking-logo { animation: logoBlink 2s infinite ease-in-out; }
@@ -1557,11 +1557,11 @@ export default function App() {
             </div>
           </div>
 
-          <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color:"#1a1a1a", fontSize:"42px", textTransform:"uppercase" }}>STACLI</h1>
+          <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color: COLORS.secondary, fontSize:"42px", textTransform:"uppercase" }}>STACLI</h1>
           <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.primary, letterSpacing: "4px", textTransform: "uppercase", marginBottom: "8px" }}>SPV FRUITS</div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "32px" }}>
             <div style={{ height: "1.5px", width: "40px", background: "#cbd5cb" }} />
-            <span style={{ fontSize: "12px", fontWeight: "900", color: "#1a1a1a", letterSpacing: "4px", textTransform: "uppercase" }}>MANDI OS</span>
+            <span style={{ fontSize: "12px", fontWeight: "900", color: COLORS.secondary, letterSpacing: "4px", textTransform: "uppercase" }}>MANDI OS</span>
             <div style={{ height: "1.5px", width: "40px", background: "#cbd5cb" }} />
           </div>
 
@@ -1601,7 +1601,7 @@ export default function App() {
                         width: "16px",
                         height: "16px",
                         borderRadius: "50%",
-                        border: isSelected ? "5.5px solid #7db580" : "1.5px solid #cbd5cb",
+                        border: isSelected ? `5.5px solid ${COLORS.primary}` : "1.5px solid #cbd5cb",
                         background: "#fff",
                         display: "flex",
                         alignItems: "center",
@@ -1661,13 +1661,13 @@ export default function App() {
               height:"68px", 
               fontSize:"22px", 
               fontWeight:"900", 
-              background: "linear-gradient(to right, #7db580, #5d8c60)",
+              background: `linear-gradient(to right, ${COLORS.primary}, ${COLORS.sidebar})`,
               color:"#ffffff", 
               border:"none", 
               borderRadius:"18px", 
               cursor:"pointer", 
               letterSpacing:"0.5px", 
-              boxShadow:"0 12px 30px rgba(125, 181, 128, 0.2)",
+              boxShadow: `0 12px 30px ${COLORS.primary}40`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center"
