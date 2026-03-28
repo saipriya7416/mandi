@@ -2911,7 +2911,6 @@ export default function App() {
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
                {/* TAB SWITCHER */}
                <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1" }}>
-{{ ... }}
                   <div style={{ display: "flex", gap: "20px" }}>
                     <div 
                       onClick={() => setActiveLedgerTab("Supplier")}
