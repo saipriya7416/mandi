@@ -2258,6 +2258,7 @@ export default function App() {
                                supplierId: selectedName,
                                lotId: latestLot ? latestLot.lotId : "",
                                vehicleNumber: latestLot ? (latestLot.vehicleNumber || "") : "",
+                               date: latestLot && latestLot.entryDate ? latestLot.entryDate.slice(0, 10) : prev.date,
                                items: itemsToAdd
                              }));
                           }} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
@@ -2287,8 +2288,11 @@ export default function App() {
                           <input type="text" value={supplierSettlementForm.vehicleNumber} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, vehicleNumber: e.target.value})} placeholder="Auto-filled from Lot" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: supplierSettlementForm.vehicleNumber ? "#FDFBF4" : "#FFFFFF" }} />
                        </div>
 
-                    </div>
-                 </div>
+                     </div>
+                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>Next: Produce Sold →</Button>
+                     </div>
+                  </div>
               )}
 
               {activeSupplierBillTab === "Produce Sold" && (
@@ -2318,8 +2322,12 @@ export default function App() {
                            </div>
                        ))}
                        <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "900", marginTop: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleSupplierItemAction("Add")}>+ Add Next Sale Item</Button>
-                    </div>
-                 </div>
+                     </div>
+                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Bill Header"); }}>← Previous: Bill Header</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>Next: Expense Deductions →</Button>
+                     </div>
+                  </div>
               )}
 
               {activeSupplierBillTab === "Expense Deductions" && (
@@ -2362,8 +2370,12 @@ export default function App() {
                           <input type="number" value={supplierSettlementForm.expenses.miscAmount} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, miscAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
-                    </div>
-                 </div>
+                     </div>
+                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>← Previous: Produce Sold</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Financial Summary"); }}>Next: Review & Save →</Button>
+                     </div>
+                  </div>
               )}
 
               {activeSupplierBillTab === "Financial Summary" && (
@@ -2399,10 +2411,6 @@ export default function App() {
                                       <span style={{ color: COLORS.muted, fontWeight: "600" }}>Advance Payment</span>
                                       <span style={{ color: "#CC0000", fontWeight: "800" }}>- {formatCurrency(advance)}</span>
                                    </div>
-                                   <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "8px" }}>
-                                      <span style={{ color: COLORS.sidebar, fontWeight: "700", fontSize: "16px" }}>Net Payable to Supplier</span>
-                                      <span style={{ color: COLORS.sidebar, fontWeight: "900", fontSize: "16px" }}>{formatCurrency(balancePayable)}</span>
-                                   </div>
                                 </div>
                              </>
                           );
@@ -2412,6 +2420,9 @@ export default function App() {
               )}
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                {activeSupplierBillTab === "Financial Summary" && (
+                   <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>← Back to Expenses</Button>
+                )}
                 <Button style={{ background: COLORS.sidebar, fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(55,81,68,0.2)" }} onClick={async () => {
                    try {
                        if (!supplierSettlementForm.supplierId) return alert("⚠️ Supplier is required.");
