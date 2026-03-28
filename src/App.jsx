@@ -2051,19 +2051,6 @@ export default function App() {
                       ))}
                       <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>+ Add Next Produce Item</Button>
                     </div>
-
-                    <div style={{ marginTop: "32px", padding: "24px", background: "#F1F5F9", borderRadius: "12px", border: "1px solid #EBE9E1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div>
-                            <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted, fontWeight: "700", textTransform: "uppercase" }}>Running Lot Totals</p>
-                            <h4 style={{ margin: "4px 0 0", color: COLORS.sidebar, fontSize: "18px", fontWeight: "900" }}>Lot Value Summary</h4>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                            <p style={{ margin: 0, fontSize: "12px", color: COLORS.muted, fontWeight: "700", textTransform: "uppercase" }}>Estimated Gross Sale</p>
-                            <h4 style={{ margin: "4px 0 0", color: COLORS.accent, fontSize: "22px", fontWeight: "900" }}>
-                                { formatCurrency(lotCreationForm.lineItems.reduce((acc, i) => acc + ((Number(i.grossWeight)||0) * (Number(i.estimatedRate)||0)), 0)) }
-                            </h4>
-                        </div>
-                    </div>
                   </div>
               
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
@@ -2362,7 +2349,7 @@ export default function App() {
                        
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
                           <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🏢 Market Fee / Commission</label>
-                          <input type="number" value={supplierSettlementForm.expenses.commission} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})} placeholder="₹ or %" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
+                          <input type="text" value={supplierSettlementForm.expenses.commission} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})} placeholder="₹ or %" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
@@ -2407,7 +2394,16 @@ export default function App() {
                        {(() => {
                           const grossSale = supplierSettlementForm.items.reduce((sum, it) => sum + ((Number(it.quantity) * Number(it.rate)) || 0), 0);
                           const ex = supplierSettlementForm.expenses;
-                          const totalExpenses = (Number(ex.transport) || 0) + (Number(ex.commission) || 0) + (Number(ex.labour) || 0) + (Number(ex.weighing) || 0) + (Number(ex.packing) || 0) + (Number(ex.miscAmount) || 0);
+                          
+                          let parsedCommission = 0;
+                          if (typeof ex.commission === 'string' && ex.commission.includes('%')) {
+                              const pct = Number(ex.commission.replace('%', ''));
+                              if (!isNaN(pct)) parsedCommission = (grossSale * pct) / 100;
+                          } else {
+                              parsedCommission = Number(ex.commission) || 0;
+                          }
+                          
+                          const totalExpenses = (Number(ex.transport) || 0) + parsedCommission + (Number(ex.labour) || 0) + (Number(ex.weighing) || 0) + (Number(ex.packing) || 0) + (Number(ex.miscAmount) || 0);
                           const advance = Number(ex.advance) || 0;
                           const netSale = grossSale - totalExpenses;
                           const balancePayable = netSale - advance;
@@ -2427,9 +2423,13 @@ export default function App() {
                                       <span style={{ color: COLORS.sidebar, fontWeight: "700" }}>Net Sale</span>
                                       <span style={{ color: COLORS.sidebar, fontWeight: "800" }}>{formatCurrency(netSale)}</span>
                                    </div>
-                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "12px", borderBottom: "1px solid #F1F5F9" }}>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "16px", borderBottom: "1px solid #F1F5F9" }}>
                                       <span style={{ color: COLORS.muted, fontWeight: "600" }}>Advance Payment</span>
                                       <span style={{ color: "#CC0000", fontWeight: "800" }}>- {formatCurrency(advance)}</span>
+                                   </div>
+                                   <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "8px" }}>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "800", fontSize: "18px", letterSpacing: "-0.5px" }}>Final Settlement (Payable)</span>
+                                      <span style={{ color: COLORS.sidebar, fontWeight: "900", fontSize: "18px", letterSpacing: "-0.5px" }}>{formatCurrency(balancePayable)}</span>
                                    </div>
                                 </div>
                              </>
