@@ -19,16 +19,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 // --- STACLI / MANDI OS DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#7db580", // Stacli Sage Green
-  secondary: "#1a231a", // Deep Midnight Green
-  bg: "#f8faf8", // Ghost Sage (Ultra Light)
+  primary: "#d4a017", // Mango Yellow/Gold
+  secondary: "#1e240b", // Deep Orchard Green
+  bg: "#fdfbf4", // Creamy Orchard BG
   card: "#FFFFFF",
   text: "#1a231a",
   muted: "#64748b",
-  success: "#10b981", 
+  success: "#8ea35d", 
   danger: "#ef4444",
-  accent: "#7db580",
-  sidebar: "#0d130d" // Modern Deep Forest
+  accent: "#d4a017",
+  sidebar: "#1e240b" // Deep Forest Green
 };
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -1552,8 +1552,8 @@ export default function App() {
         <div style={{ animation: "slideUp 0.6s ease-out", width:"100%", maxWidth:"520px", background:"#ffffff", borderRadius:"32px", padding:"40px 40px", boxShadow:"0 20px 60px rgba(0,0,0,0.04)", border:"1px solid #eef2ee", textAlign:"center" }}>
           
           <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
-            <div className="blinking-logo" style={{ width: "90px", height: "90px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #f0f7f0", overflow: "hidden" }}>
-              <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div className="blinking-logo" style={{ width: "95px", height: "95px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #fdfbf4", overflow: "hidden" }}>
+              <img src="https://i.ytimg.com/vi/KtVCkq9Evyc/mqdefault.jpg" alt="JAMANGO Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           </div>
 
@@ -1745,8 +1745,8 @@ export default function App() {
         }}>
           <div style={{ padding: "0 24px 32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
             <div style={{ position: "relative" }}>
-              <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI" style={{ width: "68px", height: "68px", objectFit: "cover", borderRadius: "50%", border: "2.5px solid #7db580", padding: "2px" }} />
-              <div style={{ position: "absolute", bottom: "4px", right: "4px", width: "12px", height: "12px", background: "#7db580", borderRadius: "50%", border: "2px solid #0d130d" }}></div>
+              <img src="https://i.ytimg.com/vi/KtVCkq9Evyc/mqdefault.jpg" alt="JAMANGO" style={{ width: "68px", height: "68px", objectFit: "cover", borderRadius: "50%", border: `2.5px solid ${COLORS.primary}`, padding: "2px", background: "#fff" }} />
+              <div style={{ position: "absolute", bottom: "4px", right: "4px", width: "12px", height: "12px", background: COLORS.primary, borderRadius: "50%", border: `2px solid ${COLORS.sidebar}` }}></div>
             </div>
             <h2 style={{ color: "#ffffff", fontWeight: "900", fontSize: "19px", letterSpacing: "1.5px", margin: 0 }}>STACLI</h2>
             <div style={{ fontSize: "11px", fontWeight: "850", color: COLORS.primary, letterSpacing: "2.5px", textTransform: "uppercase", marginTop: "4px", opacity: 0.9 }}>SPV Fruits</div>
