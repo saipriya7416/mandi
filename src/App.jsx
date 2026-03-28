@@ -1523,28 +1523,31 @@ export default function App() {
     return (
       <div style={{ minHeight:"100vh", background:"#f7f9f7", display:"flex", justifyContent:"center", alignItems:"center", padding: "20px" }}>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
           * { font-family: 'Plus Jakarta Sans', sans-serif; }
-          .stacli-title { font-family: 'Playfair Display', serif !important; letter-spacing: 2px; }
-          .stacli-label { font-family: 'Outfit', sans-serif !important; letter-spacing: 1px; }
+          .stacli-title { font-family: 'Playfair Display', serif !important; letter-spacing: 1px; }
+          .stacli-label { font-family: 'Plus Jakarta Sans', sans-serif !important; letter-spacing: 0.5px; }
+          .stacli-btn-text { font-family: 'Outfit', sans-serif !important; letter-spacing: 0.5px; }
           .stacli-input:focus { border-color: #7db580 !important; box-shadow: 0 0 0 4px rgba(125, 181, 128, 0.1) !important; }
           .stacli-btn:hover { background: linear-gradient(135deg, #7db580 0%, #5d8c60 100%) !important; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(125, 181, 128, 0.4) !important; }
           @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes logoBlink { 0%, 50% { opacity: 1; } 75% { opacity: 0.2; } 100% { opacity: 1; } }
+          .blinking-logo { animation: logoBlink 2s infinite ease-in-out; }
         `}</style>
 
         <div style={{ animation: "slideUp 0.6s ease-out", width:"100%", maxWidth:"520px", background:"#ffffff", borderRadius:"32px", padding:"40px 40px", boxShadow:"0 20px 60px rgba(0,0,0,0.04)", border:"1px solid #eef2ee", textAlign:"center" }}>
           
           <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
-            <div style={{ width: "90px", height: "90px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #f0f7f0", overflow: "hidden" }}>
+            <div className="blinking-logo" style={{ width: "90px", height: "90px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #f0f7f0", overflow: "hidden" }}>
               <img src="https://img.kr.gcp-karroter.net/business/bizPlatform/profile/72357697/1728442613468/MjY0MDEyMGVmMmE5ZDE4OGQ3NjJmNzk1ODc4MDQyNzRlZjI2Y2ViZTFkYmRjMDRkMWJmM2Q5ZDc0OWEyNDhiNF8wLmpwZWc=.jpeg?q=95&s=1200x630&t=cover" alt="STACLI Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           </div>
 
-          <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color:"#1a1a1a", fontSize:"38px", textTransform:"uppercase" }}>STACLI</h1>
+          <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color:"#1a1a1a", fontSize:"42px", textTransform:"uppercase" }}>STACLI</h1>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "32px" }}>
-            <div style={{ height: "1px", width: "30px", background: "#cbd5cb" }} />
-            <span style={{ fontSize: "11px", fontWeight: "900", color: "#1a1a1a", letterSpacing: "3px", textTransform: "uppercase" }}>MANDI OS</span>
-            <div style={{ height: "1px", width: "30px", background: "#cbd5cb" }} />
+            <div style={{ height: "1.5px", width: "40px", background: "#cbd5cb" }} />
+            <span style={{ fontSize: "12px", fontWeight: "900", color: "#1a1a1a", letterSpacing: "4px", textTransform: "uppercase" }}>MANDI OS</span>
+            <div style={{ height: "1.5px", width: "40px", background: "#cbd5cb" }} />
           </div>
 
           <div style={{ textAlign:"left" }}>
@@ -1580,20 +1583,20 @@ export default function App() {
                       }}
                     >
                       <div style={{
-                        width: "14px",
-                        height: "14px",
+                        width: "16px",
+                        height: "16px",
                         borderRadius: "50%",
-                        border: isSelected ? "4px solid #7db580" : "1.5px solid #cbd5cb",
+                        border: isSelected ? "5.5px solid #3b82f6" : "1.5px solid #cbd5cb",
                         background: "#fff",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         boxSizing: "border-box"
                       }} />
-                      <span style={{ 
-                        fontSize: "12px", 
+                      <span className="stacli-label" style={{ 
+                        fontSize: "13px", 
                         fontWeight: "800", 
-                        color: isSelected ? "#1a1a1a" : "#64748b" 
+                        color: isSelected ? "#1a1a1a" : "#94a3b8" 
                       }}>
                         {r.id}
                       </span>
@@ -1604,7 +1607,7 @@ export default function App() {
             </div>
 
             <div style={{ marginBottom:"24px" }}>
-              <label style={{ display:"block", fontSize:"13px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Access ID (Email or Phone)</label>
+              <label className="stacli-label" style={{ display:"block", fontSize:"14px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Access ID (Email or Phone)</label>
               <div style={{ position: "relative" }}>
                 <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "16px" }}>👤</span>
                 <input 
@@ -1613,13 +1616,13 @@ export default function App() {
                   placeholder="admin@stacli.io" 
                   value={authForm.username} 
                   onChange={e=>setAuthForm({...authForm,username:e.target.value})} 
-                  style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"14px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                  style={{ width:"100%", padding:"18px 18px 18px 52px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
                 />
               </div>
             </div>
 
-            <div style={{ marginBottom:"32px" }}>
-              <label style={{ display:"block", fontSize:"13px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Secure Passkey</label>
+            <div style={{ marginBottom:"36px" }}>
+              <label className="stacli-label" style={{ display:"block", fontSize:"14px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Secure Passkey</label>
               <div style={{ position: "relative" }}>
                  <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "16px" }}>🔒</span>
                  <input 
@@ -1629,7 +1632,7 @@ export default function App() {
                    value={authForm.password} 
                    onChange={e=>setAuthForm({...authForm,password:e.target.value})} 
                    onKeyDown={e=>e.key==="Enter"&&handleLogin()} 
-                   style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"14px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                   style={{ width:"100%", padding:"18px 18px 18px 52px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
                  />
               </div>
             </div>
@@ -1640,8 +1643,8 @@ export default function App() {
             onClick={handleLogin} 
             style={{ 
               width:"100%", 
-              height:"64px", 
-              fontSize:"20px", 
+              height:"68px", 
+              fontSize:"22px", 
               fontWeight:"900", 
               background: "linear-gradient(to right, #7db580, #5d8c60)",
               color:"#ffffff", 
@@ -1649,16 +1652,19 @@ export default function App() {
               borderRadius:"18px", 
               cursor:"pointer", 
               letterSpacing:"0.5px", 
-              boxShadow:"0 12px 30px rgba(125, 181, 128, 0.2)"
+              boxShadow:"0 12px 30px rgba(125, 181, 128, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
             }}
           >
-            Login
+            <span className="stacli-btn-text">Login</span>
           </button>
 
           <div style={{ marginTop:"40px", textAlign: "center" }}>
-            <p style={{ fontSize:"13px", color:"#475569", fontWeight:"700", opacity: 0.9 }}>Restricted Access · Authorized Personnel Only</p>
+            <p className="stacli-label" style={{ fontSize:"13px", color:"#475569", fontWeight:"800", opacity: 0.9 }}>Restricted Access · Authorized Personnel Only</p>
             <div style={{ marginTop: "24px" }}>
-              <a href="#" style={{ fontSize: "13px", color: "#1a1a1a", fontWeight: "800", textDecoration: "none", borderBottom: "1.5px solid #eef2ee", paddingBottom: "2px" }}>Back to Store</a>
+              <a href="#" className="stacli-label" style={{ fontSize: "14px", color: "#1a1a1a", fontWeight: "900", textDecoration: "none", borderBottom: "1.5px solid #eef2ee", paddingBottom: "2px" }}>Back to Store</a>
             </div>
           </div>
         </div>
