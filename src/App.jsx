@@ -2266,16 +2266,18 @@ export default function App() {
                               const itemsToAdd = matchedLot && matchedLot.lineItems && matchedLot.lineItems.length > 0
                                  ? matchedLot.lineItems.map((iter, idx) => ({
                                     id: Date.now() + idx,
-                                    productName: `${iter.productId || ''} ${iter.variety || ''}`.trim() || 'Produce',
+                                    productName: `${iter.product || iter.productId || ''} ${iter.variety || ''}`.trim() || 'Produce',
                                     quantity: Math.max(0, (Number(iter.grossWeight) || 0) - (Number(iter.deductions) || 0)),
-                                    rate: iter.estimatedRate || ""
+                                    rate: iter.rate || iter.estimatedRate || ""
                                  }))
                                  : [{ id: Date.now(), productName: "", quantity: "", rate: "" }];
+
+                              const resolvedSupplier = matchedLot ? (suppliers.find(s => s._id === matchedLot.supplierId || s.name === matchedLot.supplierId || s._id === matchedLot.farmerId)) : null;
 
                               setSupplierSettlementForm(prev => ({
                                 ...prev,
                                 lotId: selectedLotId,
-                                supplierId: matchedLot ? (matchedLot.supplierId?.name || matchedLot.supplierId || matchedLot.farmerId || prev.supplierId) : prev.supplierId,
+                                supplierId: resolvedSupplier ? resolvedSupplier.name : (matchedLot?.supplierId?.name || matchedLot?.supplierId || prev.supplierId),
                                 vehicleNumber: matchedLot ? (matchedLot.vehicleNumber || prev.vehicleNumber) : prev.vehicleNumber,
                                 date: matchedLot && matchedLot.entryDate ? matchedLot.entryDate.slice(0, 10) : prev.date,
                                 items: itemsToAdd
@@ -2297,7 +2299,7 @@ export default function App() {
 
                      </div>
                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>Next: Produce Sold →</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>Next →</Button>
                      </div>
                   </div>
               )}
@@ -2331,8 +2333,8 @@ export default function App() {
                        <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "900", marginTop: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleSupplierItemAction("Add")}>+ Add Next Sale Item</Button>
                      </div>
                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Bill Header"); }}>← Previous: Bill Header</Button>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>Next: Expense Deductions →</Button>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Bill Header"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>Next →</Button>
                      </div>
                   </div>
               )}
@@ -2379,8 +2381,8 @@ export default function App() {
 
                      </div>
                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>← Previous: Produce Sold</Button>
-                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Financial Summary"); }}>Next: Review & Save →</Button>
+                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Produce Sold"); }}>← Previous</Button>
+                        <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Financial Summary"); }}>Next →</Button>
                      </div>
                   </div>
               )}
@@ -2441,7 +2443,7 @@ export default function App() {
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                 {activeSupplierBillTab === "Financial Summary" && (
-                   <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>← Back to Expenses</Button>
+                   <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none", padding: "16px 32px" }} onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveSupplierBillTab("Expense Deductions"); }}>← Previous</Button>
                 )}
                 <Button style={{ background: COLORS.sidebar, fontWeight: "900", padding: "16px 40px", boxShadow: "0 4px 12px rgba(55,81,68,0.2)" }} onClick={async () => {
                    try {
