@@ -1518,15 +1518,15 @@ export default function App() {
 
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
-    { id: "User Role", roles: ["Owner / Admin"], label: "Party Management" },
-    { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot/Inventory Intake" },
-    { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation" },
-    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff", "Accountant"], label: "Supplier Billing" },
-    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff", "Accountant"], label: "Customer Billing" },
-    { id: "Ledger", roles: ["Owner / Admin", "Accountant"], label: "Ledger System" },
-    { id: "Payments", roles: ["Owner / Admin", "Accountant"], label: "Payments & Settlement" },
-    { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "Transportation Tracking" },
-    { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"], label: "Dashboard & Reports" }
+    { id: "User Role", roles: ["Owner / Admin"], label: "Party Management", icon: "👥" },
+    { id: "Lot Creation", roles: ["Owner / Admin", "Operations Staff"], label: "Lot/Inventory Intake", icon: "📦" },
+    { id: "Lot Allocation", roles: ["Owner / Admin", "Operations Staff"], label: "Auction & Lot Allocation", icon: "⚖️" },
+    { id: "Supplier Billing", roles: ["Owner / Admin", "Operations Staff", "Accountant"], label: "Supplier Billing", icon: "🧾" },
+    { id: "Buyer Invoicing", roles: ["Owner / Admin", "Operations Staff", "Accountant"], label: "Customer Billing", icon: "🛒" },
+    { id: "Ledger", roles: ["Owner / Admin", "Accountant"], label: "Ledger System", icon: "📓" },
+    { id: "Payments", roles: ["Owner / Admin", "Accountant"], label: "Payments & Settlement", icon: "💳" },
+    { id: "Transportation Tracking", roles: ["Owner / Admin", "Operations Staff"], label: "Transportation Tracking", icon: "🚚" },
+    { id: "Dashboard", roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"], label: "Dashboard & Reports", icon: "📊" }
   ];
 
   const MENU = user ? ALL_MENU.filter(item => item.roles.includes(user.role)) : [];
@@ -1771,14 +1771,23 @@ export default function App() {
                   cursor: "pointer",
                   display: "flex", 
                   alignItems: "center", 
-                  transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-                  background: activeSection === item.id ? "rgba(125, 181, 128, 0.12)" : "transparent",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  background: activeSection === item.id ? COLORS.primary : "transparent",
                   color: activeSection === item.id ? "#ffffff" : "#adb5ad",
-                  borderLeft: activeSection === item.id ? "4px solid #7db580" : "4px solid transparent",
+                  boxShadow: activeSection === item.id ? `0 8px 20px -5px ${COLORS.primary}60` : "none",
                   position: "relative",
                   overflow: "hidden"
                 }}
               >
+                <span style={{ 
+                  marginRight: "16px", 
+                  fontSize: "18px", 
+                  display: "flex", 
+                  alignItems: "center",
+                  opacity: activeSection === item.id ? 1 : 0.7 
+                }}>
+                  {item.icon}
+                </span>
                 <span style={{ 
                   fontWeight: activeSection === item.id ? "900" : "600", 
                   fontSize: "14px", 
