@@ -436,7 +436,16 @@ export default function App() {
       origin: lotCreationForm.origin,
       billAttachment: fileUrl,
       notes: lotCreationForm.notes,
-      lineItems: [] 
+      lineItems: lotCreationForm.lineItems.map(i => ({
+          productId: i.productId,
+          variety: i.variety,
+          grade: i.grade,
+          grossWeight: Number(i.grossWeight) || 0,
+          deductions: Number(i.deductions) || 0,
+          weightUnit: i.weightUnit,
+          estimatedRate: Number(i.estimatedRate) || 0,
+          status: i.status || "Pending Auction"
+      }))
     };
 
     try {
@@ -455,6 +464,38 @@ export default function App() {
     } catch(err) {
       alert("Lot Storage Failed.");
     }
+  };
+
+  const handleDeleteLot = async (id) => {
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this Lot record?")) return;
+    try {
+      const res = await MandiService.deleteLot(id);
+      if (res.status === "SUCCESS") {
+        alert("✅ Lot deleted successfully!");
+        fetchData();
+      } else {
+        alert("❌ Error deleting: " + res.message);
+      }
+    } catch(err) {
+      alert("Delete failed.");
+    }
+  };
+
+  const handleEditLot = (lot) => {
+    const sName = suppliers.find(s => s._id === lot.supplierId)?._id || lot.supplierId?.name || lot.supplierId;
+    setLotCreationForm({
+        lotId: lot.lotId,
+        dateTime: lot.entryDate?.slice(0, 16) || new Date().toISOString().slice(0, 16),
+        farmerId: sName,
+        vehicleNumber: lot.vehicleNumber,
+        driverName: lot.driverName || "",
+        origin: lot.origin || "",
+        attachedBill: null,
+        notes: lot.notes || "",
+        lineItems: lot.lineItems || []
+    });
+    setActiveLotTab("LOT Creation");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleLineItemAction = (action, idx, field, value) => {
@@ -1821,13 +1862,13 @@ export default function App() {
                         }
                         setActiveLotTab("Produce Details");
                       }}
-                    >Save & Proceed to Produce Details →</Button>
+                    >Save</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setLotCreationForm({
                         ...lotCreationForm,
                         lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
                         vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
                         lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending Auction" }]
-                      })}>Clear Intake Form</Button>
+                      })}>Clear</Button>
                   </div>
 
                   {/* Recently Created Lots (Vault Style) */}
@@ -1835,17 +1876,25 @@ export default function App() {
                      <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Recently Created Lots</h4>
                      <div style={{ maxHeight: "400px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
                         <div style={{ display: "grid", gap: "12px" }}>
-                           {lots.slice().reverse().slice(0, 5).map(l => (
+                           {lots.slice().reverse().slice(0, 5).map(l => {
+                              const grossSale = (l.lineItems || []).reduce((sum, item) => sum + (Number(item.grossWeight) * Number(item.estimatedRate)), 0);
+                              return (
                               <div key={l._id || l.lotId} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                                 <div>
+                                 <div style={{ flex: 1 }}>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚛 {l.vehicleNumber} | 📍 {l.origin} | 📅 {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
+                                    <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900", marginTop: "4px", display: "block" }}>Gross Sale: {formatCurrency(grossSale)}</span>
                                  </div>
-                                 <div style={{ display: "flex", gap: "8px" }}>
-                                    <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
+                                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                    <div style={{ textAlign: "right", marginRight: "16px" }}>
+                                       <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
+                                    </div>
+                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✏️</button>
+                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
                                  </div>
                               </div>
-                           ))}
+                              );
+                           })}
                            {lots.length === 0 && <p style={{ textAlign: "center", color: COLORS.muted, padding: "20px" }}>No lots registered yet.</p>}
                         </div>
                      </div>
@@ -1855,18 +1904,9 @@ export default function App() {
 
               {activeLotTab === "Produce Details" && (
                 <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-                  {/* Step Indicators */}
-                  <div style={{ background: "#fff", padding: "16px 24px", borderRadius: "12px", border: "1px solid #EBE9E1", marginBottom: "24px", display: "flex", alignItems: "center", gap: "12px" }}>
-                      <span style={{ fontSize: "12px", background: COLORS.secondary, color: "#fff", width: "24px", height: "24px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900" }}>✓</span>
-                      <span style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Step 1: Intake ({lotCreationForm.lotId})</span>
-                      <span style={{ color: "#EBE9E1" }}>→</span>
-                      <span style={{ fontSize: "12px", background: COLORS.sidebar, color: "#fff", width: "24px", height: "24px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900" }}>2</span>
-                      <span style={{ fontSize: "13px", fontWeight: "850", color: COLORS.sidebar }}>Step 2: Add Produce Line Items</span>
-                  </div>
-
                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
                     <div style={{ borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Produce Management</h3>
+                        <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Produce Details</h3>
                         <span style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot: {lotCreationForm.lotId} | Supplier: {lotCreationForm.farmerId || "N/A"}</span>
                     </div>
                     
@@ -1967,7 +2007,7 @@ export default function App() {
                   </div>
               
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterLot}>Finish & Register Lot</Button>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterLot}>Finish & Save</Button>
                     
                     {isAdmin && (
                       <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Edit Mode enabled for Admin")}>Edit</Button>
@@ -1989,44 +2029,29 @@ export default function App() {
                       <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Recently Created Lots</h4>
                       <div style={{ maxHeight: "400px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
                         <div style={{ display: "grid", gap: "12px" }}>
-                           {lots.slice().reverse().slice(0, 5).map(l => (
+                           {lots.slice().reverse().slice(0, 5).map(l => {
+                              const grossSale = (l.lineItems || []).reduce((sum, item) => sum + (Number(item.grossWeight) * Number(item.estimatedRate)), 0);
+                              return (
                               <div key={l._id || l.lotId} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                                 <div>
+                                 <div style={{ flex: 1 }}>
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚛 {l.vehicleNumber} | 📍 {l.origin} | 📅 {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
+                                    <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900", marginTop: "4px", display: "block" }}>Gross Sale: {formatCurrency(grossSale)}</span>
                                  </div>
-                                 <div style={{ display: "flex", gap: "8px" }}>
-                                    <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
+                                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                    <div style={{ textAlign: "right", marginRight: "16px" }}>
+                                       <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
+                                    </div>
+                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">✏️</button>
+                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
                                  </div>
                               </div>
-                           ))}
+                              );
+                           })}
                            {lots.length === 0 && <p style={{ textAlign: "center", color: COLORS.muted, padding: "20px" }}>No lots registered yet.</p>}
                         </div>
                       </div>
                   </div>
-
-                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1", marginTop: "40px" }}>
-                      <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "24px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Active Produce Inventory (Vault)</h4>
-                      <div style={{ maxHeight: "400px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                        <div style={{ display: "grid", gap: "12px" }}>
-                          {lots.length === 0 ? (
-                            <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No active lots found. Register a new lot to see produce records here.</p>
-                          ) : (
-                            lots.flatMap(lot => (lot.lineItems || []).map(item => ({...item, lotId: lot.lotId}))).map((item, i) => (
-                              <div key={`${item.lotId}-${i}`} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                                <div>
-                                  <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{item.productId} • {item.variety}</b>
-                                  <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📦 Lot: {item.lotId} | ⚖️ Net: {Number(item.grossWeight) - Number(item.deductions)} KG | 🏷️ Grade: {item.grade}</p>
-                                </div>
-                                <div style={{ textAlign: "right" }}>
-                                  <span style={{ fontSize: "10px", background: item.status === "Pending Auction" ? "#FEF3C7" : "#DCFCE7", color: item.status === "Pending Auction" ? "#B45309" : "#15803D", padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{item.status}</span>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                   </div>
                 </div>
               )}
             </div>
