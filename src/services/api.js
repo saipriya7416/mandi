@@ -3,7 +3,7 @@
  * Connects to: http://localhost:5000/api
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // --- Helper: Build headers with JWT token ---
 const getHeaders = () => {
@@ -23,7 +23,7 @@ const request = async (method, path, body = null) => {
   const isHttps = window.location.protocol === 'https:';
   const isLocalBackend = BASE_URL.includes('localhost');
   
-  // ⚡️ MIXED CONTENT PROTECTION: Force simulation if on HTTPS trying to reach Localhost
+  // ΓÜí∩╕Å MIXED CONTENT PROTECTION: Force simulation if on HTTPS trying to reach Localhost
   const forceSim = isHttps && isLocalBackend;
 
   try {
@@ -44,7 +44,7 @@ const request = async (method, path, body = null) => {
     
     return await res.json();
   } catch (err) {
-    console.warn(`🌉 [BRIDGE] Mandi Service redirected to Local Simulation Store (${path})`);
+    console.warn(`≡ƒîë [BRIDGE] Mandi Service redirected to Local Simulation Store (${path})`);
     
     // --- LOCAL SIMULATION STORE ---
     if (method === 'GET') {
@@ -54,23 +54,23 @@ const request = async (method, path, body = null) => {
       if (path === '/allocations') return { status: "SUCCESS", data: getLocal('allocations') };
       if (path === '/bills/supplier') return { status: "SUCCESS", data: getLocal('supplierBills') };
       if (path === '/invoices/buyer') return { status: "SUCCESS", data: getLocal('buyerInvoices') };
-      if (path === '/payments') return { status: "SUCCESS", data: getLocal('payments') };
-      if (path === '/ledger/entries') return { status: "SUCCESS", data: getLocal('ledgerEntries') };
       return { status: "SUCCESS", data: [] };
     }
 
-      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : (path === '/invoice/buyer' ? 'buyerInvoices' : (path === '/payment' ? 'payments' : (path === '/ledger/entry' ? 'ledgerEntries' : null)))))));
+    if (method === 'POST') {
+      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : (path === '/invoice/buyer' ? 'buyerInvoices' : null)))));
       if (storeName) {
         const store = getLocal(storeName);
         const newItem = { ...body, _id: `sim_${Date.now()}`, createdAt: new Date() };
         setLocal(storeName, [...store, newItem]);
         return { status: "SUCCESS", data: newItem };
       }
+    }
 
     if (method === 'PUT' || method === 'DELETE') {
       const pathParts = path.split('/');
       const id = pathParts[pathParts.length - 1];
-      const storeName = (path.includes('supplier') && !path.includes('bill')) ? 'suppliers' : (path.includes('buyer') && !path.includes('invoice') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : (path.includes('bill/supplier') ? 'supplierBills' : (path.includes('payment') ? 'payments' : (path.includes('ledger/entry') ? 'ledgerEntries' : null))))));
+      const storeName = path.includes('supplier') && !path.includes('bill') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : (path.includes('bill/supplier') ? 'supplierBills' : null))));
       if (storeName && id) {
         const store = getLocal(storeName);
         if (method === 'DELETE') {
@@ -91,7 +91,7 @@ const request = async (method, path, body = null) => {
 export const MandiService = {
   // --- AUTH ---
   login: async (username, password, role) => {
-    // 🔓 GLOBAL BYPASS: Accepts any details natively
+    // ≡ƒöô GLOBAL BYPASS: Accepts any details natively
     const mockUser = { username: username || "Admin", role: role || "Admin", name: username || "Super Admin" };
     localStorage.setItem('mandi_token', "MASTER_BYPASS_TOKEN");
     localStorage.setItem('mandi_user', JSON.stringify(mockUser));
@@ -156,16 +156,9 @@ export const MandiService = {
   deleteSupplierBill: async (id) => request('DELETE', `/bill/supplier/${id}`),
   getBuyerInvoices: async () => request('GET', '/invoices/buyer'),
   generateBuyerInvoice: async (data) => request('POST', '/invoice/buyer', data),
-  getPayments: async () => request('GET', '/payments'),
   recordPayment: async (data) => request('POST', '/payment', data),
-  updatePayment: async (id, data) => request('PUT', `/payment/${id}`, data),
-  deletePayment: async (id) => request('DELETE', `/payment/${id}`),
   recordExpense: async (data) => request('POST', '/expense', data),
   getSupplierLedger: async (supplierId) => request('GET', `/ledger/supplier/${supplierId}`),
-  getLedgerEntries: async () => request('GET', '/ledger/entries'),
-  addLedgerEntry: async (data) => request('POST', '/ledger/entry', data),
-  updateLedgerEntry: async (id, data) => request('PUT', `/ledger/entry/${id}`, data),
-  deleteLedgerEntry: async (id) => request('DELETE', `/ledger/entry/${id}`),
 
   // --- FARMER SETTLEMENT & BILLING ---
   getFarmerSettlementData: async (farmerId) => request('GET', `/settlement/farmer/${farmerId}/pending`),
