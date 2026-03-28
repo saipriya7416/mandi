@@ -1548,64 +1548,80 @@ export default function App() {
           </div>
 
           <div style={{ textAlign:"left" }}>
-            {/* Role Switcher */}
+            {/* Role Switcher - EXACT IMAGE PATTERN */}
             <div style={{ 
               background: "#ffffff", 
               border: "1px solid #e5e7eb", 
-              borderRadius: "16px", 
-              padding: "6px", 
+              borderRadius: "18px", 
+              padding: "16px 24px", 
               display: "flex", 
+              alignItems: "center",
+              justifyContent: "space-between",
               marginBottom: "36px",
-              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)"
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.01)"
             }}>
-              {["Admin", "Staff", "Viewer"].map(r => (
-                <div 
-                  key={r}
-                  onClick={() => setAuthForm({ ...authForm, role: r === "Admin" ? "Owner / Admin" : (r === "Staff" ? "Operations Staff" : "Viewer") })}
-                  style={{ 
-                    flex: 1, 
-                    padding: "12px 0", 
-                    borderRadius: "12px", 
-                    textAlign: "center", 
-                    cursor: "pointer", 
-                    fontSize: "13px", 
-                    fontWeight: "800",
-                    transition: "all 0.3s",
-                    background: (authForm.role === "Owner / Admin" && r === "Admin") || 
-                               (authForm.role === "Operations Staff" && r === "Staff") || 
-                               (authForm.role === "Viewer" && r === "Viewer") ? "#f59e0b" : "transparent",
-                    color: (authForm.role === "Owner / Admin" && r === "Admin") || 
-                           (authForm.role === "Operations Staff" && r === "Staff") || 
-                           (authForm.role === "Viewer" && r === "Viewer") ? "#ffffff" : "#6b7280",
-                    boxShadow: (authForm.role === "Owner / Admin" && r === "Admin") || 
-                               (authForm.role === "Operations Staff" && r === "Staff") || 
-                               (authForm.role === "Viewer" && r === "Viewer") ? "0 4px 12px rgba(245, 158, 11, 0.3)" : "none"
-                  }}
-                >
-                  {r}
-                </div>
-              ))}
+              {[
+                { id: "Admin", val: "Owner / Admin" },
+                { id: "Staff", val: "Operations Staff" },
+                { id: "Viewer", val: "Viewer" }
+              ].map((r, idx) => {
+                const isSelected = authForm.role === r.val;
+                return (
+                  <React.Fragment key={r.id}>
+                    <div 
+                      onClick={() => setAuthForm({ ...authForm, role: r.val })}
+                      style={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: "10px",
+                        cursor: "pointer",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      <div style={{
+                        width: "18px",
+                        height: "18px",
+                        borderRadius: "50%",
+                        border: isSelected ? "5.5px solid #3b82f6" : "1.5px solid #d1d5db",
+                        background: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxSizing: "border-box"
+                      }} />
+                      <span style={{ 
+                        fontSize: "14px", 
+                        fontWeight: "750", 
+                        color: isSelected ? "#f59e0b" : "#9ca3af" 
+                      }}>
+                        {r.id}
+                      </span>
+                    </div>
+                    {idx < 2 && idx === 1 && <div style={{ height: "24px", width: "1.5px", background: "#f1f5f9", margin: "0 10px" }} />}
+                  </React.Fragment>
+                );
+              })}
             </div>
 
             <div style={{ marginBottom:"24px" }}>
-              <label style={{ display:"block", fontSize:"13px", fontWeight:"700", color:"#374151", marginBottom:"10px" }}>Access ID (Email or Phone)</label>
+              <label style={{ display:"block", fontSize:"13px", fontWeight:"700", color:"#4a5568", marginBottom:"12px" }}>Access ID (Email or Phone)</label>
               <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}>👤</span>
+                <span style={{ position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", color: "#cbd5e0", fontSize: "18px" }}>👤</span>
                 <input 
                   className="stacli-input" 
                   type="text" 
-                  placeholder="admin@stacli.in" 
+                  placeholder="admin@jamango.in" 
                   value={authForm.username} 
                   onChange={e=>setAuthForm({...authForm,username:e.target.value})} 
-                  style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #e5e7eb", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#111827", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                  style={{ width:"100%", padding:"18px 18px 18px 52px", borderRadius:"16px", border:"1.5px solid #edf2f7", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#2d3748", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
                 />
               </div>
             </div>
 
-            <div style={{ marginBottom:"32px" }}>
-              <label style={{ display:"block", fontSize:"13px", fontWeight:"700", color:"#374151", marginBottom:"10px" }}>Secure Passkey</label>
+            <div style={{ marginBottom:"36px" }}>
+              <label style={{ display:"block", fontSize:"13px", fontWeight:"700", color:"#4a5568", marginBottom:"12px" }}>Secure Passkey</label>
               <div style={{ position: "relative" }}>
-                 <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}>🔒</span>
+                 <span style={{ position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", color: "#cbd5e0", fontSize: "18px" }}>🔒</span>
                  <input 
                    className="stacli-input" 
                    type="password" 
@@ -1613,7 +1629,7 @@ export default function App() {
                    value={authForm.password} 
                    onChange={e=>setAuthForm({...authForm,password:e.target.value})} 
                    onKeyDown={e=>e.key==="Enter"&&handleLogin()} 
-                   style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #e5e7eb", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#111827", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                   style={{ width:"100%", padding:"18px 18px 18px 52px", borderRadius:"16px", border:"1.5px solid #edf2f7", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#2d3748", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
                  />
               </div>
             </div>
@@ -1624,28 +1640,26 @@ export default function App() {
             onClick={handleLogin} 
             style={{ 
               width:"100%", 
-              height:"64px", 
-              fontSize:"18px", 
-              fontWeight:"800", 
-              background:"#f59e0b", 
+              height:"68px", 
+              fontSize:"20px", 
+              fontWeight:"900", 
+              background: "linear-gradient(to right, #eab308, #f59e0b)",
               color:"#ffffff", 
               border:"none", 
               borderRadius:"18px", 
               cursor:"pointer", 
               letterSpacing:"0.5px", 
-              boxShadow:"0 12px 30px rgba(245, 158, 11, 0.25)", 
-              transition:"all 0.3s ease",
-              marginTop: "8px"
+              boxShadow:"0 15px 35px rgba(245, 158, 11, 0.25)", 
+              transition:"all 0.3s ease"
             }}
           >
-            Login
+            Enter Orchard
           </button>
 
           <div style={{ marginTop:"48px", textAlign: "center" }}>
-            <p style={{ fontSize:"11px", color:"#9ca3af", fontWeight:"600", marginBottom: "12px" }}>Restricted Access · Authorized Personnel Only</p>
-            <p style={{ fontSize:"11px", color:"#9ca3af", fontWeight:"700" }}>© 2026 House of Munagala</p>
-            <div style={{ marginTop: "20px" }}>
-              <a href="#" style={{ fontSize: "12px", color: "#f59e0b", fontWeight: "700", textDecoration: "none" }}>Back to Store</a>
+            <p style={{ fontSize:"13px", color:"#9ca3af", fontWeight:"700", opacity: 0.8 }}>Restricted Access · Authorized Personnel Only</p>
+            <div style={{ marginTop: "24px" }}>
+              <a href="#" style={{ fontSize: "13px", color: "#9ca3af", fontWeight: "750", textDecoration: "none", borderBottom: "1.5px solid #e2e8f0", paddingBottom: "2px" }}>Back to Store</a>
             </div>
           </div>
         </div>
