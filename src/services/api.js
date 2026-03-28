@@ -64,14 +64,19 @@ const request = async (method, path, body = null) => {
       }
     }
 
-    if (method === 'PUT') {
+    if (method === 'PUT' || method === 'DELETE') {
       const id = path.split('/')[2];
       const storeName = path.includes('supplier') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : null);
       if (storeName && id) {
         const store = getLocal(storeName);
-        const updatedStore = store.map(item => item._id === id ? { ...item, ...body } : item);
-        setLocal(storeName, updatedStore);
-        return { status: "SUCCESS", message: "Updated locally" };
+        if (method === 'DELETE') {
+          setLocal(storeName, store.filter(item => item._id !== id));
+          return { status: "SUCCESS", message: "Deleted from simulation" };
+        } else {
+          const updatedStore = store.map(item => item._id === id ? { ...item, ...body } : item);
+          setLocal(storeName, updatedStore);
+          return { status: "SUCCESS", message: "Updated locally" };
+        }
       }
     }
 
@@ -101,11 +106,13 @@ export const MandiService = {
   getSuppliers: async () => request('GET', '/suppliers'),
   addSupplier: async (data) => request('POST', '/supplier', data),
   updateSupplier: async (id, data) => request('PUT', `/supplier/${id}`, data),
+  deleteSupplier: async (id) => request('DELETE', `/supplier/${id}`),
 
   // --- BUYERS ---
   getBuyers: async () => request('GET', '/buyers'),
   addBuyer: async (data) => request('POST', '/buyer', data),
   updateBuyer: async (id, data) => request('PUT', `/buyer/${id}`, data),
+  deleteBuyer: async (id) => request('DELETE', `/buyer/${id}`),
   getBuyerIntel: async (id) => request('GET', `/buyer/${id}/intelligence`),
 
   // --- INVENTORY ---

@@ -379,6 +379,36 @@ export default function App() {
     }
   };
 
+  const handleDeleteSupplier = async (id) => {
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this supplier?")) return;
+    try {
+      const res = await MandiService.deleteSupplier(id);
+      if (res.status === "SUCCESS") {
+        alert("✅ Supplier deleted successfully!");
+        fetchData();
+      } else {
+        alert("❌ Error deleting: " + res.message);
+      }
+    } catch(err) {
+      alert("Delete failed.");
+    }
+  };
+
+  const handleDeleteBuyer = async (id) => {
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this customer?")) return;
+    try {
+      const res = await MandiService.deleteBuyer(id);
+      if (res.status === "SUCCESS") {
+        alert("✅ Customer deleted successfully!");
+        fetchData();
+      } else {
+        alert("❌ Error deleting: " + res.message);
+      }
+    } catch(err) {
+      alert("Delete failed.");
+    }
+  };
+
   const handleRegisterLot = async () => {
     if(!lotCreationForm.farmerId || !lotCreationForm.vehicleNumber || !lotCreationForm.origin) {
       return alert("Supplier Name, Vehicle Number, and Origin are required fields.");
@@ -1645,7 +1675,7 @@ export default function App() {
                   
                   {/* Supplier Database Records */}
                   <div style={{ marginTop: "40px" }}>
-                     <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Registered Supplier Vault</h4>
+                     <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Registered Suppliers</h4>
                      <div style={{ maxHeight: "450px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
                         <div style={{ display: "grid", gap: "12px" }}>
                            {suppliers.map(s => (
@@ -1654,7 +1684,10 @@ export default function App() {
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{s.name}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>📞 {s.phone} | 📍 {s.village || s.marketArea || 'Location N/A'}</p>
                                  </div>
-                                 <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Supplier', s)}>Modify Profile</Button>
+                                 <div style={{ display: "flex", gap: "8px" }}>
+                                    <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Supplier', s)}>Modify Profile</Button>
+                                    <Button style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", background: "#F1F5F9", color: "#CC0000", border: "1.5px solid #E2E8F0" }} onClick={() => handleDeleteSupplier(s._id)}>Delete</Button>
+                                 </div>
                               </div>
                            ))}
                         </div>
@@ -1703,7 +1736,7 @@ export default function App() {
 
                   {/* Customer Database Records */}
                   <div style={{ marginTop: "40px" }}>
-                     <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Registered Customer Vault</h4>
+                     <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Registered Customers</h4>
                      <div style={{ maxHeight: "450px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
                         <div style={{ display: "grid", gap: "12px" }}>
                            {buyers.map(b => (
@@ -1712,7 +1745,10 @@ export default function App() {
                                     <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{b.name}</b>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🏬 {b.shopName} | 📞 {b.phone}</p>
                                  </div>
-                                 <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Buyer', b)}>Modify Profile</Button>
+                                 <div style={{ display: "flex", gap: "8px" }}>
+                                    <Button variant="outline" style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", borderColor: COLORS.accent, color: COLORS.secondary }} onClick={() => handleEditSelect('Buyer', b)}>Modify Profile</Button>
+                                    <Button style={{ fontSize: "11px", padding: "6px 12px", fontWeight: "800", background: "#F1F5F9", color: "#CC0000", border: "1.5px solid #E2E8F0" }} onClick={() => handleDeleteBuyer(b._id)}>Delete</Button>
+                                 </div>
                               </div>
                            ))}
                         </div>
