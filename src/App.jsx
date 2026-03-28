@@ -339,7 +339,7 @@ export default function App() {
       setIsEditingSupplier(false);
       setEditingSupplierId(null);
     } else {
-      setBuyerForm({ name: "", shopName: "", phone: "", address: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
+      setBuyerForm({ name: "", shopName: "", phone: "", address: "", marketArea: "", govIdNumber: "", idType: "Aadhaar", creditLimit: "", notes: "" });
       setIsEditingBuyer(false);
       setEditingBuyerId(null);
     }
