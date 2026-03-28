@@ -278,9 +278,6 @@ export default function App() {
     paymentMade: 0,
     notes: ""
   });
-  const [payments, setPayments] = useState([]);
-  const [isEditingPayment, setIsEditingPayment] = useState(false);
-  const [editingPaymentId, setEditingPaymentId] = useState(null);
 
   // --- INITIALIZE SESSION ---
   useEffect(() => {
@@ -1294,9 +1291,6 @@ export default function App() {
 
       const ledRes = await MandiService.getLedgerEntries();
       if (ledRes.status === "SUCCESS") setLedgerEntries(ledRes.data);
-
-      const payRes = await MandiService.getPayments();
-      if (payRes.status === "SUCCESS") setPayments(payRes.data);
 
     } catch (err) {
       console.warn("Backend Unreachable - Using Local Data Engine:", err.message);
