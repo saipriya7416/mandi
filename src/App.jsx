@@ -19,16 +19,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 // --- JAMANGO DESIGN SYSTEM ---
 const COLORS = {
-  primary: "#375144", // Logo Forest Green (Authoritative)
-  secondary: "#9fb443", // Logo Olive/Lime (Growth)
-  bg: "#fcf9f1", // Logo Light Cream (Premium Paper)
+  primary: "#f59e0b", // Stacli Orange (Active)
+  secondary: "#1a1a1a", // Deep Neutral (Authorized)
+  bg: "#fdfcfb", // Soft Warm Paper
   card: "#FFFFFF",
-  text: "#1e293b",
-  muted: "#64748b",
-  success: "#375144", // Use primary for success too
-  danger: "#dc2626",
-  accent: "#9fb443", // Use secondary for accent
-  sidebar: "#2d4137" // Darker brand green
+  text: "#1a1a1a",
+  muted: "#6b7280",
+  success: "#10b981", 
+  danger: "#ef4444",
+  accent: "#f59e0b",
+  sidebar: "#1a1a1a" // Deep Obsidian Sidebar
 };
 
 const Card = ({ children, title, subtitle, action, style = {} }) => (
@@ -1036,7 +1036,7 @@ export default function App() {
     localStorage.setItem('master_expenses', JSON.stringify(masterExpenses));
   }, [masterExpenses]);
   const [systemSettings, setSystemSettings] = useState({
-    businessName: "SPV Fruits Trading",
+    businessName: "STACLI Trading",
     address: "Mandi Gate No. 4, Fruit Market, Guntur, AP",
     logoUrl: "",
     defaultCommission: 4,
@@ -1521,47 +1521,132 @@ export default function App() {
 
   if (!loggedIn) {
     return (
-      <div style={{ height:"100vh", background:"#fcf9f1", display:"flex", justifyContent:"center", alignItems:"center", position:"relative", overflow:"hidden" }}>
+      <div style={{ minHeight:"100vh", background:"#fdfcfb", display:"flex", justifyContent:"center", alignItems:"center", padding: "20px" }}>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
           * { font-family: 'Plus Jakarta Sans', sans-serif; }
-          .font-display { font-family: 'Outfit', sans-serif !important; }
-          @keyframes floatUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-          .spv-input:focus { border-color: #9fb443 !important; }
-          .spv-btn:hover { transform:translateY(-3px) !important; box-shadow:0 20px 45px rgba(55,81,68,0.45) !important; }
+          .stacli-title { font-family: 'Playfair Display', serif !important; letter-spacing: 2px; }
+          .stacli-label { font-family: 'Outfit', sans-serif !important; letter-spacing: 1px; }
+          .stacli-input:focus { border-color: #f59e0b !important; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1) !important; }
+          .stacli-btn:hover { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4) !important; }
+          @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         `}</style>
-        <div style={{ position:"absolute", top:"-150px", right:"-120px", width:"550px", height:"550px", background:"#375144", borderRadius:"50%", opacity:0.05 }} />
-        <div style={{ position:"absolute", bottom:"-120px", left:"-100px", width:"420px", height:"420px", background:"#9fb443", borderRadius:"50%", opacity:0.07 }} />
-        <div style={{ animation:"floatUp 0.5s ease-out", width:"460px", background:"#ffffff", borderRadius:"40px", padding:"56px 50px 48px", boxShadow:"0 30px 70px rgba(55,81,68,0.15)", border:"1.5px solid rgba(159,180,67,0.2)", textAlign:"center", position:"relative", zIndex:1 }}>
-          <div style={{ display:"flex", justifyContent:"center", marginBottom:"24px" }}>
-            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits Logo" style={{ width: "96px", height: "96px", objectFit: "contain", filter: "drop-shadow(0 10px 20px rgba(55,81,68,0.15))" }} />
+
+        <div style={{ animation: "slideUp 0.6s ease-out", width:"100%", maxWidth:"480px", background:"#ffffff", borderRadius:"32px", padding:"60px 48px", boxShadow:"0 20px 60px rgba(0,0,0,0.04)", border:"1px solid #f0f0f0", textAlign:"center" }}>
+          
+          <div style={{ display:"flex", justifyContent:"center", marginBottom:"32px" }}>
+            <div style={{ width: "110px", height: "110px", borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "4px solid #fffaf5" }}>
+              <img src="/src/assets/logo.png" alt="STACLI Logo" style={{ width: "80%", height: "80%", objectFit: "contain" }} />
+            </div>
           </div>
-          <h1 style={{ margin:"0 0 44px", fontWeight:"900", color:"#375144", fontSize:"32px", letterSpacing:"-1.5px" }}>SPV FRUITS</h1>
+
+          <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color:"#1a1a1a", fontSize:"44px", textTransform:"uppercase" }}>STACLI</h1>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "48px" }}>
+            <div style={{ height: "1px", width: "40px", background: "#e5e5e5" }} />
+            <span style={{ fontSize: "12px", fontWeight: "800", color: "#6b7280", letterSpacing: "3px", textTransform: "uppercase" }}>MANDI OS</span>
+            <div style={{ height: "1px", width: "40px", background: "#e5e5e5" }} />
+          </div>
+
           <div style={{ textAlign:"left" }}>
-            <div style={{ marginBottom:"18px" }}>
-              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Name</label>
-              <input className="spv-input" type="text" placeholder="Enter username" value={authForm.username} onChange={e=>setAuthForm({...authForm,username:e.target.value})} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+            {/* Role Switcher */}
+            <div style={{ 
+              background: "#ffffff", 
+              border: "1px solid #e5e7eb", 
+              borderRadius: "16px", 
+              padding: "6px", 
+              display: "flex", 
+              marginBottom: "36px",
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)"
+            }}>
+              {["Admin", "Staff", "Viewer"].map(r => (
+                <div 
+                  key={r}
+                  onClick={() => setAuthForm({ ...authForm, role: r === "Admin" ? "Owner / Admin" : (r === "Staff" ? "Operations Staff" : "Viewer") })}
+                  style={{ 
+                    flex: 1, 
+                    padding: "12px 0", 
+                    borderRadius: "12px", 
+                    textAlign: "center", 
+                    cursor: "pointer", 
+                    fontSize: "13px", 
+                    fontWeight: "800",
+                    transition: "all 0.3s",
+                    background: (authForm.role === "Owner / Admin" && r === "Admin") || 
+                               (authForm.role === "Operations Staff" && r === "Staff") || 
+                               (authForm.role === "Viewer" && r === "Viewer") ? "#f59e0b" : "transparent",
+                    color: (authForm.role === "Owner / Admin" && r === "Admin") || 
+                           (authForm.role === "Operations Staff" && r === "Staff") || 
+                           (authForm.role === "Viewer" && r === "Viewer") ? "#ffffff" : "#6b7280",
+                    boxShadow: (authForm.role === "Owner / Admin" && r === "Admin") || 
+                               (authForm.role === "Operations Staff" && r === "Staff") || 
+                               (authForm.role === "Viewer" && r === "Viewer") ? "0 4px 12px rgba(245, 158, 11, 0.3)" : "none"
+                  }}
+                >
+                  {r}
+                </div>
+              ))}
             </div>
-            <div style={{ marginBottom:"18px" }}>
-              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Staff Role</label>
-              <select className="spv-input" value={authForm.role} onChange={e=>setAuthForm({...authForm, role:e.target.value})} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s", appearance: "none" }}>
-                {["Owner / Admin", "Accountant", "Operations Staff", "Viewer"].map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
+
+            <div style={{ marginBottom:"24px" }}>
+              <label style={{ display:"block", fontSize:"13px", fontWeight:"700", color:"#374151", marginBottom:"10px" }}>Access ID (Email or Phone)</label>
+              <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}>👤</span>
+                <input 
+                  className="stacli-input" 
+                  type="text" 
+                  placeholder="admin@stacli.in" 
+                  value={authForm.username} 
+                  onChange={e=>setAuthForm({...authForm,username:e.target.value})} 
+                  style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #e5e7eb", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#111827", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                />
+              </div>
             </div>
-            <div>
-              <label style={{ display:"block", fontSize:"10px", fontWeight:"900", color:"#375144", textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:"8px" }}>Password</label>
-              <input className="spv-input" type="password" placeholder="Password" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&handleLogin()} style={{ width:"100%", padding:"15px 18px", borderRadius:"14px", border:"1.5px solid rgba(55,81,68,0.12)", background:"#fcf9f1", fontSize:"15px", fontWeight:"700", color:"#375144", outline:"none", boxSizing:"border-box", transition:"border-color 0.2s" }} />
+
+            <div style={{ marginBottom:"32px" }}>
+              <label style={{ display:"block", fontSize:"13px", fontWeight:"700", color:"#374151", marginBottom:"10px" }}>Secure Passkey</label>
+              <div style={{ position: "relative" }}>
+                 <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}>🔒</span>
+                 <input 
+                   className="stacli-input" 
+                   type="password" 
+                   placeholder="••••••••" 
+                   value={authForm.password} 
+                   onChange={e=>setAuthForm({...authForm,password:e.target.value})} 
+                   onKeyDown={e=>e.key==="Enter"&&handleLogin()} 
+                   style={{ width:"100%", padding:"16px 16px 16px 48px", borderRadius:"14px", border:"1.5px solid #e5e7eb", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#111827", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                 />
+              </div>
             </div>
           </div>
-          <button className="spv-btn" onClick={handleLogin} style={{ width:"100%", height:"58px", fontSize:"16px", fontWeight:"900", marginTop:"28px", background:"linear-gradient(135deg, #375144 0%, #2d4137 100%)", color:"#ffffff", border:"none", borderRadius:"18px", cursor:"pointer", letterSpacing:"0.5px", boxShadow:"0 12px 30px rgba(55,81,68,0.3)", transition:"all 0.25s" }}>
+
+          <button 
+            className="stacli-btn" 
+            onClick={handleLogin} 
+            style={{ 
+              width:"100%", 
+              height:"64px", 
+              fontSize:"18px", 
+              fontWeight:"800", 
+              background:"#f59e0b", 
+              color:"#ffffff", 
+              border:"none", 
+              borderRadius:"18px", 
+              cursor:"pointer", 
+              letterSpacing:"0.5px", 
+              boxShadow:"0 12px 30px rgba(245, 158, 11, 0.25)", 
+              transition:"all 0.3s ease",
+              marginTop: "8px"
+            }}
+          >
             Login
           </button>
-          <div style={{ marginTop:"32px", paddingTop:"20px", borderTop:"1.5px solid rgba(159,180,67,0.2)", display:"flex", justifyContent:"center", alignItems:"center", gap:"8px" }}>
-            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
-            <span style={{ fontSize:"10px", color:"#64748b", fontWeight:"700", letterSpacing:"0.5px" }}>SPV FRUITS</span>
-            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#9fb443" }} />
+
+          <div style={{ marginTop:"48px", textAlign: "center" }}>
+            <p style={{ fontSize:"11px", color:"#9ca3af", fontWeight:"600", marginBottom: "12px" }}>Restricted Access · Authorized Personnel Only</p>
+            <p style={{ fontSize:"11px", color:"#9ca3af", fontWeight:"700" }}>© 2026 House of Munagala</p>
+            <div style={{ marginTop: "20px" }}>
+              <a href="#" style={{ fontSize: "12px", color: "#f59e0b", fontWeight: "700", textDecoration: "none" }}>Back to Store</a>
+            </div>
           </div>
         </div>
       </div>
@@ -1583,7 +1668,7 @@ export default function App() {
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
         <div style={{ 
-          background: "#2d4137", 
+          background: "#1a1a1a", 
           padding: "16px 20px", 
           display: "flex", 
           justifyContent: "space-between", 
@@ -1593,7 +1678,7 @@ export default function App() {
           zIndex: 1000,
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
         }}>
-          <h2 style={{ color: "#9fb443", margin: 0, fontSize: "20px", fontWeight:"900" }}>SPV Fruits</h2>
+          <h2 style={{ color: "#f59e0b", margin: 0, fontSize: "20px", fontWeight:"900" }}>STACLI</h2>
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{ background: "none", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer" }}
@@ -1620,8 +1705,8 @@ export default function App() {
           boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
         }}>
           <div style={{ padding: "0 24px 32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits" style={{ width: "64px", height: "64px", objectFit: "contain", borderRadius: "50%", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
-            <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "1px", margin: 0 }}>SPV FRUITS</h2>
+            <img src="/src/assets/logo.png" alt="STACLI" style={{ width: "64px", height: "64px", objectFit: "contain", borderRadius: "50%", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
+            <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "1px", margin: 0 }}>STACLI</h2>
           </div>
           
           <div style={{ padding: "0 24px", marginBottom: "12px" }}>
@@ -3071,7 +3156,7 @@ export default function App() {
                              <div style={{ width: "160px", height: "160px", background: "#0f172a", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", marginBottom: "15px" }}>
                                 [ QR CODE ]
                              </div>
-                             <span style={{ fontSize: "14px", fontWeight: "800", color: COLORS.secondary }}>SPV FRUITS TRADING</span>
+                             <span style={{ fontSize: "14px", fontWeight: "800", color: COLORS.secondary }}>STACLI TRADING</span>
                              <span style={{ fontSize: "11px", color: COLORS.muted }}>Merchant ID: G889911CS</span>
                           </div>
                           <Button variant="outline" style={{ width: "100%", marginTop: "15px" }}>Show on Customer Display</Button>
@@ -3770,10 +3855,10 @@ export default function App() {
                            {
                               role: "Owner / Admin",
                               icon: "👑",
-                              color: "#375144",
-                              bg: "linear-gradient(135deg, #375144 0%, #2d4137 100%)",
+                              color: "#f59e0b",
+                              bg: "linear-gradient(135deg, #f59e0b 0%, #1a1a1a 100%)",
                               tagBg: "rgba(159,180,67,0.25)",
-                              tagColor: "#9fb443",
+                              tagColor: "#f59e0b",
                               desc: "Full access — all modules, reports, settings, user management, delete & void bills",
                               perms: ["✅ All Modules", "✅ Delete & Void", "✅ User Management", "✅ System Config", "✅ Reports & Ledger", "✅ Payment Records"]
                            },
@@ -3843,7 +3928,7 @@ export default function App() {
                                  <tr>
                                     <th style={{ padding: "14px 16px", textAlign: "left", background: "#f8fafc", borderBottom: "2px solid #e2e8f0", fontWeight: "800", color: COLORS.muted, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", minWidth: "220px" }}>Module / Component</th>
                                     {[
-                                       { label: "Owner / Admin", icon: "👑", color: "#375144", bg: "#f0f9f4" },
+                                       { label: "Owner / Admin", icon: "👑", color: "#f59e0b", bg: "#f0f9f4" },
                                        { label: "Accountant", icon: "📊", color: "#1d4ed8", bg: "#eff6ff" },
                                        { label: "Ops Staff", icon: "🏭", color: "#b45309", bg: "#fffbeb" },
                                        { label: "Viewer", icon: "👁️", color: "#475569", bg: "#f8fafc" }
@@ -4024,7 +4109,7 @@ export default function App() {
                    </Card>
 
                    {selectedConnFarmer ? (
-                   <Card style={{ background: "linear-gradient(135deg, #2d4137 0%, #1e293b 100%)", color: "#fff", border: "none", boxShadow: "0 25px 50px -12px rgba(45, 65, 55, 0.4)" }}>
+                   <Card style={{ background: "linear-gradient(135deg, #1a1a1a 0%, #1e293b 100%)", color: "#fff", border: "none", boxShadow: "0 25px 50px -12px rgba(45, 65, 55, 0.4)" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "32px" }}>
                          <div>
                             <h2 style={{ margin: "0 0 8px 0", color: COLORS.secondary, fontSize: "32px", fontWeight: "900", letterSpacing: "1px" }}>{selectedConnFarmer.name}</h2>
