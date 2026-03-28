@@ -259,6 +259,9 @@ export default function App() {
   const [editingSupplierId, setEditingSupplierId] = useState(null);
   const [isEditingBuyer, setIsEditingBuyer] = useState(false);
   const [editingBuyerId, setEditingBuyerId] = useState(null);
+  const [payments, setPayments] = useState([]);
+  const [isEditingPayment, setIsEditingPayment] = useState(false);
+  const [editingPaymentId, setEditingPaymentId] = useState(null);
 
   // --- INITIALIZE SESSION ---
   useEffect(() => {
@@ -697,18 +700,31 @@ export default function App() {
       partyId: buyerPaymentForm.buyerId,
       amount: Number(buyerPaymentForm.amountReceived),
       date: buyerPaymentForm.paymentDate,
-      mode: buyerPaymentForm.paymentMode === 'UPI / Scan' ? 'UPI' : 'Cash',
+      mode: buyerPaymentForm.paymentMode === 'UPI / Scan' ? 'UPI' : (buyerPaymentForm.paymentMode === 'Bank Transfer' ? 'Bank' : 'Cash'),
       type: "Full Settlement",
       referenceId: buyerPaymentForm.referenceNo,
-      againstInvoiceNo: buyerPaymentForm.againstInvoiceNo
+      againstInvoiceNo: buyerPaymentForm.againstInvoiceNo,
+      notes: buyerPaymentForm.notes
     };
-    const res = await MandiService.recordPayment(payload);
-    if (res.status === "SUCCESS") {
-      alert("💳 PAYMENT RECORDED: Database updated.");
-      setBuyerPaymentForm({ ...buyerPaymentForm, buyerId: "", amountReceived: "", referenceNo: "", notes: "" });
-      fetchData();
-    } else {
-      alert(`❌ PAYMENT FAILED: ${res.message || "Error"}`);
+    try {
+      let res;
+      if (isEditingPayment) {
+        res = await MandiService.updatePayment(editingPaymentId, payload);
+      } else {
+        res = await MandiService.recordPayment(payload);
+      }
+
+      if (res.status === "SUCCESS") {
+        alert(`✅ PAYMENT ${isEditingPayment ? 'UPDATED' : 'RECORDED'}: Database synced.`);
+        setBuyerPaymentForm({ ...buyerPaymentForm, buyerId: "", amountReceived: "", referenceNo: "", notes: "", againstInvoiceNo: "" });
+        setIsEditingPayment(false);
+        setEditingPaymentId(null);
+        fetchData();
+      } else {
+        alert(`❌ PAYMENT FAILED: ${res.message || "Error"}`);
+      }
+    } catch(err) {
+      alert("Action Failed.");
     }
   };
 
@@ -722,16 +738,75 @@ export default function App() {
        mode: farmerPaymentForm.paymentMode === 'Bank Transfer' ? 'Bank' : 'Cash',
        type: "Full Settlement",
        referenceId: farmerPaymentForm.referenceNo,
-       againstBillNo: farmerPaymentForm.againstBillNo
+       againstBillNo: farmerPaymentForm.againstBillNo,
+       notes: farmerPaymentForm.notes
      };
-     const res = await MandiService.recordPayment(payload);
-     if (res.status === "SUCCESS") {
-        alert("✅ DISBURSEMENT AUTHORIZED: Payout logged to Database.");
-        setFarmerPaymentForm({ ...farmerPaymentForm, farmerId: "", amount: "", referenceNo: "", notes: "" });
-        fetchData();
-     } else {
-        alert(`❌ DISBURSEMENT FAILED: ${res.message || "Error"}`);
+     try {
+       let res;
+       if (isEditingPayment) {
+         res = await MandiService.updatePayment(editingPaymentId, payload);
+       } else {
+         res = await MandiService.recordPayment(payload);
+       }
+
+       if (res.status === "SUCCESS") {
+          alert(`✅ DISBURSEMENT ${isEditingPayment ? 'REVISED' : 'AUTHORIZED'}: Record stored in Database.`);
+          setFarmerPaymentForm({ ...farmerPaymentForm, farmerId: "", amount: "", referenceNo: "", notes: "", againstBillNo: "" });
+          setIsEditingPayment(false);
+          setEditingPaymentId(null);
+          fetchData();
+       } else {
+          alert(`❌ DISBURSEMENT FAILED: ${res.message || "Error"}`);
+       }
+     } catch(err) {
+       alert("Action Failed.");
      }
+  };
+
+  const handleDeletePayment = async (id) => {
+    if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this payment record?")) return;
+    try {
+      const res = await MandiService.deletePayment(id);
+      if (res.status === "SUCCESS") {
+        alert("✅ Payment removed from Database.");
+        fetchData();
+      } else {
+        alert("❌ Error deleting: " + res.message);
+      }
+    } catch(err) {
+      alert("Delete failed.");
+    }
+  };
+
+  const handleEditPayment = (payment) => {
+    setIsEditingPayment(true);
+    setEditingPaymentId(payment._id || payment.id);
+    if (payment.partyType === "Supplier") {
+      setActivePaymentTab("Supplier");
+      const partyId = payment.partyId?._id || payment.partyId;
+      setFarmerPaymentForm({
+        farmerId: partyId,
+        amount: payment.amount,
+        paymentDate: payment.date?.slice(0, 10),
+        paymentMode: payment.mode === 'Bank' ? 'Bank Transfer' : 'Cash',
+        referenceNo: payment.referenceId || "",
+        againstBillNo: payment.againstBillNo || "",
+        notes: payment.notes || ""
+      });
+    } else {
+      setActivePaymentTab("Customer");
+      const partyId = payment.partyId?._id || payment.partyId;
+      setBuyerPaymentForm({
+        buyerId: partyId,
+        amountReceived: payment.amount,
+        paymentDate: payment.date?.slice(0, 10),
+        paymentMode: payment.mode === 'UPI' ? 'UPI / Scan' : (payment.mode === 'Bank' ? 'Bank Transfer' : 'Cash'),
+        referenceNo: payment.referenceId || "",
+        againstInvoiceNo: payment.againstInvoiceNo || "",
+        notes: payment.notes || ""
+      });
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCreateExpense = async () => {
@@ -1143,6 +1218,9 @@ export default function App() {
 
       const invoicesRes = await MandiService.getBuyerInvoices();
       if (invoicesRes.status === "SUCCESS") setBuyerInvoices(invoicesRes.data);
+
+      const payRes = await MandiService.getPayments();
+      if (payRes.status === "SUCCESS") setPayments(payRes.data);
 
     } catch (err) {
       console.warn("Backend Unreachable - Using Local Data Engine:", err.message);
@@ -2912,58 +2990,97 @@ export default function App() {
                </div>
 
                {activePaymentTab === "Supplier" && (
-                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-                    <div style={{ borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px", marginBottom: "24px" }}>
-                       <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Supplier Payments (Outgoing from SPV)</h2>
-                       <p style={{ fontSize: "14px", color: COLORS.muted, margin: "4px 0 0 0" }}>Settlement payouts, advances, and financial disbursements to farmers.</p>
+                  <>
+                    <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+                      <div style={{ borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px", marginBottom: "24px" }}>
+                         <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Supplier Payments (Outgoing from SPV)</h2>
+                         <p style={{ fontSize: "14px", color: COLORS.muted, margin: "4px 0 0 0" }}>Settlement payouts, advances, and financial disbursements to farmers.</p>
+                      </div>
+                      
+                      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                               <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Payment Date</label>
+                               <input type="date" value={farmerPaymentForm.paymentDate} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, paymentDate: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                               <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Farmer / Party</label>
+                               <select value={farmerPaymentForm.farmerId} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, farmerId: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                                  <option value="" disabled>Choose Supplier</option>
+                                  {suppliers.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
+                               </select>
+                            </div>
+                         </div>
+
+                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                               <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Amount (₹)</label>
+                               <input type="number" placeholder="Enter amount" value={farmerPaymentForm.amount} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, amount: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                               <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Payment Mode</label>
+                               <select value={farmerPaymentForm.paymentMode} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, paymentMode: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                                  <option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option>
+                               </select>
+                            </div>
+                         </div>
+
+                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Against Bill / Ref No.</label>
+                            <input type="text" placeholder="Bill ID or Reference" value={farmerPaymentForm.againstBillNo} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, againstBillNo: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                         </div>
+
+                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Transaction Details</label>
+                            <input type="text" placeholder="UPI Ref / Cheque No" value={farmerPaymentForm.referenceNo} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, referenceNo: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                         </div>
+
+                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Narration / Notes</label>
+                            <textarea placeholder="Payment remarks..." value={farmerPaymentForm.notes} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, notes: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", height: "60px", resize: "none" }} />
+                         </div>
+
+                         <Button style={{ marginTop: "12px", height: "56px", fontSize: "16px", background: COLORS.sidebar, fontWeight: "900", borderRadius: "10px" }} onClick={handleRecordFarmerPayment}>{isEditingPayment ? "Update Payout" : "Confirm"}</Button>
+                      </div>
                     </div>
-                    
-                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Payment Date</label>
-                             <input type="date" value={farmerPaymentForm.paymentDate} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, paymentDate: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                          </div>
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Farmer / Party</label>
-                             <select value={farmerPaymentForm.farmerId} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, farmerId: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                                <option value="" disabled>Choose Supplier</option>
-                                {suppliers.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
-                             </select>
-                          </div>
-                       </div>
 
-                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Amount (₹)</label>
-                             <input type="number" placeholder="Enter amount" value={farmerPaymentForm.amount} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, amount: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                          </div>
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Payment Mode</label>
-                             <select value={farmerPaymentForm.paymentMode} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, paymentMode: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                                <option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option>
-                             </select>
-                          </div>
+                    <Card title="Recorded Supplier Payouts" subtitle="Recent financial disbursements to farmers">
+                       <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
+                             <thead>
+                                <tr style={{ background: "#F8FAFC", color: COLORS.muted, fontWeight: "800", textAlign: "left" }}>
+                                   <th style={{ padding: "14px" }}>Date</th>
+                                   <th style={{ padding: "14px" }}>Supplier</th>
+                                   <th style={{ padding: "14px" }}>Amount</th>
+                                   <th style={{ padding: "14px" }}>Mode</th>
+                                   <th style={{ padding: "14px" }}>Bill Ref</th>
+                                   <th style={{ padding: "14px" }}>Actions</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                {payments.filter(p => p.partyType === "Supplier").map((p, idx) => {
+                                   const supplier = suppliers.find(s => s._id === p.partyId);
+                                   return (
+                                      <tr key={p._id || idx} style={{ background: "#FFFFFF" }}>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "12px 0 0 12px" }}>{formatDate(p.date)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{supplier?.name || "Ref: " + p.partyId}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: "#b91c1c" }}>{formatCurrency(p.amount)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{p.mode}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", opacity: 0.7 }}>{p.againstBillNo || "Direct"}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 12px 12px 0" }}>
+                                            <div style={{ display: "flex", gap: "8px" }}>
+                                               <button onClick={() => handleEditPayment(p)} style={{ border: "none", background: "#f1f5f9", color: COLORS.sidebar, padding: "6px 10px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}>Modify</button>
+                                               <button onClick={() => handleDeletePayment(p._id || p.id)} style={{ border: "none", background: "#fee2e2", color: "#b91c1c", padding: "6px 10px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}>Delete</button>
+                                            </div>
+                                         </td>
+                                      </tr>
+                                   );
+                                })}
+                             </tbody>
+                          </table>
                        </div>
-
-                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Against Bill / Ref No.</label>
-                          <input type="text" placeholder="Bill ID or Reference" value={farmerPaymentForm.againstBillNo} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, againstBillNo: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                       </div>
-
-                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Transaction Details</label>
-                          <input type="text" placeholder="UPI Ref / Cheque No" value={farmerPaymentForm.referenceNo} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, referenceNo: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                       </div>
-
-                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Narration / Notes</label>
-                          <textarea placeholder="Payment remarks..." value={farmerPaymentForm.notes} onChange={e => setFarmerPaymentForm({...farmerPaymentForm, notes: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", height: "60px", resize: "none" }} />
-                       </div>
-
-                       <Button style={{ marginTop: "12px", height: "56px", fontSize: "16px", background: COLORS.sidebar, fontWeight: "900", borderRadius: "10px" }} onClick={handleRecordFarmerPayment}>Confirm Supplier Payout</Button>
-                    </div>
-                  </div>
+                    </Card>
+                  </>
                )}
 
                {activePaymentTab === "Customer" && (
@@ -3017,42 +3134,46 @@ export default function App() {
                               <textarea placeholder="Collection remarks..." value={buyerPaymentForm.notes} onChange={e => setBuyerPaymentForm({...buyerPaymentForm, notes: e.target.value})} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", height: "60px", resize: "none" }} />
                            </div>
 
-                           <Button style={{ marginTop: "12px", height: "56px", fontSize: "16px", background: "#15803D", fontWeight: "900", borderRadius: "10px" }} onClick={handleRecordBuyerPayment}>Record Receipt</Button>
+                           <Button style={{ marginTop: "12px", height: "56px", fontSize: "16px", background: "#15803D", fontWeight: "900", borderRadius: "10px" }} onClick={handleRecordBuyerPayment}>{isEditingPayment ? "Update Receipt" : "Record Receipt"}</Button>
                         </div>
                      </div>
 
-                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
-                       <Card title="UPI Payment QR" subtitle="Generate for instant collection">
-                          <div style={{ background: "#f8fafc", padding: "40px", borderRadius: "20px", display: "flex", flexDirection: "column", alignItems: "center", border: "2px dashed #e2e8f0" }}>
-                             <div style={{ width: "160px", height: "160px", background: "#0f172a", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", marginBottom: "15px" }}>
-                                [ QR CODE ]
-                             </div>
-                             <span style={{ fontSize: "14px", fontWeight: "800", color: COLORS.secondary }}>SPV FRUITS TRADING</span>
-                             <span style={{ fontSize: "11px", color: COLORS.muted }}>Merchant ID: G889911CS</span>
-                          </div>
-                          <Button variant="outline" style={{ width: "100%", marginTop: "15px" }}>Show on Customer Display</Button>
-                       </Card>
-
-                       <Card title="Overdue Pulse Alerts" subtitle="Unpaid beyond terms">
-                          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                             {[
-                                { name: "Reliance Retail", due: 125000, days: 14 },
-                                { name: "Harsha Wholesale", due: 84000, days: 9 }
-                             ].map((alert, i) => (
-                                <div key={i} style={{ padding: "16px", background: "#fef2f2", borderRadius: "12px", border: "1px solid #fee2e2" }}>
-                                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                                      <b style={{ fontSize: "13px", color: "#991b1b" }}>{alert.name}</b>
-                                      <span style={{ fontSize: "10px", background: "#991b1b", color: "#fff", padding: "2px 8px", borderRadius: "10px" }}>{alert.days} days past</span>
-                                   </div>
-                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                      <span style={{ fontSize: "14px", fontWeight: "900", color: "#991b1b" }}>{formatCurrency(alert.due)}</span>
-                                      <button style={{ background: "none", border: "none", color: COLORS.primary, fontWeight: "800", fontSize: "11px", cursor: "pointer" }}>Send Notice 📲</button>
-                                   </div>
-                                </div>
-                             ))}
-                          </div>
-                       </Card>
-                     </div>
+                     <Card title="Recorded Customer Payments" subtitle="Recent incoming collections from buyers">
+                       <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
+                             <thead>
+                                <tr style={{ background: "#F8FAFC", color: COLORS.muted, fontWeight: "800", textAlign: "left" }}>
+                                   <th style={{ padding: "14px" }}>Date</th>
+                                   <th style={{ padding: "14px" }}>Customer</th>
+                                   <th style={{ padding: "14px" }}>Amount</th>
+                                   <th style={{ padding: "14px" }}>Mode</th>
+                                   <th style={{ padding: "14px" }}>Invoice Ref</th>
+                                   <th style={{ padding: "14px" }}>Actions</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                {payments.filter(p => p.partyType === "Buyer").map((p, idx) => {
+                                   const buyer = buyers.find(b => b._id === p.partyId);
+                                   return (
+                                      <tr key={p._id || idx} style={{ background: "#FFFFFF" }}>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "12px 0 0 12px" }}>{formatDate(p.date)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{buyer?.name || "Ref: " + p.partyId}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: "#15803D" }}>{formatCurrency(p.amount)}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9" }}>{p.mode}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", opacity: 0.7 }}>{p.againstInvoiceNo || "Direct"}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 12px 12px 0" }}>
+                                            <div style={{ display: "flex", gap: "8px" }}>
+                                               <button onClick={() => handleEditPayment(p)} style={{ border: "none", background: "#f1f5f9", color: COLORS.sidebar, padding: "6px 10px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}>Modify</button>
+                                               <button onClick={() => handleDeletePayment(p._id || p.id)} style={{ border: "none", background: "#fee2e2", color: "#b91c1c", padding: "6px 10px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}>Delete</button>
+                                            </div>
+                                         </td>
+                                      </tr>
+                                   );
+                                })}
+                             </tbody>
+                          </table>
+                       </div>
+                    </Card>
                   </>
                )}
             </div>

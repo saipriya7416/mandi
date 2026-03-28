@@ -54,11 +54,12 @@ const request = async (method, path, body = null) => {
       if (path === '/allocations') return { status: "SUCCESS", data: getLocal('allocations') };
       if (path === '/bills/supplier') return { status: "SUCCESS", data: getLocal('supplierBills') };
       if (path === '/invoices/buyer') return { status: "SUCCESS", data: getLocal('buyerInvoices') };
+      if (path === '/payments') return { status: "SUCCESS", data: getLocal('payments') };
       return { status: "SUCCESS", data: [] };
     }
 
     if (method === 'POST') {
-      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : (path === '/invoice/buyer' ? 'buyerInvoices' : null)))));
+      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : (path === '/invoice/buyer' ? 'buyerInvoices' : (path === '/payment' ? 'payments' : null))))));
       if (storeName) {
         const store = getLocal(storeName);
         const newItem = { ...body, _id: `sim_${Date.now()}`, createdAt: new Date() };
@@ -70,7 +71,7 @@ const request = async (method, path, body = null) => {
     if (method === 'PUT' || method === 'DELETE') {
       const pathParts = path.split('/');
       const id = pathParts[pathParts.length - 1];
-      const storeName = path.includes('supplier') && !path.includes('bill') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : (path.includes('bill/supplier') ? 'supplierBills' : null))));
+      const storeName = (path.includes('supplier') && !path.includes('bill')) ? 'suppliers' : (path.includes('buyer') && !path.includes('invoice') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : (path.includes('bill/supplier') ? 'supplierBills' : (path.includes('payment') ? 'payments' : null)))));
       if (storeName && id) {
         const store = getLocal(storeName);
         if (method === 'DELETE') {
@@ -156,7 +157,10 @@ export const MandiService = {
   deleteSupplierBill: async (id) => request('DELETE', `/bill/supplier/${id}`),
   getBuyerInvoices: async () => request('GET', '/invoices/buyer'),
   generateBuyerInvoice: async (data) => request('POST', '/invoice/buyer', data),
+  getPayments: async () => request('GET', '/payments'),
   recordPayment: async (data) => request('POST', '/payment', data),
+  updatePayment: async (id, data) => request('PUT', `/payment/${id}`, data),
+  deletePayment: async (id) => request('DELETE', `/payment/${id}`),
   recordExpense: async (data) => request('POST', '/expense', data),
   getSupplierLedger: async (supplierId) => request('GET', `/ledger/supplier/${supplierId}`),
 
