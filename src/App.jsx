@@ -1425,7 +1425,7 @@ export default function App() {
           boxShadow: isMobile ? "4px 0 16px rgba(0,0,0,0.1)" : "none"
         }}>
           <div style={{ padding: "0 24px 32px 24px", display: "flex", alignItems: "center", gap: "14px" }}>
-            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits" style={{ width: "48px", height: "48px", objectFit: "contain", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
+            <img src="https://spvfruits.com/assets/images/IconBaseExport.webp" alt="SPV Fruits" style={{ width: "48px", height: "48px", objectFit: "contain", borderRadius: "50%", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }} />
             <div>
               <h2 style={{ color: "#ffffff", fontWeight: "850", fontSize: "18px", letterSpacing: "-0.5px", margin: 0 }}>SPV FRUITS</h2>
             </div>
@@ -1495,14 +1495,10 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
                <div>
                   <h1 style={{ fontSize: "32px", fontWeight: "900", color: COLORS.secondary, margin: 0, letterSpacing: "-1px" }}>{getGreeting()}, {user?.name?.split(' ')[0] || user?.username || 'Admin'}</h1>
-                  <p style={{ color: COLORS.muted, fontSize: "15px", marginTop: "8px", fontWeight: "650", opacity: 0.8 }}>Orchard & Mandi Operations Command Center</p>
                </div>
                <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                   <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "10px 20px", borderRadius: "24px", fontSize: "14px", fontWeight: "850", color: COLORS.primary, border: `1px solid ${COLORS.primary}20` }}>
                     📅 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
-                  </div>
-                  <div style={{ background: "#FFFFFF", border: `1.5px solid ${COLORS.secondary}15`, width: "48px", height: "48px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: COLORS.primary, boxShadow: "0 8px 15px rgba(0,0,0,0.04)", position: "relative" }}>
-                     🔔 <div style={{ position: "absolute", top: "12px", right: "12px", width: "8px", height: "8px", background: COLORS.danger, borderRadius: "4px", border: "2px solid #fff" }}></div>
                   </div>
                </div>
             </div>
