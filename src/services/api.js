@@ -65,8 +65,9 @@ const request = async (method, path, body = null) => {
     }
 
     if (method === 'PUT' || method === 'DELETE') {
-      const id = path.split('/')[2];
-      const storeName = path.includes('supplier') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : null);
+      const pathParts = path.split('/');
+      const id = pathParts[pathParts.length - 1];
+      const storeName = path.includes('supplier') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot') ? 'lots' : null));
       if (storeName && id) {
         const store = getLocal(storeName);
         if (method === 'DELETE') {
@@ -118,6 +119,7 @@ export const MandiService = {
   // --- INVENTORY ---
   getLots: async () => request('GET', '/lots'),
   addLot: async (data) => request('POST', '/lot/intake', data),
+  deleteLot: async (id) => request('DELETE', `/lot/intake/${id}`),
   allocateLot: async (data) => request('POST', '/lot/allocate', data),
   getInventoryDashboard: async () => request('GET', '/inventory/dashboard'),
   getLotTraceability: async (lotId) => request('GET', `/traceability/lot/${lotId}`),

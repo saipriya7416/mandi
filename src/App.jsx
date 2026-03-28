@@ -296,7 +296,7 @@ export default function App() {
     origin: "",
     attachedBill: null,
     notes: "",
-    lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending Auction" }]
+    lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending" }]
   });
 
   const handleRegisterSupplier = async () => {
@@ -458,7 +458,7 @@ export default function App() {
         ...lotCreationForm,
         lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
         vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
-        lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending Auction" }]
+        lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending" }]
       });
       fetchData();
     } catch(err) {
@@ -501,7 +501,7 @@ export default function App() {
   const handleLineItemAction = (action, idx, field, value) => {
     let items = [...lotCreationForm.lineItems];
     if (action === "Add") {
-      items.push({ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending Auction" });
+      items.push({ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending" });
     } else if (action === "Remove") {
       items.splice(idx, 1);
     } else if (action === "Update") {
@@ -1998,6 +1998,11 @@ export default function App() {
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (₹/{item.weightUnit === 'Tones' ? 'Tone' : 'KG'})</label>
                             <input type="number" value={item.estimatedRate} onChange={(e) => handleLineItemAction("Update", idx, "estimatedRate", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Inventory Status (Auto)</label>
+                             <input type="text" disabled value={item.status || "Pending"} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                           </div>
 
                         </div>
