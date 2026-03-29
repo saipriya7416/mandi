@@ -218,15 +218,13 @@ const formatCurrency = (v) => {
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "N/A";
-  // Handle short formats like "24/03" gracefully
   if (typeof dateStr === "string" && dateStr.length <= 6) return dateStr;
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr; // Return raw string if invalid
-  return date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }); // Returns DD/MM/YYYY
+  if (isNaN(date.getTime())) return dateStr;
+  const d = date.getDate().toString().padStart(2, "0");
+  const m = (date.getMonth() + 1).toString().padStart(2, "0");
+  const y = date.getFullYear();
+  return `${d}-${m}-${y}`;
 };
 
 const getISTDate = () => {
@@ -1557,8 +1555,7 @@ export default function App() {
     entityId: "",
     startDate: "",
     endDate: "",
-    asOnDate: "",
-    season: "All",
+    lotId: "",
   });
   const [showCorrectionModal, setShowCorrectionModal] = useState(false);
 
@@ -1587,6 +1584,14 @@ export default function App() {
 
   const [selectedLedgerSupplier, setSelectedLedgerSupplier] = useState("");
   const [selectedLedgerBuyer, setSelectedLedgerBuyer] = useState("");
+
+  const getCurrentDateFormatted = () => {
+    const now = new Date();
+    const d = now.getDate().toString().padStart(2, "0");
+    const m = (now.getMonth() + 1).toString().padStart(2, "0");
+    const y = now.getFullYear();
+    return `${d}-${m}-${y}`;
+  };
 
   const handleLedgerSupplierChange = async (supplierId) => {
     setSelectedLedgerSupplier(supplierId);
@@ -9049,18 +9054,18 @@ export default function App() {
                   <div
                     style={{
                       display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
+                      flexDirection: "column",
+                      gap: "24px",
                       marginBottom: "24px",
                       borderBottom: "2.5px solid #F1F5F9",
-                      paddingBottom: "20px",
+                      paddingBottom: "24px",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        gap: "24px",
                       }}
                     >
                       <div>
@@ -9081,11 +9086,38 @@ export default function App() {
                             margin: "4px 0 0 0",
                           }}
                         >
-                          Financial history of lot acquisitions and settlement
-                          dues (CR Account).
+                          Automated financial audit trail (Net Sale - Advance -
+                          Payments = Balance).
                         </p>
                       </div>
-                      <div style={{ width: "300px" }}>
+                      <div style={{ display: "flex", gap: "12px" }}>
+                        <Button
+                          style={{
+                            background: "#F1F5F9",
+                            color: COLORS.sidebar,
+                            fontWeight: "800",
+                            fontSize: "12px",
+                            height: "fit-content",
+                          }}
+                        >
+                          Download Statement
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(200px, 1fr))",
+                        gap: "20px",
+                        background: "#FDFBF4",
+                        padding: "20px",
+                        borderRadius: "12px",
+                        border: "1px solid #EBE9E1",
+                      }}
+                    >
+                      <div>
                         <label
                           style={{
                             fontSize: "11px",
@@ -9093,10 +9125,10 @@ export default function App() {
                             color: COLORS.muted,
                             textTransform: "uppercase",
                             display: "block",
-                            marginBottom: "6px",
+                            marginBottom: "8px",
                           }}
                         >
-                          Select Supplier to View Ledger
+                          Search Farmer Name
                         </label>
                         <select
                           value={selectedLedgerSupplier}
@@ -9105,37 +9137,102 @@ export default function App() {
                           }
                           style={{
                             width: "100%",
-                            padding: "12px 14px",
-                            borderRadius: "10px",
-                            border: "1.5px solid #F1F5F9",
-                            background: "#FFFFFF",
-                            color: COLORS.sidebar,
-                            fontWeight: "700",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
                             outline: "none",
-                            cursor: "pointer",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+                            fontWeight: "700",
+                            background: "#fff",
                           }}
                         >
-                          <option value="">--- Select Supplier ---</option>
+                          <option value="">--- All Suppliers ---</option>
                           {suppliers.map((s) => (
                             <option key={s._id} value={s._id}>
-                              {s.name} (
-                              {s.village || s.villageOrTownName || "Local"})
+                              {s.name} ({s.village || "Local"})
                             </option>
                           ))}
                         </select>
                       </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Auto-Fetch by Lot ID
+                        </label>
+                        <select
+                          value={ledgerFilters.lotId}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              lotId: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            fontWeight: "700",
+                            background: "#fff",
+                          }}
+                        >
+                          <option value="">--- Select Lot ID ---</option>
+                          {Array.from(
+                            new Set(
+                              supplierBills.map((b) => b.lotId || b.lotCode),
+                            ),
+                          )
+                            .filter(Boolean)
+                            .map((lot) => (
+                              <option key={lot} value={lot}>
+                                {lot}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Filter by Date
+                        </label>
+                        <input
+                          type="date"
+                          value={ledgerFilters.startDate}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              startDate: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "11px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            background: "#fff",
+                          }}
+                        />
+                      </div>
                     </div>
-                    <Button
-                      style={{
-                        background: "#F1F5F9",
-                        color: COLORS.sidebar,
-                        fontWeight: "800",
-                        fontSize: "12px",
-                      }}
-                    >
-                      Download Statement
-                    </Button>
                   </div>
 
                   <div style={{ overflowX: "auto" }}>
@@ -9147,342 +9244,105 @@ export default function App() {
                         fontSize: "13px",
                       }}
                     >
-                      <thead>
-                        <tr
-                          style={{
-                            background: "#F8FAFC",
-                            color: COLORS.sidebar,
-                            fontWeight: "800",
-                            textAlign: "left",
-                          }}
-                        >
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Date
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Lot ID / Bill No.
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Fruit / Variety
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Quantity (KG)
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Payable Amount (₹)
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Payment Made (₹)
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Outstanding Balance (₹)
-                          </th>
-                        </tr>
-                      </thead>
+                        <thead>
+                          <tr
+                            style={{
+                              background: "#F8FAFC",
+                              color: COLORS.sidebar,
+                              fontWeight: "800",
+                              textAlign: "left",
+                            }}
+                          >
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Number</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Product Summary</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Gross Sale (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Expenses (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Net Sale (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Advance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Made (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Running Balance (₹)</th>
+                          </tr>
+                        </thead>
                       <tbody style={{ borderTop: "2px solid #F1F5F9" }}>
                         {(() => {
-                          let runningBalance = 0;
-                          return (supplierBills || []).map((bill, bIdx) => {
-                            const dateVal =
-                              bill.date ||
-                              (bill.createdAt
-                                ? formatDate(bill.createdAt)
-                                : "—");
-                            const lotIdVal =
-                              bill.lotId ||
-                              bill.lotCode ||
-                              bill.lotRef?.lotId ||
-                              "N/A";
-                            const billNoVal =
-                              bill.billNumber ||
-                              bill.invoiceNumber ||
-                              bill.billNo ||
-                              "Draft";
+                          let runningTotalBalance = 0;
+                          return (supplierBills || [])
+                            .filter((b) => {
+                              if (ledgerFilters.lotId && b.lotId !== ledgerFilters.lotId && b.lotCode !== ledgerFilters.lotId) return false;
+                              if (ledgerFilters.startDate && (!b.date || b.date < ledgerFilters.startDate)) return false;
+                              return true;
+                            })
+                            .map((bill, bIdx) => {
+                              const dateVal =
+                                (bill.date && formatDate(bill.date)) ||
+                                (bill.createdAt
+                                  ? formatDate(bill.createdAt)
+                                  : getCurrentDateFormatted());
+                              const lotIdVal = bill.lotId || bill.lotCode || "N/A";
+                              const billNoVal = bill.billNumber || bill.billNo || "DRAFT";
 
-                            let gross = Number(
-                              bill.grossValue ||
-                                bill.totalValue ||
-                                bill.totalAmount ||
-                                0,
-                            );
-                            if (gross === 0 && bill.produce) {
-                              gross = (bill.produce || []).reduce(
-                                (sum, item) =>
-                                  sum +
-                                  Number(item.quantity || item.qty) *
-                                    Number(item.rate || item.saleRate),
-                                0,
+                              const itemsList = bill.produce || bill.items || [];
+                              const productSummary = itemsList.length > 0
+                                ? itemsList.map(p => `${p.productName || p.product || ""} ${Number(p.quantity||p.qty||0).toLocaleString()} KG`).join(" + ")
+                                : "N/A";
+
+                              let grossValue = Number(bill.grossValue || bill.totalValue || 0);
+                              if (grossValue === 0) {
+                                grossValue = itemsList.reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate || item.saleRate)), 0);
+                              }
+
+                              let expenseValue = Number(bill.totalExpenses || bill.totalDeductions || 0);
+                              if (expenseValue === 0 && (bill.charges || bill.expenses)) {
+                                expenseValue = (bill.expenses || []).reduce((sum, e) => sum + Number(e.value || e.amount || 0), 0);
+                                expenseValue += Object.values(bill.charges || {}).reduce((s,v) => s + (Number(v)||0), 0);
+                              }
+
+                              const netValue = Number(bill.netPayable || (grossValue - expenseValue));
+                              const advanceAmt = Number(bill.advance || 0);
+                              const cashPaid = Number(bill.amountPaid || bill.paymentMade || 0);
+                              
+                              // Formula: Previous Running Balance + Net Sale - Advance - Payment Made
+                              runningTotalBalance = runningTotalBalance + netValue - advanceAmt - cashPaid;
+
+                              return (
+                                <tr key={bill._id || bIdx} style={{ background: "#FFFFFF" }}>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", whiteSpace: "nowrap" }}>{dateVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>{lotIdVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "600" }}>{billNoVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, fontSize: "11px", maxWidth: "200px" }}>{productSummary}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "600" }}>{formatCurrency(grossValue)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#E11D48" }}>{formatCurrency(expenseValue)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "700" }}>{formatCurrency(netValue)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#C2410C" }}>{formatCurrency(advanceAmt)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#15803D" }}>{formatCurrency(cashPaid)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right" }}>
+                                    <span style={{ padding: "4px 10px", borderRadius: "10px", background: runningTotalBalance >= 0 ? "#F0FDF4" : "#FFF1F2", color: runningTotalBalance >= 0 ? "#15803D" : "#E11D48", fontWeight: "800", fontSize: "12px" }}>
+                                      {formatCurrency(Math.abs(runningTotalBalance))} {runningTotalBalance >= 0 ? "CR" : "DR"}
+                                    </span>
+                                  </td>
+                                </tr>
                               );
-                            } else if (gross === 0 && bill.items) {
-                              gross = (bill.items || []).reduce(
-                                (sum, item) =>
-                                  sum +
-                                  Number(item.quantity || item.qty) *
-                                    Number(item.rate || item.saleRate),
-                                0,
-                              );
-                            }
-
-                            let expenses = Number(
-                              bill.totalExpenses ||
-                                bill.expensesAmount ||
-                                bill.totalDeductions ||
-                                0,
-                            );
-                            if (expenses === 0 && bill.charges) {
-                              expenses = Object.values(
-                                bill.charges || {},
-                              ).reduce(
-                                (sum, val) => sum + (Number(val) || 0),
-                                0,
-                              );
-                            } else if (
-                              expenses === 0 &&
-                              bill.expenses &&
-                              Array.isArray(bill.expenses)
-                            ) {
-                              expenses = bill.expenses.reduce(
-                                (sum, e) =>
-                                  sum + (Number(e.value || e.amount) || 0),
-                                0,
-                              );
-                            }
-
-                            const netSale =
-                              bill.netPayable ||
-                              bill.payable ||
-                              gross - expenses;
-                            const advance = Number(
-                              bill.advance ||
-                                bill.advancePayment ||
-                                bill.advanceAmount ||
-                                0,
-                            );
-                            const cashPayment = Number(
-                              bill.amountPaid ||
-                                bill.paymentMade ||
-                                bill.paidAmount ||
-                                0,
-                            );
-                            const totalPaidOnDate = advance + cashPayment;
-
-                            runningBalance =
-                              runningBalance + netSale - totalPaidOnDate;
-
-                            const itemsList = bill.produce || bill.items || [];
-                            const productSummary =
-                              itemsList
-                                .map((p) => p.productName || p.product || "")
-                                .filter(Boolean)
-                                .join(", ") || "Mixed Produce";
-                            const totalQty = itemsList.reduce(
-                              (sum, i) =>
-                                sum + Number(i.quantity || i.qty || 0),
-                              0,
-                            );
-
-                            return (
-                              <tr
-                                key={bill._id || bIdx}
-                                style={{
-                                  background: "#FFFFFF",
-                                  transition: "all 0.2s",
-                                }}
-                              >
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderTop: "1px solid #F1F5F9",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    borderLeft: "1px solid #F1F5F9",
-                                    borderRadius: "10px 0 0 10px",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {dateVal}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderTop: "1px solid #F1F5F9",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    fontWeight: "700",
-                                    color: COLORS.secondary,
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {lotIdVal} / {billNoVal}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderTop: "1px solid #F1F5F9",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    color: COLORS.muted,
-                                    maxWidth: "180px",
-                                  }}
-                                >
-                                  {productSummary}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderTop: "1px solid #F1F5F9",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    fontWeight: "700",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {totalQty.toLocaleString("en-IN")} KG
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderTop: "1px solid #F1F5F9",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    fontWeight: "700",
-                                    color: "#E11D48",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {formatCurrency(netSale)}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderTop: "1px solid #F1F5F9",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    color: "#15803D",
-                                    fontWeight: "700",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {formatCurrency(totalPaidOnDate)}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderTop: "1px solid #F1F5F9",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    borderRight: "1px solid #F1F5F9",
-                                    borderRadius: "0 10px 10px 0",
-                                    fontWeight: "900",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  <span
-                                    style={{
-                                      padding: "4px 10px",
-                                      borderRadius: "20px",
-                                      background:
-                                        runningBalance > 0
-                                          ? "#FFF7ED"
-                                          : "#F0FDF4",
-                                      color:
-                                        runningBalance > 0
-                                          ? "#C2410C"
-                                          : "#15803D",
-                                      fontSize: "12px",
-                                      fontWeight: "800",
-                                    }}
-                                  >
-                                    {formatCurrency(Math.abs(runningBalance))}{" "}
-                                    {runningBalance > 0 ? "DUE" : "SETTLED"}
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          });
+                            });
                         })()}
 
                         {supplierBills.length > 0 &&
                           (() => {
-                            const tGross = supplierBills.reduce(
-                              (s, b) =>
-                                s +
-                                (Number(b.grossValue || b.totalValue || 0) ||
-                                  (b.produce || b.items || []).reduce(
-                                    (sm, i) =>
-                                      sm +
-                                      Number(i.quantity || 0) *
-                                        Number(i.rate || 0),
-                                    0,
-                                  )),
-                              0,
-                            );
-                            const tExp = supplierBills.reduce(
-                              (s, b) =>
-                                s +
-                                (Number(
-                                  b.totalExpenses || b.totalDeductions || 0,
-                                ) ||
-                                  Object.values(b.charges || {}).reduce(
-                                    (sm, v) => sm + Number(v || 0),
-                                    0,
-                                  )),
-                              0,
-                            );
-                            const tNet = tGross - tExp;
-                            const tPaid = supplierBills.reduce(
-                              (s, b) =>
-                                s +
-                                Number(b.advance || 0) +
-                                Number(b.amountPaid || b.paymentMade || 0),
-                              0,
-                            );
-                            const tQty = supplierBills.reduce(
-                              (s, b) =>
-                                s +
-                                (b.produce || b.items || []).reduce(
-                                  (sm, i) =>
-                                    sm + Number(i.quantity || i.qty || 0),
-                                  0,
-                                ),
-                              0,
-                            );
+                            const tNet = supplierBills.reduce((s, b) => s + Number(b.netPayable || 0), 0);
+                            const tPaid = supplierBills.reduce((s, b) => s + Number(b.advance || 0) + Number(b.amountPaid || b.paymentMade || 0), 0);
                             const tBalance = tNet - tPaid;
                             return (
-                              <tr
-                                style={{
-                                  background: "#FFF7ED",
-                                  fontWeight: "900",
-                                  borderTop: "2px solid #FED7AA",
-                                }}
-                              >
-                                <td
-                                  colSpan="3"
-                                  style={{
-                                    padding: "14px",
-                                    textAlign: "right",
-                                    borderRadius: "10px 0 0 10px",
-                                    color: COLORS.sidebar,
-                                    fontSize: "12px",
-                                  }}
-                                >
-                                  LEDGER TOTALS:
+                              <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
+                                <td colSpan="4" style={{ padding: "20px", textAlign: "right", borderRadius: "12px 0 0 12px", color: COLORS.sidebar, fontSize: "14px" }}>CUMULATIVE LEDGER TOTALS:</td>
+                                <td colSpan="5" style={{ padding: "20px", textAlign: "right", fontSize: "16px" }}>
+                                  <span style={{ color: COLORS.muted, marginRight: "16px" }}>Net Sale: {formatCurrency(tNet)}</span>
+                                  <span style={{ color: "#15803D", marginRight: "16px" }}>Payments: {formatCurrency(tPaid)}</span>
                                 </td>
-                                <td style={{ padding: "14px" }}>
-                                  {tQty.toLocaleString("en-IN")} KG
-                                </td>
-                                <td
-                                  style={{ padding: "14px", color: "#DC2626" }}
-                                >
-                                  {formatCurrency(tNet)}
-                                </td>
-                                <td
-                                  style={{ padding: "14px", color: "#15803D" }}
-                                >
-                                  {formatCurrency(tPaid)}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderRadius: "0 10px 10px 0",
-                                    color: tBalance > 0 ? "#C2410C" : "#15803D",
-                                  }}
-                                >
-                                  {formatCurrency(Math.abs(tBalance))}{" "}
-                                  {tBalance > 0 ? "TOTAL DUE" : "RECONCILED"}
+                                <td style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
+                                  <span style={{ padding: "8px 16px", borderRadius: "12px", background: tBalance >= 0 ? "#F0FDF4" : "#FFF1F2", color: tBalance >= 0 ? "#15803D" : "#E11D48", fontSize: "18px" }}>
+                                    {formatCurrency(Math.abs(tBalance))} {tBalance >= 0 ? "TOTAL DUE" : "RECONCILED"}
+                                  </span>
                                 </td>
                               </tr>
                             );
@@ -9491,7 +9351,7 @@ export default function App() {
                         {supplierBills.length === 0 && (
                           <tr>
                             <td
-                              colSpan="7"
+                              colSpan="10"
                               style={{
                                 textAlign: "center",
                                 padding: "80px 40px",
