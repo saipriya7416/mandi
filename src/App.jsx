@@ -761,15 +761,15 @@ export default function App() {
     if (Number(ch.otherAmount)) chargesList.push(`  Other: ₹${ch.otherAmount}`);
     const chargesTxt = chargesList.length > 0 ? `\n➕ Additional Charges:\n${chargesList.join('\n')}` : "";
 
-    const msg = `Hello Customer 👋
+    const msg = `Hello Customer
+    
+Your invoice from SPV Fruits is ready.
 
-Your invoice from *SPV Fruits* is ready.
+Product: ${productName}
+Total Quantity: ${totalQty.toFixed(2)} kg
+Total Amount: ${formatCurrency(grandTotal)}
 
-📊 Product: ${productName}
-📦 Total Quantity: ${totalQty.toFixed(2)} kg
-💰 Total Amount: ${formatCurrency(grandTotal)}
-
-🛒 Billing Items:
+Billing Items:
 ${itemsTxt}${chargesTxt}
 
 --- FINANCIALS ---
@@ -779,7 +779,7 @@ Balance Amount: ${formatCurrency(balanceDue)}
 
 For any queries, please contact us.
 
-— SPV Fruits
+--- SPV Fruits
 Powered by Stacli mandi os`;
 
     const phoneStr = String(phone);
@@ -815,15 +815,15 @@ Powered by Stacli mandi os`;
     if (Number(ex.miscAmount)) expensesList.push(`  Misc: ₹${ex.miscAmount}`);
     const expensesTxt = expensesList.length > 0 ? `\n📉 Deductions:\n${expensesList.join('\n')}` : "";
 
-    const msg1 = `Hello Supplier 👋
+    const msg1 = `Hello Supplier
+    
+Your bill from SPV Fruits is ready.
 
-Your bill from *SPV Fruits* is ready.
+Product: ${productName}
+Total Quantity: ${totalQty} kg
+Final Payable: ${formatCurrency(balancePayable)}
 
-🍎 Product: ${productName}
-📦 Total Quantity: ${totalQty} kg
-💰 Final Payable: ${formatCurrency(balancePayable)}
-
-🛒 Itemized Billing:
+Itemized Billing:
 ${itemsTxt}${expensesTxt}
 
 --- FINANCIALS ---
@@ -834,7 +834,7 @@ Balance Payable: ${formatCurrency(balancePayable)}
 
 For any queries, please contact us.
 
-— SPV Fruits
+--- SPV Fruits
 Powered by Stacli mandi os`;
 
     const phoneStr = String(phone);
@@ -1652,7 +1652,7 @@ Powered by Stacli mandi os`;
     const res = await MandiService.generateBuyerInvoice(payload);
     if (res.status === "SUCCESS") {
       alert(
-        `🚀 INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`,
+        `INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`,
       );
       const newNo = `INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
       setBuyerInvoiceForm({
@@ -2443,7 +2443,7 @@ Powered by Stacli mandi os`;
         {
           _id: "s-mock-1",
           lotRef: { lotId: "LOT-2026-X01", vehicleNumber: "AP-02-TX-1234" },
-          lineItem: { product: "🥭 Mango", variety: "Alphonso" },
+          lineItem: { product: "Mango", variety: "Alphonso" },
           quantity: 450,
           saleRate: 75,
           createdAt: new Date().toISOString(),
@@ -2451,7 +2451,7 @@ Powered by Stacli mandi os`;
         {
           _id: "s-mock-2",
           lotRef: { lotId: "LOT-2026-X01", vehicleNumber: "AP-02-TX-1234" },
-          lineItem: { product: "🥭 Mango", variety: "Kesar" },
+          lineItem: { product: "Mango", variety: "Kesar" },
           quantity: 300,
           saleRate: 55,
           createdAt: new Date().toISOString(),
@@ -6524,7 +6524,7 @@ Powered by Stacli mandi os`;
                             }}
                             onClick={() =>
                               alert(
-                                "♻️ SYNCING: This item record is being matched with Database Inventory...",
+                                "SYNCING: This item record is being matched with Database Inventory...",
                               )
                             }
                           >
@@ -6545,7 +6545,7 @@ Powered by Stacli mandi os`;
                               if (
                                 item._id &&
                                 !window.confirm(
-                                  "🗑️ DB ALERT: This item is permanently stored in the Database. Are you sure you want to remove it from this Bill?",
+                                  "DB ALERT: This item is permanently stored in the Database. Are you sure you want to remove it from this Bill?",
                                 )
                               )
                                 return;
@@ -7541,9 +7541,9 @@ Powered by Stacli mandi os`;
                               </button>
                               <button 
                                 onClick={async () => {
-                                 if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this billing record?")) return;
+                                 if (!window.confirm("Are you sure you want to PERMANENTLY delete this billing record?")) return;
                                  const res = await MandiService.deleteSupplierBill(b._id);
-                                 if (res.status === "SUCCESS") { alert("✅ Bill deleted successfully!"); fetchData(); }
+                                 if (res.status === "SUCCESS") { alert("Bill deleted successfully!"); fetchData(); }
                                 }}
                                 style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
                               >
@@ -9300,9 +9300,9 @@ Powered by Stacli mandi os`;
                               </button>
                               <button 
                                 onClick={async () => {
-                                 if (!window.confirm("🗑️ Delete this invoice permanently?")) return;
+                                 if (!window.confirm("Delete this invoice permanently?")) return;
                                  const res = await MandiService.deleteBuyerInvoice(i._id);
-                                 if (res.status === "SUCCESS") { alert("✅ Invoice deleted!"); fetchData(); }
+                                 if (res.status === "SUCCESS") { alert("Invoice deleted!"); fetchData(); }
                                 }}
                                 style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
                               >
@@ -9423,7 +9423,7 @@ Powered by Stacli mandi os`;
                             boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
                           }}
                         >
-                          <span style={{ marginRight: "8px" }}>📥</span> Download Statement
+                          Download Statement
                         </Button>
                       </div>
                     </div>
@@ -9775,7 +9775,7 @@ Powered by Stacli mandi os`;
                             boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
                           }}
                         >
-                          <span style={{ marginRight: "8px" }}>📥</span> Download Statement
+                          Download Statement
                         </Button>
                       </div>
                     </div>
@@ -13104,10 +13104,10 @@ Powered by Stacli mandi os`;
                     </div>
                     <Button style={{ background: "#fcd34d", color: '#000', borderRadius: '24px', padding: '10px 24px', fontWeight: '800', border: "none", boxShadow: "0 4px 12px rgba(252, 211, 77, 0.3)" }} onClick={() => { alert("Dashboard range sync complete."); fetchData && fetchData(); }}>Apply Range</Button>
                     <Button variant="outline" style={{ borderRadius: '24px', display: 'flex', gap: '8px', padding: '10px 20px', background: "#fff", borderColor: "#e2e8f0" }} onClick={() => window.print()}>
-                      <span>📥</span> Report
+                      Report
                     </Button>
                     <Button variant="outline" style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: "#fff", borderColor: "#e2e8f0" }} onClick={() => { alert("Fetching newest records..."); fetchData && fetchData(); }}>
-                      <span>🔄</span> 
+                      Sync
                     </Button>
                   </div>
                 </div>
@@ -13231,22 +13231,18 @@ Powered by Stacli mandi os`;
                       {[
                         {
                           t: "Supplier Transaction Log",
-                          i: "🚚",
                           d: "Date-wise intake & payment history",
                         },
                         {
                           t: "Buyer Credit Analysis",
-                          i: "📈",
                           d: "Outstanding aging & payment patterns",
                         },
                         {
                           t: "Operational P&L Statement",
-                          i: "💸",
                           d: "Revenue vs Expenses vs Commission",
                         },
                         {
                           t: "Logistics Efficiency Report",
-                          i: "🚚",
                           d: "Freight costs & vehicle utilization",
                         },
                       ].map((rep, i) => (
@@ -13269,7 +13265,6 @@ Powered by Stacli mandi os`;
                           <div
                             style={{ fontSize: "24px", marginBottom: "10px" }}
                           >
-                            {rep.i}
                           </div>
                           <h4 style={{ margin: 0, color: COLORS.secondary }}>
                             {rep.t}
@@ -13305,7 +13300,7 @@ Powered by Stacli mandi os`;
                                       const quantity = (b.items && b.items.length > 0) ? (b.items || []).reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
                                       const link = window.location.origin + '/invoice/' + billId;
                                       
-                                      const txtContent = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n[Dynamic Link]\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
+                                      const txtContent = `Hello ${supplierName}\n\nYour invoice from SPV Fruits is ready.\n\nProduct: ${product}\nQuantity: ${quantity}\nAmount: ₹${amt}\n\nView Invoice:\n[Dynamic Link]\n\nFor any queries, please contact us.\n\n--- SPV Fruits\nPowered by Stacli mandi os`;
                                       
                                       const downloadTxtScript = `
                                         const cleanText = document.getElementById('invoice-${billId}').innerText;
@@ -13324,20 +13319,20 @@ Powered by Stacli mandi os`;
 
                                       reportContent += `
                                       <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                                        <div id="invoice-${billId}" contenteditable="true" style="white-space: pre-wrap; font-family: sans-serif; font-size: 15px; color: #1e293b; line-height: 1.6; margin-bottom: 20px; outline: none; border: 2px dashed transparent; transition: 0.2s;" onfocus="this.style.border='2px dashed #94a3b8'; this.style.padding='10px';" onblur="this.style.border='2px dashed transparent'; this.style.padding='0px';">Hello <b>${supplierName}</b> 👋
+                                        <div id="invoice-${billId}" contenteditable="true" style="white-space: pre-wrap; font-family: sans-serif; font-size: 15px; color: #1e293b; line-height: 1.6; margin-bottom: 20px; outline: none; border: 2px dashed transparent; transition: 0.2s;" onfocus="this.style.border='2px dashed #94a3b8'; this.style.padding='10px';" onblur="this.style.border='2px dashed transparent'; this.style.padding='0px';">Hello <b>${supplierName}</b>
 
-Your invoice from <b>*SPV Fruits*</b> is ready.
+Your invoice from <b>SPV Fruits</b> is ready.
 
-📦 Product: ${product}
-⚖️ Quantity: ${quantity}
-💰 Amount: ₹${amt}
+Product: ${product}
+Quantity: ${quantity}
+Amount: ₹${amt}
 
-🔗 View Invoice:
+View Invoice:
 [Dynamic Link]
 
 For any queries, please contact us.
 
-— SPV Fruits
+--- SPV Fruits
 Powered by Stacli mandi os</div>
                                         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                                           <button onclick="${downloadTxtScript.replace(/\n/g, ' ')}" style="background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Download Invoice</button>
@@ -13477,7 +13472,7 @@ Powered by Stacli mandi os</div>
                                   const quantity = (latestBill.items && latestBill.items.length > 0) ? (latestBill.items || []).reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
                                   const link = window.location.origin + '/#/invoice/' + billId;
 
-                                  const invoiceMsg = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n${link}\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
+                                  const invoiceMsg = `Hello ${supplierName}\n\nYour invoice from SPV Fruits is ready.\n\nProduct: ${product}\nQuantity: ${quantity}\nAmount: ₹${amt}\n\nView Invoice:\n${link}\n\nFor any queries, please contact us.\n\n--- SPV Fruits\nPowered by Stacli mandi os`;
                                   window.open(`https://wa.me/?text=${encodeURIComponent(invoiceMsg)}`, "_blank");
                                 } else {
                                   const msg = `Hello,\n\nThe latest *${rep.t}* is ready on *STACLI Mandi OS*.\n\nSummary:\n${rep.d}\n\nPlease sign in to your STACLI Administrator app to view full details.\n\nThank you!`;
@@ -13657,10 +13652,10 @@ Powered by Stacli mandi os</div>
                     }}
                   >
                     {tab === "Product"
-                      ? "🍎 Product Catalog"
+                      ? "Product Catalog"
                       : tab === "Expense"
-                        ? "💸 Expense Masters"
-                        : "⚙️ System Settings"}
+                        ? "Expense Masters"
+                        : "System Settings"}
                   </button>
                 ))}
               </div>
