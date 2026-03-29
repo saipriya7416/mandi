@@ -13584,7 +13584,7 @@ export default function App() {
                                       const quantity = (b.items && b.items.length > 0) ? b.items.reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
                                       const link = window.location.origin + '/invoice/' + billId;
                                       
-                                      const txtContent = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n${link}\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
+                                      const txtContent = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n[Dynamic Link]\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
                                       
                                       const downloadTxtScript = `
                                         const link = document.createElement('a');
@@ -13606,15 +13606,16 @@ Your invoice from <b>*SPV Fruits*</b> is ready.
 💰 Amount: ₹${amt}
 
 🔗 View Invoice:
-<a href="${link}" style="color: #3b82f6; text-decoration: none;">${link}</a>
+[Dynamic Link]
 
 For any queries, please contact us.
 
 — SPV Fruits
 Powered by Stacli mandi os</div>
-                                        <div style="display: flex; gap: 12px;">
+                                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                                           <button onclick="${downloadTxtScript.replace(/\n/g, ' ')}" style="background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Download to Device</button>
                                           <button onclick="alert('Full access validated. Modifying invoice ${billId} in Database.')" style="background: #f59e0b; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Modify DB Records</button>
+                                          <button onclick="window.open('https://wa.me/?text=' + encodeURIComponent(\`${txtContent.replace(/`/g, '\\`')}\`))" style="background: #25D366; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Share via WhatsApp</button>
                                         </div>
                                       </div>`;
                                     });
@@ -13699,8 +13700,22 @@ Powered by Stacli mandi os</div>
                                 padding: "8px",
                               }}
                               onClick={() => {
-                                const msg = `Hello,\n\nHere is your requested *${rep.t}* from *STACLI Mandi OS*.\n\nSummary:\n${rep.d}\n\nView full details here:\n${window.location.origin}/report/${encodeURIComponent(rep.t)}\n\nThank you!`;
-                                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+                                if (rep.t === 'Supplier Transaction Log' && typeof supplierBills !== 'undefined' && supplierBills.length > 0) {
+                                  // Send the latest invoice when clicking WhatsApp on the outer dashboard card
+                                  const latestBill = supplierBills[supplierBills.length - 1];
+                                  const amt = latestBill.netPayable || latestBill.grandTotal || 0;
+                                  const billId = latestBill.receiptNo || latestBill.billId || (latestBill._id && latestBill._id.slice(-6)) || '-';
+                                  const supplierName = latestBill.supplierName || 'Supplier';
+                                  const product = (latestBill.items && latestBill.items.length > 0) ? latestBill.items.map(i => i.product || i.name).join(', ') : 'Fresh Produce';
+                                  const quantity = (latestBill.items && latestBill.items.length > 0) ? latestBill.items.reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
+                                  const link = window.location.origin + '/#/invoice/' + billId;
+
+                                  const invoiceMsg = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n${link}\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
+                                  window.open(`https://wa.me/?text=${encodeURIComponent(invoiceMsg)}`, "_blank");
+                                } else {
+                                  const msg = `Hello,\n\nThe latest *${rep.t}* is ready on *STACLI Mandi OS*.\n\nSummary:\n${rep.d}\n\nPlease sign in to your STACLI Administrator app to view full details.\n\nThank you!`;
+                                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+                                }
                               }}
                             >
                               WhatsApp
