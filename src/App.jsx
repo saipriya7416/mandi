@@ -2973,64 +2973,49 @@ Powered by Stacli mandi os`;
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     {
-      id: "Dashboard",
-      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
-      label: "Dashboard",
-      icon: ICON_DASHBOARD_SIDE,
+      id: "User Role",
+      roles: ["Owner / Admin"],
+      label: "Party Management",
     },
     {
       id: "Lot Creation",
       roles: ["Owner / Admin", "Operations Staff"],
-      label: "Registered Lots",
-      icon: ICON_BOX_SIDE,
+      label: "Lot/Inventory Intake",
     },
     {
       id: "Lot Allocation",
       roles: ["Owner / Admin", "Operations Staff"],
-      label: "Record Allocations",
-      icon: ICON_CART_SIDE,
+      label: "Auction & Lot Allocation",
     },
     {
       id: "Supplier Billing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
-      label: "Generated Bills",
-      icon: ICON_PRODUCE_SIDE,
+      label: "Supplier Billing",
     },
     {
       id: "Buyer Invoicing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
-      label: "Generated Invoices",
-      icon: ICON_CLOCK_SIDE,
-    },
-    {
-      id: "Ledger",
-      roles: ["Owner / Admin", "Accountant"],
-      label: "Financial Ledger",
-      icon: ICON_CHART_SIDE,
-    },
-    {
-      id: "User Role",
-      roles: ["Owner / Admin"],
-      label: "Registered Members",
-      icon: ICON_USERS_SIDE,
+      label: "Customer Billing",
     },
     {
       id: "Payments",
       roles: ["Owner / Admin", "Accountant"],
-      label: "Payments",
-      icon: ICON_WALLET_SIDE,
+      label: "Payments & Settlement",
     },
     {
-      id: "Product Master & Configuration",
-      roles: ["Owner / Admin"],
-      label: "Product Catalog",
-      icon: ICON_DATABASE_SIDE,
+      id: "Ledger",
+      roles: ["Owner / Admin", "Accountant"],
+      label: "Ledger System",
     },
     {
       id: "Transportation Tracking",
       roles: ["Owner / Admin", "Operations Staff"],
-      label: "Logistics Tracking",
-      icon: ICON_TRUCK_SIDE,
+      label: "Transportation Tracking",
+    },
+    {
+      id: "Dashboard",
+      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
+      label: "Dashboard & Reports",
     },
   ];
 
@@ -3622,73 +3607,61 @@ Powered by Stacli mandi os`;
             {MENU.map((item) => {
               const isActive = activeSection === item.id;
               return (
-                <div
-                  key={item.id}
-                  onClick={() => {
-                    setActiveSection(item.id);
-                    if (isMobile) setSidebarOpen(false);
-                  }}
-                  onMouseOver={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.transform = "translateX(10px)";
-                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                      e.currentTarget.style.color = "#fff";
-                    } else {
-                      e.currentTarget.style.transform = "translateX(6px) scale(1.02)";
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.transform = "translateX(0)";
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.color = "#adb5ad";
-                    } else {
-                      e.currentTarget.style.transform = "translateX(4px) scale(1)";
-                    }
-                  }}
-                  style={{
-                    padding: "16px 20px",
-                    borderRadius: "18px",
-                    marginBottom: "10px",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "16px",
-                    transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                    background: isActive ? COLORS.primary : "transparent",
-                    color: isActive ? "#1a231a" : "#adb5ad", // Deep green/black text on gold active state
-                    boxShadow: isActive 
-                      ? `0 12px 24px -10px ${COLORS.primary}90` 
+              <div
+                key={item.id}
+                onClick={() => {
+                  setActiveSection(item.id);
+                  if (isMobile) setSidebarOpen(false);
+                }}
+                onMouseOver={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.transform = "translateX(10px)";
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                    e.currentTarget.style.color = "#fff";
+                  } else {
+                    e.currentTarget.style.transform = "translateX(6px) scale(1.02)";
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.transform = "translateX(0)";
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "#adb5ad";
+                  } else {
+                    e.currentTarget.style.transform = "translateX(4px)";
+                  }
+                }}
+                style={{
+                  padding: "14px 18px",
+                  borderRadius: "14px",
+                  marginBottom: "8px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  background: isActive ? COLORS.primary : "transparent",
+                  color: isActive ? "#ffffff" : "#adb5ad",
+                  boxShadow: isActive
+                      ? `0 8px 20px -5px ${COLORS.primary}60`
                       : "none",
-                    transform: isActive ? "translateX(4px)" : "translateX(0)",
+                  position: "relative",
+                  overflow: "hidden",
+                  transform: isActive ? "translateX(4px)" : "translateX(0)",
+                }}
+              >
+                <span
+                  style={{
+                    fontWeight: isActive ? "900" : "600",
+                    fontSize: "14px",
+                    letterSpacing: "0.3px",
+                    whiteSpace: "nowrap",
+                    opacity: isActive ? 1 : 0.85,
                   }}
                 >
-                  <div style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    justifyContent: "center",
-                    opacity: isActive ? 1 : 0.7,
-                    transition: "all 0.3s ease"
-                  }}>
-                    {item.icon || (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                      </svg>
-                    )}
-                  </div>
-                  <span
-                    style={{
-                      fontWeight: isActive ? "900" : "700",
-                      fontSize: "13.5px",
-                      letterSpacing: "0.2px",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {item.label || item.id}
-                  </span>
-                </div>
-              );
-            })}
+                  {item.label || item.id}
+                </span>
+              </div>
+            )})}
           </div>
 
           <div
