@@ -672,6 +672,7 @@ export default function App() {
   const [activeLotTab, setActiveLotTab] = useState("LOT Creation");
   const [activeSupplierBillTab, setActiveSupplierBillTab] =
     useState("Bill Header");
+  const [activeAllocationTab, setActiveAllocationTab] = useState("Allocation Form");
   const [activeBuyerInvoiceTab, setActiveBuyerInvoiceTab] =
     useState("Invoice Header");
   const [activeLedgerTab, setActiveLedgerTab] = useState("Supplier");
@@ -4459,6 +4460,26 @@ balance amount: ${formatCurrency(balancePayable)}`;
                   >
                     Registered Lots
                   </div>
+                  <div
+                    onClick={() => setActiveLotTab("Recorded Allocations")}
+                    style={{
+                      padding: "10px 24px",
+                      cursor: "pointer",
+                      fontWeight: "700",
+                      background:
+                        activeLotTab === "Recorded Allocations"
+                          ? COLORS.sidebar
+                          : "#F3F1EA",
+                      color:
+                        activeLotTab === "Recorded Allocations"
+                          ? "#FFFFFF"
+                          : COLORS.muted,
+                      borderRadius: "8px",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Recorded Allocations
+                  </div>
                 </div>
               </div>
 
@@ -5388,7 +5409,40 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     Efficiently distribute lot inventory to multiple customers.
                   </p>
                 </div>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <div
+                    onClick={() => setActiveAllocationTab("Allocation Form")}
+                    style={{
+                      padding: "10px 24px",
+                      cursor: "pointer",
+                      fontWeight: "700",
+                      background: activeAllocationTab === "Allocation Form" ? COLORS.sidebar : "#F3F1EA",
+                      color: activeAllocationTab === "Allocation Form" ? "#FFFFFF" : COLORS.muted,
+                      borderRadius: "8px",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Allocation Form
+                  </div>
+                  <div
+                    onClick={() => setActiveAllocationTab("Recorded Allocations")}
+                    style={{
+                      padding: "10px 24px",
+                      cursor: "pointer",
+                      fontWeight: "700",
+                      background: activeAllocationTab === "Recorded Allocations" ? COLORS.sidebar : "#F3F1EA",
+                      color: activeAllocationTab === "Recorded Allocations" ? "#FFFFFF" : COLORS.muted,
+                      borderRadius: "8px",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Recorded Allocations
+                  </div>
+                </div>
               </div>
+
+              {activeAllocationTab === "Allocation Form" && (
+                <>
 
               <FormGrid
                 sections={[
@@ -5827,11 +5881,15 @@ balance amount: ${formatCurrency(balancePayable)}`;
                   Clear All
                 </Button>
               </div>
+              </>
+            )}
 
+            {activeAllocationTab === "Recorded Allocations" && (
+              <div style={{ animation: "fadeIn 0.3s ease-in" }}>
                 <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Recently Recorded Allocations</h3>
-                    <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Complete history of lot distributions to customers</p>
+                    <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 8px 0", letterSpacing: "-0.5px" }}>Recently Recorded Allocations</h2>
+                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Complete history of lot distributions to customers</p>
                   </div>
                 </div>
 
@@ -5858,7 +5916,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
 
                 <div
                   style={{
-                    maxHeight: "600px",
+                    maxHeight: "650px",
                     overflowY: "auto",
                     padding: "8px",
                     background: "#FDFBF4",
@@ -5880,45 +5938,32 @@ balance amount: ${formatCurrency(balancePayable)}`;
                         <div
                           key={a._id || Date.now() + Math.random()}
                           style={{
-                            padding: "16px",
+                            padding: "20px 24px",
                             background: "#fff",
                             border: "1px solid #EBE9E1",
-                            borderRadius: "12px",
+                            borderRadius: "16px",
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
                           }}
                         >
                           <div style={{ flex: 1 }}>
-                            <b
-                              style={{
-                                color: COLORS.sidebar,
-                                fontSize: "15px",
-                              }}
-                            >
-                              {a.lotId} —{" "}
-                              {a.buyerId?.name || a.buyerId || "Buyer"}
+                            <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>
+                              — {a.buyerId?.name || a.buyerId || "Buyer"}
                             </b>
-                            <p
-                              style={{
-                                margin: "4px 0 0",
-                                fontSize: "12px",
-                                color: COLORS.muted,
-                                fontWeight: "600",
-                              }}
-                            >
-                              📦 {a.lineItemId} | ⚖️ {a.quantity} KG @ ₹{a.rate}
-                              /KG | 📅 {a.allocationDate}
+                            <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                              📦 {a.lineItemId || "N/A"} | ⚖️ {a.quantity} KG @ ₹{a.rate}/KG | 📅 {a.allocationDate}
+                              {a.buyerInvoiceNo && ` | 🧾 ${a.buyerInvoiceNo}`}
                             </p>
                           </div>
-                          <div style={{ display: "flex", gap: "10px" }}>
+                          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                             <Button
                               variant="outline"
                               style={{
                                 fontSize: "11px",
-                                padding: "6px 14px",
-                                fontWeight: "700",
+                                padding: "6px 20px",
+                                fontWeight: "800",
                                 border: `1.5px solid ${COLORS.primary}`,
                                 color: COLORS.secondary,
                                 borderRadius: "24px",
@@ -5932,49 +5977,44 @@ balance amount: ${formatCurrency(balancePayable)}`;
                               variant="outline"
                               style={{
                                 fontSize: "11px",
-                                padding: "6px 14px",
-                                fontWeight: "700",
-                                border: `1.5px solid #64748b`,
+                                padding: "6px 20px",
+                                fontWeight: "800",
+                                border: `1.5px solid #64748B`,
                                 color: COLORS.secondary,
                                 borderRadius: "24px",
                                 background: "transparent",
                               }}
-                              onClick={() => handleEditAllocation(a)}
+                              onClick={() => {
+                                handleEditAllocation(a);
+                                setActiveAllocationTab("Allocation Form");
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
                             >
                               Modify
                             </Button>
-                            <Button
-                              style={{
-                                fontSize: "11px",
-                                padding: "6px 14px",
-                                fontWeight: "800",
-                                background: "#f1f7ff",
-                                color: "#c2410c",
-                                border: "none",
-                                borderRadius: "24px",
+                            <button
+                              onClick={async () => {
+                                if (!window.confirm("🗑️ Delete this allocation record?")) return;
+                                handleDeleteAllocation(a._id);
                               }}
-                              onClick={() => handleDeleteAllocation(a._id)}
+                              style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "12px", cursor: "pointer", marginLeft: "8px", textDecoration: "underline" }}
                             >
                               Delete
-                            </Button>
+                            </button>
                           </div>
                         </div>
                       ))}
                     {allocations.length === 0 && (
-                      <p
-                        style={{
-                          textAlign: "center",
-                          color: COLORS.muted,
-                          padding: "20px",
-                        }}
-                      >
-                        No allocation records found.
+                      <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>
+                        No recorded allocations found.
                       </p>
                     )}
                   </div>
                 </div>
               </div>
             )}
+            </div>
+          )}
 
           {/* SUPPLIER BILLING MODULE */}
           {activeSection === "Supplier Billing" && (
