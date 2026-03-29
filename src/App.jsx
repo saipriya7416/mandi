@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import "./index.css";
 import { MandiService } from "./services/api";
+import { Users, Boxes, Gavel, Receipt, CreditCard, IndianRupee, BookOpen, Truck, BarChart3, Database, Printer, RefreshCw } from "lucide-react";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -725,9 +726,12 @@ const FormGrid = ({ sections }) => (
                   fontSize: "12px",
                   fontWeight: "700",
                   color: COLORS.muted,
+                  display: "flex",
+                  justifyContent: "space-between",
                 }}
               >
-                {f.label}
+                <span>{f.label}</span>
+                {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
               </label>
               {f.type === "select" ? (
                 <select
@@ -821,6 +825,7 @@ export default function App() {
     role: "Owner / Admin",
   });
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const [isEditingSupplier, setIsEditingSupplier] = useState(false);
@@ -838,6 +843,8 @@ export default function App() {
   const [editingBuyerInvoiceId, setEditingBuyerInvoiceId] = useState(null);
   const invoiceRef = useRef(null);
   const [lastGeneratedInvoice, setLastGeneratedInvoice] = useState(null);
+  const billRef = useRef(null);
+  const [lastGeneratedBill, setLastGeneratedBill] = useState(null);
 
   const handleSaveInvoicePDF = async () => {
     if (!invoiceRef.current) return;
@@ -858,6 +865,73 @@ export default function App() {
     pdf.text("Powered by MOS", pdfWidth / 2, pdf.internal.pageSize.getHeight() - 10, { align: "center" });
     
     pdf.save(`Invoice_${lastGeneratedInvoice?.invoiceNumber || "MOS"}.pdf`);
+  };
+
+  const handlePrintInvoice = () => {
+    if (!invoiceRef.current) return;
+    const content = invoiceRef.current.innerHTML;
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Invoice - ${lastGeneratedInvoice?.invoiceNumber || "MOS"}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+          <style>
+            body { font-family: 'Inter', sans-serif; padding: 40px; color: #1A231A; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { padding: 12px; border-bottom: 1px solid #EEE; text-align: left; }
+            .no-print { display: none; }
+            @media print {
+              body { padding: 0; }
+              @page { margin: 1cm; }
+            }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          ${content}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const handleSaveSupplierBillPDF = async () => {
+    if (!billRef.current) return;
+    const canvas = await html2canvas(billRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`bill-${lastGeneratedBill?.billNumber || "supplier"}.pdf`);
+  };
+
+  const handlePrintSupplierBill = () => {
+    if (!billRef.current) return;
+    const content = billRef.current.innerHTML;
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Bill - ${lastGeneratedBill?.billNumber || "MOS"}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+          <style>
+             body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px; color: #1A231A; }
+             table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+             th, td { padding: 12px; border-bottom: 1px solid #EEE; text-align: left; }
+             .no-print { display: none; }
+             @media print {
+               body { padding: 0; }
+               @page { margin: 1cm; }
+             }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          ${content}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const handleSendBuyerWhatsApp = (b) => {
@@ -1791,6 +1865,7 @@ Powered by Stacli mandi os`;
       alert(
         `INVOICE ${res.data.invoiceNo} COMMITTED: Data persisted to MongoDB.`,
       );
+      setLastGeneratedInvoice(res.data);
       const newNo = `INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
       setBuyerInvoiceForm({
         ...buyerInvoiceForm,
@@ -2008,7 +2083,7 @@ Powered by Stacli mandi os`;
   });
 
   const [supplierSettlementForm, setSupplierSettlementForm] = useState({
-    billNumber: `BILL-${Math.floor(100 + Math.random() * 900)}`,
+    billNumber: "BILL-SEQ",
     date: getISTDate(),
     supplierId: "",
     lotId: "",
@@ -2031,8 +2106,26 @@ Powered by Stacli mandi os`;
   const [isEditingSupplierBill, setIsEditingSupplierBill] = useState(false);
   const [editingSupplierBillId, setEditingSupplierBillId] = useState(null);
 
+  const getNextBillNumber = (list = supplierBills) => {
+    const numbers = (list || []).map(b => {
+      const parts = (b.billNumber || "").split('-');
+      return parts.length > 1 ? parseInt(parts[1]) : 0;
+    }).filter(n => !isNaN(n));
+    const lastNum = numbers.length > 0 ? Math.max(...numbers) : 940;
+    return `BILL-${(lastNum + 1).toString().padStart(3, '0')}`;
+  };
+
+  const getNextInvoiceNumber = (list = buyerInvoices) => {
+    const numbers = (list || []).map(i => {
+      const parts = (i.invoiceNumber || "").split('-');
+      return parts.length > 1 ? parseInt(parts[1]) : 0;
+    }).filter(n => !isNaN(n));
+    const lastNum = numbers.length > 0 ? Math.max(...numbers) : 940;
+    return `INV-${(lastNum + 1).toString().padStart(3, '0')}`;
+  };
+
   const [buyerInvoiceForm, setBuyerInvoiceForm] = useState({
-    invoiceNumber: `INV-${Math.floor(100 + Math.random() * 900)}`,
+    invoiceNumber: "INV-SEQ",
     date: getISTDate(),
     buyerId: "",
     buyerPhone: "",
@@ -2067,10 +2160,26 @@ Powered by Stacli mandi os`;
     invoiceNo: "",
   });
 
-  const [dashboardDates, setDashboardDates] = useState({
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0]
-  });
+  const [dashboardFilterType, setDashboardFilterType] = useState("Today");
+  const [dashboardCustomDate, setDashboardCustomDate] = useState(getISTDate());
+
+  const getEffectiveRange = (type, customDate) => {
+    const todayStr = getISTDate();
+    if (type === "Today") return { start: todayStr, end: todayStr };
+    if (type === "Custom Date") return { start: customDate || todayStr, end: customDate || todayStr };
+    
+    const days = parseInt(type.split(' ')[1]) || 0;
+    const now = new Date();
+    const startObj = new Date(now.getTime() - (days - 1) * 24 * 60 * 60 * 1000);
+    return { start: startObj.toISOString().split('T')[0], end: todayStr };
+  };
+
+  const isWithinFilterRange = (dateStr) => {
+    if (!dateStr) return false;
+    const { start, end } = getEffectiveRange(dashboardFilterType, dashboardCustomDate);
+    const d = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+    return d >= start && d <= end;
+  };
   const [showCorrectionModal, setShowCorrectionModal] = useState(false);
 
   // --- PAYMENT & SETTLEMENT STATES ---
@@ -2112,22 +2221,15 @@ Powered by Stacli mandi os`;
     setSelectedLedgerSupplier(supplierId);
     try {
       if (!supplierId) {
-        // Show all bills if none selected
         const res = await MandiService.getSupplierBills();
-        setSupplierBills(res.status === "SUCCESS" && res.data?.length > 0 ? res.data : DUMMY_SUPPLIER_BILLS);
+        setSupplierBills(res.status === "SUCCESS" ? (res.data || []) : DUMMY_SUPPLIER_BILLS);
         return;
       }
       const res = await MandiService.getSupplierLedger(supplierId);
-      if (res.status === "SUCCESS" && res.data?.length > 0) {
-        setSupplierBills(res.data);
+      if (res.status === "SUCCESS") {
+        setSupplierBills(res.data || []);
       } else {
-        const fallRes = await MandiService.getFarmerSettlementHistory(supplierId);
-        if (fallRes.status === "SUCCESS" && fallRes.data?.length > 0) {
-          setSupplierBills(fallRes.data);
-        } else {
-          // Dummy filter
-          setSupplierBills(DUMMY_SUPPLIER_BILLS.filter(b => b.supplierId === supplierId));
-        }
+        setSupplierBills([]);
       }
     } catch (err) {
       setSupplierBills(supplierId ? DUMMY_SUPPLIER_BILLS.filter(b => b.supplierId === supplierId) : DUMMY_SUPPLIER_BILLS);
@@ -2139,22 +2241,14 @@ Powered by Stacli mandi os`;
     try {
       if (!buyerId) {
         const res = await MandiService.getBuyerInvoices();
-        setBuyerInvoices(res.status === "SUCCESS" && res.data?.length > 0 ? res.data : DUMMY_BUYER_INVOICES);
+        setBuyerInvoices(res.status === "SUCCESS" ? (res.data || []) : DUMMY_BUYER_INVOICES);
         return;
       }
-      const res = await MandiService.getBuyerInvoices();
-      if (res.status === "SUCCESS" && res.data?.length > 0) {
-        // Filter invoices for this buyer
-        const filtered = (res.data || []).filter(
-          (inv) =>
-            inv.buyer === buyerId ||
-            inv.buyerId === buyerId ||
-            (inv.buyer && inv.buyer._id === buyerId),
-        );
-        setBuyerInvoices(filtered);
+      const res = await MandiService.getBuyerLedger(buyerId);
+      if (res.status === "SUCCESS") {
+        setBuyerInvoices(res.data || []);
       } else {
-        // Dummy filter
-        setBuyerInvoices(DUMMY_BUYER_INVOICES.filter(inv => inv.buyerId === buyerId));
+        setBuyerInvoices([]);
       }
     } catch (err) {
       setBuyerInvoices(buyerId ? DUMMY_BUYER_INVOICES.filter(inv => inv.buyerId === buyerId) : DUMMY_BUYER_INVOICES);
@@ -2368,36 +2462,41 @@ Powered by Stacli mandi os`;
   const fetchData = async () => {
     try {
       const sRes = await MandiService.getSuppliers();
-      setSuppliers(sRes.status === "SUCCESS" && sRes.data?.length > 0 ? sRes.data : DUMMY_SUPPLIERS);
+      setSuppliers(sRes.status === "SUCCESS" ? (sRes.data || []) : DUMMY_SUPPLIERS);
 
       const bRes = await MandiService.getBuyers();
-      setBuyers(bRes.status === "SUCCESS" && bRes.data?.length > 0 ? bRes.data : DUMMY_BUYERS);
+      setBuyers(bRes.status === "SUCCESS" ? (bRes.data || []) : DUMMY_BUYERS);
 
       const lRes = await MandiService.getLots();
-      setLots(lRes.status === "SUCCESS" && lRes.data?.length > 0 ? lRes.data : DUMMY_LOTS);
+      setLots(lRes.status === "SUCCESS" ? (lRes.data || []) : DUMMY_LOTS);
 
       const aRes = await MandiService.getAllocations();
-      setAllocations(aRes.status === "SUCCESS" && aRes.data?.length > 0 ? aRes.data : DUMMY_ALLOCATIONS);
+      setAllocations(aRes.status === "SUCCESS" ? (aRes.data || []) : DUMMY_ALLOCATIONS);
 
       const sbRes = await MandiService.getSupplierBills();
-      setSupplierBills(sbRes.status === "SUCCESS" && sbRes.data?.length > 0 ? sbRes.data : DUMMY_SUPPLIER_BILLS);
-
+      setSupplierBills(sbRes.status === "SUCCESS" ? (sbRes.data || []) : DUMMY_SUPPLIER_BILLS);
+      
       const dRes = await MandiService.getDocuments();
-      if (dRes.status === "SUCCESS") {
-        setDocuments(dRes.data);
-      } else {
-        setDocuments([]);
-      }
+      setDocuments(dRes.status === "SUCCESS" ? (dRes.data || []) : []);
 
       const statsRes = await MandiService.getInventoryDashboard();
       if (statsRes.status === "SUCCESS") setInventoryStats(statsRes.data);
 
-      const billsRes = await MandiService.getSupplierBills();
-      if (billsRes.status === "SUCCESS" && billsRes.data?.length > 0) setSupplierBills(billsRes.data);
-
       const invoicesRes = await MandiService.getBuyerInvoices();
-      if (invoicesRes.status === "SUCCESS" && invoicesRes.data?.length > 0) setBuyerInvoices(invoicesRes.data);
-      else setBuyerInvoices(DUMMY_BUYER_INVOICES);
+      const currentInvoices = invoicesRes.status === "SUCCESS" ? (invoicesRes.data || []) : DUMMY_BUYER_INVOICES;
+      setBuyerInvoices(currentInvoices);
+      
+      const currentBills = sbRes.status === "SUCCESS" ? (sbRes.data || []) : DUMMY_SUPPLIER_BILLS;
+
+      // Initialize sequential numbers for forms if they are in "SEQ" state
+      setSupplierSettlementForm(prev => ({ 
+        ...prev, 
+        billNumber: prev.billNumber === "BILL-SEQ" ? getNextBillNumber(currentBills) : prev.billNumber 
+      }));
+      setBuyerInvoiceForm(prev => ({ 
+        ...prev, 
+        invoiceNumber: prev.invoiceNumber === "INV-SEQ" ? getNextInvoiceNumber(currentInvoices) : prev.invoiceNumber 
+      }));
     } catch (err) {
       console.warn(
         "Backend Unreachable - Using Local Data Engine:",
@@ -2423,6 +2522,13 @@ Powered by Stacli mandi os`;
         lowStockAlerts: 0,
       });
     }
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchData();
+    // Simulate slight delay for smoothness
+    setTimeout(() => setIsRefreshing(false), 800);
   };
 
   const handleFileUpload = async (
@@ -2976,46 +3082,61 @@ Powered by Stacli mandi os`;
       id: "User Role",
       roles: ["Owner / Admin"],
       label: "Party Management",
+      icon: <Users size={20} strokeWidth={1.8} />,
+    },
+    {
+      id: "Records Tracking",
+      roles: ["Owner / Admin", "Accountant"],
+      label: "Master Records UI",
+      icon: <Database size={20} strokeWidth={1.8} />,
     },
     {
       id: "Lot Creation",
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Lot/Inventory Intake",
+      icon: <Boxes size={20} strokeWidth={1.8} />,
     },
     {
       id: "Lot Allocation",
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Auction & Lot Allocation",
+      icon: <Gavel size={20} strokeWidth={1.8} />,
     },
     {
       id: "Supplier Billing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
       label: "Supplier Billing",
+      icon: <Receipt size={20} strokeWidth={1.8} />,
     },
     {
       id: "Buyer Invoicing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
       label: "Customer Billing",
+      icon: <CreditCard size={20} strokeWidth={1.8} />,
     },
     {
       id: "Payments",
       roles: ["Owner / Admin", "Accountant"],
       label: "Payments & Settlement",
+      icon: <IndianRupee size={20} strokeWidth={1.8} />,
     },
     {
       id: "Ledger",
       roles: ["Owner / Admin", "Accountant"],
       label: "Ledger System",
+      icon: <BookOpen size={20} strokeWidth={1.8} />,
     },
     {
       id: "Transportation Tracking",
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Transportation Tracking",
+      icon: <Truck size={20} strokeWidth={1.8} />,
     },
     {
       id: "Dashboard",
       roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
       label: "Dashboard & Reports",
+      icon: <BarChart3 size={20} strokeWidth={1.8} />,
     },
   ];
 
@@ -3467,6 +3588,7 @@ Powered by Stacli mandi os`;
         .font-modern { font-family: 'Outfit', sans-serif !important; }
         .font-display { font-family: 'Outfit', sans-serif !important; letter-spacing: 0.05em; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
@@ -3616,8 +3738,8 @@ Powered by Stacli mandi os`;
                 onMouseOver={(e) => {
                   if (!isActive) {
                     e.currentTarget.style.transform = "translateX(10px)";
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                    e.currentTarget.style.color = "#fff";
+                    e.currentTarget.style.background = `${COLORS.primary}1A`; // 10% opacity of primary color
+                    e.currentTarget.style.color = COLORS.primary;
                   } else {
                     e.currentTarget.style.transform = "translateX(6px) scale(1.02)";
                   }
@@ -3638,6 +3760,7 @@ Powered by Stacli mandi os`;
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
+                  gap: "14px",
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   background: isActive ? COLORS.primary : "transparent",
                   color: isActive ? "#ffffff" : "#adb5ad",
@@ -3649,6 +3772,17 @@ Powered by Stacli mandi os`;
                   transform: isActive ? "translateX(4px)" : "translateX(0)",
                 }}
               >
+                {item.icon && (
+                  <div style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center",
+                    opacity: isActive ? 1 : 0.7,
+                    transition: "all 0.3s ease"
+                  }}>
+                    {item.icon}
+                  </div>
+                )}
                 <span
                   style={{
                     fontWeight: isActive ? "900" : "600",
@@ -3713,7 +3847,7 @@ Powered by Stacli mandi os`;
               onMouseOut={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.background = "transparent"; }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              <span style={{ fontSize: "13.5px", fontWeight: "800" }}>Terminate Session</span>
+              <span style={{ fontSize: "13.5px", fontWeight: "800" }}>Logout</span>
             </div>
           </div>
         </nav>
@@ -3757,19 +3891,32 @@ Powered by Stacli mandi os`;
               width: "100%",
             }}
           >
-            <div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
               <h1
                 style={{
-                  fontSize: "32px",
+                  fontSize: "42px",
                   fontWeight: "900",
-                  color: COLORS.secondary,
+                  color: COLORS.sidebar,
                   margin: 0,
-                  letterSpacing: "-1px",
+                  letterSpacing: "-1.5px",
+                  fontFamily: "'Playfair Display', serif",
                 }}
               >
                 {getGreeting()},{" "}
                 {user?.name?.split(" ")[0] || user?.username || "Admin"}
               </h1>
+              <h2
+                style={{
+                  fontSize: "36px",
+                  fontWeight: "900",
+                  color: COLORS.sidebar,
+                  margin: 0,
+                  letterSpacing: "-1px",
+                  fontFamily: "'Playfair Display', serif",
+                }}
+              >
+                {ALL_MENU.find(m => m.id === activeSection)?.label || activeSection}
+              </h2>
             </div>
             <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
               <div
@@ -3790,6 +3937,29 @@ Powered by Stacli mandi os`;
                   month: "long",
                 })}
               </div>
+              <button
+                id="global-refresh-button"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                style={{
+                  background: isRefreshing ? "#F1F5F9" : COLORS.sidebar,
+                  color: isRefreshing ? COLORS.muted : "#fff",
+                  padding: "10px 18px",
+                  borderRadius: "24px",
+                  border: "none",
+                  cursor: isRefreshing ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  boxShadow: "0 6px 14px rgba(0,0,0,0.1)",
+                  fontWeight: "800",
+                  fontSize: "14px",
+                }}
+              >
+                <RefreshCw size={18} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
+                <span>{isRefreshing ? "Syncing..." : "Refresh App"}</span>
+              </button>
             </div>
           </div>
         </header>
@@ -5292,13 +5462,25 @@ Powered by Stacli mandi os`;
                   >
                     <Button
                       style={{
+                        background: "#EBE9E1",
+                        color: COLORS.sidebar,
+                        fontWeight: "800",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                        border: "none",
+                      }}
+                      onClick={() => setActiveLotTab("LOT Creation")}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      style={{
                         background: COLORS.sidebar,
                         fontWeight: "800",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
                       }}
                       onClick={handleRegisterLot}
                     >
-                      Finish & Save
+                      Save
                     </Button>
 
                     {isAdmin && (
@@ -5392,7 +5574,6 @@ Powered by Stacli mandi os`;
                       margin: 0,
                     }}
                   >
-                    Efficiently distribute lot inventory to multiple customers.
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: "20px" }}>
@@ -5437,6 +5618,7 @@ Powered by Stacli mandi os`;
                     fields: [
                       {
                         label: "Lot ID *",
+                        info: lots.find(l => (l.lotId || l._id) === allocationForm.lotId)?.supplierId?.name || lots.find(l => (l.lotId || l._id) === allocationForm.lotId)?.farmerName || "",
                         type: "text",
                         list: "lots-list",
                         value: allocationForm.lotId,
@@ -5942,7 +6124,8 @@ Powered by Stacli mandi os`;
                         const customerName = (a.buyerId?.name || a.buyerId || "").toLowerCase();
                         const invoiceNo = (a.buyerInvoiceNo || "").toLowerCase();
                         const query = (allocationSearchQuery || "").toLowerCase();
-                        return customerName.includes(query) || invoiceNo.includes(query);
+                        const dateMatch = isWithinFilterRange(a.allocationDate || a.date);
+                        return dateMatch && (customerName.includes(query) || invoiceNo.includes(query));
                       })
                       .slice()
                       .reverse()
@@ -5990,6 +6173,7 @@ Powered by Stacli mandi os`;
                   "Produce Sold",
                   "Expense Deductions",
                   "Financial Summary",
+                  "Preview & Print",
                   "Generated Bills",
                 ]}
                 active={activeSupplierBillTab}
@@ -7428,6 +7612,155 @@ Powered by Stacli mandi os`;
                 </div>
               )}
 
+              {activeSupplierBillTab === "Preview & Print" && (
+                <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+                  <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: 0, letterSpacing: "-0.5px" }}>Preview & Print</h2>
+                      <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Generated document for supplier settlement record</p>
+                    </div>
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <button
+                        onClick={handlePrintSupplierBill}
+                        style={{
+                          background: "#f59e0b",
+                          color: "#fff",
+                          padding: "10px 20px",
+                          borderRadius: "10px",
+                          border: "none",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          fontWeight: "800",
+                          fontSize: "14px",
+                          boxShadow: "0 4px 12px rgba(245,158,11,0.2)"
+                        }}
+                      >
+                        <Printer size={18} /> Print Bill
+                      </button>
+                      <button
+                        onClick={handleSaveSupplierBillPDF}
+                        style={{
+                          background: COLORS.sidebar,
+                          color: "#fff",
+                          padding: "10px 20px",
+                          borderRadius: "10px",
+                          border: "none",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          fontWeight: "800",
+                          fontSize: "14px",
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Save as PDF
+                      </button>
+                    </div>
+                  </div>
+
+                  <div 
+                    ref={billRef}
+                    style={{
+                      background: "#fff",
+                      padding: "50px",
+                      borderRadius: "0",
+                      border: "1px solid #E2E8F0",
+                      boxShadow: "0 10px 40px rgba(0,0,0,0.05)",
+                      maxWidth: "850px",
+                      margin: "0 auto",
+                      position: "relative",
+                      color: "#1a1a1a"
+                    }}
+                  >
+                    {!lastGeneratedBill ? (
+                      <div style={{ textAlign: "center", padding: "60px", color: COLORS.muted }}>
+                        <h3>No bill generated yet.</h3>
+                        <p>Generate a bill to preview the official document here.</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "40px" }}>
+                          <div>
+                            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "42px", margin: 0, color: COLORS.accent, letterSpacing: "1px" }}>BILL</h1>
+                            <p style={{ fontSize: "20px", fontWeight: "700", color: COLORS.sidebar, marginTop: "8px" }}>Bill No: {lastGeneratedBill.billNumber}</p>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <h3 style={{ fontFamily: "'Playfair Display', serif", margin: 0, fontSize: "22px", color: COLORS.sidebar }}>Mandi OS Enterprise</h3>
+                            <p style={{ color: COLORS.muted, fontWeight: "600", marginTop: "4px" }}>{formatDate(lastGeneratedBill.date)}</p>
+                          </div>
+                        </div>
+
+                        <div style={{ height: "1px", background: COLORS.accent, marginBottom: "32px", opacity: 0.3 }}></div>
+
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "40px" }}>
+                          <div>
+                            <h4 style={{ color: COLORS.muted, fontSize: "12px", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "12px" }}>Bill To</h4>
+                            <p style={{ fontSize: "18px", fontWeight: "900", margin: 0 }}>{suppliers.find(s => (s._id || s.name) === lastGeneratedBill.supplierId)?.name || lastGeneratedBill.supplierName || "Supplier"}</p>
+                            <p style={{ color: COLORS.muted, marginTop: "4px" }}>{suppliers.find(s => (s._id || s.name) === lastGeneratedBill.supplierId)?.village || "Location N/A"}</p>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <h4 style={{ color: COLORS.muted, fontSize: "12px", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "12px" }}>Reference</h4>
+                            <p style={{ fontWeight: "800" }}>Lot ID: {lastGeneratedBill.lotId || "N/A"}</p>
+                          </div>
+                        </div>
+
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "32px" }}>
+                          <thead>
+                            <tr style={{ borderBottom: "1.5px solid #000" }}>
+                              <th style={{ textAlign: "left", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Item Description</th>
+                              <th style={{ textAlign: "right", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Weight</th>
+                              <th style={{ textAlign: "right", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Rate</th>
+                              <th style={{ textAlign: "right", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Total</th>
+                            </tr>
+                          </thead>
+                          <tbody style={{ borderBottom: "1px solid #E2E8F0" }}>
+                            {(lastGeneratedBill.items || []).map((item, idx) => (
+                              <tr key={idx}>
+                                <td style={{ padding: "18px 12px", fontWeight: "700", fontSize: "15px" }}>{item.productName || "Various Produce"}</td>
+                                <td style={{ textAlign: "right", padding: "18px 12px" }}>{item.quantity} KG</td>
+                                <td style={{ textAlign: "right", padding: "18px 12px" }}>₹{item.rate}</td>
+                                <td style={{ textAlign: "right", padding: "18px 12px", fontWeight: "900" }}>₹{(Number(item.quantity) * Number(item.rate)).toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <div style={{ width: "320px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px", color: COLORS.muted }}>
+                              <span style={{ fontWeight: "600" }}>Subtotal</span>
+                              <span style={{ fontWeight: "800", color: "#000" }}>{formatCurrency((lastGeneratedBill.items || []).reduce((s, it) => s + (Number(it.quantity) * Number(it.rate)), 0))}</span>
+                            </div>
+                            <div style={{ height: "1px", background: "#000", margin: "18px 0" }}></div>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px" }}>
+                              <span style={{ fontSize: "18px", fontWeight: "900", color: COLORS.sidebar }}>Grand Total</span>
+                              <span style={{ fontSize: "18px", fontWeight: "900", color: COLORS.accent }}>{formatCurrency(lastGeneratedBill.grandTotal || lastGeneratedBill.netAmount || (lastGeneratedBill.items||[]).reduce((s,it)=>s+(Number(it.quantity)*Number(it.rate)),0))}</span>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px", color: "#166534" }}>
+                              <span style={{ fontWeight: "700" }}>Advance Received</span>
+                              <span style={{ fontWeight: "900" }}>{formatCurrency(lastGeneratedBill.expenses?.advance || 0)}</span>
+                            </div>
+                            <div style={{ height: "1px", borderTop: "1px dotted #E2E8F0", margin: "16px 0" }}></div>
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <span style={{ fontWeight: "800", color: COLORS.sidebar }}>Balance Amount</span>
+                              <span style={{ fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(lastGeneratedBill.balancePayable || lastGeneratedBill.balanceDue || 0)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: "center", marginTop: "100px", borderTop: "1px solid #f1f5f9", paddingTop: "24px" }}>
+                          <p style={{ color: COLORS.muted, fontWeight: "700", fontSize: "14px" }}>Thank you for your business!</p>
+                          <p style={{ color: COLORS.muted, fontSize: "10px", marginTop: "4px", textTransform: "uppercase", letterSpacing: "3px" }}>POWERED BY MOS</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {activeSupplierBillTab === "Generated Bills" && (
                 <div style={{ animation: "fadeIn 0.3s ease-in" }}>
                   <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -7465,7 +7798,8 @@ Powered by Stacli mandi os`;
                           const supplierName = (b.supplierId?.name || b.supplierId || "").toLowerCase();
                           const billNo = (b.billNumber || "").toLowerCase();
                           const query = (billSearchQuery || "").toLowerCase();
-                          return supplierName.includes(query) || billNo.includes(query);
+                          const dateMatch = isWithinFilterRange(b.date);
+                          return dateMatch && (supplierName.includes(query) || billNo.includes(query));
                         })
                         .slice()
                         .reverse()
@@ -7478,7 +7812,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={b._id || Date.now() + Math.random()}
                               title={b.supplierId?.name || b.supplierId || "Supplier"}
-                              subtitle={b.billNumber || "BILL-NEW"}
+                              subtitle={b.billNumber ? `Bill No: ${b.billNumber}` : "BILL-NEW"}
                               icon={ICON_BILL}
                               status={{ text: "Settled", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -7554,11 +7888,14 @@ Powered by Stacli mandi os`;
                       }
 
                       if (res.status === "SUCCESS") {
+                        setLastGeneratedBill(res.data);
                         alert(
                           `✅ BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
                         );
+                        // Reset but keep track of last one for preview
+                        const savedBillNumber = supplierSettlementForm.billNumber;
                         setSupplierSettlementForm({
-                          billNumber: `BILL-${Math.floor(100 + Math.random() * 900)}`,
+                          billNumber: getNextBillNumber(sbRes.data),
                           date: getISTDate(),
                           supplierId: "",
                           lotId: "",
@@ -7582,7 +7919,7 @@ Powered by Stacli mandi os`;
                             miscAmount: "",
                           },
                         });
-                        setActiveSupplierBillTab("Bill Header");
+                        setActiveSupplierBillTab("Preview & Print");
                         setIsEditingSupplierBill(false);
                         setEditingSupplierBillId(null);
                         fetchData();
@@ -7611,7 +7948,7 @@ Powered by Stacli mandi os`;
                       )
                     ) {
                       setSupplierSettlementForm({
-                        billNumber: `BILL-${Math.floor(100 + Math.random() * 900)}`,
+                        billNumber: getNextBillNumber(),
                         date: getISTDate(),
                         supplierId: "",
                         lotId: "",
@@ -7674,6 +8011,21 @@ Powered by Stacli mandi os`;
                       Save as PDF
                     </Button>
                     <Button
+                      onClick={handlePrintInvoice}
+                      style={{ 
+                        padding: "12px 24px", 
+                        background: "#f59e0b", 
+                        color: "#fff",
+                        border: "none",
+                        fontWeight: "800",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      }}
+                    >
+                      <Printer size={18} /> Print Invoice
+                    </Button>
+                    <Button
                       variant="outline"
                       onClick={() => {
                         setLastGeneratedInvoice(null);
@@ -7702,7 +8054,7 @@ Powered by Stacli mandi os`;
                     <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #D4A017", paddingBottom: "20px", marginBottom: "30px" }}>
                       <div>
                         <h1 style={{ margin: 0, color: "#D4A017", fontSize: "32px", fontWeight: "900" }}>INVOICE</h1>
-                        <p style={{ margin: "5px 0", fontWeight: "700", color: "#64748B" }}># {lastGeneratedInvoice?.invoiceNumber || buyerInvoiceForm.invoiceNumber}</p>
+                        <p style={{ margin: "5px 0", fontWeight: "700", color: "#64748B" }}>Invoice No: {lastGeneratedInvoice?.invoiceNumber || buyerInvoiceForm.invoiceNumber}</p>
                       </div>
                       <div style={{ textAlign: "right" }}>
                         <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "800" }}>Mandi OS Enterprise</h2>
@@ -9087,7 +9439,7 @@ Powered by Stacli mandi os`;
                           }
                           
                           if (res.status === "SUCCESS") {
-                            setLastGeneratedInvoice({ ...buyerInvoiceForm });
+                            setLastGeneratedInvoice(res.data);
                             alert(
                               `✅ INVOICE ${isEditingBuyerInvoice ? "UPDATED" : "GENERATED"}: ${buyerInvoiceForm.invoiceNumber} saved!`,
                             );
@@ -9114,7 +9466,7 @@ Powered by Stacli mandi os`;
                       onClick={() => {
                         if (window.confirm("Clear all invoice entries?")) {
                           setBuyerInvoiceForm({
-                            invoiceNumber: `INV-${Math.floor(100 + Math.random() * 900)}`,
+                            invoiceNumber: getNextInvoiceNumber(),
                             date: getISTDate(),
                             buyerId: "",
                             buyerPhone: "",
@@ -9187,7 +9539,8 @@ Powered by Stacli mandi os`;
                           const customerName = (i.buyerId?.name || i.buyerId || "").toLowerCase();
                           const invNo = (i.invoiceNumber || "").toLowerCase();
                           const query = (invoiceSearchQuery || "").toLowerCase();
-                          return customerName.includes(query) || invNo.includes(query);
+                          const dateMatch = isWithinFilterRange(i.date);
+                          return dateMatch && (customerName.includes(query) || invNo.includes(query));
                         })
                         .slice()
                         .reverse()
@@ -9200,7 +9553,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={i._id || Date.now() + Math.random()}
                               title={i.buyerId?.name || i.buyerId || "Customer"}
-                              subtitle={i.invoiceNumber || "INV-NEW"}
+                              subtitle={i.invoiceNumber ? `Invoice No: ${i.invoiceNumber}` : "INV-NEW"}
                               icon={ICON_BILL}
                               status={{ text: "Invoiced", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -10622,51 +10975,53 @@ Powered by Stacli mandi os`;
               <div
                 style={{
                   display: "flex",
-                  gap: "60px",
+                  gap: "12px",
                   paddingBottom: "24px",
                   marginBottom: "48px",
                   borderBottom: `2px solid #EBE9E1`,
-                  alignItems: "flex-end",
+                  alignItems: "center",
                 }}
               >
-                <h1
+                <button
                   id="supplier-ledger-heading"
                   onClick={() => setActiveLedgerTab("Supplier")}
                   style={{
-                    fontSize: "42px",
-                    fontWeight: "900",
+                    fontSize: "13px",
+                    fontWeight: "700",
                     margin: 0,
                     cursor: "pointer",
                     transition: "all 0.3s ease",
-                    letterSpacing: "-1.5px",
-                    fontFamily: "'Playfair Display', serif",
-                    color: activeLedgerTab === "Supplier" ? COLORS.sidebar : "#CBD5E0",
-                    borderBottom: activeLedgerTab === "Supplier" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
-                    paddingBottom: "20px",
+                    letterSpacing: "0.5px",
+                    color: activeLedgerTab === "Supplier" ? "#fff" : COLORS.sidebar,
+                    background: activeLedgerTab === "Supplier" ? COLORS.sidebar : "transparent",
+                    border: `2px solid ${COLORS.sidebar}`,
+                    borderRadius: "30px",
+                    padding: "8px 18px",
                     textTransform: "uppercase",
                   }}
                 >
                   Supplier Ledger
-                </h1>
-                <h1
+                </button>
+                <button
                   id="customer-ledger-heading"
                   onClick={() => setActiveLedgerTab("Customer")}
                   style={{
-                    fontSize: "42px",
-                    fontWeight: "900",
+                    fontSize: "13px",
+                    fontWeight: "700",
                     margin: 0,
                     cursor: "pointer",
                     transition: "all 0.3s ease",
-                    letterSpacing: "-1.5px",
-                    fontFamily: "'Playfair Display', serif",
-                    color: activeLedgerTab === "Customer" ? COLORS.sidebar : "#CBD5E0",
-                    borderBottom: activeLedgerTab === "Customer" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
-                    paddingBottom: "20px",
+                    letterSpacing: "0.5px",
+                    color: activeLedgerTab === "Customer" ? "#fff" : COLORS.sidebar,
+                    background: activeLedgerTab === "Customer" ? COLORS.sidebar : "transparent",
+                    border: `2px solid ${COLORS.sidebar}`,
+                    borderRadius: "30px",
+                    padding: "8px 18px",
                     textTransform: "uppercase",
                   }}
                 >
                   Customer Ledger
-                </h1>
+                </button>
               </div>
 
 
@@ -10908,7 +11263,7 @@ Powered by Stacli mandi os`;
                                 if (bSupId !== selectedLedgerSupplier) return false;
                               }
                               if (ledgerFilters.lotId && b.lotId !== ledgerFilters.lotId && b.lotCode !== ledgerFilters.lotId && b.lot_id !== ledgerFilters.lotId) return false;
-                              if (ledgerFilters.startDate && (!b.date || b.date < ledgerFilters.startDate)) return false;
+                              if (!isWithinFilterRange(b.date || b.createdAt)) return false;
                               return true;
                             });
 
@@ -11257,7 +11612,7 @@ Powered by Stacli mandi os`;
                               }
                               const invNo = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no;
                               if (ledgerFilters.invoiceNo && invNo !== ledgerFilters.invoiceNo) return false;
-                              if (ledgerFilters.startDate && (!inv.date || inv.date < ledgerFilters.startDate)) return false;
+                              if (!isWithinFilterRange(inv.date || inv.createdAt)) return false;
                               return true;
                             });
 
@@ -11395,7 +11750,7 @@ Powered by Stacli mandi os`;
                     Today's Dispatch Vol.
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: COLORS.secondary }}>
-                    {new Intl.NumberFormat('en-IN').format(typeof allocations !== 'undefined' && allocations.reduce ? allocations.reduce((sum, a) => sum + Number(a.weight || a.tonnage || 0), 0) : 0)} KG
+                    {new Intl.NumberFormat('en-IN').format(typeof allocations !== 'undefined' && allocations.reduce ? allocations.filter(a => isWithinFilterRange(a.allocationDate || a.date)).reduce((sum, a) => sum + Number(a.weight || a.tonnage || 0 || a.quantity), 0) : 0)} KG
                   </h2>
                 </Card>
                 <Card>
@@ -11411,7 +11766,7 @@ Powered by Stacli mandi os`;
                     Est. Freight Payable
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: COLORS.primary }}>
-                    {formatCurrency(typeof supplierBills !== 'undefined' && (supplierBills || []).reduce ? (supplierBills || []).reduce((sum, b) => sum + Number(b.expenses?.freight || b.transportFee || 0), 0) : 0)}
+                    {formatCurrency(typeof supplierBills !== 'undefined' && (supplierBills || []).reduce ? (supplierBills || []).filter(b => isWithinFilterRange(b.date)).reduce((sum, b) => sum + Number(b.expenses?.freight || b.transportFee || 0), 0) : 0)}
                   </h2>
                 </Card>
               </div>
@@ -12993,6 +13348,127 @@ Powered by Stacli mandi os`;
           )}
 
           {/* 11. DASHBOARD & REPORTS */}
+          {activeSection === "Records Tracking" && (
+            <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+              <div style={{ marginBottom: "40px" }}>
+                <h1 style={{ fontSize: "36px", fontWeight: "900", color: COLORS.sidebar, margin: 0, fontFamily: "'Playfair Display', serif" }}>Master System Records</h1>
+                <p style={{ color: COLORS.muted, fontSize: "15px", marginTop: "4px" }}>Centralized visibility into all registered entities and transactions</p>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
+                {/* 1. Registered Members */}
+                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+                    <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "10px", borderRadius: "12px", color: "#10b981" }}>
+                      <Users size={24} />
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#10b981", background: "rgba(16, 185, 129, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Active Members</span>
+                  </div>
+                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Registered Members</h3>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
+                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{(suppliers.length + buyers.length)}</span>
+                  </div>
+                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
+                    <b>{suppliers.length}</b> Suppliers | <b>{buyers.length}</b> Buyers
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
+                    onClick={() => setActiveSection("User Role")}
+                  >View Member Directory</Button>
+                </div>
+
+                {/* 2. Registered Lots */}
+                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+                    <div style={{ background: "rgba(230, 126, 34, 0.1)", padding: "10px", borderRadius: "12px", color: COLORS.primary }}>
+                      <Boxes size={24} />
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: "850", color: COLORS.primary, background: "rgba(230, 126, 34, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Warehouse Intake</span>
+                  </div>
+                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Registered Lots</h3>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
+                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{lots.length}</span>
+                  </div>
+                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
+                    <b>{lots.filter(l => l.status === "Pending").length}</b> Awaiting Allocation
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
+                    onClick={() => setActiveSection("Lot Creation")}
+                  >Manage Inventory</Button>
+                </div>
+
+                {/* 3. Recorded Allocations */}
+                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+                    <div style={{ background: "rgba(52, 152, 219, 0.1)", padding: "10px", borderRadius: "12px", color: "#3498db" }}>
+                      <Gavel size={24} />
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#3498db", background: "rgba(52, 152, 219, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Sales Operations</span>
+                  </div>
+                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Recorded Allocations</h3>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
+                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{allocations.length}</span>
+                  </div>
+                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
+                    <b>{formatCurrency(allocations.reduce((s, a) => s + (Number(a.rate) * Number(a.quantity || a.netWeight || 0)), 0))}</b> Total Value
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
+                    onClick={() => setActiveSection("Lot Allocation")}
+                  >View Allocations</Button>
+                </div>
+
+                {/* 4. Generated Bills */}
+                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+                    <div style={{ background: "rgba(121, 85, 72, 0.1)", padding: "10px", borderRadius: "12px", color: "#795548" }}>
+                      <Receipt size={24} />
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#795548", background: "rgba(121, 85, 72, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Supplier Payables</span>
+                  </div>
+                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Generated Bills</h3>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
+                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{supplierBills.length}</span>
+                  </div>
+                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
+                    Audit-ready settlements in bank queue
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
+                    onClick={() => setActiveSection("Supplier Billing")}
+                  >Open Billing Vault</Button>
+                </div>
+
+                {/* 5. Generated Invoices */}
+                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+                    <div style={{ background: "rgba(142, 68, 173, 0.1)", padding: "10px", borderRadius: "12px", color: "#8e44ad" }}>
+                      <CreditCard size={24} />
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#8e44ad", background: "rgba(142, 68, 173, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Customer Receivables</span>
+                  </div>
+                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Generated Invoices</h3>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
+                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{buyerInvoices.length}</span>
+                  </div>
+                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
+                    <b>{buyerInvoices.length}</b> Invoices stored in database
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
+                    onClick={() => setActiveSection("Buyer Invoicing")}
+                  >Manage Invoices</Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeSection === "Dashboard" && (
             <div
               style={{
@@ -13008,20 +13484,73 @@ Powered by Stacli mandi os`;
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", margin: "0 0 4px 0", color: "#1a1a2e" }}>Dashboard</h1>
-                    <p style={{ color: COLORS.muted, margin: 0, fontSize: "14px" }}>Live data from your store</p>
+                    <p style={{ color: COLORS.muted, margin: 0, fontSize: "14px" }}>Performance overview and live metrics</p>
                   </div>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                      <input type="date" value={dashboardDates.startDate} onChange={e => setDashboardDates(prev => ({ ...prev, startDate: e.target.value }))} style={{ border: 'none', outline: 'none', fontWeight: '600', fontSize: '14px', background: 'transparent', cursor: 'pointer' }} />
-                      <span style={{color: COLORS.muted, fontSize: '12px', fontWeight: '800'}}>TO</span>
-                      <input type="date" value={dashboardDates.endDate} onChange={e => setDashboardDates(prev => ({ ...prev, endDate: e.target.value }))} style={{ border: 'none', outline: 'none', fontWeight: '600', fontSize: '14px', background: 'transparent', cursor: 'pointer' }} />
+                    <div style={{ position: 'relative' }}>
+                      <select 
+                        value={dashboardFilterType} 
+                        onChange={(e) => setDashboardFilterType(e.target.value)}
+                        style={{
+                          background: '#fff',
+                          border: '1.5px solid #e2e8f0',
+                          padding: '10px 20px',
+                          borderRadius: '14px',
+                          fontWeight: '700',
+                          fontSize: '14px',
+                          color: COLORS.sidebar,
+                          outline: 'none',
+                          cursor: 'pointer',
+                          minWidth: '160px',
+                          appearance: 'none',
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.03)"
+                        }}
+                      >
+                        <option>Today</option>
+                        <option>Past 7 Days</option>
+                        <option>Past 15 Days</option>
+                        <option>Past 30 Days</option>
+                        <option>Custom Date</option>
+                      </select>
+                      <div style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: COLORS.muted }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </div>
                     </div>
-                    <Button style={{ background: "#fcd34d", color: '#000', borderRadius: '24px', padding: '10px 24px', fontWeight: '800', border: "none", boxShadow: "0 4px 12px rgba(252, 211, 77, 0.3)" }} onClick={() => { alert("Dashboard range sync complete."); fetchData && fetchData(); }}>Apply Range</Button>
-                    <Button variant="outline" style={{ borderRadius: '24px', display: 'flex', gap: '8px', padding: '10px 20px', background: "#fff", borderColor: "#e2e8f0" }} onClick={() => window.print()}>
-                      Report
+
+                    {dashboardFilterType === "Custom Date" && (
+                      <div style={{ 
+                        background: '#fff', 
+                        border: '1.5px solid #e2e8f0', 
+                        padding: '8px 16px', 
+                        borderRadius: '14px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '10px',
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+                        animation: "fadeIn 0.3s ease-out"
+                      }}>
+                        <input 
+                          type="date" 
+                          value={dashboardCustomDate} 
+                          onChange={e => setDashboardCustomDate(e.target.value)} 
+                          style={{ 
+                            border: 'none', 
+                            outline: 'none', 
+                            fontWeight: '750', 
+                            fontSize: '14px', 
+                            background: 'transparent', 
+                            cursor: 'pointer',
+                            color: COLORS.sidebar
+                          }} 
+                        />
+                      </div>
+                    )}
+
+                    <Button variant="outline" style={{ borderRadius: '12px', display: 'flex', gap: '8px', padding: '10px 20px', background: "#fff", borderColor: "#e2e8f0" }} onClick={() => window.print()}>
+                      <Printer size={16} /> Report
                     </Button>
-                    <Button variant="outline" style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: "#fff", borderColor: "#e2e8f0" }} onClick={() => { alert("Fetching newest records..."); fetchData && fetchData(); }}>
-                      Sync
+                    <Button variant="outline" style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: "#fff", borderColor: "#e2e8f0" }} onClick={fetchData}>
+                      <RefreshCw size={18} />
                     </Button>
                   </div>
                 </div>
@@ -13029,8 +13558,9 @@ Powered by Stacli mandi os`;
                 {/* Top Metrics Grid */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
                   {(() => {
-                    const sDate = dashboardDates.startDate;
-                    const eDate = dashboardDates.endDate;
+                    const range = getEffectiveRange(dashboardFilterType, dashboardCustomDate);
+                    const sDate = range.start;
+                    const eDate = range.end;
 
                     const isWithinRange = (dateStr) => {
                       if (!dateStr) return false;
@@ -13074,7 +13604,10 @@ Powered by Stacli mandi os`;
                     }).reduce((s, b) => s + Number(b.amountPaid || b.paymentMade || 0), 0);
 
                     // 8. Active In-Transit Vehicles "Lorries currently on the road" -> Dispatch Entry
-                    const inTransitVehicles = lots.filter(l => l.status === "In Transit" || l.status === "Dispatch" || (l.delivered === false)).length;
+                    const inTransitVehicles = lots.filter(l => {
+                      const dateVal = l.date || (l.createdAt && l.createdAt.split('T')[0]);
+                      return isWithinFilterRange(dateVal) && (l.status === "In Transit" || l.status === "Dispatch" || (l.delivered === false));
+                    }).length;
 
                     const renderCard = (title, value, subtitle, icon, isAlert) => (
                         <Card key={title} style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
@@ -13099,15 +13632,22 @@ Powered by Stacli mandi os`;
 
                     return (
                       <>
-                        {renderCard(dashTitle("Intake"), todaysIntakeQty.toLocaleString() + " KG", "Total volume received", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>)}
-                        {renderCard(dashTitle("Sales"), formatCurrency(todaysSalesAmt), "Invoiced to buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
-                        {renderCard("Pending Auctions", pendingAuctionsCount + " Lots", "Lots awaiting full allocation", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>)}
-                        {renderCard("Total Farmer Outstanding", formatCurrency(farmerOutstandingAmt), "Amount owed to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
+                        {/* Core Business Summaries */}
+                        {renderCard("Registered Members", (suppliers.length + buyers.length), `${suppliers.length} Suppliers | ${buyers.length} Buyers`, <Users size={18} />)}
+                        {renderCard("Registered Lots", lots.filter(l => isWithinFilterRange(l.date || l.createdAt)).length, "New lots intake in range", <Boxes size={18} />)}
+                        {renderCard("Recorded Allocations", allocations.filter(a => isWithinFilterRange(a.allocationDate || a.date)).length, "Sales records in range", <Gavel size={18} />)}
+                        {renderCard("Generated Bills", supplierBills.filter(b => isWithinFilterRange(b.date)).length, "Finalized supplier bills", <Receipt size={18} />)}
+                        {renderCard("Generated Invoices", buyerInvoices.filter(i => isWithinFilterRange(i.date)).length, "Invoices sent in range", <CreditCard size={18} />)}
+
+                        {renderCard(dashTitle("Intake Vol."), todaysIntakeQty.toLocaleString() + " KG", "Total produce received", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>)}
+                        {renderCard(dashTitle("Sales Value"), formatCurrency(todaysSalesAmt), "Gross value of invoices", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
+                        {renderCard("Pending Auctions", pendingAuctionsCount + " Lots", "Items awaiting allocation", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>)}
+                        {renderCard("Farmer Outstanding", formatCurrency(farmerOutstandingAmt), "Total payable to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
                         
-                        {renderCard("Total Buyer Outstanding", formatCurrency(buyerOutstandingAmt), "Receivables from buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
-                        {renderCard(dashTitle("Cash Collected"), formatCurrency(todaysCashCollected), "Received from buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
-                        {renderCard(dashTitle("Cash Paid"), formatCurrency(todaysCashPaid), "Payments made to farmers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
-                        {renderCard("Active In-Transit Vehicles", inTransitVehicles + " Lorries", "Lorries on the road", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>)}
+                        {renderCard("Buyer Outstanding", formatCurrency(buyerOutstandingAmt), "Total customer receivables", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
+                        {renderCard(dashTitle("Cash Collected"), formatCurrency(todaysCashCollected), "Payments from buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
+                        {renderCard(dashTitle("Cash Paid"), formatCurrency(todaysCashPaid), "Payments to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
+                        {renderCard("Active Shipments", inTransitVehicles, "Vehicles currently in transit", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>)}
                       </>
                     )
                   })()}

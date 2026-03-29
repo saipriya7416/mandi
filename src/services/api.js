@@ -54,14 +54,40 @@ const request = async (method, path, body = null) => {
       if (path === '/allocations') return { status: "SUCCESS", data: getLocal('allocations') };
       if (path === '/bills/supplier') return { status: "SUCCESS", data: getLocal('supplierBills') };
       if (path === '/invoices/buyer') return { status: "SUCCESS", data: getLocal('buyerInvoices') };
-      if (path.includes('/ledger/supplier/')) return { status: "SUCCESS", data: getLocal('supplierBills').filter(b => b.supplierId === path.split('/').pop()) };
-      if (path.includes('/ledger/buyer/')) return { status: "SUCCESS", data: getLocal('buyerInvoices').filter(inv => inv.buyerId === path.split('/').pop()) };
-      if (path.includes('/settlement/farmer/') && path.includes('/history')) return { status: "SUCCESS", data: getLocal('supplierBills').filter(b => b.supplierId === path.split('/')[3]) };
+      if (path === '/payments') return { status: "SUCCESS", data: getLocal('payments') };
+      if (path === '/expenses') return { status: "SUCCESS", data: getLocal('expenses') };
+      if (path === '/settlements') return { status: "SUCCESS", data: getLocal('settlements') };
+      if (path.includes('/ledger/supplier/')) {
+        const id = path.split('/').pop();
+        const bills = getLocal('supplierBills').filter(b => b.supplierId === id || b.farmerId === id);
+        const payments = getLocal('payments').filter(p => p.partyId === id && p.partyType === 'Supplier');
+        return { status: "SUCCESS", data: [...bills, ...payments].sort((a,b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt)) };
+      }
+      if (path.includes('/ledger/buyer/')) {
+        const id = path.split('/').pop();
+        const invoices = getLocal('buyerInvoices').filter(inv => inv.buyerId === id || inv.buyer === id);
+        const payments = getLocal('payments').filter(p => p.partyId === id && p.partyType === 'Buyer');
+        return { status: "SUCCESS", data: [...invoices, ...payments].sort((a,b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt)) };
+      }
+      if (path.includes('/settlement/farmer/') && path.includes('/history')) {
+        const id = path.split('/')[3];
+        return { status: "SUCCESS", data: getLocal('settlements').filter(s => s.farmerId === id) };
+      }
       return { status: "SUCCESS", data: [] };
     }
 
     if (method === 'POST') {
-      const storeName = path === '/supplier' ? 'suppliers' : (path === '/buyer' ? 'buyers' : (path === '/lot/intake' ? 'lots' : (path === '/lot/allocate' ? 'allocations' : (path === '/bill/supplier' ? 'supplierBills' : (path === '/invoice/buyer' ? 'buyerInvoices' : null)))));
+      const storeName = path === '/supplier' ? 'suppliers' : 
+                        path === '/buyer' ? 'buyers' : 
+                        path === '/lot/intake' ? 'lots' : 
+                        path === '/lot/allocate' ? 'allocations' : 
+                        path === '/bill/supplier' ? 'supplierBills' : 
+                        path === '/invoice/buyer' ? 'buyerInvoices' : 
+                        path === '/payment' ? 'payments' :
+                        path === '/expense' ? 'expenses' :
+                        path === '/settlement/farmer/bill' ? 'settlements' : 
+                        null;
+                        
       if (storeName) {
         const store = getLocal(storeName);
         const newItem = { ...body, _id: `sim_${Date.now()}`, createdAt: new Date() };
@@ -73,7 +99,15 @@ const request = async (method, path, body = null) => {
     if (method === 'PUT' || method === 'DELETE') {
       const pathParts = path.split('/');
       const id = pathParts[pathParts.length - 1];
-      const storeName = path.includes('supplier') && !path.includes('bill') ? 'suppliers' : (path.includes('buyer') ? 'buyers' : (path.includes('lot/intake') ? 'lots' : (path.includes('lot/allocate') ? 'allocations' : (path.includes('bill/supplier') ? 'supplierBills' : null))));
+      const storeName = path.includes('supplier') && !path.includes('bill') ? 'suppliers' : 
+                        (path.includes('buyer') && !path.includes('invoice') ? 'buyers' : 
+                        (path.includes('lot/intake') ? 'lots' : 
+                        (path.includes('lot/allocate') ? 'allocations' : 
+                        (path.includes('bill/supplier') ? 'supplierBills' : 
+                        (path.includes('invoice/buyer') ? 'buyerInvoices' : 
+                        (path.includes('payment') ? 'payments' : 
+                        (path.includes('expense') ? 'expenses' : null)))))));
+                        
       if (storeName && id) {
         const store = getLocal(storeName);
         if (method === 'DELETE') {
