@@ -3387,75 +3387,92 @@ export default function App() {
           <div
             style={{
               marginTop: "auto",
-              padding: "28px 24px",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              background: "rgba(0,0,0,0.15)",
-              margin: "0 12px 12px",
-              borderRadius: "20px",
+              padding: "16px 14px",
+              borderTop: "1px solid #1a231a",
+              background: "rgba(0,0,0,0.2)",
             }}
           >
             <div
+              onClick={() => {
+                setActiveSection("Profile");
+                if (isMobile) setSidebarOpen(false);
+              }}
               style={{
-                background: COLORS.accent,
-                width: "38px",
-                height: "38px",
-                borderRadius: "19px",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                color: COLORS.secondary,
-                fontSize: "14px",
-                fontWeight: "900",
-                boxShadow: "0 0 15px rgba(0,0,0,0.2)",
+                gap: "12px",
+                padding: "12px 18px",
+                borderRadius: "12px",
+                cursor: "pointer",
+                marginBottom: "8px",
+                transition: "all 0.2s",
+                background:
+                  activeSection === "Profile"
+                    ? "rgba(255,255,255,0.08)"
+                    : "transparent",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.background = "rgba(255,255,255,0.08)")
+              }
+              onMouseOut={(e) => {
+                if (activeSection !== "Profile")
+                  e.currentTarget.style.background = "transparent";
               }}
             >
-              {user?.username?.[0]?.toUpperCase() || "U"}
-            </div>
-            <div style={{ flex: 1, marginLeft: "12px" }}>
-              <div
+              <span style={{ display: "flex", alignItems: "center" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+              <span
                 style={{
                   color: "#ffffff",
                   fontSize: "14px",
-                  fontWeight: "900",
-                  marginBottom: "6px",
-                  letterSpacing: "0.5px",
+                  fontWeight: "800",
                 }}
               >
-                {user?.username || "Admin Staff"}
-              </div>
-              <button
-                onClick={handleLogout}
+                Profile Settings
+              </span>
+            </div>
+
+            <div
+              onClick={handleLogout}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "12px 18px",
+                borderRadius: "12px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                opacity: 0.8,
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.opacity = "1";
+                e.currentTarget.style.background = "rgba(225, 29, 72, 0.1)";
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.opacity = "0.8";
+                e.currentTarget.style.background = "transparent";
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", color: "#adb5ad" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </span>
+              <span
                 style={{
-                  background: COLORS.accent,
-                  border: "none",
-                  color: COLORS.secondary,
-                  cursor: "pointer",
-                  fontSize: "9px",
-                  fontWeight: "900",
-                  padding: "4px 12px",
-                  borderRadius: "6px",
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = "#FFFFFF";
-                  e.currentTarget.style.color = COLORS.sidebar;
-                  e.currentTarget.style.transform = "translateY(-1.5px)";
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.25)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = COLORS.accent;
-                  e.currentTarget.style.color = COLORS.secondary;
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.15)";
+                  color: "#adb5ad",
+                  fontSize: "14px",
+                  fontWeight: "800",
                 }}
               >
                 Log Out
-              </button>
+              </span>
             </div>
           </div>
         </nav>
@@ -3634,6 +3651,319 @@ export default function App() {
               <option key={t} value={t} />
             ))}
           </datalist>
+
+          {activeSection === "Profile" && (
+            <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+              <div style={{ marginBottom: "32px" }}>
+                <h1
+                  style={{
+                    fontSize: "32px",
+                    fontWeight: "900",
+                    margin: "0 0 8px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    fontFamily: "'Playfair Display', serif",
+                    color: "#1a1a2e"
+                  }}
+                >
+                  <span style={{ color: COLORS.accent, display: "flex", alignItems: "center" }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </span> Profile Settings
+                </h1>
+                <p style={{ color: COLORS.muted, fontSize: "15px", margin: 0 }}>
+                  Update your account details and password.
+                </p>
+              </div>
+
+              <Card
+                style={{ borderRadius: "16px", border: "none", overflow: "hidden", position: "relative" }}
+              >
+                {/* Decorative Background Shape */}
+                <div style={{
+                  position: "absolute",
+                  top: "-40px",
+                  right: "-20px",
+                  width: "180px",
+                  height: "180px",
+                  borderRadius: "50%",
+                  background: "#fcf8ea",
+                  zIndex: 0
+                }}></div>
+
+                <div
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    padding: "40px",
+                    display: "grid",
+                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                    gap: "60px",
+                  }}
+                >
+                  {/* Account Details */}
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: "900",
+                        color: "#1a1a2e",
+                        marginBottom: "24px",
+                        borderBottom: "1px solid #F1F5F9",
+                        paddingBottom: "16px",
+                        fontFamily: "'Playfair Display', serif",
+                      }}
+                    >
+                      Account Details
+                    </h3>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "20px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          defaultValue={user?.name || "Test Admin"}
+                          style={{
+                            padding: "14px",
+                            borderRadius: "10px",
+                            border: "1.5px solid #F1F5F9",
+                            background: "#F8FAFC",
+                            outline: "none",
+                            fontWeight: "700",
+                          }}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          defaultValue={user?.email || "testadmin@jamango.com"}
+                          style={{
+                            padding: "14px",
+                            borderRadius: "10px",
+                            border: "1.5px solid #F1F5F9",
+                            background: "#F8FAFC",
+                            outline: "none",
+                            fontWeight: "700",
+                          }}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Phone Number
+                        </label>
+                        <input
+                          type="text"
+                          defaultValue={user?.phone || "9999999990"}
+                          style={{
+                            padding: "14px",
+                            borderRadius: "10px",
+                            border: "1.5px solid #F1F5F9",
+                            background: "#F8FAFC",
+                            outline: "none",
+                            fontWeight: "700",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Change Password */}
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: "900",
+                        color: "#1a1a2e",
+                        marginBottom: "24px",
+                        borderBottom: "1px solid #F1F5F9",
+                        paddingBottom: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        fontFamily: "'Playfair Display', serif",
+                      }}
+                    >
+                      <span style={{ color: "#94a3b8", display: "flex", alignItems: "center" }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                        </svg>
+                      </span> Change Password
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "13px",
+                        color: COLORS.muted,
+                        marginBottom: "24px",
+                        marginTop: "-8px",
+                      }}
+                    >
+                      Leave blank if you don't want to change your password.
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "20px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          New Password
+                        </label>
+                        <input
+                          type="password"
+                          placeholder="Enter new password"
+                          style={{
+                            padding: "14px",
+                            borderRadius: "10px",
+                            border: "1.5px solid #F1F5F9",
+                            background: "#F8FAFC",
+                            outline: "none",
+                            fontWeight: "700",
+                          }}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Confirm New Password
+                        </label>
+                        <input
+                          type="password"
+                          placeholder="Confirm new password"
+                          style={{
+                            padding: "14px",
+                            borderRadius: "10px",
+                            border: "1.5px solid #F1F5F9",
+                            background: "#F8FAFC",
+                            outline: "none",
+                            fontWeight: "700",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    marginTop: "12px",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    borderTop: "1px solid #F1F5F9",
+                    paddingTop: "32px",
+                    paddingRight: "40px",
+                    paddingBottom: "40px"
+                  }}
+                >
+                  <Button
+                    onClick={() => alert("✅ Settings saved successfully.")}
+                    style={{
+                      padding: "16px 32px",
+                      borderRadius: "10px",
+                      fontSize: "15px",
+                      fontWeight: "900",
+                      background: "#c19420", // Custom mustard from image
+                      color: "#fff",
+                      boxShadow: "0 4px 12px rgba(193, 148, 32, 0.2)",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.2s"
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = "translateY(-1.5px)";
+                      e.currentTarget.style.boxShadow = "0 6px 16px rgba(193, 148, 32, 0.3)";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(193, 148, 32, 0.2)";
+                    }}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          )}
 
           {activeSection === "User Role" && (
             <div
@@ -10138,7 +10468,7 @@ export default function App() {
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
+                        gridTemplateColumns: "repeat(3, 1fr)",
                         gap: "16px",
                       }}
                     >
@@ -10177,6 +10507,49 @@ export default function App() {
                             outline: "none",
                             fontSize: "13px",
                             fontWeight: "600",
+                          }}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Balance Amount (₹)
+                        </label>
+                        <input
+                          type="number"
+                          readOnly
+                          value={
+                            farmerPaymentForm.farmerId
+                              ? Math.max(0, (() => {
+                                  const selId = farmerPaymentForm.farmerId;
+                                  const bills = (supplierBills || []).filter((b) => b.supplierId === selId || b.farmerId === selId);
+                                  const tNet = bills.reduce((sum, b) => sum + Number(b.netPayable || 0), 0);
+                                  const tPaid = bills.reduce((sum, b) => sum + Number(b.advance || 0) + Number(b.amountPaid || b.paymentMade || 0), 0);
+                                  return (tNet - tPaid) - Number(farmerPaymentForm.amount || 0);
+                                })())
+                              : 0
+                          }
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #F1F5F9",
+                            color: COLORS.danger,
+                            background: "#FFF1F2",
+                            outline: "none",
+                            fontSize: "13px",
+                            fontWeight: "700",
                           }}
                         />
                       </div>
@@ -10689,7 +11062,7 @@ export default function App() {
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
+                          gridTemplateColumns: "repeat(3, 1fr)",
                           gap: "16px",
                         }}
                       >
@@ -10728,6 +11101,49 @@ export default function App() {
                               outline: "none",
                               fontSize: "13px",
                               fontWeight: "600",
+                            }}
+                          />
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
+                          }}
+                        >
+                          <label
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "800",
+                              color: COLORS.muted,
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            Balance Amount (₹)
+                          </label>
+                          <input
+                            type="number"
+                            readOnly
+                            value={
+                              buyerPaymentForm.buyerId
+                                ? Math.max(0, (() => {
+                                    const selId = buyerPaymentForm.buyerId;
+                                    const invoices = (buyerInvoices || []).filter((inv) => inv.buyerId === selId);
+                                    const tBilled = invoices.reduce((sum, inv) => sum + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+                                    const tReceived = invoices.reduce((sum, inv) => sum + Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || 0), 0);
+                                    return (tBilled - tReceived) - Number(buyerPaymentForm.amountReceived || 0);
+                                  })())
+                                : 0
+                            }
+                            style={{
+                              padding: "12px 14px",
+                              borderRadius: "8px",
+                              border: "1px solid #F1F5F9",
+                              color: COLORS.danger,
+                              background: "#FFF1F2",
+                              outline: "none",
+                              fontSize: "13px",
+                              fontWeight: "700",
                             }}
                           />
                         </div>
