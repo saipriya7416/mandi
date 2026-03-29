@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import "./index.css";
 import { MandiService } from "./services/api";
 import { Bar, Pie, Line } from "react-chartjs-2";
@@ -701,6 +703,31 @@ export default function App() {
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [lotSearchQuery, setLotSearchQuery] = useState("");
+  const [allocationSearchQuery, setAllocationSearchQuery] = useState("");
+  const [billSearchQuery, setBillSearchQuery] = useState("");
+  const invoiceRef = useRef(null);
+  const [lastGeneratedInvoice, setLastGeneratedInvoice] = useState(null);
+
+  const handleSaveInvoicePDF = async () => {
+    if (!invoiceRef.current) return;
+    const canvas = await html2canvas(invoiceRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    
+    // Add "Powered by MOS" footer at the bottom of the last page
+    const pageCount = pdf.internal.getNumberOfPages();
+    pdf.setPage(pageCount);
+    pdf.setFontSize(10);
+    pdf.setTextColor(150);
+    pdf.text("Powered by MOS", pdfWidth / 2, pdf.internal.pageSize.getHeight() - 10, { align: "center" });
+    
+    pdf.save(`Invoice_${lastGeneratedInvoice?.invoiceNumber || "MOS"}.pdf`);
+  };
 
 
 
@@ -4545,13 +4572,6 @@ export default function App() {
                     animation: "fadeIn 0.4s ease-out"
                   }}
                 >
-                  <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Registered Lots & Inventory</h3>
-                      <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Manage your intake history and stock levels</p>
-                    </div>
-                  </div>
-
                   {/* Lot Search Integrated Upside */}
                   <div style={{ marginBottom: "24px" }}>
                     <input
@@ -5724,24 +5744,37 @@ export default function App() {
                 </Button>
               </div>
 
-              {/* Recently Recorded Allocations (Vault) */}
-              <div style={{ marginTop: "48px" }}>
-                <h4
-                  className="font-display"
-                  style={{
-                    color: COLORS.sidebar,
-                    marginBottom: "16px",
-                    fontWeight: "900",
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    fontSize: "14px",
-                  }}
-                >
-                  Recently Recorded Allocations
-                </h4>
+                <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Recently Recorded Allocations</h3>
+                    <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Complete history of lot distributions to customers</p>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "24px" }}>
+                  <input
+                    type="text"
+                    placeholder="Search by Customer Name or Invoice Number..."
+                    value={allocationSearchQuery}
+                    onChange={(e) => setAllocationSearchQuery(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "16px 20px",
+                      borderRadius: "16px",
+                      border: "1.5px solid #EBE9E1",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      color: COLORS.sidebar,
+                      outline: "none",
+                      background: "#FDFBF4",
+                      transition: "all 0.2s"
+                    }}
+                  />
+                </div>
+
                 <div
                   style={{
-                    maxHeight: "400px",
+                    maxHeight: "600px",
                     overflowY: "auto",
                     padding: "8px",
                     background: "#FDFBF4",
@@ -5751,9 +5784,14 @@ export default function App() {
                 >
                   <div style={{ display: "grid", gap: "12px" }}>
                     {allocations
+                      .filter(a => {
+                        const customerName = (a.buyerId?.name || a.buyerId || "").toLowerCase();
+                        const invoiceNo = (a.buyerInvoiceNo || "").toLowerCase();
+                        const query = (allocationSearchQuery || "").toLowerCase();
+                        return customerName.includes(query) || invoiceNo.includes(query);
+                      })
                       .slice()
                       .reverse()
-                      .slice(0, 5)
                       .map((a) => (
                         <div
                           key={a._id || Date.now() + Math.random()}
@@ -5802,6 +5840,21 @@ export default function App() {
                                 borderRadius: "24px",
                                 background: "transparent",
                               }}
+                              onClick={() => setViewingEntity({ type: "Allocation", data: a })}
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              variant="outline"
+                              style={{
+                                fontSize: "11px",
+                                padding: "6px 14px",
+                                fontWeight: "700",
+                                border: `1.5px solid #64748b`,
+                                color: COLORS.secondary,
+                                borderRadius: "24px",
+                                background: "transparent",
+                              }}
                               onClick={() => handleEditAllocation(a)}
                             >
                               Modify
@@ -5837,8 +5890,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* SUPPLIER BILLING MODULE */}
           {activeSection === "Supplier Billing" && (
@@ -5849,6 +5901,7 @@ export default function App() {
                   "Produce Sold",
                   "Expense Deductions",
                   "Financial Summary",
+                  "Generated Bills",
                 ]}
                 active={activeSupplierBillTab}
                 set={setActiveSupplierBillTab}
@@ -7219,6 +7272,111 @@ export default function App() {
                 </div>
               )}
 
+              {activeSupplierBillTab === "Generated Bills" && (
+                <div style={{ animation: "fadeIn 0.3s ease-in" }}>
+                  <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Recently Generated Bills</h3>
+                      <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Complete history of finalized supplier statements</p>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "24px" }}>
+                    <input
+                      type="text"
+                      placeholder="Search by Bill Number or Supplier Name..."
+                      value={billSearchQuery}
+                      onChange={(e) => setBillSearchQuery(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "1.5px solid #EBE9E1",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: COLORS.sidebar,
+                        outline: "none",
+                        background: "#FDFBF4",
+                        transition: "all 0.2s"
+                      }}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      maxHeight: "650px",
+                      overflowY: "auto",
+                      padding: "8px",
+                      background: "#FDFBF4",
+                      borderRadius: "16px",
+                      border: "1.5px solid #EBE9E1",
+                    }}
+                  >
+                    <div style={{ display: "grid", gap: "12px" }}>
+                      {supplierBills
+                        .filter(b => {
+                          const supplierName = (b.supplierId?.name || b.supplierId || "").toLowerCase();
+                          const billNo = (b.billNumber || "").toLowerCase();
+                          const query = (billSearchQuery || "").toLowerCase();
+                          return supplierName.includes(query) || billNo.includes(query);
+                        })
+                        .slice()
+                        .reverse()
+                        .map((b) => (
+                          <div
+                            key={b._id || Date.now() + Math.random()}
+                            style={{
+                              padding: "20px",
+                              background: "#fff",
+                              border: "1px solid #EBE9E1",
+                              borderRadius: "16px",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                            }}
+                          >
+                            <div style={{ flex: 1 }}>
+                              <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{b.billNumber} — {b.supplierId?.name || b.supplierId || "Supplier"}</b>
+                              <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                                🚚 {b.vehicleNumber || "N/A"} | 📅 {b.date}
+                              </p>
+                            </div>
+                            <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+                              <Button variant="outline" style={{ fontSize: "11px", padding: "6px 16px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Bill", data: b })}>View Details</Button>
+                              <button 
+                                onClick={() => {
+                                  setSupplierSettlementForm(b);
+                                  setIsEditingSupplierBill(true);
+                                  setEditingSupplierBillId(b._id);
+                                  setActiveSupplierBillTab("Bill Header");
+                                  window.scrollTo({ top: 0, behavior: "smooth" });
+                                }}
+                                style={{ background: "none", border: "none", color: COLORS.sidebar, fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
+                              >
+                                Modify
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                 if (!window.confirm("🗑️ Are you sure you want to PERMANENTLY delete this billing record?")) return;
+                                 const res = await MandiService.deleteSupplierBill(b._id);
+                                 if (res.status === "SUCCESS") { alert("✅ Bill deleted successfully!"); fetchData(); }
+                                }}
+                                style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      {supplierBills.length === 0 && (
+                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No billing records found.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                 {activeSupplierBillTab === "Financial Summary" && (
                   <Button
@@ -7352,137 +7510,6 @@ export default function App() {
                 </Button>
               </div>
 
-              {/* Recently Recorded Supplier Bills */}
-              <div style={{ marginTop: "48px" }}>
-                <h4
-                  className="font-display"
-                  style={{
-                    color: COLORS.sidebar,
-                    marginBottom: "16px",
-                    fontWeight: "900",
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    fontSize: "14px",
-                  }}
-                >
-                  Recently Generated Bills
-                </h4>
-                <div
-                  style={{
-                    maxHeight: "400px",
-                    overflowY: "auto",
-                    padding: "8px",
-                    background: "#FDFBF4",
-                    borderRadius: "16px",
-                    border: "1.5px solid #EBE9E1",
-                  }}
-                >
-                  <div style={{ display: "grid", gap: "12px" }}>
-                    {supplierBills
-                      .slice()
-                      .reverse()
-                      .slice(0, 5)
-                      .map((b) => (
-                        <div
-                          key={b._id || Date.now() + Math.random()}
-                          style={{
-                            padding: "16px",
-                            background: "#fff",
-                            border: "1px solid #EBE9E1",
-                            borderRadius: "12px",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                          }}
-                        >
-                          <div style={{ flex: 1 }}>
-                            <b
-                              style={{
-                                color: COLORS.sidebar,
-                                fontSize: "15px",
-                              }}
-                            >
-                              {b.billNumber} — {b.supplierId || "Supplier"}
-                            </b>
-                            <p
-                              style={{
-                                margin: "4px 0 0",
-                                fontSize: "12px",
-                                color: COLORS.muted,
-                                fontWeight: "600",
-                              }}
-                            >
-                              🚚 {b.vehicleNumber || "N/A"} | 📅 {b.date}
-                            </p>
-                          </div>
-                          <div style={{ display: "flex", gap: "12px" }}>
-                            <button
-                              onClick={() => {
-                                setSupplierSettlementForm(b);
-                                setIsEditingSupplierBill(true);
-                                setEditingSupplierBillId(b._id);
-                                setActiveSupplierBillTab("Bill Header");
-                                window.scrollTo({ top: 0, behavior: "smooth" });
-                              }}
-                              style={{
-                                background: "#F8FAFC",
-                                border: "1px solid #E2E8F0",
-                                padding: "8px",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                color: COLORS.sidebar,
-                              }}
-                              title="Modify"
-                            >
-                              ✍️
-                            </button>
-                            <button
-                              onClick={async () => {
-                                if (
-                                  !window.confirm(
-                                    "🗑️ Are you sure you want to PERMANENTLY delete this billing record?",
-                                  )
-                                )
-                                  return;
-                                const res =
-                                  await MandiService.deleteSupplierBill(b._id);
-                                if (res.status === "SUCCESS") {
-                                  alert("✅ Bill deleted successfully!");
-                                  fetchData();
-                                } else {
-                                  alert("❌ Error deleting: " + res.message);
-                                }
-                              }}
-                              style={{
-                                background: "#FFF1F2",
-                                border: "1px solid #FECDD3",
-                                padding: "8px",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                color: "#E11D48",
-                              }}
-                              title="Delete"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    {supplierBills.length === 0 && (
-                      <p
-                        style={{
-                          textAlign: "center",
-                          color: COLORS.muted,
-                          padding: "20px",
-                        }}
-                      >
-                        No billing records found.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
@@ -7494,10 +7521,152 @@ export default function App() {
                   "Items Purchased",
                   "Additional Charges",
                   "Invoice Totals",
+                  "Preview & Print",
                 ]}
                 active={activeBuyerInvoiceTab}
                 set={setActiveBuyerInvoiceTab}
               />
+
+              {activeBuyerInvoiceTab === "Preview & Print" && (
+                <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px", gap: "12px" }}>
+                    <Button
+                      variant="success"
+                      onClick={handleSaveInvoicePDF}
+                      style={{ padding: "12px 24px" }}
+                    >
+                      Save as PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setLastGeneratedInvoice(null);
+                        setActiveBuyerInvoiceTab("Invoice Header");
+                      }}
+                    >
+                      New Invoice
+                    </Button>
+                  </div>
+
+                  <div
+                    ref={invoiceRef}
+                    style={{
+                      background: "#FFFFFF",
+                      padding: "40px",
+                      borderRadius: "0",
+                      border: "1px solid #EEE",
+                      boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+                      maxWidth: "800px",
+                      margin: "0 auto",
+                      color: "#1A231A",
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    {/* Invoice Header */}
+                    <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #D4A017", paddingBottom: "20px", marginBottom: "30px" }}>
+                      <div>
+                        <h1 style={{ margin: 0, color: "#D4A017", fontSize: "32px", fontWeight: "900" }}>INVOICE</h1>
+                        <p style={{ margin: "5px 0", fontWeight: "700", color: "#64748B" }}># {lastGeneratedInvoice?.invoiceNumber || buyerInvoiceForm.invoiceNumber}</p>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "800" }}>Mandi OS Enterprise</h2>
+                        <p style={{ margin: "4px 0", fontSize: "13px", color: "#64748B" }}>{formatDate(lastGeneratedInvoice?.date || buyerInvoiceForm.date)}</p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", marginBottom: "40px" }}>
+                      <div>
+                        <h3 style={{ fontSize: "12px", textTransform: "uppercase", color: "#64748B", marginBottom: "10px", fontWeight: "800" }}>Bill To</h3>
+                        <p style={{ margin: 0, fontSize: "16px", fontWeight: "800", color: "#1E240B" }}>
+                          {buyers.find(b => b._id === (lastGeneratedInvoice?.buyerId || buyerInvoiceForm.buyerId))?.name || "Customer"}
+                        </p>
+                        <p style={{ margin: "5px 0", fontSize: "14px", color: "#64748B" }}>
+                          {lastGeneratedInvoice?.buyerPhone || buyerInvoiceForm.buyerPhone || "N/A"}
+                        </p>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <h3 style={{ fontSize: "12px", textTransform: "uppercase", color: "#64748B", marginBottom: "10px", fontWeight: "800" }}>Reference</h3>
+                        <p style={{ margin: 0, fontSize: "14px", fontWeight: "700" }}>Lot ID: <span style={{ color: "#1E240B" }}>{lastGeneratedInvoice?.lotReference || buyerInvoiceForm.lotReference || "Direct"}</span></p>
+                        { (lastGeneratedInvoice?.transportBiceNo || buyerInvoiceForm.transportBiceNo) && (
+                           <p style={{ margin: "5px 0", fontSize: "14px", fontWeight: "700" }}>Transport: <span style={{ color: "#1E240B" }}>{lastGeneratedInvoice?.transportBiceNo || buyerInvoiceForm.transportBiceNo}</span></p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Items Table */}
+                    <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px" }}>
+                      <thead>
+                        <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
+                          <th style={{ textAlign: "left", padding: "12px", fontSize: "12px", fontWeight: "800", color: "#64748B" }}>Item Description</th>
+                          <th style={{ textAlign: "right", padding: "12px", fontSize: "12px", fontWeight: "800", color: "#64748B" }}>Weight</th>
+                          <th style={{ textAlign: "right", padding: "12px", fontSize: "12px", fontWeight: "800", color: "#64748B" }}>Rate</th>
+                          <th style={{ textAlign: "right", padding: "12px", fontSize: "12px", fontWeight: "800", color: "#64748B" }}>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(lastGeneratedInvoice?.items || buyerInvoiceForm.items).map((item, idx) => (
+                          <tr key={idx} style={{ borderBottom: "1px solid #F1F5F9" }}>
+                            <td style={{ padding: "15px 12px", fontSize: "14px", fontWeight: "700" }}>{item.productInfo || "Product"}</td>
+                            <td style={{ padding: "15px 12px", fontSize: "14px", textAlign: "right" }}>{Number(item.grossWeight || 0).toFixed(2)} KG</td>
+                            <td style={{ padding: "15px 12px", fontSize: "14px", textAlign: "right" }}>{formatCurrency(item.rate || 0)}</td>
+                            <td style={{ padding: "15px 12px", fontSize: "14px", textAlign: "right", fontWeight: "800" }}>
+                              {formatCurrency((Number(item.grossWeight || 0) * Number(item.rate || 0)))}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <div style={{ width: "300px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                          <span style={{ fontSize: "14px", color: "#64748B" }}>Subtotal</span>
+                          <span style={{ fontSize: "14px", fontWeight: "700" }}>{formatCurrency((lastGeneratedInvoice?.items || buyerInvoiceForm.items).reduce((s, i) => s + (Number(i.grossWeight || 0) * Number(i.rate || 0)), 0))}</span>
+                        </div>
+                        
+                        {(lastGeneratedInvoice?.charges || buyerInvoiceForm.charges) && (
+                          <>
+                            {Object.entries(lastGeneratedInvoice?.charges || buyerInvoiceForm.charges).map(([key, val]) => {
+                              if (val && key !== "otherName") {
+                                return (
+                                  <div key={key} style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                                    <span style={{ fontSize: "14px", color: "#64748B", textTransform: "capitalize" }}>{key === "otherAmount" ? (lastGeneratedInvoice?.charges?.otherName || buyerInvoiceForm.charges.otherName || "Other") : key}</span>
+                                    <span style={{ fontSize: "14px", fontWeight: "700" }}>+ {formatCurrency(val)}</span>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })}
+                          </>
+                        )}
+
+                        <div style={{ marginTop: "15px", paddingTop: "15px", borderTop: "2px solid #D4A017", display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ fontSize: "18px", fontWeight: "900", color: "#1E240B" }}>Grand Total</span>
+                          <span style={{ fontSize: "18px", fontWeight: "900", color: "#D4A017" }}>
+                            {(() => {
+                              const items = lastGeneratedInvoice?.items || buyerInvoiceForm.items;
+                              const charges = lastGeneratedInvoice?.charges || buyerInvoiceForm.charges;
+                              const gross = items.reduce((s, i) => s + (Number(i.grossWeight || 0) * Number(i.rate || 0)), 0);
+                              const extra = Object.entries(charges).reduce((s, [k, v]) => k.toLowerCase().includes("amount") || ["commission", "handling", "transport"].includes(k) ? s + Number(v || 0) : s, 0);
+                              return formatCurrency(gross + extra);
+                            })()}
+                          </span>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+                          <span style={{ fontSize: "13px", color: "#15803D", fontWeight: "700" }}>Payment Received</span>
+                          <span style={{ fontSize: "13px", color: "#15803D", fontWeight: "800" }}>{formatCurrency(lastGeneratedInvoice?.amountReceived || buyerInvoiceForm.amountReceived || 0)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: "100px", textAlign: "center", borderTop: "1px solid #EEE", paddingTop: "20px" }}>
+                      <p style={{ margin: 0, fontSize: "12px", color: "#94A3B8", fontWeight: "600" }}>Thank you for your business!</p>
+                      <p style={{ margin: "5px 0 0 0", fontSize: "10px", color: "#CBD5E1", letterSpacing: "1px" }}>POWERED BY MOS</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {activeBuyerInvoiceTab === "Invoice Header" && (
                 <div
@@ -8748,36 +8917,13 @@ export default function App() {
                               buyerInvoiceForm,
                             );
                           if (res.status === "SUCCESS") {
+                            setLastGeneratedInvoice({ ...buyerInvoiceForm });
                             alert(
                               `✅ INVOICE GENERATED: ${buyerInvoiceForm.invoiceNumber} saved!`,
                             );
-                            setBuyerInvoiceForm({
-                              invoiceNumber: `INV-${Math.floor(100 + Math.random() * 900)}`,
-                              date: getISTDate(),
-                              buyerId: "",
-                              buyerPhone: "",
-                              lotReference: "",
-                              transportBiceNo: "",
-                              items: [
-                                {
-                                  id: Date.now(),
-                                  productInfo: "",
-                                  grossWeight: "",
-                                  deductions: "",
-                                  rate: "",
-                                },
-                              ],
-                              charges: {
-                                commission: "",
-                                handling: "",
-                                transport: "",
-                                otherName: "",
-                                otherAmount: "",
-                              },
-                              amountReceived: "",
-                            });
                             fetchData();
-                            setActiveBuyerInvoiceTab("Invoice Header");
+                            setActiveBuyerInvoiceTab("Preview & Print");
+                            // Form is not cleared immediately to allow previewing
                           }
                         } catch (e) {
                           alert("❌ FAILED: " + e.message);
@@ -8939,7 +9085,7 @@ export default function App() {
                       style={{
                         display: "grid",
                         gridTemplateColumns:
-                          "repeat(auto-fit, minmax(200px, 1fr))",
+                          "repeat(auto-fit, minmax(180px, 1fr))",
                         gap: "20px",
                         background: "#FDFBF4",
                         padding: "20px",
@@ -9062,6 +9208,20 @@ export default function App() {
                           }}
                         />
                       </div>
+
+                      <div style={{ display: "flex", alignItems: "flex-end" }}>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedLedgerSupplier("");
+                            setLedgerFilters({ ...ledgerFilters, lotId: "", startDate: "" });
+                            fetchData();
+                          }}
+                          style={{ width: "100%" }}
+                        >
+                          Reset Filters
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
@@ -9093,18 +9253,25 @@ export default function App() {
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Advance (₹)</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Made (₹)</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Running Balance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
                           </tr>
                         </thead>
                       <tbody style={{ borderTop: "2px solid #F1F5F9" }}>
                         {(() => {
                           let runningTotalBalance = 0;
-                          return (supplierBills || [])
+                          const filteredBills = (supplierBills || [])
                             .filter((b) => {
+                              // Essential Multi-Level Supplier Filtering
+                              if (selectedLedgerSupplier) {
+                                const bSupId = b.supplierId?._id || b.supplierId || b.farmerId?._id || b.farmerId;
+                                if (bSupId !== selectedLedgerSupplier) return false;
+                              }
                               if (ledgerFilters.lotId && b.lotId !== ledgerFilters.lotId && b.lotCode !== ledgerFilters.lotId && b.lot_id !== ledgerFilters.lotId) return false;
                               if (ledgerFilters.startDate && (!b.date || b.date < ledgerFilters.startDate)) return false;
                               return true;
-                            })
-                            .map((bill, bIdx) => {
+                            });
+
+                          return filteredBills.map((bill, bIdx) => {
                               const dateVal =
                                 (bill.date && formatDate(bill.date)) ||
                                 (bill.createdAt
@@ -9163,6 +9330,9 @@ export default function App() {
                                     <span style={{ padding: "4px 10px", borderRadius: "10px", background: runningTotalBalance >= 0 ? "#F0FDF4" : "#FFF1F2", color: runningTotalBalance >= 0 ? "#15803D" : "#E11D48", fontWeight: "800", fontSize: "12px" }}>
                                       {formatCurrency(Math.abs(runningTotalBalance))} {runningTotalBalance >= 0 ? "CR" : "DR"}
                                     </span>
+                                  </td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "center" }}>
+                                    <Button variant="outline" style={{ padding: "6px 12px", fontSize: "10px" }} onClick={() => setViewingEntity({ type: "Bill", data: bill })}>View Details</Button>
                                   </td>
                                 </tr>
                               );
@@ -9262,7 +9432,7 @@ export default function App() {
                       style={{
                         display: "grid",
                         gridTemplateColumns:
-                          "repeat(auto-fit, minmax(200px, 1fr))",
+                          "repeat(auto-fit, minmax(180px, 1fr))",
                         gap: "20px",
                         background: "#FDFBF4",
                         padding: "20px",
@@ -9387,6 +9557,20 @@ export default function App() {
                           }}
                         />
                       </div>
+
+                      <div style={{ display: "flex", alignItems: "flex-end" }}>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedLedgerBuyer("");
+                            setLedgerFilters({ ...ledgerFilters, invoiceNo: "", startDate: "" });
+                            fetchData();
+                          }}
+                          style={{ width: "100%" }}
+                        >
+                          Reset Filters
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
@@ -9421,14 +9605,20 @@ export default function App() {
                       <tbody>
                         {(() => {
                           let runningOutstanding = 0;
-                          return (buyerInvoices || [])
+                          const filteredInvoices = (buyerInvoices || [])
                             .filter((inv) => {
+                              // Essential Multi-Level Customer Filtering
+                              if (selectedLedgerBuyer) {
+                                const invBuyId = inv.buyer?._id || inv.buyer || inv.buyerId;
+                                if (invBuyId !== selectedLedgerBuyer) return false;
+                              }
                               const invNo = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no;
                               if (ledgerFilters.invoiceNo && invNo !== ledgerFilters.invoiceNo) return false;
                               if (ledgerFilters.startDate && (!inv.date || inv.date < ledgerFilters.startDate)) return false;
                               return true;
-                            })
-                            .map((inv, iIdx) => {
+                            });
+
+                          return filteredInvoices.map((inv, iIdx) => {
                               const dateVal = (inv.date && formatDate(inv.date)) || (inv.createdAt ? formatDate(inv.createdAt) : getCurrentDateFormatted());
                               const invoiceNoVal = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no || `INV-${iIdx + 1}`;
                               
@@ -16818,7 +17008,7 @@ Powered by Stacli mandi os</div>
                     {viewingEntity.type} Profile
                   </h3>
                   <p style={{ color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontSize: "12px", fontWeight: "600" }}>
-                    Comprehensive database record for {viewingEntity.data.name || viewingEntity.data.lotId || "Registered Record"}
+                    Comprehensive database record for {viewingEntity.data.name || viewingEntity.data.lotId || viewingEntity.data.billNumber || "Registered Record"}
                   </p>
                 </div>
                 <button
