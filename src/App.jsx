@@ -802,6 +802,178 @@ export default function App() {
     }
   };
 
+  const downloadCSV = (csvContent, fileName) => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", fileName);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadLedgerCSV = (type) => {
+    let headers = [];
+    let rows = [];
+    let fileName = "";
+
+    if (type === "Supplier") {
+      const supplierName =
+        suppliers.find((s) => s._id === selectedLedgerSupplier)?.name || "All";
+      headers = [
+        "Date",
+        "Lot ID",
+        "Bill Number",
+        "Product Summary",
+        "Gross Sale (INR)",
+        "Expenses (INR)",
+        "Net Sale (INR)",
+        "Advance (INR)",
+        "Payment Made (INR)",
+        "Running Balance (INR)",
+      ];
+      fileName = `Supplier_Ledger_${supplierName}_${new Date().toISOString().split("T")[0]}.csv`;
+
+      let runningTotalBalance = 0;
+      const filtered = (supplierBills || []).filter((b) => {
+        if (
+          ledgerFilters.lotId &&
+          b.lotId !== ledgerFilters.lotId &&
+          b.lotCode !== ledgerFilters.lotId
+        )
+          return false;
+        if (
+          ledgerFilters.startDate &&
+          (!b.date || b.date < ledgerFilters.startDate)
+        )
+          return false;
+        return true;
+      });
+
+      rows = filtered.map((bill) => {
+        const dateVal =
+          (bill.date && formatDate(bill.date)) ||
+          (bill.createdAt ? formatDate(bill.createdAt) : "N/A");
+        const lotIdVal = bill.lotId || bill.lotCode || "N/A";
+        const billNoVal = bill.billNumber || bill.billNo || "DRAFT";
+        const itemsList = bill.produce || bill.items || [];
+        const productSummary =
+          itemsList.length > 0
+            ? itemsList
+                .map(
+                  (p) =>
+                    `${p.productName || p.product || ""} ${Number(p.quantity || p.qty || 0)} KG`,
+                )
+                .join(" + ")
+            : "N/A";
+
+        let grossValue = Number(bill.grossValue || bill.totalValue || 0);
+        if (grossValue === 0) {
+          grossValue = itemsList.reduce(
+            (sum, item) =>
+              sum +
+              Number(item.quantity || item.qty) *
+                Number(item.rate || item.saleRate),
+            0,
+          );
+        }
+        let expenseValue = Number(
+          bill.totalExpenses || bill.totalDeductions || 0,
+        );
+        const netValue = Number(bill.netPayable || grossValue - expenseValue);
+        const advanceAmt = Number(bill.advance || 0);
+        const cashPaid = Number(bill.amountPaid || bill.paymentMade || 0);
+
+        runningTotalBalance =
+          runningTotalBalance + netValue - advanceAmt - cashPaid;
+        const balanceStr = `${Math.abs(runningTotalBalance)} ${runningTotalBalance >= 0 ? "CR" : "DR"}`;
+
+        return [
+          dateVal,
+          lotIdVal,
+          billNoVal,
+          `"${productSummary}"`, // Wrap in quotes for CSV safety
+          grossValue,
+          expenseValue,
+          netValue,
+          advanceAmt,
+          cashPaid,
+          balanceStr,
+        ];
+      });
+    } else {
+      const buyerName =
+        buyers.find((b) => b._id === selectedLedgerBuyer)?.name || "All";
+      headers = [
+        "Date",
+        "Invoice No.",
+        "Fruit / Variety",
+        "Quantity (KG)",
+        "Invoice Amount (INR)",
+        "Payment Received (INR)",
+        "Outstanding Balance (INR)",
+      ];
+      fileName = `Customer_Ledger_${buyerName}_${new Date().toISOString().split("T")[0]}.csv`;
+
+      let runningOutstanding = 0;
+      const filtered = (buyerInvoices || []).filter((inv) => {
+        const invNo = inv.invoiceNumber || inv.invoiceNo;
+        if (ledgerFilters.invoiceNo && invNo !== ledgerFilters.invoiceNo)
+          return false;
+        if (
+          ledgerFilters.startDate &&
+          (!inv.date || inv.date < ledgerFilters.startDate)
+        )
+          return false;
+        return true;
+      });
+
+      rows = filtered.map((inv, iIdx) => {
+        const dateVal =
+          (inv.date && formatDate(inv.date)) ||
+          (inv.createdAt ? formatDate(inv.createdAt) : "N/A");
+        const invoiceNoVal =
+          inv.invoiceNumber || inv.invoiceNo || `INV-${iIdx + 1}`;
+        const items = inv.items || inv.lineItems || [];
+        const fruitVariety =
+          items
+            .map((p) => `${p.productLabel || p.product || ""} ${p.variety || ""}`)
+            .join(", ") || "N/A";
+        const totalQty = items.reduce(
+          (s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0),
+          0,
+        );
+        const invAmount = Number(inv.grandTotal || inv.totalAmount || 0);
+        const recvAmt = Number(
+          inv.amountReceived || inv.paidAmount || inv.paymentReceived || 0,
+        );
+
+        runningOutstanding = runningOutstanding + invAmount - recvAmt;
+        const balanceStr = `${Math.abs(runningOutstanding)} ${runningOutstanding >= 0 ? "OUTSTANDING" : "ADVANCE"}`;
+
+        return [
+          dateVal,
+          invoiceNoVal,
+          `"${fruitVariety}"`, // Wrap in quotes
+          totalQty,
+          invAmount,
+          recvAmt,
+          balanceStr,
+        ];
+      });
+    }
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    downloadCSV(csvContent, fileName);
+  };
+
+
   const handleEditSelect = (type, record) => {
     if (type === "Supplier") {
       setSupplierForm({
@@ -1327,6 +1499,7 @@ export default function App() {
       type: "Full Settlement",
       referenceId: buyerPaymentForm.referenceNo,
       againstInvoiceNo: buyerPaymentForm.againstInvoiceNo,
+      collectedBy: buyerPaymentForm.collectedBy,
     };
     const res = await MandiService.recordPayment(payload);
     if (res.status === "SUCCESS") {
@@ -1336,6 +1509,7 @@ export default function App() {
         buyerId: "",
         amountReceived: "",
         referenceNo: "",
+        collectedBy: "Admin Staff", // Reset to default or keep as is? Admin Staff is safe.
         notes: "",
       });
       fetchData();
@@ -1353,7 +1527,7 @@ export default function App() {
       amount: Number(farmerPaymentForm.amount),
       date: farmerPaymentForm.paymentDate,
       mode: farmerPaymentForm.paymentMode === "Bank Transfer" ? "Bank" : "Cash",
-      type: "Full Settlement",
+      type: farmerPaymentForm.paymentCategory || "Advance",
       referenceId: farmerPaymentForm.referenceNo,
       againstBillNo: farmerPaymentForm.againstBillNo,
     };
@@ -1365,6 +1539,7 @@ export default function App() {
         farmerId: "",
         amount: "",
         referenceNo: "",
+        againstBillNo: "",
         notes: "",
       });
       fetchData();
@@ -1567,6 +1742,7 @@ export default function App() {
     paymentDate: new Date().toISOString().slice(0, 10),
     againstBillNo: "",
     paymentMode: "Bank Transfer",
+    paymentCategory: "Advance",
     amount: "",
     referenceNo: "",
     tag: "Settlement",
@@ -3238,48 +3414,32 @@ export default function App() {
               {user?.username?.[0]?.toUpperCase() || "U"}
             </div>
             <div style={{ flex: 1 }}>
-              <p
+              <button
+                onClick={handleLogout}
                 style={{
-                  color: "#ffffff",
-                  fontSize: "14px",
-                  margin: 0,
-                  fontWeight: "850",
-                  letterSpacing: "0.3px",
-                }}
-              >
-                {user?.username || "Staff Identity"}
-              </p>
-              <p
-                style={{
-                  color: "#AEC4BB",
-                  fontSize: "11px",
-                  margin: 0,
-                  fontWeight: "600",
+                  background: COLORS.accent,
+                  border: "none",
+                  color: COLORS.secondary,
+                  cursor: "pointer",
+                  fontSize: "12px",
+                  fontWeight: "900",
+                  padding: "10px 18px",
+                  borderRadius: "10px",
+                  marginLeft: "12px",
                   textTransform: "uppercase",
-                  opacity: 0.7,
+                  letterSpacing: "1px",
+                  transition: "all 0.2s",
                 }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.05)")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
               >
-                {user?.role}
-              </p>
+                Log Out
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: "none",
-                border: "none",
-                color: COLORS.accent,
-                cursor: "pointer",
-                fontSize: "20px",
-                padding: "8px",
-                transition: "0.2s",
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.transform = "scale(1.2)")
-              }
-              onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            >
-              🚪
-            </button>
           </div>
         </nav>
       )}
@@ -9069,39 +9229,22 @@ export default function App() {
                         alignItems: "center",
                       }}
                     >
-                      <div>
-                        <h2
-                          style={{
-                            fontSize: "24px",
-                            fontWeight: "900",
-                            color: COLORS.sidebar,
-                            margin: 0,
-                          }}
-                        >
-                          Supplier Party Ledger
-                        </h2>
-                        <p
-                          style={{
-                            fontSize: "13px",
-                            color: COLORS.muted,
-                            margin: "4px 0 0 0",
-                          }}
-                        >
-                          Automated financial audit trail (Net Sale - Advance -
-                          Payments = Balance).
-                        </p>
-                      </div>
+                      <div style={{ display: "flex", flex: 1 }}></div>
                       <div style={{ display: "flex", gap: "12px" }}>
                         <Button
+                          onClick={() => handleDownloadLedgerCSV(activeLedgerTab === "Supplier" ? "Supplier" : "Customer")}
                           style={{
-                            background: "#F1F5F9",
-                            color: COLORS.sidebar,
+                            background: "linear-gradient(135deg, #1e240b 0%, #3a4714 100%)",
+                            color: "#fff",
                             fontWeight: "800",
                             fontSize: "12px",
                             height: "fit-content",
+                            border: "none",
+                            padding: "10px 20px",
+                            boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
                           }}
                         >
-                          Download Statement
+                          <span style={{ marginRight: "8px" }}>📥</span> Download Statement
                         </Button>
                       </div>
                     </div>
@@ -9397,38 +9540,22 @@ export default function App() {
                         alignItems: "center",
                       }}
                     >
-                      <div>
-                        <h2
-                          style={{
-                            fontSize: "24px",
-                            fontWeight: "900",
-                            color: COLORS.sidebar,
-                            margin: 0,
-                          }}
-                        >
-                          Customer Party Ledger
-                        </h2>
-                        <p
-                          style={{
-                            fontSize: "13px",
-                            color: COLORS.muted,
-                            margin: "4px 0 0 0",
-                          }}
-                        >
-                          Invoice-wise receivables tracking (Invoiced - Received = Outstanding Balance).
-                        </p>
-                      </div>
+                      <div style={{ display: "flex", flex: 1 }}></div>
                       <div style={{ display: "flex", gap: "12px" }}>
                         <Button
+                          onClick={() => handleDownloadLedgerCSV(activeLedgerTab === "Supplier" ? "Supplier" : "Customer")}
                           style={{
-                            background: "#F1F5F9",
-                            color: COLORS.sidebar,
+                            background: "linear-gradient(135deg, #1e240b 0%, #3a4714 100%)",
+                            color: "#fff",
                             fontWeight: "800",
                             fontSize: "12px",
                             height: "fit-content",
+                            border: "none",
+                            padding: "10px 20px",
+                            boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
                           }}
                         >
-                          Download Statement
+                          <span style={{ marginRight: "8px" }}>📥</span> Download Statement
                         </Button>
                       </div>
                     </div>
@@ -9734,34 +9861,6 @@ export default function App() {
                     boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                   }}
                 >
-                  <div
-                    style={{
-                      borderBottom: "2.5px solid #F1F5F9",
-                      paddingBottom: "20px",
-                      marginBottom: "24px",
-                    }}
-                  >
-                    <h2
-                      style={{
-                        fontSize: "28px",
-                        fontWeight: "900",
-                        color: COLORS.sidebar,
-                        margin: 0,
-                      }}
-                    >
-                      Supplier Payments (Outgoing from SPV)
-                    </h2>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        color: COLORS.muted,
-                        margin: "4px 0 0 0",
-                      }}
-                    >
-                      Settlement payouts, advances, and financial disbursements
-                      to farmers.
-                    </p>
-                  </div>
 
                   <div
                     style={{
@@ -9833,12 +9932,45 @@ export default function App() {
                         </label>
                         <select
                           value={farmerPaymentForm.farmerId}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const selId = e.target.value;
+                            const supplier = suppliers.find(
+                              (s) => s._id === selId,
+                            );
+                            const supplierPrefix = supplier
+                              ? supplier.name
+                                  .substring(0, 3)
+                                  .toUpperCase()
+                                  .replace(/\s/g, "")
+                              : "SUP";
+                            const randomId = Math.floor(
+                              1000 + Math.random() * 9000,
+                            );
+
+                            // Auto-generate balance calculation
+                            const bills = (supplierBills || []).filter(
+                              (b) => b.supplierId === selId || b.farmerId === selId,
+                            );
+                            const tNet = bills.reduce(
+                              (sum, b) => sum + Number(b.netPayable || 0),
+                              0,
+                            );
+                            const tPaid = bills.reduce(
+                              (sum, b) =>
+                                sum +
+                                Number(b.advance || 0) +
+                                Number(b.amountPaid || b.paymentMade || 0),
+                              0,
+                            );
+                            const currentDue = tNet - tPaid;
+
                             setFarmerPaymentForm({
                               ...farmerPaymentForm,
-                              farmerId: e.target.value,
-                            })
-                          }
+                              farmerId: selId,
+                              againstBillNo: `${supplierPrefix}-${randomId}`,
+                              amount: currentDue > 0 ? String(currentDue) : "",
+                            });
+                          }}
                           style={{
                             padding: "12px 14px",
                             borderRadius: "8px",
@@ -9860,6 +9992,119 @@ export default function App() {
                         </select>
                       </div>
                     </div>
+
+                    {farmerPaymentForm.farmerId && (() => {
+                      const selId = farmerPaymentForm.farmerId;
+                      const bills = (supplierBills || []).filter(
+                        (b) => b.supplierId === selId || b.farmerId === selId,
+                      );
+                      const tNet = bills.reduce(
+                        (sum, b) => sum + Number(b.netPayable || 0),
+                        0,
+                      );
+                      const tPaid = bills.reduce(
+                        (sum, b) =>
+                          sum +
+                          Number(b.advance || 0) +
+                          Number(b.amountPaid || b.paymentMade || 0),
+                        0,
+                      );
+                      const tBalance = tNet - tPaid;
+                      return (
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3, 1fr)",
+                            gap: "12px",
+                            background: "#F8FAFC",
+                            padding: "16px",
+                            borderRadius: "14px",
+                            border: "1.5px solid #E2E8F0",
+                            marginTop: "-8px",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <div>
+                            <span
+                              style={{
+                                fontSize: "9px",
+                                fontWeight: "800",
+                                color: COLORS.muted,
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              Total Net Sale
+                            </span>
+                            <div
+                              style={{
+                                fontSize: "16px",
+                                fontWeight: "900",
+                                color: COLORS.sidebar,
+                              }}
+                            >
+                              {formatCurrency(tNet)}
+                            </div>
+                          </div>
+                          <div>
+                            <span
+                              style={{
+                                fontSize: "9px",
+                                fontWeight: "800",
+                                color: COLORS.muted,
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              Current Due
+                            </span>
+                            <div
+                              style={{
+                                fontSize: "16px",
+                                fontWeight: "900",
+                                color:
+                                  tBalance > 0 ? COLORS.danger : COLORS.success,
+                              }}
+                            >
+                              {formatCurrency(Math.abs(tBalance))}{" "}
+                              {tBalance >= 0 ? "DR" : "CR"}
+                            </div>
+                          </div>
+                          <div>
+                            <span
+                              style={{
+                                fontSize: "9px",
+                                fontWeight: "800",
+                                color: COLORS.muted,
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              Rem. Balance
+                            </span>
+                            <div
+                              style={{
+                                fontSize: "16px",
+                                fontWeight: "900",
+                                color:
+                                  tBalance - Number(farmerPaymentForm.amount || 0) >
+                                  0
+                                    ? COLORS.danger
+                                    : COLORS.success,
+                              }}
+                            >
+                              {formatCurrency(
+                                Math.abs(
+                                  tBalance -
+                                    Number(farmerPaymentForm.amount || 0),
+                                ),
+                              )}{" "}
+                              {tBalance - Number(farmerPaymentForm.amount || 0) >=
+                              0
+                                ? "DR"
+                                : "CR"}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     <div
                       style={{
@@ -9951,41 +10196,90 @@ export default function App() {
 
                     <div
                       style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "16px",
                       }}
                     >
-                      <label
+                      <div
                         style={{
-                          fontSize: "11px",
-                          fontWeight: "800",
-                          color: COLORS.muted,
-                          textTransform: "uppercase",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
                         }}
                       >
-                        Against Bill / Ref No.
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Bill ID or Reference"
-                        value={farmerPaymentForm.againstBillNo}
-                        onChange={(e) =>
-                          setFarmerPaymentForm({
-                            ...farmerPaymentForm,
-                            againstBillNo: e.target.value,
-                          })
-                        }
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Bill Number (Auto)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Bill ID or Reference"
+                          value={farmerPaymentForm.againstBillNo}
+                          onChange={(e) =>
+                            setFarmerPaymentForm({
+                              ...farmerPaymentForm,
+                              againstBillNo: e.target.value,
+                            })
+                          }
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #EBE9E1",
+                            color: COLORS.sidebar,
+                            background: "#F8FAFC",
+                            outline: "none",
+                            fontSize: "13px",
+                            fontWeight: "700",
+                          }}
+                        />
+                      </div>
+                      <div
                         style={{
-                          padding: "12px 14px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          color: COLORS.sidebar,
-                          outline: "none",
-                          fontSize: "13px",
-                          fontWeight: "600",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
                         }}
-                      />
+                      >
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Advance & settlement
+                        </label>
+                        <select
+                          value={farmerPaymentForm.paymentCategory}
+                          onChange={(e) =>
+                            setFarmerPaymentForm({
+                              ...farmerPaymentForm,
+                              paymentCategory: e.target.value,
+                            })
+                          }
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #EBE9E1",
+                            color: COLORS.sidebar,
+                            outline: "none",
+                            fontSize: "13px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          <option value="Advance">Advance</option>
+                          <option value="part payment">part payment</option>
+                          <option value="full settlement">full settlement</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div
@@ -10067,19 +10361,48 @@ export default function App() {
                       />
                     </div>
 
-                    <Button
+                    <div
                       style={{
-                        marginTop: "12px",
-                        height: "56px",
-                        fontSize: "16px",
-                        background: COLORS.sidebar,
-                        fontWeight: "900",
-                        borderRadius: "10px",
+                        display: "flex",
+                        gap: "12px",
+                        marginTop: "16px",
+                        justifyContent: "flex-start",
                       }}
-                      onClick={handleRecordFarmerPayment}
                     >
-                      Confirm Supplier Payout
-                    </Button>
+                      <Button
+                        style={{
+                          width: "140px",
+                          height: "42px",
+                          fontSize: "14px",
+                          background: COLORS.sidebar,
+                          fontWeight: "800",
+                          borderRadius: "8px",
+                        }}
+                        onClick={handleRecordFarmerPayment}
+                      >
+                        Confirm
+                      </Button>
+                      <Button
+                        style={{
+                          width: "140px",
+                          height: "42px",
+                          fontSize: "14px",
+                          background: "#F8FAFC",
+                          color: COLORS.sidebar,
+                          border: "1px solid #E2E8F0",
+                          fontWeight: "800",
+                          borderRadius: "8px",
+                        }}
+                        onClick={() => {
+                          // Standard pattern for "Modify" in this context
+                          alert(
+                            "Please select a historical payment from the Ledger to modify.",
+                          );
+                        }}
+                      >
+                        Modify
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -10095,53 +10418,6 @@ export default function App() {
                       boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                     }}
                   >
-                    <div
-                      style={{
-                        padding: "8px 0",
-                        borderBottom: "1px solid #EBE9E1",
-                        marginBottom: "20px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: "11px",
-                        fontWeight: "750",
-                        color: COLORS.muted,
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      <span>SPV FRUITS — Mandi Management ERP</span>
-                      <span style={{ color: "#E11D48" }}>
-                        Confidential — Internal Document Only
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        borderBottom: "2.5px solid #F1F5F9",
-                        paddingBottom: "20px",
-                        marginBottom: "24px",
-                      }}
-                    >
-                      <h2
-                        style={{
-                          fontSize: "28px",
-                          fontWeight: "900",
-                          color: "#15803D",
-                          margin: 0,
-                        }}
-                      >
-                        Buyer Payments (Incoming to SPV)
-                      </h2>
-                      <p
-                        style={{
-                          fontSize: "14px",
-                          color: COLORS.muted,
-                          margin: "4px 0 0 0",
-                        }}
-                      >
-                        Collections, receipts, and invoice payments received
-                        from auction buyers.
-                      </p>
-                    </div>
 
                     <div
                       style={{
@@ -10213,12 +10489,38 @@ export default function App() {
                           </label>
                           <select
                             value={buyerPaymentForm.buyerId}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const selId = e.target.value;
+                              // Auto-generate balance calculation for buyer
+                              const invoices = (buyerInvoices || []).filter(
+                                (inv) => inv.buyerId === selId,
+                              );
+                              const tBilled = invoices.reduce(
+                                (sum, inv) =>
+                                  sum +
+                                  Number(inv.grandTotal || inv.totalAmount || 0),
+                                0,
+                              );
+                              const tReceived = invoices.reduce(
+                                (sum, inv) =>
+                                  sum +
+                                  Number(
+                                    inv.amountReceived ||
+                                      inv.paidAmount ||
+                                      inv.paymentReceived ||
+                                      0,
+                                  ),
+                                0,
+                              );
+                              const currentDue = tBilled - tReceived;
+
                               setBuyerPaymentForm({
                                 ...buyerPaymentForm,
-                                buyerId: e.target.value,
-                              })
-                            }
+                                buyerId: selId,
+                                amountReceived:
+                                  currentDue > 0 ? String(currentDue) : "",
+                              });
+                            }}
                             style={{
                               padding: "12px 14px",
                               borderRadius: "8px",
@@ -10240,6 +10542,120 @@ export default function App() {
                           </select>
                         </div>
                       </div>
+  
+                      {buyerPaymentForm.buyerId && (() => {
+                        const selId = buyerPaymentForm.buyerId;
+                        const invoices = (buyerInvoices || []).filter(
+                          (inv) => inv.buyerId === selId,
+                        );
+                        const tBilled = invoices.reduce(
+                          (sum, inv) =>
+                            sum + Number(inv.grandTotal || inv.totalAmount || 0),
+                          0,
+                        );
+                        const tReceived = invoices.reduce(
+                          (sum, inv) =>
+                            sum +
+                            Number(
+                              inv.amountReceived ||
+                                inv.paidAmount ||
+                                inv.paymentReceived ||
+                                0,
+                            ),
+                          0,
+                        );
+                        const currentDue = tBilled - tReceived;
+                        const paying = Number(buyerPaymentForm.amountReceived || 0);
+                        const remBalance = currentDue - paying;
+  
+                        return (
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(3, 1fr)",
+                              gap: "12px",
+                              background: "#F0FDF4",
+                              padding: "16px",
+                              borderRadius: "14px",
+                              border: "1.5px solid #DCFCE7",
+                              marginTop: "-8px",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <div>
+                              <span
+                                style={{
+                                  fontSize: "9px",
+                                  fontWeight: "800",
+                                  color: "#15803D",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                Total Billed
+                              </span>
+                              <div
+                                style={{
+                                  fontSize: "16px",
+                                  fontWeight: "900",
+                                  color: COLORS.sidebar,
+                                }}
+                              >
+                                {formatCurrency(tBilled)}
+                              </div>
+                            </div>
+                            <div>
+                              <span
+                                style={{
+                                  fontSize: "9px",
+                                  fontWeight: "800",
+                                  color: "#15803D",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                Current Due
+                              </span>
+                              <div
+                                style={{
+                                  fontSize: "16px",
+                                  fontWeight: "900",
+                                  color:
+                                    currentDue > 0
+                                      ? COLORS.danger
+                                      : COLORS.success,
+                                }}
+                              >
+                                {formatCurrency(Math.abs(currentDue))}{" "}
+                                {currentDue >= 0 ? "DR" : "CR"}
+                              </div>
+                            </div>
+                            <div>
+                              <span
+                                style={{
+                                  fontSize: "9px",
+                                  fontWeight: "800",
+                                  color: "#15803D",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                Rem. Balance
+                              </span>
+                              <div
+                                style={{
+                                  fontSize: "16px",
+                                  fontWeight: "900",
+                                  color:
+                                    remBalance > 0
+                                      ? COLORS.danger
+                                      : COLORS.success,
+                                }}
+                              >
+                                {formatCurrency(Math.abs(remBalance))}{" "}
+                                {remBalance >= 0 ? "DR" : "CR"}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       <div
                         style={{
@@ -10369,41 +10785,91 @@ export default function App() {
 
                       <div
                         style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: "16px",
                         }}
                       >
-                        <label
+                        <div
                           style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
                           }}
                         >
-                          Transaction Reference
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Ref ID"
-                          value={buyerPaymentForm.referenceNo}
-                          onChange={(e) =>
-                            setBuyerPaymentForm({
-                              ...buyerPaymentForm,
-                              referenceNo: e.target.value,
-                            })
-                          }
+                          <label
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "800",
+                              color: COLORS.muted,
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            Transaction Reference
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Ref ID"
+                            value={buyerPaymentForm.referenceNo}
+                            onChange={(e) =>
+                              setBuyerPaymentForm({
+                                ...buyerPaymentForm,
+                                referenceNo: e.target.value,
+                              })
+                            }
+                            style={{
+                              padding: "12px 14px",
+                              borderRadius: "8px",
+                              border: "1px solid #EBE9E1",
+                              color: COLORS.sidebar,
+                              outline: "none",
+                              fontSize: "13px",
+                              fontWeight: "600",
+                            }}
+                          />
+                        </div>
+                        <div
                           style={{
-                            padding: "12px 14px",
-                            borderRadius: "8px",
-                            border: "1px solid #EBE9E1",
-                            color: COLORS.sidebar,
-                            outline: "none",
-                            fontSize: "13px",
-                            fontWeight: "600",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
                           }}
-                        />
+                        >
+                          <label
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "800",
+                              color: COLORS.muted,
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            Collected By
+                          </label>
+                          <select
+                            value={buyerPaymentForm.collectedBy}
+                            onChange={(e) =>
+                              setBuyerPaymentForm({
+                                ...buyerPaymentForm,
+                                collectedBy: e.target.value,
+                              })
+                            }
+                            style={{
+                              padding: "12px 14px",
+                              borderRadius: "8px",
+                              border: "1px solid #EBE9E1",
+                              color: COLORS.sidebar,
+                              outline: "none",
+                              fontSize: "13px",
+                              fontWeight: "600",
+                            }}
+                          >
+                            {staffUsers.map((su) => (
+                              <option key={su.id} value={su.name}>
+                                {su.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
 
                       <div
@@ -10446,19 +10912,47 @@ export default function App() {
                         />
                       </div>
 
-                      <Button
+                      <div
                         style={{
-                          marginTop: "12px",
-                          height: "56px",
-                          fontSize: "16px",
-                          background: "#15803D",
-                          fontWeight: "900",
-                          borderRadius: "10px",
+                          display: "flex",
+                          gap: "12px",
+                          marginTop: "16px",
+                          justifyContent: "flex-start",
                         }}
-                        onClick={handleRecordBuyerPayment}
                       >
-                        Record Receipt
-                      </Button>
+                        <Button
+                          style={{
+                            width: "140px",
+                            height: "42px",
+                            fontSize: "14px",
+                            background: "#15803D",
+                            fontWeight: "800",
+                            borderRadius: "8px",
+                          }}
+                          onClick={handleRecordBuyerPayment}
+                        >
+                          Confirm
+                        </Button>
+                        <Button
+                          style={{
+                            width: "140px",
+                            height: "42px",
+                            fontSize: "14px",
+                            background: "#F8FAFC",
+                            color: "#15803D",
+                            border: "1px solid #DCFCE7",
+                            fontWeight: "800",
+                            borderRadius: "8px",
+                          }}
+                          onClick={() => {
+                            alert(
+                              "Please select a historical receipt from the Ledger to modify.",
+                            );
+                          }}
+                        >
+                          Modify
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
@@ -10531,72 +11025,140 @@ export default function App() {
                           gap: "12px",
                         }}
                       >
-                        {[
-                          { name: "Reliance Retail", due: 125000, days: 14 },
-                          { name: "Harsha Wholesale", due: 84000, days: 9 },
-                        ].map((alert, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              padding: "16px",
-                              background: "#fef2f2",
-                              borderRadius: "12px",
-                              border: "1px solid #fee2e2",
-                            }}
-                          >
+                        {(() => {
+                          const buyerSummaries = (buyers || [])
+                            .map((b) => {
+                              const invoices = (buyerInvoices || []).filter(
+                                (inv) => inv.buyerId === b._id,
+                              );
+                              const tBilled = invoices.reduce(
+                                (sum, inv) =>
+                                  sum +
+                                  Number(
+                                    inv.grandTotal || inv.totalAmount || 0,
+                                  ),
+                                0,
+                              );
+                              const tReceived = invoices.reduce(
+                                (sum, inv) =>
+                                  sum +
+                                  Number(
+                                    inv.amountReceived || inv.paidAmount || 0,
+                                  ),
+                                0,
+                              );
+                              const balance = tBilled - tReceived;
+                              return { ...b, balance };
+                            })
+                            .filter((b) => b.balance > 0)
+                            .sort((a, b) => b.balance - a.balance)
+                            .slice(0, 3);
+
+                          if (buyerSummaries.length === 0) {
+                            return (
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  padding: "20px",
+                                  color: COLORS.muted,
+                                  fontSize: "12px",
+                                }}
+                              >
+                                All buyers are currently cleared. ✅
+                              </div>
+                            );
+                          }
+
+                          return buyerSummaries.map((alert, i) => (
                             <div
+                              key={i}
                               style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                marginBottom: "4px",
+                                padding: "16px",
+                                background: "#fef2f2",
+                                borderRadius: "12px",
+                                border: "1px solid #fee2e2",
                               }}
                             >
-                              <b style={{ fontSize: "13px", color: "#991b1b" }}>
-                                {alert.name}
-                              </b>
-                              <span
+                              <div
                                 style={{
-                                  fontSize: "10px",
-                                  background: "#991b1b",
-                                  color: "#fff",
-                                  padding: "2px 8px",
-                                  borderRadius: "10px",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  marginBottom: "4px",
                                 }}
                               >
-                                {alert.days} days past
-                              </span>
+                                <b
+                                  style={{
+                                    fontSize: "13px",
+                                    color: "#991b1b",
+                                  }}
+                                >
+                                  {alert.name}
+                                </b>
+                                <span
+                                  style={{
+                                    fontSize: "10px",
+                                    background: "#991b1b",
+                                    color: "#fff",
+                                    padding: "2px 8px",
+                                    borderRadius: "10px",
+                                  }}
+                                >
+                                  DUE
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: "14px",
+                                    fontWeight: "900",
+                                    color: "#991b1b",
+                                  }}
+                                >
+                                  {formatCurrency(alert.balance)}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    const msg = `Dear ${
+                                      alert.name
+                                    }, a payment of ${formatCurrency(
+                                      alert.balance,
+                                    )} is pending in your account at Mandi Management. Please settle it at the earliest.`;
+                                    const phone =
+                                      alert.mobile || alert.phone || "";
+                                    if (phone) {
+                                      window.open(
+                                        `https://wa.me/91${phone.replace(
+                                          /\D/g,
+                                          "",
+                                        )}?text=${encodeURIComponent(msg)}`,
+                                      );
+                                    } else {
+                                      window.alert(
+                                        "No contact number registered for this buyer.",
+                                      );
+                                    }
+                                  }}
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: COLORS.primary,
+                                    fontWeight: "800",
+                                    fontSize: "11px",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Send Notice 📲
+                                </button>
+                              </div>
                             </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontSize: "14px",
-                                  fontWeight: "900",
-                                  color: "#991b1b",
-                                }}
-                              >
-                                {formatCurrency(alert.due)}
-                              </span>
-                              <button
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: COLORS.primary,
-                                  fontWeight: "800",
-                                  fontSize: "11px",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                Send Notice 📲
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                          ));
+                        })()}
                       </div>
                     </Card>
                   </div>
