@@ -705,6 +705,9 @@ export default function App() {
   const [lotSearchQuery, setLotSearchQuery] = useState("");
   const [allocationSearchQuery, setAllocationSearchQuery] = useState("");
   const [billSearchQuery, setBillSearchQuery] = useState("");
+  const [invoiceSearchQuery, setInvoiceSearchQuery] = useState("");
+  const [isEditingBuyerInvoice, setIsEditingBuyerInvoice] = useState(false);
+  const [editingBuyerInvoiceId, setEditingBuyerInvoiceId] = useState(null);
   const invoiceRef = useRef(null);
   const [lastGeneratedInvoice, setLastGeneratedInvoice] = useState(null);
 
@@ -727,6 +730,87 @@ export default function App() {
     pdf.text("Powered by MOS", pdfWidth / 2, pdf.internal.pageSize.getHeight() - 10, { align: "center" });
     
     pdf.save(`Invoice_${lastGeneratedInvoice?.invoiceNumber || "MOS"}.pdf`);
+  };
+
+  const handleSendBuyerWhatsApp = (b) => {
+    const buyer = buyers.find(s => s._id === (b.buyerId?._id || b.buyerId)) || b.buyerId;
+    const phone = buyer?.phone || b.buyerPhone || "";
+    if (!phone) return alert("❌ No phone number found for this customer.");
+
+    const items = b.items || [];
+    const totalQty = items.reduce((s, i) => s + (Number(i.grossWeight || 0) - (Number(i.deductions || 0))), 0);
+    const productName = items?.[0]?.productInfo || "Various Products";
+
+    const subTotal = items.reduce((s, it) => s + (Math.max(0, (Number(it.grossWeight) || 0) - (Number(it.deductions) || 0)) * (Number(it.rate) || 0)), 0);
+    const ch = b.charges || {};
+    const totalAdditional = (Number(ch.commission) || 0) + (Number(ch.handling) || 0) + (Number(ch.transport) || 0) + (Number(ch.otherAmount) || 0);
+    const grandTotal = subTotal + totalAdditional;
+    const amountReceived = Number(b.amountReceived) || 0;
+    const balanceDue = grandTotal - amountReceived;
+
+    const msg = `Hello Customer 👋
+
+Your invoice from *SPV Fruits* is ready.
+
+📊 Product: ${productName}
+📦 Quantity: ${totalQty.toFixed(2)} kg
+💰 Amount: ${formatCurrency(grandTotal)}
+
+📄 View Invoice:
+https://mandi-zeta.vercel.app/#/invoice/${b._id}
+
+For any queries, please contact us.
+
+— SPV Fruits
+Powered by Stacli mandi os
+
+--- FINANCIALS ---
+Total amount: ${formatCurrency(grandTotal)}
+Payment Received: ${formatCurrency(amountReceived)}
+Balance Amount: ${formatCurrency(balanceDue)}`;
+
+    const url = `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+  };
+
+  const handleSendSupplierWhatsApp = (b) => {
+    const supplier = suppliers.find(s => s._id === b.supplierId?._id || s._id === b.supplierId) || b.supplierId;
+    const phone = supplier?.phone || "";
+    if (!phone) return alert("❌ No phone number found for this supplier.");
+
+    const totalGross = (b.items || []).reduce((s, i) => s + (Number(i.quantity || 0) * Number(i.rate || 0)), 0);
+    const totalQty = (b.items || []).reduce((s, i) => s + Number(i.quantity || 0), 0);
+    const productName = b.items?.[0]?.productName || "Various Products";
+    
+    const ex = b.expenses || {};
+    const totalExpenses = (Number(ex.transport) || 0) + (Number(ex.commission) || 0) + (Number(ex.labour) || 0) + (Number(ex.weighing) || 0) + (Number(ex.packing) || 0) + (Number(ex.miscAmount) || 0);
+    const netSale = totalGross - totalExpenses;
+    const advance = Number(ex.advance || 0);
+    const balancePayable = netSale - advance;
+
+    const msg1 = `Hello Supplier 👋
+
+Your invoice from *SPV Fruits* is ready.
+
+🍎 Product: ${productName}
+📦 Quantity: ${totalQty} kg
+💰 Amount: ${formatCurrency(balancePayable)}
+
+📄 View Invoice:
+https://mandi-zeta.vercel.app/#/invoice/${b._id}
+
+For any queries, please contact us.
+
+— SPV Fruits
+Powered by Stacli mandi os
+
+--- FINANCIALS ---
+Total amount: ${formatCurrency(totalGross)}
+advance payable: ${formatCurrency(advance)}
+balance amount: ${formatCurrency(balancePayable)}`;
+
+    const url = `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(msg1)}`;
+    window.open(url, "_blank");
   };
 
 
@@ -7264,6 +7348,23 @@ export default function App() {
                                 {formatCurrency(balancePayable)}
                               </span>
                             </div>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                paddingTop: "12px",
+                                marginTop: "8px",
+                                borderTop: "1px dashed #E2E8F0"
+                              }}
+                            >
+                              <span style={{ color: COLORS.sidebar, fontWeight: "800", fontSize: "16px" }}>
+                                Balance Amount
+                              </span>
+                              <span style={{ color: COLORS.sidebar, fontWeight: "900", fontSize: "16px" }}>
+                                {formatCurrency(balancePayable)}
+                              </span>
+                            </div>
                           </div>
                         </>
                       );
@@ -7344,6 +7445,22 @@ export default function App() {
                             </div>
                             <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
                               <Button variant="outline" style={{ fontSize: "11px", padding: "6px 16px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Bill", data: b })}>View Details</Button>
+                              <Button 
+                                onClick={() => handleSendSupplierWhatsApp(b)}
+                                style={{ 
+                                  fontSize: "11px", 
+                                  padding: "6px 16px", 
+                                  background: "#25D366", 
+                                  color: "#fff", 
+                                  border: "none",
+                                  borderRadius: "24px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px"
+                                }}
+                              >
+                                <span>WhatsApp</span>
+                              </Button>
                               <button 
                                 onClick={() => {
                                   setSupplierSettlementForm(b);
@@ -7522,6 +7639,7 @@ export default function App() {
                   "Additional Charges",
                   "Invoice Totals",
                   "Preview & Print",
+                  "Generated Invoices",
                 ]}
                 active={activeBuyerInvoiceTab}
                 set={setActiveBuyerInvoiceTab}
@@ -7656,6 +7774,20 @@ export default function App() {
                         <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
                           <span style={{ fontSize: "13px", color: "#15803D", fontWeight: "700" }}>Payment Received</span>
                           <span style={{ fontSize: "13px", color: "#15803D", fontWeight: "800" }}>{formatCurrency(lastGeneratedInvoice?.amountReceived || buyerInvoiceForm.amountReceived || 0)}</span>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", borderTop: "1px dashed #E2E8F0", paddingTop: "10px" }}>
+                          <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "900" }}>Balance Amount</span>
+                          <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "900" }}>
+                            {(() => {
+                              const items = lastGeneratedInvoice?.items || buyerInvoiceForm.items;
+                              const charges = lastGeneratedInvoice?.charges || buyerInvoiceForm.charges;
+                              const received = Number(lastGeneratedInvoice?.amountReceived || buyerInvoiceForm.amountReceived || 0);
+                              const gross = items.reduce((s, i) => s + (Number(i.grossWeight || 0) * Number(i.rate || 0)), 0);
+                              const extra = Object.entries(charges).reduce((s, [k, v]) => k.toLowerCase().includes("amount") || ["commission", "handling", "transport"].includes(k) ? s + Number(v || 0) : s, 0);
+                              return formatCurrency(gross + extra - received);
+                            })()}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -8873,6 +9005,23 @@ export default function App() {
                                 {formatCurrency(balanceDue)}
                               </span>
                             </div>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                paddingTop: "8px",
+                                marginTop: "8px",
+                                borderTop: "1px dashed #E2E8F0"
+                              }}
+                            >
+                              <span style={{ color: COLORS.sidebar, fontWeight: "800", fontSize: "16px" }}>
+                                Balance Amount
+                              </span>
+                              <span style={{ color: COLORS.sidebar, fontWeight: "900", fontSize: "16px" }}>
+                                {formatCurrency(balanceDue)}
+                              </span>
+                            </div>
                           </div>
                         </>
                       );
@@ -8912,25 +9061,29 @@ export default function App() {
                       }}
                       onClick={async () => {
                         try {
-                          const res =
-                            await MandiService.generateBuyerInvoice(
-                              buyerInvoiceForm,
-                            );
+                          let res;
+                          if (isEditingBuyerInvoice) {
+                            res = await MandiService.updateBuyerInvoice(editingBuyerInvoiceId, buyerInvoiceForm);
+                          } else {
+                            res = await MandiService.generateBuyerInvoice(buyerInvoiceForm);
+                          }
+                          
                           if (res.status === "SUCCESS") {
                             setLastGeneratedInvoice({ ...buyerInvoiceForm });
                             alert(
-                              `✅ INVOICE GENERATED: ${buyerInvoiceForm.invoiceNumber} saved!`,
+                              `✅ INVOICE ${isEditingBuyerInvoice ? "UPDATED" : "GENERATED"}: ${buyerInvoiceForm.invoiceNumber} saved!`,
                             );
                             fetchData();
                             setActiveBuyerInvoiceTab("Preview & Print");
-                            // Form is not cleared immediately to allow previewing
+                            setIsEditingBuyerInvoice(false);
+                            setEditingBuyerInvoiceId(null);
                           }
                         } catch (e) {
                           alert("❌ FAILED: " + e.message);
                         }
                       }}
                     >
-                      Generate Invoice
+                      {isEditingBuyerInvoice ? "Update Invoice" : "Generate Invoice"}
                     </Button>
                     <Button
                       style={{
@@ -8967,12 +9120,135 @@ export default function App() {
                             },
                             amountReceived: "",
                           });
+                          setIsEditingBuyerInvoice(false);
+                          setEditingBuyerInvoiceId(null);
                           setActiveBuyerInvoiceTab("Invoice Header");
                         }
                       }}
                     >
                       Clear
                     </Button>
+                  </div>
+                </div>
+              )}
+
+              {activeBuyerInvoiceTab === "Generated Invoices" && (
+                <div style={{ animation: "fadeIn 0.3s ease-in", padding: "10px" }}>
+                  <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Recently Generated Invoices</h3>
+                      <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Manage customer accounts and finalized sales</p>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "24px" }}>
+                    <input
+                      type="text"
+                      placeholder="Search by Invoice # or Customer Name..."
+                      value={invoiceSearchQuery}
+                      onChange={(e) => setInvoiceSearchQuery(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "1.5px solid #EBE9E1",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: COLORS.sidebar,
+                        outline: "none",
+                        background: "#FDFBF4",
+                        transition: "all 0.2s"
+                      }}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      maxHeight: "650px",
+                      overflowY: "auto",
+                      padding: "8px",
+                      background: "#FDFBF4",
+                      borderRadius: "16px",
+                      border: "1.5px solid #EBE9E1",
+                    }}
+                  >
+                    <div style={{ display: "grid", gap: "12px" }}>
+                      {buyerInvoices
+                        .filter(i => {
+                          const customerName = (i.buyerId?.name || i.buyerId || "").toLowerCase();
+                          const invNo = (i.invoiceNumber || "").toLowerCase();
+                          const query = (invoiceSearchQuery || "").toLowerCase();
+                          return customerName.includes(query) || invNo.includes(query);
+                        })
+                        .slice()
+                        .reverse()
+                        .map((i) => (
+                          <div
+                            key={i._id || Date.now() + Math.random()}
+                            style={{
+                              padding: "20px",
+                              background: "#fff",
+                              border: "1px solid #EBE9E1",
+                              borderRadius: "16px",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                            }}
+                          >
+                            <div style={{ flex: 1 }}>
+                              <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{i.invoiceNumber} — {i.buyerId?.name || i.buyerId || "Customer"}</b>
+                              <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                                📅 {i.date} | 🚛 {i.lotReference || "Direct"}
+                              </p>
+                            </div>
+                            <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+                              <Button variant="outline" style={{ fontSize: "11px", padding: "6px 14px", border: `1.5px solid ${COLORS.primary}`, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Invoice", data: i })}>View Details</Button>
+                              <Button 
+                                onClick={() => handleSendBuyerWhatsApp(i)}
+                                style={{ 
+                                  fontSize: "11px", 
+                                  padding: "6px 14px", 
+                                  background: "#25D366", 
+                                  color: "#fff", 
+                                  border: "none",
+                                  borderRadius: "24px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px"
+                                }}
+                              >
+                                <span>WhatsApp</span>
+                              </Button>
+                              <button 
+                                onClick={() => {
+                                  setBuyerInvoiceForm(i);
+                                  setIsEditingBuyerInvoice(true);
+                                  setEditingBuyerInvoiceId(i._id);
+                                  setActiveBuyerInvoiceTab("Invoice Header");
+                                  window.scrollTo({ top: 0, behavior: "smooth" });
+                                }}
+                                style={{ background: "none", border: "none", color: COLORS.sidebar, fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
+                              >
+                                Modify
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                 if (!window.confirm("🗑️ Delete this invoice permanently?")) return;
+                                 const res = await MandiService.deleteBuyerInvoice(i._id);
+                                 if (res.status === "SUCCESS") { alert("✅ Invoice deleted!"); fetchData(); }
+                                }}
+                                style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      {buyerInvoices.length === 0 && (
+                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No invoices found.</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
