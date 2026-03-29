@@ -3114,7 +3114,8 @@ export default function App() {
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
                {/* TAB SWITCHER */}
                <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1" }}>
-{{ ... }}
+
+
                   <div style={{ display: "flex", gap: "20px" }}>
                     <div 
                       onClick={() => setActiveLedgerTab("Supplier")}
@@ -3149,10 +3150,97 @@ export default function App() {
                        </div>
                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
                     </div>
-                              </div>
-                           </div>
-                        );
-                    })()}
+                    
+                    <div style={{ overflowX: "auto" }}>
+                       <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
+                           <thead>
+                              <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID / Bill No.</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payable Amount (₹)</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Made (₹)</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Outstanding Balance (₹)</th>
+                              </tr>
+                           </thead>
+                           <tbody style={{ borderTop: "2px solid #F1F5F9" }}>
+                              {(() => {
+                                 let runningBalance = 0;
+                                 return (supplierBills || []).map((bill, bIdx) => {
+                                    const dateVal = bill.date || (bill.createdAt ? formatDate(bill.createdAt) : "—");
+                                    const lotIdVal = bill.lotId || bill.lotCode || bill.lotRef?.lotId || "N/A";
+                                    const billNoVal = bill.billNumber || bill.invoiceNumber || bill.billNo || "Draft";
+                                    
+                                    let gross = Number(bill.grossValue || bill.totalValue || bill.totalAmount || 0);
+                                    if (gross === 0 && bill.produce) {
+                                       gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate || item.saleRate)), 0);
+                                    } else if (gross === 0 && bill.items) {
+                                       gross = (bill.items || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate || item.saleRate)), 0);
+                                    }
+                                    
+                                    let expenses = Number(bill.totalExpenses || bill.expensesAmount || bill.totalDeductions || 0);
+                                    if (expenses === 0 && bill.charges) {
+                                       expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                                    } else if (expenses === 0 && bill.expenses && Array.isArray(bill.expenses)) {
+                                       expenses = bill.expenses.reduce((sum, e) => sum + (Number(e.value || e.amount) || 0), 0);
+                                    }
+                                    
+                                    const netSale = bill.netPayable || bill.payable || (gross - expenses);
+                                    const advance = Number(bill.advance || bill.advancePayment || bill.advanceAmount || 0);
+                                    const cashPayment = Number(bill.amountPaid || bill.paymentMade || bill.paidAmount || 0);
+                                    const totalPaidOnDate = advance + cashPayment;
+                                    
+                                    runningBalance = runningBalance + netSale - totalPaidOnDate;
+                                    
+                                    const itemsList = bill.produce || bill.items || [];
+                                    const productSummary = itemsList.map(p => (p.productName || p.product || "")).filter(Boolean).join(", ") || "Mixed Produce";
+                                    const totalQty = itemsList.reduce((sum, i) => sum + Number(i.quantity || i.qty || 0), 0);
+
+                                    return (
+                                       <tr key={bill._id || bIdx} style={{ background: "#FFFFFF", transition: "all 0.2s" }}>
+                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{dateVal}</td>
+                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{lotIdVal} / {billNoVal}</td>
+                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, maxWidth: "180px" }}>{productSummary}</td>
+                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", whiteSpace: "nowrap" }}>{totalQty.toLocaleString("en-IN")} KG</td>
+                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#E11D48", whiteSpace: "nowrap" }}>{formatCurrency(netSale)}</td>
+                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#15803D", fontWeight: "700", whiteSpace: "nowrap" }}>{formatCurrency(totalPaidOnDate)}</td>
+                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0", fontWeight: "900", whiteSpace: "nowrap" }}>
+                                             <span style={{ padding: "4px 10px", borderRadius: "20px", background: runningBalance > 0 ? "#FFF7ED" : "#F0FDF4", color: runningBalance > 0 ? "#C2410C" : "#15803D", fontSize: "12px", fontWeight: "800" }}>{formatCurrency(Math.abs(runningBalance))} {runningBalance > 0 ? "DUE" : "SETTLED"}</span>
+                                          </td>
+                                       </tr>
+                                    );
+                                 });
+                              })()}
+                              
+                              {supplierBills.length > 0 && (() => {
+                                 const tGross = supplierBills.reduce((s, b) => s + (Number(b.grossValue || b.totalValue || 0) || (b.produce||b.items||[]).reduce((sm, i) => sm + (Number(i.quantity||0)*Number(i.rate||0)), 0)), 0);
+                                 const tExp = supplierBills.reduce((s, b) => s + (Number(b.totalExpenses || b.totalDeductions || 0) || Object.values(b.charges||{}).reduce((sm, v) => sm + Number(v||0), 0)), 0);
+                                 const tNet = tGross - tExp;
+                                 const tPaid = supplierBills.reduce((s, b) => s + Number(b.advance||0) + Number(b.amountPaid || b.paymentMade || 0), 0);
+                                 const tQty = supplierBills.reduce((s, b) => s + (b.produce || b.items || []).reduce((sm, i) => sm + Number(i.quantity || i.qty || 0), 0), 0);
+                                 const tBalance = tNet - tPaid;
+                                 return (
+                                    <tr style={{ background: "#FFF7ED", fontWeight: "900", borderTop: "2px solid #FED7AA" }}>
+                                       <td colSpan="3" style={{ padding: "14px", textAlign: "right", borderRadius: "10px 0 0 10px", color: COLORS.sidebar, fontSize: "12px" }}>LEDGER TOTALS:</td>
+                                       <td style={{ padding: "14px" }}>{tQty.toLocaleString("en-IN")} KG</td>
+                                       <td style={{ padding: "14px", color: "#DC2626" }}>{formatCurrency(tNet)}</td>
+                                       <td style={{ padding: "14px", color: "#15803D" }}>{formatCurrency(tPaid)}</td>
+                                       <td style={{ padding: "14px", borderRadius: "0 10px 10px 0", color: tBalance > 0 ? "#C2410C" : "#15803D" }}>{formatCurrency(Math.abs(tBalance))} {tBalance > 0 ? "TOTAL DUE" : "RECONCILED"}</td>
+                                    </tr>
+                                 );
+                              })()}
+
+                              {supplierBills.length === 0 && (
+                                 <tr>
+                                    <td colSpan="7" style={{ textAlign: "center", padding: "80px 40px", color: COLORS.muted }}>
+                                       No transactions found. Select a supplier from the dropdown to fetch data.
+                                    </td>
+                                 </tr>
+                              )}
+                           </tbody>
+                       </table>
+                    </div>
                   </div>
                )}
 
