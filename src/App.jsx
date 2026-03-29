@@ -2988,55 +2988,46 @@ Powered by Stacli mandi os`;
       id: "User Role",
       roles: ["Owner / Admin"],
       label: "Party Management",
-      icon: "👥",
     },
     {
       id: "Lot Creation",
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Lot/Inventory Intake",
-      icon: "📦",
     },
     {
       id: "Lot Allocation",
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Auction & Lot Allocation",
-      icon: "⚖️",
     },
     {
       id: "Supplier Billing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
       label: "Supplier Billing",
-      icon: "🧾",
     },
     {
       id: "Buyer Invoicing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
       label: "Customer Billing",
-      icon: "🛒",
     },
     {
       id: "Ledger",
       roles: ["Owner / Admin", "Accountant"],
       label: "Ledger System",
-      icon: "📓",
     },
     {
       id: "Payments",
       roles: ["Owner / Admin", "Accountant"],
       label: "Payments & Settlement",
-      icon: "💳",
     },
     {
       id: "Transportation Tracking",
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Transportation Tracking",
-      icon: "🚚",
     },
     {
       id: "Dashboard",
       roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
       label: "Dashboard & Reports",
-      icon: "📊",
     },
   ];
 
@@ -3653,17 +3644,6 @@ Powered by Stacli mandi os`;
               >
                 <span
                   style={{
-                    marginRight: "16px",
-                    fontSize: "18px",
-                    display: "flex",
-                    alignItems: "center",
-                    opacity: activeSection === item.id ? 1 : 0.7,
-                  }}
-                >
-                  {item.icon}
-                </span>
-                <span
-                  style={{
                     fontWeight: activeSection === item.id ? "900" : "600",
                     fontSize: "14px",
                     letterSpacing: "0.3px",
@@ -3712,12 +3692,6 @@ Powered by Stacli mandi os`;
                   e.currentTarget.style.background = "transparent";
               }}
             >
-              <span style={{ display: "flex", alignItems: "center" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </span>
               <span
                 style={{
                   color: "#ffffff",
@@ -3750,13 +3724,6 @@ Powered by Stacli mandi os`;
                 e.currentTarget.style.background = "transparent";
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", color: "#adb5ad" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-              </span>
               <span
                 style={{
                   color: "#adb5ad",
