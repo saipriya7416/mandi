@@ -700,6 +700,7 @@ export default function App() {
   const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Buyer', data: ... }
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
+  const [lotSearchQuery, setLotSearchQuery] = useState("");
 
 
 
@@ -4209,11 +4210,27 @@ export default function App() {
               )}
 
               {activeUserRoleTab === "Registered Members" && (
-                <Card title="Registered Members Database" subtitle="Comprehensive list of verified suppliers and customers">
+                <Card>
                   <div style={{ marginBottom: "24px" }}>
                     <div style={{ position: "relative" }}>
-                      <input type="text" placeholder={`Search ${activeRegisteredTab} by name or mobile...`} value={memberSearchQuery} onChange={(e) => setMemberSearchQuery(e.target.value)} style={{ width: "100%", padding: "16px 20px 16px 48px", borderRadius: "16px", border: "1.5px solid #E2E8F0", fontSize: "14px", fontWeight: "600", color: COLORS.sidebar, outline: "none", background: "#F8FAFC", transition: "all 0.2s" }} />
-                      <span style={{ position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", fontSize: "18px" }}>\uD83D\uDD0D</span>
+                      <input
+                        type="text"
+                        placeholder="Search by name/mobile number"
+                        value={memberSearchQuery}
+                        onChange={(e) => setMemberSearchQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "16px 20px 16px 16px",
+                          borderRadius: "16px",
+                          border: "1.5px solid #E2E8F0",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          color: COLORS.sidebar,
+                          outline: "none",
+                          background: "#F8FAFC",
+                          transition: "all 0.2s",
+                        }}
+                      />
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: "12px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>
@@ -4529,49 +4546,81 @@ export default function App() {
                   }}
                 >
                   <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Registered Lots & Inventory</h3>
                       <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Manage your intake history and stock levels</p>
                     </div>
                   </div>
 
+                  {/* Lot Search Integrated Upside */}
+                  <div style={{ marginBottom: "24px" }}>
+                    <input
+                      type="text"
+                      placeholder="Search by Farmer Name or Vehicle Number..."
+                      value={lotSearchQuery}
+                      onChange={(e) => setLotSearchQuery(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "1.5px solid #EBE9E1",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: COLORS.sidebar,
+                        outline: "none",
+                        background: "#FDFBF4",
+                        transition: "all 0.2s"
+                      }}
+                    />
+                  </div>
+
                   <div style={{ maxHeight: "650px", overflowY: "auto", paddingRight: "8px" }}>
                     <div style={{ display: "grid", gap: "12px" }}>
-                      {lots.slice().reverse().map((l) => {
-                        const grossSale = (l.lineItems || []).reduce(
-                          (sum, item) => sum + Number(item.grossWeight) * Number(item.estimatedRate),
-                          0,
-                        );
-                        return (
-                          <div
-                            key={l._id || l.lotId}
-                            style={{
-                              padding: "20px",
-                              background: "#fff",
-                              border: "1px solid #EBE9E1",
-                              borderRadius: "16px",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                            }}
-                          >
-                            <div style={{ flex: 1 }}>
-                              <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{l.lotId} - {l.supplierId?.name || "Farmer"}</b>
-                              <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                                {l.vehicleNumber} | {l.origin}
-                              </p>
-                              <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-                                <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross: {grossSale}</span>
+                      {lots
+                        .filter(l => {
+                          const farmerName = (l.supplierId?.name || l.farmerName || "").toLowerCase();
+                          const vehicleNo = (l.vehicleNumber || "").toLowerCase();
+                          const query = (lotSearchQuery || "").toLowerCase();
+                          return farmerName.includes(query) || vehicleNo.includes(query);
+                        })
+                        .slice()
+                        .reverse()
+                        .map((l) => {
+                          const grossSale = (l.lineItems || []).reduce(
+                            (sum, item) => sum + Number(item.grossWeight) * Number(item.estimatedRate),
+                            0,
+                          );
+                          return (
+                            <div
+                              key={l._id || l.lotId}
+                              style={{
+                                padding: "20px",
+                                background: "#fff",
+                                border: "1px solid #EBE9E1",
+                                borderRadius: "16px",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                              }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{l.lotId} - {l.supplierId?.name || l.farmerName || "Farmer"}</b>
+                                <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                                  {l.vehicleNumber} | {l.origin}
+                                </p>
+                                <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+                                  <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross: {grossSale}</span>
+                                </div>
+                              </div>
+                              <div style={{ display: "flex", gap: "10px" }}>
+                                <Button variant="outline" style={{ fontSize: "11px", padding: "6px 16px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "LOT", data: l })}>View Details</Button>
+                                <Button variant="outline" style={{ fontSize: "11px", padding: "6px 16px", border: `1.5px solid #64748b`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => handleEditLot(l)}>Modify</Button>
+                                <Button style={{ fontSize: "11px", padding: "6px 16px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteLot(l._id)}>Delete</Button>
                               </div>
                             </div>
-                            <div style={{ display: "flex", gap: "10px" }}>
-                              <Button variant="outline" style={{ fontSize: "12px", padding: "8px 20px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => handleEditLot(l)}>Modify</Button>
-                              <Button style={{ fontSize: "12px", padding: "8px 20px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteLot(l._id)}>Delete</Button>
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
                       {lots.length === 0 && (
                         <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No registered lots found.</p>
                       )}
@@ -16769,7 +16818,7 @@ Powered by Stacli mandi os</div>
                     {viewingEntity.type} Profile
                   </h3>
                   <p style={{ color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontSize: "12px", fontWeight: "600" }}>
-                    Comprehensive database record for {viewingEntity.data.name}
+                    Comprehensive database record for {viewingEntity.data.name || viewingEntity.data.lotId || "Registered Record"}
                   </p>
                 </div>
                 <button
