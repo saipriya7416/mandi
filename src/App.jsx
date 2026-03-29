@@ -1733,6 +1733,11 @@ export default function App() {
     lotId: "",
     invoiceNo: "",
   });
+
+  const [dashboardDates, setDashboardDates] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  });
   const [showCorrectionModal, setShowCorrectionModal] = useState(false);
 
   // --- PAYMENT & SETTLEMENT STATES ---
@@ -13371,18 +13376,16 @@ export default function App() {
                     <p style={{ color: COLORS.muted, margin: 0, fontSize: "14px" }}>Live data from your store</p>
                   </div>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                      <span style={{fontWeight: '600', fontSize: "14px"}}>29-03-2026</span>
-                      <span style={{ fontSize: "16px" }}>📅</span>
+                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '6px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                      <input type="date" value={dashboardDates.startDate} onChange={e => setDashboardDates(prev => ({ ...prev, startDate: e.target.value }))} style={{ border: 'none', outline: 'none', fontWeight: '600', fontSize: '14px', background: 'transparent', cursor: 'pointer' }} />
                       <span style={{color: COLORS.muted, fontSize: '12px', fontWeight: '800'}}>TO</span>
-                      <span style={{fontWeight: '600', fontSize: "14px"}}>29-03-2026</span>
-                      <span style={{ fontSize: "16px" }}>📅</span>
+                      <input type="date" value={dashboardDates.endDate} onChange={e => setDashboardDates(prev => ({ ...prev, endDate: e.target.value }))} style={{ border: 'none', outline: 'none', fontWeight: '600', fontSize: '14px', background: 'transparent', cursor: 'pointer' }} />
                     </div>
-                    <Button style={{ background: "#fcd34d", color: '#000', borderRadius: '24px', padding: '10px 24px', fontWeight: '800', border: "none", boxShadow: "0 4px 12px rgba(252, 211, 77, 0.3)" }} onClick={() => alert("Applying Date Range...")}>Apply Range</Button>
-                    <Button variant="outline" style={{ borderRadius: '24px', display: 'flex', gap: '8px', padding: '10px 20px', background: "#fff", borderColor: "#e2e8f0" }}>
+                    <Button style={{ background: "#fcd34d", color: '#000', borderRadius: '24px', padding: '10px 24px', fontWeight: '800', border: "none", boxShadow: "0 4px 12px rgba(252, 211, 77, 0.3)" }} onClick={() => { alert("Dashboard range sync complete."); fetchData && fetchData(); }}>Apply Range</Button>
+                    <Button variant="outline" style={{ borderRadius: '24px', display: 'flex', gap: '8px', padding: '10px 20px', background: "#fff", borderColor: "#e2e8f0" }} onClick={() => window.print()}>
                       <span>📥</span> Report
                     </Button>
-                    <Button variant="outline" style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: "#fff", borderColor: "#e2e8f0" }}>
+                    <Button variant="outline" style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: "#fff", borderColor: "#e2e8f0" }} onClick={() => { alert("Fetching newest records..."); fetchData && fetchData(); }}>
                       <span>🔄</span> 
                     </Button>
                   </div>
@@ -13391,118 +13394,91 @@ export default function App() {
                 {/* Top Metrics Grid */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
                   {(() => {
-                    const totalOrders = buyerInvoices.length;
-                    const totalRevenue = buyerInvoices.reduce((sum, inv) => sum + Number(inv.grandTotal || inv.totalAmount || 0), 0);
-                    const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
-                    const pendingOrders = buyerInvoices.filter(inv => Number(inv.amountReceived || 0) < Number(inv.grandTotal || inv.totalAmount || 0)).length;
+                    const sDate = dashboardDates.startDate;
+                    const eDate = dashboardDates.endDate;
+
+                    const isWithinRange = (dateStr) => {
+                      if (!dateStr) return false;
+                      return dateStr >= sDate && dateStr <= eDate;
+                    };
+
+                    // 1. Today's Intake (from lots or supplierBills or allocations? Usually lots are intake)
+                    const todaysIntakeQty = lots.filter(l => {
+                      const d = (l.date || (l.createdAt && l.createdAt.split('T')[0]));
+                      return isWithinRange(d);
+                    }).reduce((s, l) => s + Number(l.quantity || l.inwardWeight || 0), 0);
                     
+                    // 2. Today's Sales (Customer Billing) "Total ₹ invoiced to buyers today"
+                    const todaysSalesAmt = buyerInvoices.filter(inv => {
+                      const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0]));
+                      return isWithinRange(d);
+                    }).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+
+                    // 3. Pending Auctions "Lots received but not fully allocated" -> Lots where Allocated qty < Total received qty.
+                    const pendingAuctionsCount = lots.filter(l => {
+                      const allocated = allocations.filter(a => a.lotId === (l.lotId || l._id)).reduce((s, a) => s + Number(a.quantity || 0), 0);
+                      return allocated < Number(l.quantity || l.inwardWeight || 0);
+                    }).length;
+
+                    // 4. Total Farmer Outstanding "Total amount SPV owes to all farmers" -> Supplier Ledger
+                    const farmerOutstandingAmt = supplierBills.reduce((s, b) => s + Math.max(0, (Number(b.netPayable || b.grandTotal || 0) - Number(b.amountPaid || b.paymentReceived || 0))), 0);
+
+                    // 5. Total Buyer Outstanding "Sum all customer outstanding balances" -> Customer Ledger
+                    const buyerOutstandingAmt = buyerInvoices.reduce((s, inv) => s + Math.max(0, (Number(inv.grandTotal || inv.totalAmount || 0) - Number(inv.amountReceived || inv.paymentReceived || 0))), 0);
+
+                    // 6. Today's Cash Collected "Payments received from buyers today" -> Customer Payments
+                    const todaysCashCollected = buyerInvoices.filter(inv => {
+                      const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0]));
+                      return isWithinRange(d);
+                    }).reduce((s, inv) => s + Number(inv.amountReceived || inv.paymentReceived || 0), 0);
+
+                    // 7. Today's Cash Paid "Payments made to farmers today" -> Supplier Ledger
+                    const todaysCashPaid = supplierBills.filter(b => {
+                      const d = (b.date || (b.createdAt && b.createdAt.split('T')[0]));
+                      return isWithinRange(d);
+                    }).reduce((s, b) => s + Number(b.amountPaid || b.paymentMade || 0), 0);
+
+                    // 8. Active In-Transit Vehicles "Lorries currently on the road" -> Dispatch Entry
+                    const inTransitVehicles = lots.filter(l => l.status === "In Transit" || l.status === "Dispatch" || (l.delivered === false)).length;
+
+                    const renderCard = (title, value, subtitle, icon, isAlert) => (
+                        <Card key={title} style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>{title}</span>
+                            <span style={{ color: isAlert ? "#e11d48" : "#10b981", background: isAlert ? "#ffe4e6" : "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex", whiteSpace: "nowrap" }}>
+                              {icon}
+                            </span>
+                          </div>
+                          <div>
+                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900", color: isAlert ? "#e11d48" : "inherit" }}>{value}</h2>
+                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>{subtitle}</p>
+                          </div>
+                        </Card>
+                    );
+                    
+                    const dashTitle = (base) => {
+                      const t = new Date().toISOString().split('T')[0];
+                      if (sDate === t && eDate === t) return "Today's " + base;
+                      return base + " (Selected Dates)";
+                    };
+
                     return (
                       <>
-                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Orders in Range</span>
-                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                            </span>
-                          </div>
-                          <div>
-                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{totalOrders}</h2>
-                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>{totalOrders} total all time</p>
-                          </div>
-                        </Card>
-
-                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Total Revenue (Selected<br/>Dates)</span>
-                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
-                              <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>
-                            </span>
-                          </div>
-                          <div>
-                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{formatCurrency(totalRevenue)}</h2>
-                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Avg order: {formatCurrency(avgOrder)}</p>
-                          </div>
-                        </Card>
-
-                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Pending in Date Range</span>
-                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                            </span>
-                          </div>
-                          <div>
-                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{pendingOrders}</h2>
-                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Awaiting confirmation</p>
-                          </div>
-                        </Card>
-
-                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Delivered in Date Range</span>
-                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                            </span>
-                          </div>
-                          <div>
-                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{totalOrders}</h2>
-                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Total revenue: {((totalRevenue)/1000).toFixed(1)}K</p>
-                          </div>
-                        </Card>
-                      </>
-                    )
-                  })()}
-                </div>
-
-                {/* Selected Date Range Overview */}
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", color: "#1a1a2e", marginTop: "16px", marginBottom: "8px" }}>Selected Date Range Overview</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "20px" }}>
-                  {(() => {
-                    const totalBoxes = buyerInvoices.reduce((sum, inv) => sum + (inv.items || inv.lineItems || []).reduce((s, i) => s + Number(i.quantity || i.netWeight || i.qty || i.boxes || 0), 0), 0);
-                    const prePaidOrders = buyerInvoices.filter(inv => Number(inv.amountReceived || 0) >= Number(inv.grandTotal || inv.totalAmount || 0) && Number(inv.grandTotal || inv.totalAmount || 0) > 0).length;
-                    
-                    return (
-                      <>
-                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "140px" }}>
-                          <span style={{ fontSize: "11px", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px" }}>Total Boxes Sold</span>
-                          <div>
-                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{totalBoxes.toLocaleString()}</h2>
-                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Total physical units moved</p>
-                          </div>
-                        </Card>
-
-                        <Card style={{ padding: "24px", borderRadius: "16px", background: "linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "140px" }}>
-                          <span style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px" }}>Pre-Paid Orders</span>
-                          <div>
-                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", color: "#1d4ed8", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{prePaidOrders}</h2>
-                            <p style={{ fontSize: "12px", color: "#60a5fa", margin: 0 }}>No collection required</p>
-                          </div>
-                        </Card>
+                        {renderCard(dashTitle("Intake"), todaysIntakeQty.toLocaleString() + " KG", "Total volume received", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>)}
+                        {renderCard(dashTitle("Sales"), formatCurrency(todaysSalesAmt), "Invoiced to buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
+                        {renderCard("Pending Auctions", pendingAuctionsCount + " Lots", "Lots awaiting full allocation", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>)}
+                        {renderCard("Total Farmer Outstanding", formatCurrency(farmerOutstandingAmt), "Amount owed to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
                         
-                        <div style={{ display: "flex", gap: "20px" }}>
-                           {/* Empty placeholder for grid balance as per image layout */}
-                        </div>
+                        {renderCard("Total Buyer Outstanding", formatCurrency(buyerOutstandingAmt), "Receivables from buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
+                        {renderCard(dashTitle("Cash Collected"), formatCurrency(todaysCashCollected), "Received from buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
+                        {renderCard(dashTitle("Cash Paid"), formatCurrency(todaysCashPaid), "Payments made to farmers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
+                        {renderCard("Active In-Transit Vehicles", inTransitVehicles + " Lorries", "Lorries on the road", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>)}
                       </>
                     )
                   })()}
                 </div>
 
-                {/* Bottom Charts Placeholder sections */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "16px" }}>
-                  <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", height: "250px", display: "flex", flexDirection: "column" }}>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", margin: "0 0 16px 0", color: "#1a1a2e" }}>Top Items for Selected Dates</h3>
-                    <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", borderTop: "1px solid #f1f5f9" }}>
-                      <p style={{ color: COLORS.muted, fontSize: "13px" }}>No product data available yet.</p>
-                    </div>
-                  </Card>
-                  
-                  <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", height: "250px", display: "flex", flexDirection: "column" }}>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", margin: "0 0 16px 0", color: "#1a1a2e" }}>Sales Trend (Range)</h3>
-                    <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", borderTop: "1px solid #f1f5f9" }}>
-                      {/* Trend line placeholder */}
-                    </div>
-                  </Card>
-                </div>
+
               </div>
 
               <div
@@ -13633,7 +13609,10 @@ export default function App() {
                                 fontSize: "11px",
                                 padding: "8px",
                               }}
-                              onClick={() => alert("Sharing via WhatsApp...")}
+                              onClick={() => {
+                                const msg = `Hello,\n\nHere is your requested *${rep.t}* from *STACLI Mandi OS*.\n\nSummary:\n${rep.d}\n\nView full details here:\n${window.location.origin}/report/${encodeURIComponent(rep.t)}\n\nThank you!`;
+                                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+                              }}
                             >
                               WhatsApp
                             </Button>
