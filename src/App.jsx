@@ -9410,6 +9410,11 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                   }}
                 >
+                  <div style={{ marginBottom: "28px", borderBottom: "2px solid #F1F5F9", paddingBottom: "20px" }}>
+                    <h2 style={{ fontSize: "26px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 6px 0", letterSpacing: "-0.5px" }}>Supplier Ledger</h2>
+                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Auto-synced from Supplier Billing — running balance per farmer</p>
+                  </div>
+
                   <div
                     style={{
                       display: "flex",
@@ -9757,6 +9762,11 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                   }}
                 >
+                  <div style={{ marginBottom: "28px", borderBottom: "2px solid #F1F5F9", paddingBottom: "20px" }}>
+                    <h2 style={{ fontSize: "26px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 6px 0", letterSpacing: "-0.5px" }}>Customer Ledger</h2>
+                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Auto-synced from Customer Billing — invoice-wise outstanding tracking</p>
+                  </div>
+
                   <div
                     style={{
                       display: "flex",
