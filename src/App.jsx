@@ -9321,59 +9321,51 @@ Powered by Stacli mandi os`;
             </div>
           )}
 
-          {/* LEDGER SYSTEM MODULE (Party Management) */}
           {activeSection === "Ledger" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              {/* TAB SWITCHER */}
+              {/* PAGE SELECTION HEADINGS */}
               <div
                 style={{
-                  paddingBottom: "24px",
+                  display: "flex",
+                  gap: "40px",
+                  paddingBottom: "16px",
                   marginBottom: "32px",
                   borderBottom: "1px solid #EBE9E1",
+                  alignItems: "flex-end",
                 }}
               >
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <div
-                    onClick={() => setActiveLedgerTab("Supplier")}
-                    style={{
-                      padding: "10px 24px",
-                      cursor: "pointer",
-                      fontWeight: "700",
-                      background:
-                        activeLedgerTab === "Supplier"
-                          ? COLORS.sidebar
-                          : "#F3F1EA",
-                      color:
-                        activeLedgerTab === "Supplier"
-                          ? "#FFFFFF"
-                          : COLORS.muted,
-                      borderRadius: "8px",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    Supplier Ledger
-                  </div>
-                  <div
-                    onClick={() => setActiveLedgerTab("Customer")}
-                    style={{
-                      padding: "10px 24px",
-                      cursor: "pointer",
-                      fontWeight: "700",
-                      background:
-                        activeLedgerTab === "Customer"
-                          ? COLORS.sidebar
-                          : "#F3F1EA",
-                      color:
-                        activeLedgerTab === "Customer"
-                          ? "#FFFFFF"
-                          : COLORS.muted,
-                      borderRadius: "8px",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    Customer Ledger
-                  </div>
-                </div>
+                <h1
+                  onClick={() => setActiveLedgerTab("Supplier")}
+                  style={{
+                    fontSize: "32px",
+                    fontWeight: "900",
+                    margin: 0,
+                    cursor: "pointer",
+                    transition: "0.2s",
+                    letterSpacing: "-1px",
+                    color: activeLedgerTab === "Supplier" ? COLORS.sidebar : COLORS.muted,
+                    borderBottom: activeLedgerTab === "Supplier" ? `4px solid ${COLORS.accent}` : "4px solid transparent",
+                    paddingBottom: "12px",
+                  }}
+                >
+                  Supplier Ledger
+                </h1>
+                <h1
+                  onClick={() => setActiveLedgerTab("Customer")}
+                  style={{
+                    fontSize: "32px",
+                    fontWeight: "900",
+                    margin: 0,
+                    cursor: "pointer",
+                    transition: "0.2s",
+                    letterSpacing: "-1px",
+                    color: activeLedgerTab === "Customer" ? COLORS.sidebar : COLORS.muted,
+                    borderBottom: activeLedgerTab === "Customer" ? `4px solid ${COLORS.accent}` : "4px solid transparent",
+                    paddingBottom: "12px",
+                  }}
+                >
+                  Customer Ledger
+                </h1>
               </div>
 
               {activeLedgerTab === "Supplier" && (
@@ -9386,8 +9378,7 @@ Powered by Stacli mandi os`;
                     boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                   }}
                 >
-                  <div style={{ marginBottom: "32px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "24px" }}>
-                    <h1 style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 8px 0", letterSpacing: "-1px" }}>Supplier Ledger</h1>
+                  <div style={{ marginBottom: "24px" }}>
                     <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements — Farmer Outstanding Tracking</p>
                   </div>
 
@@ -9738,8 +9729,7 @@ Powered by Stacli mandi os`;
                     boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
                   }}
                 >
-                  <div style={{ marginBottom: "32px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "24px" }}>
-                    <h1 style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 8px 0", letterSpacing: "-1px" }}>Customer Ledger</h1>
+                  <div style={{ marginBottom: "24px" }}>
                     <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements — Invoice-wise Aging & Receivables</p>
                   </div>
 
