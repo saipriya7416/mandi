@@ -11749,7 +11749,7 @@ export default function App() {
                     Active Shipments
                   </p>
                   <h2 style={{ margin: "5px 0 0" }}>
-                    {((typeof supplierBills !== 'undefined' ? supplierBills.length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0) > 0) ? ((typeof supplierBills !== 'undefined' ? supplierBills.length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0)) : 14} Vehicles
+                    {(typeof supplierBills !== 'undefined' ? supplierBills.length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0)} Vehicles
                   </h2>
                 </Card>
                 <Card
@@ -11767,7 +11767,7 @@ export default function App() {
                     Arrival Alerts (Delayed)
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: "#ef4444" }}>
-                    {(typeof lots !== 'undefined' && lots.filter ? lots.filter(l => l.status === 'delayed').length : 0) || '02'} Alerts
+                    {(typeof lots !== 'undefined' && lots.filter ? lots.filter(l => l.status === 'delayed').length : 0).toString().padStart(2, '0')} Alerts
                   </h2>
                 </Card>
                 <Card>
@@ -11783,7 +11783,7 @@ export default function App() {
                     Today's Dispatch Vol.
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: COLORS.secondary }}>
-                    {(typeof allocations !== 'undefined' && allocations.reduce ? allocations.reduce((sum, a) => sum + Number(a.weight || a.tonnage || 0), 0) : 0) || '8,450'} KG
+                    {new Intl.NumberFormat('en-IN').format(typeof allocations !== 'undefined' && allocations.reduce ? allocations.reduce((sum, a) => sum + Number(a.weight || a.tonnage || 0), 0) : 0)} KG
                   </h2>
                 </Card>
                 <Card>
@@ -11799,7 +11799,7 @@ export default function App() {
                     Est. Freight Payable
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: COLORS.primary }}>
-                    {formatCurrency((typeof supplierBills !== 'undefined' && supplierBills.reduce ? supplierBills.reduce((sum, b) => sum + Number(b.expenses?.freight || b.transportFee || 0), 0) : 0) || 45800)}
+                    {formatCurrency(typeof supplierBills !== 'undefined' && supplierBills.reduce ? supplierBills.reduce((sum, b) => sum + Number(b.expenses?.freight || b.transportFee || 0), 0) : 0)}
                   </h2>
                 </Card>
               </div>
@@ -12342,12 +12342,11 @@ export default function App() {
                         }}
                       />
                     </div>
-
                     <Button
-                      style={{ marginTop: "8px", height: "54px" }}
+                      style={{ marginTop: "8px", height: "36px", alignSelf: "flex-start", fontSize: "14px", padding: "0 24px" }}
                       onClick={handleRecordInwardTransport}
                     >
-                      Submit Inward Logistic Entry
+                      Submit
                     </Button>
                   </div>
                 </div>
@@ -12875,16 +12874,18 @@ export default function App() {
                         }}
                       />
                     </div>
-
                     <Button
                       style={{
                         marginTop: "8px",
-                        height: "54px",
+                        height: "36px",
+                        alignSelf: "flex-start",
+                        fontSize: "14px",
+                        padding: "0 24px",
                         background: "#0f172a",
                       }}
                       onClick={handleRecordOutwardTransport}
                     >
-                      Confirm Outward Dispatch
+                      Confirm
                     </Button>
                   </div>
                 </div>
