@@ -2859,6 +2859,98 @@ export default function App() {
       </div>
     );
 
+  const path = window.location.pathname;
+  if (path.startsWith("/invoice/")) {
+    const invoiceId = path.split("/")[2];
+    const encInvId = decodeURIComponent(invoiceId);
+    const invoiceData = buyerInvoices.find((i) => (i.invoiceNumber || i._id) === encInvId || i._id === encInvId);
+    
+    return (
+      <div style={{ padding: "40px", fontFamily: "'Inter', sans-serif", background: COLORS.bg, minHeight: "100vh" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", background: "#fff", borderRadius: "16px", padding: "40px", boxShadow: "0 10px 40px rgba(0,0,0,0.05)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #f1f5f9", paddingBottom: "20px", marginBottom: "32px" }}>
+            <div>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", margin: 0, color: COLORS.sidebar, fontSize: "32px" }}>Invoice</h1>
+              <p style={{ margin: "4px 0 0", color: COLORS.muted }}>{invoiceData ? (invoiceData.invoiceNumber || invoiceData._id) : encInvId}</p>
+            </div>
+            <div style={{ textAlign: "right", color: COLORS.muted }}>
+              <b>STACLI Trading</b><br/>Mandi Gate No.4
+            </div>
+          </div>
+          
+          {!invoiceData ? (
+            <div style={{ padding: "40px 0", textAlign: "center", color: COLORS.muted }}>
+              <h2>Invoice Loading or Not Found...</h2>
+              <p>ID: {encInvId}</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px" }}>
+                <div>
+                  <h4 style={{ margin: "0 0 8px 0", color: COLORS.sidebar }}>Billed To:</h4>
+                  <b style={{ fontSize: "18px" }}>{invoiceData.buyerName || buyers.find(b=>b._id===invoiceData.buyerId)?.name || "Customer"}</b>
+                  <p style={{ margin: 0, color: COLORS.muted }}>{invoiceData.buyerPhone || "Phone N/A"}</p>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <h4 style={{ margin: "0 0 8px 0", color: COLORS.sidebar }}>Date:</h4>
+                  <b>{formatDate(invoiceData.date || invoiceData.createdAt)}</b>
+                </div>
+              </div>
+
+              <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "32px", fontSize: "14px" }}>
+                <thead>
+                  <tr style={{ background: "#f8fafc", color: COLORS.muted }}>
+                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "left" }}>Product</th>
+                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Qty (KG)</th>
+                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Rate (₹)</th>
+                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Amount (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(invoiceData.items || []).map((item, idx) => (
+                    <tr key={idx}>
+                      <td style={{ padding: "12px", borderBottom: "1px solid #f1f5f9" }}>{item.productLabel || item.productName || "Product"}</td>
+                      <td style={{ padding: "12px", borderBottom: "1px solid #f1f5f9", textAlign: "right" }}>{Number(item.netWeight||item.quantity||0)}</td>
+                      <td style={{ padding: "12px", borderBottom: "1px solid #f1f5f9", textAlign: "right" }}>{formatCurrency(item.rate)}</td>
+                      <td style={{ padding: "12px", borderBottom: "1px solid #f1f5f9", textAlign: "right" }}>{formatCurrency(Number(item.netWeight||item.quantity)*Number(item.rate))}</td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td colSpan="3" style={{ padding: "16px 12px", textAlign: "right", fontWeight: "bold" }}>Grand Total:</td>
+                    <td style={{ padding: "16px 12px", textAlign: "right", fontWeight: "bold", fontSize: "16px", color: COLORS.primary }}>{formatCurrency(invoiceData.grandTotal || invoiceData.totalAmount)}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "40px", paddingTop: "24px", borderTop: "1px solid #f1f5f9" }}>
+                <a href={window.location.origin} style={{ color: COLORS.muted, textDecoration: "none" }}>← Back to Dashboard</a>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <Button variant="outline" onClick={() => window.print()}>🖨️ Print</Button>
+                  <Button onClick={() => {
+                    const cName = invoiceData.buyerName || buyers.find(b=>b._id===invoiceData.buyerId)?.name || "Customer";
+                    const bName = "STACLI Trading";
+                    const amt = formatCurrency(invoiceData.grandTotal || invoiceData.totalAmount);
+                    // simplified products string
+                    const prodList = (invoiceData.items || []).slice(0, 2).map(i=>i.productLabel || "").join(", ") + ((invoiceData.items||[]).length > 2 ? "..." : "");
+                    const pMobile = invoiceData.buyerPhone ? invoiceData.buyerPhone.replace(/\D/g,'') : "";
+                    
+                    const msg = `Hello ${cName},\n\nThis is your invoice from *${bName}*.\n*Amount Due:* ${amt}\n*Products:* ${prodList}\n\nView full invoice details here:\n${window.location.href}\n\nThank you for your business!`;
+                    
+                    const waLink = `https://wa.me/${pMobile}?text=${encodeURIComponent(msg)}`;
+                    window.open(waLink, "_blank");
+                  }} style={{ background: "#25D366", color: "#fff", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    Send via WhatsApp
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (!loggedIn) {
     return (
       <div
@@ -10076,6 +10168,7 @@ export default function App() {
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Invoice Amount (₹)</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Received (₹)</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Outstanding Balance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
                           </tr>
                         </thead>
                       <tbody>
@@ -10117,6 +10210,15 @@ export default function App() {
                                       {formatCurrency(Math.abs(runningOutstanding))} {runningOutstanding >= 0 ? "OUTSTANDING" : "ADVANCE"}
                                     </span>
                                   </td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "center" }}>
+                                    <Button
+                                      variant="outline"
+                                      style={{ padding: "6px 12px", fontSize: "10px" }}
+                                      onClick={() => window.open(`/invoice/${inv.invoiceNumber || inv._id}`, "_blank")}
+                                    >
+                                      View / Share
+                                    </Button>
+                                  </td>
                                 </tr>
                               );
                             });
@@ -10133,7 +10235,7 @@ export default function App() {
                                   <span style={{ color: "#E11D48", marginRight: "16px" }}>Billed: {formatCurrency(tInv)}</span>
                                   <span style={{ color: "#15803D" }}>Paid: {formatCurrency(tRecv)}</span>
                                 </td>
-                                <td style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
+                                <td colSpan="2" style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
                                   <span style={{ padding: "8px 16px", borderRadius: "12px", background: tDue > 0 ? "#FFF1F2" : "#F0FDF4", color: tDue > 0 ? "#E11D48" : "#15803D", fontSize: "16px" }}>
                                     {formatCurrency(Math.abs(tDue))} {tDue >= 0 ? "TOTAL DUE" : "SETTLED"}
                                   </span>
@@ -13260,156 +13362,146 @@ export default function App() {
                 animation: "slideUp 0.5s ease-out",
               }}
             >
-              {/* 📊 11.1 Dashboard — Real-Time Overview */}
-              <div
-                style={{
-                  background: "#FFFFFF",
-                  padding: "32px",
-                  borderRadius: "12px",
-                  border: "1px solid #EBE9E1",
-                }}
-              >
-                <h2
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: "800",
-                    color: COLORS.sidebar,
-                    margin: "0 0 16px 0",
-                    borderBottom: "1px solid #EBE9E1",
-                    paddingBottom: "16px",
-                  }}
-                >
-                  11.1 Dashboard — Real-Time Overview
-                </h2>
-                <p
-                  style={{
-                    fontSize: "13px",
-                    color: COLORS.muted,
-                    marginBottom: "24px",
-                    marginTop: 0,
-                  }}
-                >
-                  The home screen dashboard gives the owner and accountant an
-                  instant snapshot of today's operations.
-                </p>
+              {/* 📊 11.1 New Dashboard — Live Data Overview */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                {/* Header Controls */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", margin: "0 0 4px 0", color: "#1a1a2e" }}>Dashboard</h1>
+                    <p style={{ color: COLORS.muted, margin: 0, fontSize: "14px" }}>Live data from your store</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                      <span style={{fontWeight: '600', fontSize: "14px"}}>29-03-2026</span>
+                      <span style={{ fontSize: "16px" }}>📅</span>
+                      <span style={{color: COLORS.muted, fontSize: '12px', fontWeight: '800'}}>TO</span>
+                      <span style={{fontWeight: '600', fontSize: "14px"}}>29-03-2026</span>
+                      <span style={{ fontSize: "16px" }}>📅</span>
+                    </div>
+                    <Button style={{ background: "#fcd34d", color: '#000', borderRadius: '24px', padding: '10px 24px', fontWeight: '800', border: "none", boxShadow: "0 4px 12px rgba(252, 211, 77, 0.3)" }} onClick={() => alert("Applying Date Range...")}>Apply Range</Button>
+                    <Button variant="outline" style={{ borderRadius: '24px', display: 'flex', gap: '8px', padding: '10px 20px', background: "#fff", borderColor: "#e2e8f0" }}>
+                      <span>📥</span> Report
+                    </Button>
+                    <Button variant="outline" style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: "#fff", borderColor: "#e2e8f0" }}>
+                      <span>🔄</span> 
+                    </Button>
+                  </div>
+                </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: "24px",
-                  }}
-                >
-                  {[
-                    {
-                      label: "Today's Intake",
-                      val: "4,250 KG",
-                      sub: "Weight intake from farmers",
-                      bg: COLORS.secondary,
-                      col: "#fff",
-                    },
-                    {
-                      label: "Today's Sales",
-                      val: formatCurrency(185400),
-                      sub: "Total invoiced to buyers",
-                      bg: COLORS.primary,
-                      col: "#fff",
-                    },
-                    {
-                      label: "Pending Auctions",
-                      val: "07 Lots",
-                      sub: "Lots awaiting allocation",
-                      bg: "#334155",
-                      col: "#fff",
-                    },
-                    {
-                      label: "Total Farmer Outstanding",
-                      val: formatCurrency(845000),
-                      sub: "Payable to Suppliers",
-                      bg: "#fff",
-                      col: "#991b1b",
-                      border: true,
-                    },
-                    {
-                      label: "Total Buyer Outstanding",
-                      val: formatCurrency(1250000),
-                      sub: "Receivable from Buyers",
-                      bg: "#fff",
-                      col: COLORS.primary,
-                      border: true,
-                    },
-                    {
-                      label: "Today's Cash Collected",
-                      val: formatCurrency(320000),
-                      sub: "Payments received today",
-                      bg: COLORS.success,
-                      col: "#fff",
-                    },
-                    {
-                      label: "Today's Cash Paid",
-                      val: formatCurrency(150000),
-                      sub: "Payments made today",
-                      bg: "#CC0000",
-                      col: "#fff",
-                    },
-                    {
-                      label: "Active In-Transit Vehicles",
-                      val: "14 Lorries",
-                      sub: " Lorries on the road",
-                      bg: "#000",
-                      col: "#fff",
-                    },
-                  ].map((m, i) => (
-                    <Card
-                      key={i}
-                      style={{
-                        background: m.bg,
-                        color: m.col,
-                        border: m.border ? `2px solid #e2e8f0` : "none",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        height: "160px",
-                        boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-                      }}
-                    >
-                      <div>
-                        <p
-                          style={{
-                            margin: 0,
-                            fontSize: "11px",
-                            opacity: 0.8,
-                            textTransform: "uppercase",
-                            fontWeight: "900",
-                            letterSpacing: "1px",
-                          }}
-                        >
-                          {m.label}
-                        </p>
-                        <h2
-                          style={{
-                            margin: "12px 0 0",
-                            fontSize: "28px",
-                            fontWeight: "900",
-                          }}
-                        >
-                          {m.val}
-                        </h2>
-                      </div>
-                      <div
-                        style={{
-                          marginTop: "12px",
-                          borderTop: "1px solid rgba(255,255,255,0.15)",
-                          paddingTop: "12px",
-                          fontSize: "11px",
-                          fontWeight: "600",
-                          opacity: 0.8,
-                        }}
-                      >
-                        {m.sub}
-                      </div>
-                    </Card>
-                  ))}
+                {/* Top Metrics Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+                  {(() => {
+                    const totalOrders = buyerInvoices.length;
+                    const totalRevenue = buyerInvoices.reduce((sum, inv) => sum + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+                    const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
+                    const pendingOrders = buyerInvoices.filter(inv => Number(inv.amountReceived || 0) < Number(inv.grandTotal || inv.totalAmount || 0)).length;
+                    
+                    return (
+                      <>
+                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Orders in Range</span>
+                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                            </span>
+                          </div>
+                          <div>
+                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{totalOrders}</h2>
+                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>{totalOrders} total all time</p>
+                          </div>
+                        </Card>
+
+                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Total Revenue (Selected<br/>Dates)</span>
+                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
+                              <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>
+                            </span>
+                          </div>
+                          <div>
+                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{formatCurrency(totalRevenue)}</h2>
+                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Avg order: {formatCurrency(avgOrder)}</p>
+                          </div>
+                        </Card>
+
+                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Pending in Date Range</span>
+                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            </span>
+                          </div>
+                          <div>
+                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{pendingOrders}</h2>
+                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Awaiting confirmation</p>
+                          </div>
+                        </Card>
+
+                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "160px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <span style={{ fontSize: "14px", color: COLORS.sidebar, fontWeight: "600" }}>Delivered in Date Range</span>
+                            <span style={{ color: "#10b981", background: "#ecfdf5", padding: "6px", borderRadius: "50%", display: "flex" }}>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </span>
+                          </div>
+                          <div>
+                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{totalOrders}</h2>
+                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Total revenue: {((totalRevenue)/1000).toFixed(1)}K</p>
+                          </div>
+                        </Card>
+                      </>
+                    )
+                  })()}
+                </div>
+
+                {/* Selected Date Range Overview */}
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", color: "#1a1a2e", marginTop: "16px", marginBottom: "8px" }}>Selected Date Range Overview</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "20px" }}>
+                  {(() => {
+                    const totalBoxes = buyerInvoices.reduce((sum, inv) => sum + (inv.items || inv.lineItems || []).reduce((s, i) => s + Number(i.quantity || i.netWeight || i.qty || i.boxes || 0), 0), 0);
+                    const prePaidOrders = buyerInvoices.filter(inv => Number(inv.amountReceived || 0) >= Number(inv.grandTotal || inv.totalAmount || 0) && Number(inv.grandTotal || inv.totalAmount || 0) > 0).length;
+                    
+                    return (
+                      <>
+                        <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "140px" }}>
+                          <span style={{ fontSize: "11px", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px" }}>Total Boxes Sold</span>
+                          <div>
+                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{totalBoxes.toLocaleString()}</h2>
+                            <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0 }}>Total physical units moved</p>
+                          </div>
+                        </Card>
+
+                        <Card style={{ padding: "24px", borderRadius: "16px", background: "linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "140px" }}>
+                          <span style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px" }}>Pre-Paid Orders</span>
+                          <div>
+                            <h2 style={{ fontSize: "28px", margin: "0 0 8px 0", color: "#1d4ed8", fontFamily: "'Playfair Display', serif", fontWeight: "900" }}>{prePaidOrders}</h2>
+                            <p style={{ fontSize: "12px", color: "#60a5fa", margin: 0 }}>No collection required</p>
+                          </div>
+                        </Card>
+                        
+                        <div style={{ display: "flex", gap: "20px" }}>
+                           {/* Empty placeholder for grid balance as per image layout */}
+                        </div>
+                      </>
+                    )
+                  })()}
+                </div>
+
+                {/* Bottom Charts Placeholder sections */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "16px" }}>
+                  <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", height: "250px", display: "flex", flexDirection: "column" }}>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", margin: "0 0 16px 0", color: "#1a1a2e" }}>Top Items for Selected Dates</h3>
+                    <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", borderTop: "1px solid #f1f5f9" }}>
+                      <p style={{ color: COLORS.muted, fontSize: "13px" }}>No product data available yet.</p>
+                    </div>
+                  </Card>
+                  
+                  <Card style={{ padding: "24px", borderRadius: "16px", background: "#fff", border: "1px solid #e2e8f0", height: "250px", display: "flex", flexDirection: "column" }}>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", margin: "0 0 16px 0", color: "#1a1a2e" }}>Sales Trend (Range)</h3>
+                    <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", borderTop: "1px solid #f1f5f9" }}>
+                      {/* Trend line placeholder */}
+                    </div>
+                  </Card>
                 </div>
               </div>
 
@@ -13502,22 +13594,37 @@ export default function App() {
                                 fontSize: "11px",
                                 padding: "8px",
                               }}
-                              onClick={() =>
-                                alert("Converting to Excel (CSV)...")
-                              }
-                            >
-                              Excel
-                            </Button>
-                            <Button
-                              variant="outline"
-                              style={{
-                                flex: 1,
-                                fontSize: "11px",
-                                padding: "8px",
+                              onClick={() => {
+                                const newWin = window.open('', '_blank');
+                                newWin.document.write(`
+                                  <html>
+                                    <head><title>${rep.t} - Export</title>
+                                    <style>
+                                      body { font-family: sans-serif; padding: 40px; }
+                                      .footer { margin-top: 50px; color: #64748b; font-size: 11px; }
+                                      button { background: #d4a017; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px;}
+                                      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                      th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+                                    </style>
+                                    </head>
+                                    <body>
+                                      <h2>${rep.t} Report</h2>
+                                      <button onclick="window.print()">Download PDF</button>
+                                      <button onclick="alert('Modifying mode active.')">Modify Data</button>
+                                      <table>
+                                        <tr><th>ID</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+                                        <tr><td>101</td><td>2026-03-29</td><td>₹ 10,000</td><td>Cleared</td></tr>
+                                      </table>
+                                      <div class="footer">
+                                        Powered by stalic mandi os
+                                      </div>
+                                    </body>
+                                  </html>
+                                `);
+                                newWin.document.close();
                               }}
-                              onClick={() => window.print()}
                             >
-                              PDF
+                              PDF / Excel
                             </Button>
                             <Button
                               variant="outline"
