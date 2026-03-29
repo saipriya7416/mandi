@@ -916,6 +916,55 @@ export default function App() {
      collectedBy: "Admin Staff",
      notes: ""
   });
+
+  const [selectedLedgerSupplier, setSelectedLedgerSupplier] = useState("");
+  const [selectedLedgerBuyer, setSelectedLedgerBuyer] = useState("");
+
+  const handleLedgerSupplierChange = async (supplierId) => {
+     setSelectedLedgerSupplier(supplierId);
+     if (!supplierId) {
+        setSupplierBills([]);
+        return;
+     }
+     try {
+        // Try specialized ledger API or fallback to settlement history
+        const res = await MandiService.getSupplierLedger(supplierId);
+        if (res.status === "SUCCESS") {
+           setSupplierBills(res.data || []);
+        } else {
+           // Fallback
+           const fallRes = await MandiService.getFarmerSettlementHistory(supplierId);
+           if (fallRes.status === "SUCCESS") {
+              setSupplierBills(fallRes.data || []);
+           }
+        }
+     } catch (err) {
+        setSupplierBills([]);
+     }
+  };
+
+  const handleLedgerBuyerChange = async (buyerId) => {
+     setSelectedLedgerBuyer(buyerId);
+     if (!buyerId) {
+        setBuyerInvoices([]);
+        return;
+     }
+     try {
+        const res = await MandiService.getBuyerInvoices();
+        if (res.status === "SUCCESS") {
+           // Filter invoices for this buyer
+           const filtered = (res.data || []).filter(inv => 
+              inv.buyer === buyerId || 
+              inv.buyerId === buyerId || 
+              (inv.buyer && inv.buyer._id === buyerId)
+           );
+           setBuyerInvoices(filtered);
+        }
+     } catch (err) {
+        setBuyerInvoices([]);
+     }
+  };
+
   const [dailyCashSummary, setDailyCashSummary] = useState({ cash: 45000, upi: 125000, bank: 320000 });
 
   const [correctionForm, setCorrectionForm] = useState({ amount: "", type: "payment", reason: "" });
@@ -2925,9 +2974,22 @@ export default function App() {
                {activeLedgerTab === "Supplier" && (
                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "10px" }}>
-                       <div>
-                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>SPV FRUITS: Supplier Party Ledger</h2>
-                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Audit-ready tracking of all amounts owed to farmers and settlement disbursements.</p>
+                       <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                          <div>
+                             <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>SPV FRUITS: Supplier Party Ledger</h2>
+                             <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Audit-ready tracking of all amounts owed to farmers and settlement disbursements.</p>
+                          </div>
+                          <div style={{ width: "300px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", display: "block", marginBottom: "6px" }}>Select Supplier to View Ledger</label>
+                             <select 
+                                value={selectedLedgerSupplier} 
+                                onChange={(e) => handleLedgerSupplierChange(e.target.value)}
+                                style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1.5px solid #F1F5F9", background: "#FFFFFF", color: COLORS.sidebar, fontWeight: "700", outline: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}
+                             >
+                                <option value="">--- Select Supplier ---</option>
+                                {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} ({s.village || s.villageOrTownName || "Local"})</option>)}
+                             </select>
+                          </div>
                        </div>
                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
                     </div>
@@ -2981,7 +3043,8 @@ export default function App() {
                                 <tr>
                                    <td colSpan="10" style={{ textAlign: "center", padding: "100px 40px", background: "#FDFBF4", borderRadius: "0 0 16px 16px", color: COLORS.muted, fontSize: "15px", fontWeight: "600", border: "1.5px dashed #EBE9E1" }}>
                                       <div style={{ fontSize: "32px", marginBottom: "12px" }}>📂</div>
-                                      No transaction history found for this supplier.
+                                      No transaction history found for {selectedLedgerSupplier ? "this supplier" : "the selected entity"}.
+                                      {!selectedLedgerSupplier && <div style={{ fontSize: "12px", marginTop: "10px", color: COLORS.primary }}>Please select a supplier from the dropdown above to fetch records.</div>}
                                    </td>
                                 </tr>
                              )}
@@ -3026,9 +3089,22 @@ export default function App() {
                {activeLedgerTab === "Customer" && (
                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", borderBottom: "2.5px solid #F1F5F9", paddingBottom: "20px" }}>
-                       <div>
-                          <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Customer Party Ledger</h2>
-                          <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Financial history of sales activity and outstanding dues (DR Account).</p>
+                       <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                          <div>
+                             <h2 style={{ fontSize: "24px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Customer Party Ledger</h2>
+                             <p style={{ fontSize: "13px", color: COLORS.muted, margin: "4px 0 0 0" }}>Financial history of sales activity and outstanding dues (DR Account).</p>
+                          </div>
+                          <div style={{ width: "300px" }}>
+                             <label style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", display: "block", marginBottom: "6px" }}>Select Customer to View Ledger</label>
+                             <select 
+                                value={selectedLedgerBuyer} 
+                                onChange={(e) => handleLedgerBuyerChange(e.target.value)}
+                                style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1.5px solid #F1F5F9", background: "#FFFFFF", color: COLORS.sidebar, fontWeight: "700", outline: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}
+                             >
+                                <option value="">--- Select Customer ---</option>
+                                {buyers.map(b => <option key={b._id} value={b._id}>{b.name} ({b.shopName || "Trader"})</option>)}
+                             </select>
+                          </div>
                        </div>
                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
                     </div>
