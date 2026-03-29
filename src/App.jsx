@@ -2546,32 +2546,32 @@ export default function App() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px" }}>
                        
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🚚 Lorry Freight / Transport</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Lorry Freight / Transport</label>
                           <input type="number" value={supplierSettlementForm.expenses.transport} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
                        
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>🏛️ Market Fee / Commission</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Market Fee / Commission</label>
                           <input type="text" value={supplierSettlementForm.expenses.commission} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})} placeholder="₹ or %" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>💪 Labour / Hamali</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Labour / Hamali</label>
                           <input type="number" value={supplierSettlementForm.expenses.labour} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, labour: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>💰 Cash Advance Paid</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Cash Advance Paid</label>
                           <input type="number" value={supplierSettlementForm.expenses.advance} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, advance: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>⚖️ Weighing Charges (Kata)</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Weighing Charges (Kata)</label>
                           <input type="number" value={supplierSettlementForm.expenses.weighing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, weighing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", background: "#FDFBF4", borderRadius: "10px", border: "1px solid #EBE9E1" }}>
-                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>📦 Packing Material</label>
+                          <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Packing Material</label>
                           <input type="number" value={supplierSettlementForm.expenses.packing} onChange={e => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, packing: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }} />
                        </div>
 
@@ -3013,18 +3013,43 @@ export default function App() {
                              {(() => {
                                 let runningBalance = 0;
                                 return supplierBills.map((bill, bIdx) => {
-                                   const gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0);
-                                   const expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                   const netSale = gross - expenses;
-                                   const advance = Number(bill.advancePayment || bill.advance || 0);
-                                   const paymentMade = Number(bill.amountPaid || bill.paymentMade || 0);
+                                   const dateVal = bill.date || (bill.createdAt ? formatDate(bill.createdAt) : "—");
+                                   const lotIdVal = bill.lotId || bill.lotCode || bill.lotRef?.lotId || "—";
+                                   const billNoVal = bill.billNumber || bill.invoiceNumber || bill.billNo || `BILL-${bIdx + 1}`;
+                                   
+                                   // Robust Gross Calculation
+                                   let gross = Number(bill.grossValue || bill.totalValue || bill.totalAmount || 0);
+                                   if (gross === 0 && bill.produce) {
+                                      gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate || item.saleRate)), 0);
+                                   } else if (gross === 0 && bill.items) {
+                                      gross = (bill.items || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate || item.saleRate)), 0);
+                                   }
+                                   
+                                   // Robust Expenses Calculation
+                                   let expenses = Number(bill.totalExpenses || bill.expensesAmount || bill.totalDeductions || 0);
+                                   if (expenses === 0 && bill.charges) {
+                                      expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                                   } else if (expenses === 0 && bill.expenses && Array.isArray(bill.expenses)) {
+                                      expenses = bill.expenses.reduce((sum, e) => sum + (Number(e.value || e.amount) || 0), 0);
+                                   }
+                                   
+                                   const netSale = bill.netPayable || bill.payable || (gross - expenses);
+                                   const advance = Number(bill.advance || bill.advancePayment || bill.advanceAmount || 0);
+                                   const paymentMade = Number(bill.amountPaid || bill.paymentMade || bill.paidAmount || 0);
+                                   
                                    runningBalance = runningBalance + netSale - advance - paymentMade;
-                                   const productSummary = (bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}KG`).join(" + ") || "—";
+                                   
+                                   const productSummary = (bill.produce || bill.items || []).map(p => {
+                                      const name = p.productName || p.product || p.productLabel || "";
+                                      const qty = p.quantity || p.qty || 0;
+                                      return name ? `${name} ${qty}KG` : "";
+                                   }).filter(Boolean).join(" + ") || "—";
+
                                    return (
                                       <tr key={bill._id || bIdx} style={{ background: "#FFFFFF", boxShadow: "0 2px 4px rgba(0,0,0,0.01)" }}>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{bill.date || formatDate(bill.createdAt)}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", whiteSpace: "nowrap" }}>{bill.lotId || "—"}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{bill.billNumber || bill.invoiceNumber || `BILL-${bIdx + 1}`}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{dateVal}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", whiteSpace: "nowrap" }}>{lotIdVal}</td>
+                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{billNoVal}</td>
                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, maxWidth: "200px" }}>{productSummary}</td>
                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#15803D", whiteSpace: "nowrap" }}>{formatCurrency(gross)}</td>
                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#E11D48", whiteSpace: "nowrap" }}>-{formatCurrency(expenses)}</td>
@@ -3033,7 +3058,7 @@ export default function App() {
                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#0369A1", fontWeight: "700", whiteSpace: "nowrap" }}>{formatCurrency(paymentMade)}</td>
                                          <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0", fontWeight: "900", color: runningBalance > 0 ? "#DC2626" : "#15803D", whiteSpace: "nowrap" }}>
                                             {formatCurrency(Math.abs(runningBalance))}
-                                            <span style={{ fontSize: "9px", marginLeft: "4px", opacity: 0.6 }}>{runningBalance > 0 ? "DUE" : "PAID"}</span>
+                                            <span style={{ fontSize: "9px", marginLeft: "4px", opacity: 0.6 }}>{runningBalance > 0 ? "DUE" : "SETTLED"}</span>
                                          </td>
                                       </tr>
                                    );
@@ -3052,11 +3077,21 @@ export default function App() {
                        </table>
                     </div>
                     {supplierBills.length > 0 && (() => {
-                        const totalGross = supplierBills.reduce((s, bill) => s + (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0), 0);
-                        const totalExpenses = supplierBills.reduce((s, bill) => s + Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0), 0);
+                        const totalGross = supplierBills.reduce((s, bill) => {
+                           let g = Number(bill.grossValue || bill.totalValue || bill.totalAmount || 0);
+                           if (g === 0 && bill.produce) g = bill.produce.reduce((sum, i) => sum + (Number(i.quantity || i.qty) * Number(i.rate || i.saleRate)), 0);
+                           else if (g === 0 && bill.items) g = bill.items.reduce((sum, i) => sum + (Number(i.quantity || i.qty) * Number(i.rate || i.saleRate)), 0);
+                           return s + g;
+                        }, 0);
+                        const totalExpenses = supplierBills.reduce((s, bill) => {
+                           let e = Number(bill.totalExpenses || bill.expensesAmount || bill.totalDeductions || 0);
+                           if (e === 0 && bill.charges) e = Object.values(bill.charges).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                           else if (e === 0 && bill.expenses && Array.isArray(bill.expenses)) e = bill.expenses.reduce((sum, ex) => sum + (Number(ex.value || ex.amount) || 0), 0);
+                           return s + e;
+                        }, 0);
+                        const totalAdvance = supplierBills.reduce((s, bill) => s + Number(bill.advance || bill.advancePayment || bill.advanceAmount || 0), 0);
+                        const totalPaid = supplierBills.reduce((s, bill) => s + Number(bill.amountPaid || bill.paymentMade || bill.paidAmount || 0), 0);
                         const totalNet = totalGross - totalExpenses;
-                        const totalAdvance = supplierBills.reduce((s, bill) => s + Number(bill.advancePayment || bill.advance || 0), 0);
-                        const totalPaid = supplierBills.reduce((s, bill) => s + Number(bill.amountPaid || bill.paymentMade || 0), 0);
                         const totalBalance = totalNet - totalAdvance - totalPaid;
                         return (
                            <div style={{ marginTop: "32px", padding: "32px", background: COLORS.sidebar, borderRadius: "20px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}>
@@ -3075,7 +3110,7 @@ export default function App() {
                                        <span style={{ fontWeight: "800" }}>-{formatCurrency(totalExpenses)}</span>
                                     </div>
                                     <div>
-                                       <label style={{ display: "block", opacity: 0.6 }}>Total Paid</label>
+                                       <label style={{ display: "block", opacity: 0.6 }}>Total Settlements</label>
                                        <span style={{ fontWeight: "800" }}>{formatCurrency(totalPaid + totalAdvance)}</span>
                                     </div>
                                  </div>
@@ -3111,34 +3146,39 @@ export default function App() {
                     
                     <div style={{ overflowX: "auto" }}>
                        <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
-                          <thead>
-                             <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice Amount (₹)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Received (₹)</th>
-                                <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Outstanding Balance (₹)</th>
-                             </tr>
-                          </thead>
-                                                     <tbody>
+                           <thead>
+                              <tr style={{ background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "800", textAlign: "left" }}>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice Amount (₹)</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Payment Received (₹)</th>
+                                 <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Outstanding Balance (₹)</th>
+                              </tr>
+                           </thead>
+                           <tbody>
                               {buyerInvoices.map((inv, iIdx) => {
-                                 const subTotal = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)) * (Number(item.rate)||0)), 0);
-                                 const addl = Object.values(inv.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                 const total = subTotal + addl;
-                                 const received = Number(inv.amountReceived) || 0;
+                                 const items = inv.items || inv.lineItems || [];
+                                 const subTotal = items.reduce((sum, item) => {
+                                    const qty = Number(item.netWeight || item.quantity || item.qty || 0);
+                                    const rate = Number(item.rate || item.saleRate || 0);
+                                    return sum + (qty * rate);
+                                 }, 0);
+                                 const addl = Object.values(inv.charges || inv.additionalCharges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                                 const total = inv.grandTotal || inv.totalAmount || (subTotal + addl);
+                                 const received = Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || 0);
                                  const outstanding = total - received;
-                                 const fruitVariety = (inv.items || []).map(item => {
-                                    const name = item.productInfo || item.product || item.productName || "";
+                                 const fruitVariety = items.map(item => {
+                                    const name = item.productLabel || item.product || item.productName || item.productInfo || "";
                                     const variety = item.variety ? ` ${item.variety}` : "";
                                     return `${name}${variety}`.trim();
-                                 }).filter(Boolean).join(", ") || "�";
-                                 const totalQty = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0))), 0);
+                                 }).filter(Boolean).join(", ") || "—";
+                                 const totalQty = items.reduce((sum, item) => sum + Number(item.netWeight || item.quantity || item.qty || 0), 0);
                                  return (
                                     <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
-                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{inv.date || formatDate(inv.createdAt)}</td>
-                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{inv.invoiceNumber || `INV-${iIdx + 1}`}</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{inv.date || (inv.createdAt ? formatDate(inv.createdAt) : "—")}</td>
+                                       <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{inv.invoiceNumber || inv.invoiceNo || `INV-${iIdx + 1}`}</td>
                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, maxWidth: "180px" }}>{fruitVariety}</td>
                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", whiteSpace: "nowrap" }}>{totalQty.toLocaleString("en-IN")} KG</td>
                                        <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#E11D48", whiteSpace: "nowrap" }}>{formatCurrency(total)}</td>
@@ -3151,12 +3191,13 @@ export default function App() {
                               })}
                               {buyerInvoices.length > 0 && (() => {
                                  const tTotal = buyerInvoices.reduce((s, inv) => {
-                                    const sub = (inv.items || []).reduce((sum, item) => sum + (Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)) * (Number(item.rate)||0)), 0);
-                                    const addl = Object.values(inv.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                    return s + sub + addl;
+                                    const items = inv.items || inv.lineItems || [];
+                                    const sub = items.reduce((sum, i) => sum + (Number(i.netWeight || i.quantity || i.qty || 0) * (Number(i.rate || i.saleRate || 0))), 0);
+                                    const addl = Object.values(inv.charges || inv.additionalCharges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                                    return s + (inv.grandTotal || inv.totalAmount || (sub + addl));
                                  }, 0);
-                                 const tReceived = buyerInvoices.reduce((s, inv) => s + (Number(inv.amountReceived) || 0), 0);
-                                 const tQty = buyerInvoices.reduce((s, inv) => s + (inv.items || []).reduce((sum, item) => sum + Math.max(0, (Number(item.grossWeight)||0) - (Number(item.deductions)||0)), 0), 0);
+                                 const tReceived = buyerInvoices.reduce((s, inv) => s + Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || 0), 0);
+                                 const tQty = buyerInvoices.reduce((s, inv) => s + (inv.items || inv.lineItems || []).reduce((sum, i) => sum + Number(i.netWeight || i.quantity || i.qty || 0), 0), 0);
                                  const tOutstanding = tTotal - tReceived;
                                  return (
                                     <tr style={{ background: "#FFF7ED", fontWeight: "900", borderTop: "2px solid #FED7AA" }}>
