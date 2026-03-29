@@ -734,15 +734,15 @@ export default function App() {
   };
 
   const handleSendBuyerWhatsApp = (b) => {
-    const buyer = buyers.find(s => s._id === (b.buyerId?._id || b.buyerId)) || b.buyerId;
-    const phone = buyer?.phone || b.buyerPhone || "";
+    const buyer = buyers.find(s => s._id === (b.buyerId?._id || b.buyerId) || s.name === (b.buyerId?.name || b.buyerName || b.buyerId)) || b.buyerId || b;
+    const phone = buyer?.phone || b.buyerPhone || b.customerPhone || b.phone || "";
     if (!phone) return alert("❌ No phone number found for this customer.");
 
     const items = b.items || [];
-    const totalQty = items.reduce((s, i) => s + (Number(i.grossWeight || 0) - (Number(i.deductions || 0))), 0);
+    const totalQty = (items || []).reduce((s, i) => s + (Number(i.grossWeight || 0) - (Number(i.deductions || 0))), 0);
     const productName = items?.[0]?.productInfo || "Various Products";
 
-    const subTotal = items.reduce((s, it) => s + (Math.max(0, (Number(it.grossWeight) || 0) - (Number(it.deductions) || 0)) * (Number(it.rate) || 0)), 0);
+    const subTotal = (items || []).reduce((s, it) => s + (Math.max(0, (Number(it.grossWeight) || 0) - (Number(it.deductions) || 0)) * (Number(it.rate) || 0)), 0);
     const ch = b.charges || {};
     const totalAdditional = (Number(ch.commission) || 0) + (Number(ch.handling) || 0) + (Number(ch.transport) || 0) + (Number(ch.otherAmount) || 0);
     const grandTotal = subTotal + totalAdditional;
@@ -770,13 +770,14 @@ Total amount: ${formatCurrency(grandTotal)}
 Payment Received: ${formatCurrency(amountReceived)}
 Balance Amount: ${formatCurrency(balanceDue)}`;
 
-    const url = `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`;
+    const phoneStr = String(phone);
+    const url = `https://wa.me/${phoneStr.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
   };
 
   const handleSendSupplierWhatsApp = (b) => {
-    const supplier = suppliers.find(s => s._id === b.supplierId?._id || s._id === b.supplierId) || b.supplierId;
-    const phone = supplier?.phone || "";
+    const supplier = suppliers.find(s => s._id === b.supplierId?._id || s._id === b.supplierId || s.name === b.supplierName || s.name === b.supplierId) || b.supplierId || b;
+    const phone = supplier?.phone || b.supplierPhone || b.farmerPhone || b.phone || "";
     if (!phone) return alert("❌ No phone number found for this supplier.");
 
     const totalGross = (b.items || []).reduce((s, i) => s + (Number(i.quantity || 0) * Number(i.rate || 0)), 0);
@@ -810,7 +811,8 @@ Total amount: ${formatCurrency(totalGross)}
 advance payable: ${formatCurrency(advance)}
 balance amount: ${formatCurrency(balancePayable)}`;
 
-    const url = `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(msg1)}`;
+    const phoneStr = String(phone);
+    const url = `https://wa.me/${phoneStr.replace(/\D/g, "")}?text=${encodeURIComponent(msg1)}`;
     window.open(url, "_blank");
   };
 
@@ -1039,7 +1041,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
 
         let grossValue = Number(bill.grossValue || bill.totalValue || 0);
         if (grossValue === 0) {
-          grossValue = itemsList.reduce(
+          grossValue = (itemsList || []).reduce(
             (sum, item) =>
               sum +
               Number(item.quantity || item.qty) *
@@ -1109,7 +1111,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
           items
             .map((p) => `${p.productLabel || p.product || ""} ${p.variety || ""}`)
             .join(", ") || "N/A";
-        const totalQty = items.reduce(
+        const totalQty = (items || []).reduce(
           (s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0),
           0,
         );
@@ -2500,7 +2502,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
   };
 
   const calculateInvoiceTotals = (form) => {
-    const subTotal = form.items.reduce(
+    const subTotal = (form.items || []).reduce(
       (acc, item) => acc + item.netWeight * item.rate,
       0,
     );
@@ -4460,26 +4462,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                   >
                     Registered Lots
                   </div>
-                  <div
-                    onClick={() => setActiveLotTab("Recorded Allocations")}
-                    style={{
-                      padding: "10px 24px",
-                      cursor: "pointer",
-                      fontWeight: "700",
-                      background:
-                        activeLotTab === "Recorded Allocations"
-                          ? COLORS.sidebar
-                          : "#F3F1EA",
-                      color:
-                        activeLotTab === "Recorded Allocations"
-                          ? "#FFFFFF"
-                          : COLORS.muted,
-                      borderRadius: "8px",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    Recorded Allocations
-                  </div>
+
                 </div>
               </div>
 
@@ -7277,7 +7260,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     }}
                   >
                     {(() => {
-                      const grossSale = supplierSettlementForm.items.reduce(
+                      const grossSale = (supplierSettlementForm.items || []).reduce(
                         (sum, it) =>
                           sum + (Number(it.quantity) * Number(it.rate) || 0),
                         0,
@@ -7576,7 +7559,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             </div>
                           </div>
                         ))}
-                      {supplierBills.length === 0 && (
+                      {(supplierBills || []).length === 0 && (
                         <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No billing records found.</p>
                       )}
                     </div>
@@ -7854,7 +7837,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             {(() => {
                               const items = lastGeneratedInvoice?.items || buyerInvoiceForm.items;
                               const charges = lastGeneratedInvoice?.charges || buyerInvoiceForm.charges;
-                              const gross = items.reduce((s, i) => s + (Number(i.grossWeight || 0) * Number(i.rate || 0)), 0);
+                              const gross = (items || []).reduce((s, i) => s + (Number(i.grossWeight || 0) * Number(i.rate || 0)), 0);
                               const extra = Object.entries(charges).reduce((s, [k, v]) => k.toLowerCase().includes("amount") || ["commission", "handling", "transport"].includes(k) ? s + Number(v || 0) : s, 0);
                               return formatCurrency(gross + extra);
                             })()}
@@ -7873,7 +7856,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                               const items = lastGeneratedInvoice?.items || buyerInvoiceForm.items;
                               const charges = lastGeneratedInvoice?.charges || buyerInvoiceForm.charges;
                               const received = Number(lastGeneratedInvoice?.amountReceived || buyerInvoiceForm.amountReceived || 0);
-                              const gross = items.reduce((s, i) => s + (Number(i.grossWeight || 0) * Number(i.rate || 0)), 0);
+                              const gross = (items || []).reduce((s, i) => s + (Number(i.grossWeight || 0) * Number(i.rate || 0)), 0);
                               const extra = Object.entries(charges).reduce((s, [k, v]) => k.toLowerCase().includes("amount") || ["commission", "handling", "transport"].includes(k) ? s + Number(v || 0) : s, 0);
                               return formatCurrency(gross + extra - received);
                             })()}
@@ -8923,7 +8906,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     }}
                   >
                     {(() => {
-                      const subTotal = buyerInvoiceForm.items.reduce(
+                      const subTotal = (buyerInvoiceForm.items || []).reduce(
                         (sum, it) =>
                           sum +
                           Math.max(
@@ -9335,7 +9318,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             </div>
                           </div>
                         ))}
-                      {buyerInvoices.length === 0 && (
+                      {(buyerInvoices || []).length === 0 && (
                         <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No invoices found.</p>
                       )}
                     </div>
@@ -9535,7 +9518,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                           <option value="">--- Select Lot ID ---</option>
                           {Array.from(
                             new Set(
-                              supplierBills.map((b) => b.lotId || b.lotCode),
+                              (supplierBills || []).map((b) => b && (b.lotId || b.lotCode)),
                             ),
                           )
                             .filter(Boolean)
@@ -9658,7 +9641,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
 
                               let grossValue = Number(bill.grossValue || bill.totalValue || bill.gross_value || 0);
                               if (grossValue === 0) {
-                                grossValue = itemsList.reduce((sum, item) => sum + (Number(item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
+                                grossValue = (itemsList || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
                               }
 
                               let expenseValue = Number(bill.totalExpenses || bill.totalDeductions || bill.total_expenses || 0);
@@ -9710,10 +9693,10 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             });
                         })()}
 
-                        {supplierBills.length > 0 &&
+                        {(supplierBills || []).length > 0 &&
                           (() => {
-                            const tNet = supplierBills.reduce((s, b) => s + Number(b.netPayable || 0), 0);
-                            const tPaid = supplierBills.reduce((s, b) => s + Number(b.advance || 0) + Number(b.amountPaid || b.paymentMade || 0), 0);
+                            const tNet = (supplierBills || []).reduce((s, b) => s + Number(b.netPayable || 0), 0);
+                            const tPaid = (supplierBills || []).reduce((s, b) => s + Number(b.advance || 0) + Number(b.amountPaid || b.paymentMade || 0), 0);
                             const tBalance = tNet - tPaid;
                             return (
                               <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
@@ -9731,7 +9714,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             );
                           })()}
 
-                        {supplierBills.length === 0 && (
+                        {(supplierBills || []).length === 0 && (
                           <tr>
                             <td
                               colSpan="10"
@@ -9887,9 +9870,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                           <option value="">--- Select Invoice ---</option>
                           {Array.from(
                             new Set(
-                              buyerInvoices.map(
-                                (inv) => inv.invoiceNumber || inv.invoiceNo,
-                              ),
+                              (buyerInvoices || []).map((inv) => inv && (inv.invoiceNumber || inv.invoiceNo)),
                             ),
                           )
                             .filter(Boolean)
@@ -10000,9 +9981,9 @@ balance amount: ${formatCurrency(balancePayable)}`;
                               
                               const items = inv.items || inv.lineItems || inv.produce || [];
                               const fruitVariety = items.map(p => `${p.productLabel || p.product || ""} ${p.variety || ""}`).join(", ") || "N/A";
-                              const totalQty = items.reduce((s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0), 0);
+                              const totalQty = (items || []).reduce((s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0), 0);
 
-                              const subTotal = items.reduce((sum, item) => sum + (Number(item.netWeight || item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
+                              const subTotal = (items || []).reduce((sum, item) => sum + (Number(item.netWeight || item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
                               const adCharges = Object.values(inv.charges || inv.additionalCharges || {}).reduce((s, v) => s + (Number(v) || 0), 0);
                               const invAmount = Number(inv.grandTotal || inv.totalAmount || inv.total_amount || (subTotal + adCharges));
                               const recvAmt = Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || inv.paid_amount || 0);
@@ -10036,10 +10017,10 @@ balance amount: ${formatCurrency(balancePayable)}`;
                               );
                             });
                         })()}
-                        {buyerInvoices.length > 0 &&
+                        {(buyerInvoices || []).length > 0 &&
                           (() => {
-                            const tInv = buyerInvoices.reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
-                            const tRecv = buyerInvoices.reduce((s, inv) => s + Number(inv.amountReceived || inv.paidAmount || 0), 0);
+                            const tInv = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+                            const tRecv = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.amountReceived || inv.paidAmount || 0), 0);
                             const tDue = tInv - tRecv;
                             return (
                               <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
@@ -11557,7 +11538,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     Active Shipments
                   </p>
                   <h2 style={{ margin: "5px 0 0" }}>
-                    {(typeof supplierBills !== 'undefined' ? supplierBills.length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0)} Vehicles
+                    {(typeof supplierBills !== 'undefined' ? (supplierBills || []).length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0)} Vehicles
                   </h2>
                 </Card>
                 <Card
@@ -11607,7 +11588,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     Est. Freight Payable
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: COLORS.primary }}>
-                    {formatCurrency(typeof supplierBills !== 'undefined' && supplierBills.reduce ? supplierBills.reduce((sum, b) => sum + Number(b.expenses?.freight || b.transportFee || 0), 0) : 0)}
+                    {formatCurrency(typeof supplierBills !== 'undefined' && (supplierBills || []).reduce ? (supplierBills || []).reduce((sum, b) => sum + Number(b.expenses?.freight || b.transportFee || 0), 0) : 0)}
                   </h2>
                 </Card>
               </div>
@@ -13252,10 +13233,10 @@ balance amount: ${formatCurrency(balancePayable)}`;
                     }).length;
 
                     // 4. Total Farmer Outstanding "Total amount SPV owes to all farmers" -> Supplier Ledger
-                    const farmerOutstandingAmt = supplierBills.reduce((s, b) => s + Math.max(0, (Number(b.netPayable || b.grandTotal || 0) - Number(b.amountPaid || b.paymentReceived || 0))), 0);
+                    const farmerOutstandingAmt = (supplierBills || []).reduce((s, b) => s + Math.max(0, (Number(b.netPayable || b.grandTotal || 0) - Number(b.amountPaid || b.paymentReceived || 0))), 0);
 
                     // 5. Total Buyer Outstanding "Sum all customer outstanding balances" -> Customer Ledger
-                    const buyerOutstandingAmt = buyerInvoices.reduce((s, inv) => s + Math.max(0, (Number(inv.grandTotal || inv.totalAmount || 0) - Number(inv.amountReceived || inv.paymentReceived || 0))), 0);
+                    const buyerOutstandingAmt = (buyerInvoices || []).reduce((s, inv) => s + Math.max(0, (Number(inv.grandTotal || inv.totalAmount || 0) - Number(inv.amountReceived || inv.paymentReceived || 0))), 0);
 
                     // 6. Today's Cash Collected "Payments received from buyers today" -> Customer Payments
                     const todaysCashCollected = buyerInvoices.filter(inv => {
@@ -13406,13 +13387,13 @@ balance amount: ${formatCurrency(balancePayable)}`;
                                 let csvContent = "data:text/csv;charset=utf-8,";
                                 
                                 if (rep.t === 'Supplier Transaction Log') {
-                                  if (supplierBills && supplierBills.length > 0) {
+                                  if (supplierBills && (supplierBills || []).length > 0) {
                                     supplierBills.forEach(b => {
                                       const amt = b.netPayable || b.grandTotal || 0;
                                       const billId = b.receiptNo || b.billId || (b._id && b._id.slice(-6)) || '-';
                                       const supplierName = b.supplierName || 'Supplier';
                                       const product = (b.items && b.items.length > 0) ? b.items.map(i => i.product || i.name).join(', ') : 'Fresh Produce';
-                                      const quantity = (b.items && b.items.length > 0) ? b.items.reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
+                                      const quantity = (b.items && b.items.length > 0) ? (b.items || []).reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
                                       const link = window.location.origin + '/invoice/' + billId;
                                       
                                       const txtContent = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n[Dynamic Link]\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
@@ -13461,7 +13442,7 @@ Powered by Stacli mandi os</div>
                                   let tableRows = '';
                                   if (rep.t === 'Buyer Credit Analysis') {
                                     tableRows += '<tr><th>Invoice ID</th><th>Date</th><th>Buyer</th><th>Total</th><th>Received</th><th>Outstanding</th></tr>';
-                                    if (typeof buyerInvoices !== 'undefined' && buyerInvoices.length > 0) {
+                                    if (typeof buyerInvoices !== 'undefined' && (buyerInvoices || []).length > 0) {
                                       buyerInvoices.forEach(inv => {
                                         const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0])) || '-';
                                         const total = inv.grandTotal || inv.totalAmount || 0;
@@ -13577,14 +13558,14 @@ Powered by Stacli mandi os</div>
                                 padding: "8px",
                               }}
                               onClick={() => {
-                                if (rep.t === 'Supplier Transaction Log' && typeof supplierBills !== 'undefined' && supplierBills.length > 0) {
+                                if (rep.t === 'Supplier Transaction Log' && typeof supplierBills !== 'undefined' && (supplierBills || []).length > 0) {
                                   // Send the latest invoice when clicking WhatsApp on the outer dashboard card
-                                  const latestBill = supplierBills[supplierBills.length - 1];
+                                  const latestBill = supplierBills[(supplierBills || []).length - 1];
                                   const amt = latestBill.netPayable || latestBill.grandTotal || 0;
                                   const billId = latestBill.receiptNo || latestBill.billId || (latestBill._id && latestBill._id.slice(-6)) || '-';
                                   const supplierName = latestBill.supplierName || 'Supplier';
                                   const product = (latestBill.items && latestBill.items.length > 0) ? latestBill.items.map(i => i.product || i.name).join(', ') : 'Fresh Produce';
-                                  const quantity = (latestBill.items && latestBill.items.length > 0) ? latestBill.items.reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
+                                  const quantity = (latestBill.items && latestBill.items.length > 0) ? (latestBill.items || []).reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
                                   const link = window.location.origin + '/#/invoice/' + billId;
 
                                   const invoiceMsg = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n${link}\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;

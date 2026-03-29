@@ -1,0 +1,130 @@
+45: const DUMMY_ALLOCATIONS = [
+675: const [activeAllocationTab, setActiveAllocationTab] = useState("Allocation Form");
+707: const [allocationSearchQuery, setAllocationSearchQuery] = useState("");
+1376: const handleAllocationItemAction = (action, idx, field, value) => {
+1377: let items = [...allocationForm.items];
+1394: const currentLotId = allocationForm.lotId;
+1403: const alreadyAllocated = (allocations || [])
+1419: setAllocationForm({ ...allocationForm, items });
+1768: const [inventoryStats, setInventoryStats] = useState({
+1792: const [allocationTraceability, setAllocationTraceability] = useState(null);
+1795: // --- ALLOCATION FORM STATE (REQUIRED BY ENTERPRISE ALLOCATION ENGINE) ---
+1796: const [allocationForm, setAllocationForm] = useState({
+1799: allocationDate: getISTDate(),
+1818: const [allocations, setAllocations] = useState([]);
+1821: const [invMode, setInvMode] = useState("Allocation"); // "Intake" or "Allocation"
+2307: const aRes = await MandiService.getAllocations();
+2308: setAllocations(aRes.status === "SUCCESS" && aRes.data?.length > 0 ? aRes.data : DUMMY_ALLOCATIONS);
+2335: const statsRes = await MandiService.getInventoryDashboard();
+2336: if (statsRes.status === "SUCCESS") setInventoryStats(statsRes.data);
+2352: setAllocations(DUMMY_ALLOCATIONS);
+2355: setInventoryStats({
+2614: // --- HANDLE ALLOCATION ---
+2616: if (!allocationForm.lotId) return alert("⚠️ Lot ID is required.");
+2617: if (!allocationForm.buyerId) return alert("⚠️ Customer Name is required.");
+2618: if (!allocationForm.allocationDate)
+2619: return alert("⚠️ Allocation Date is mandatory.");
+2620: if (allocationForm.items.length === 0)
+2621: return alert("⚠️ Please add at least one product for allocation.");
+2624: for (const item of allocationForm.items) {
+2639: const matchedLot = lots.find((l) => l.lotId === allocationForm.lotId);
+2643: for (const item of allocationForm.items) {
+2645: lotId: matchedLot?._id || allocationForm.lotId,
+2647: buyerId: allocationForm.buyerId,
+2650: allocationDate: allocationForm.allocationDate,
+2651: buyerInvoiceNo: allocationForm.buyerInvoiceNo || "",
+2652: notes: allocationForm.notes || "",
+2660: `✅ ${successCount} Allocation(s) processed and stored in Database!`,
+2662: setAllocationForm({
+2665: allocationDate: getISTDate(),
+2682: "❌ ALLOCATION STORAGE FAILED: Could not sync records with database.",
+2690: const handleDeleteAllocation = async (id) => {
+2693: "🗑️ Are you sure you want to PERMANENTLY delete this allocation record?",
+2698: const res = await MandiService.deleteAllocation(id);
+2700: alert("✅ Allocation deleted successfully!");
+2710: const handleEditAllocation = (record) => {
+2725: const already = (allocations || [])
+2737: setAllocationForm({
+2740: allocationDate: record.allocationDate || getISTDate(),
+2758: const handleSyncAllocation = async (idx) => {
+2759: const item = allocationForm.items[idx];
+2765: const matchedLot = lots.find((l) => l.lotId === allocationForm.lotId);
+2767: lotId: matchedLot?._id || allocationForm.lotId,
+2769: buyerId: allocationForm.buyerId,
+2772: allocationDate: allocationForm.allocationDate,
+2773: buyerInvoiceNo: allocationForm.buyerInvoiceNo || "",
+2774: notes: allocationForm.notes || "",
+2782: `✅ ALLOCATION SYNCED: Item [${item.lineItemId}] updated in Database!`,
+2968: label: "Lot/Inventory Intake",
+2972: id: "Lot Allocation",
+2974: label: "Auction & Lot Allocation",
+4464: onClick={() => setActiveLotTab("Recorded Allocations")}
+4470: activeLotTab === "Recorded Allocations"
+4474: activeLotTab === "Recorded Allocations"
+4481: Recorded Allocations
+5268: Inventory Status (Auto)
+5376: {/* LOT ALLOCATION MODULE */}
+5377: {activeSection === "Lot Allocation" && (
+5399: Auction & Lot Allocation
+5409: Efficiently distribute lot inventory to multiple customers.
+5414: onClick={() => setActiveAllocationTab("Allocation Form")}
+5419: background: activeAllocationTab === "Allocation Form" ? COLORS.sidebar : "#F3F1EA",
+5420: color: activeAllocationTab === "Allocation Form" ? "#FFFFFF" : COLORS.muted,
+5425: Allocation Form
+5428: onClick={() => setActiveAllocationTab("Recorded Allocations")}
+5433: background: activeAllocationTab === "Recorded Allocations" ? COLORS.sidebar : "#F3F1EA",
+5434: color: activeAllocationTab === "Recorded Allocations" ? "#FFFFFF" : COLORS.muted,
+5439: Recorded Allocations
+5444: {activeAllocationTab === "Allocation Form" && (
+5450: title: "Allocation Header",
+5456: value: allocationForm.lotId,
+5458: setAllocationForm({
+5459: ...allocationForm,
+5468: value: allocationForm.buyerId,
+5470: setAllocationForm({
+5471: ...allocationForm,
+5476: label: "Allocation Date *",
+5478: value: allocationForm.allocationDate,
+5480: setAllocationForm({
+5481: ...allocationForm,
+5482: allocationDate: e.target.value,
+5488: value: allocationForm.buyerInvoiceNo,
+5490: setAllocationForm({
+5491: ...allocationForm,
+5499: value: allocationForm.notes,
+5501: setAllocationForm({
+5502: ...allocationForm,
+5548: Allocation Items
+5558: {lots.find((l) => l.lotId === allocationForm.lotId)
+5560: items for Lot: {allocationForm.lotId}
+5565: {allocationForm.items.map((item, idx) => (
+5611: handleAllocationItemAction(
+5630: .find((l) => l.lotId === allocationForm.lotId)
+5729: handleAllocationItemAction(
+5769: handleAllocationItemAction(
+5825: onClick={() => handleAllocationItemAction("Add")}
+5850: Record All Allocations
+5862: setAllocationForm({
+5865: allocationDate: getISTDate(),
+5887: {activeAllocationTab === "Recorded Allocations" && (
+5891: <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 8px 0", letterSpacing: "-0.5px" }}>Recently Recorded Allocations</h2>
+5900: value={allocationSearchQuery}
+5901: onChange={(e) => setAllocationSearchQuery(e.target.value)}
+5928: {allocations
+5932: const query = (allocationSearchQuery || "").toLowerCase();
+5956: 📦 {a.lineItemId || "N/A"} | ⚖️ {a.quantity} KG @ ₹{a.rate}/KG | 📅 {a.allocationDate}
+5972: onClick={() => setViewingEntity({ type: "Allocation", data: a })}
+5988: handleEditAllocation(a);
+5989: setActiveAllocationTab("Allocation Form");
+5997: if (!window.confirm("🗑️ Delete this allocation record?")) return;
+5998: handleDeleteAllocation(a._id);
+6007: {allocations.length === 0 && (
+6009: No recorded allocations found.
+6551: "♻️ SYNCING: This item record is being matched with Database Inventory...",
+11558: {(typeof supplierBills !== 'undefined' ? (supplierBills || []).length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0)} Vehicles
+11592: {new Intl.NumberFormat('en-IN').format(typeof allocations !== 'undefined' && allocations.reduce ? allocations.reduce((sum, a) => sum + Number(a.weight || a.tonnage || 0), 0) : 0)} KG
+13234: // 1. Today's Intake (from lots or supplierBills or allocations? Usually lots are intake)
+13248: const allocated = allocations.filter(a => a.lotId === (l.lotId || l._id)).reduce((s, a) => s + Number(a.quantity || 0), 0);
+13298: {renderCard("Pending Auctions", pendingAuctionsCount + " Lots", "Lots awaiting full allocation", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>)}
+13702: allocations: typeof allocations !== 'undefined' ? allocations : []
+15030: module: "📦 Inventory Allocation",
