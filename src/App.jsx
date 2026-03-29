@@ -6199,6 +6199,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                           setSupplierSettlementForm((prev) => ({
                             ...prev,
                             supplierId: selectedName,
+                            supplierPhone: matchedSupplier?.phone || matchedSupplier?.mobile || "",
                             lotId: latestLot ? latestLot.lotId : "",
                             vehicleNumber: latestLot
                               ? latestLot.vehicleNumber || ""
@@ -6306,6 +6307,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                               : matchedLot?.supplierId?.name ||
                                 matchedLot?.supplierId ||
                                 prev.supplierId,
+                            supplierPhone: resolvedSupplier?.phone || resolvedSupplier?.mobile || prev.supplierPhone || "",
                             vehicleNumber: matchedLot
                               ? matchedLot.vehicleNumber || prev.vehicleNumber
                               : prev.vehicleNumber,
@@ -6400,6 +6402,54 @@ balance amount: ${formatCurrency(balancePayable)}`;
                           background: supplierSettlementForm.vehicleNumber
                             ? "#FDFBF4"
                             : "#FFFFFF",
+                        }}
+                      />
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                      }}
+                    >
+                      <label
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: "700",
+                          color: COLORS.muted,
+                        }}
+                      >
+                        Mobile Number{" "}
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            color: COLORS.primary,
+                            fontWeight: "800",
+                          }}
+                        >
+                          AUTO
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        disabled
+                        value={supplierSettlementForm.supplierPhone || ""}
+                        placeholder="Auto-filled from Supplier"
+                        style={{
+                          padding: "12px 14px",
+                          borderRadius: "8px",
+                          border: "1px solid #EBE9E1",
+                          background: supplierSettlementForm.supplierPhone
+                            ? "#FDFBF4"
+                            : "#F1F5F9",
+                          color: supplierSettlementForm.supplierPhone
+                            ? COLORS.sidebar
+                            : COLORS.muted,
+                          outline: "none",
+                          fontSize: "13px",
+                          fontWeight: "700",
+                          letterSpacing: "0.5px",
                         }}
                       />
                     </div>
