@@ -162,6 +162,167 @@ const Input = ({
   </div>
 );
 
+// --- PREMIUM ACTION CARD COMPONENTS ---
+const ICON_SHOP = <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
+const ICON_USER = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+const ICON_PHONE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>;
+const ICON_LOCATION = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
+const ICON_LOCK = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>;
+const ICON_TRASH = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>;
+const ICON_EDIT = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
+const ICON_ARROW_RIGHT = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>;
+const ICON_TRUCK = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>;
+const ICON_BILL = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>;
+
+// --- SIDEBAR ICONS (STACLI MODERN) ---
+const ICON_DASHBOARD_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>;
+const ICON_BOX_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>;
+const ICON_CART_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>;
+const ICON_PRODUCE_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>;
+const ICON_CLOCK_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+const ICON_CHART_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>;
+const ICON_USERS_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>;
+const ICON_WALLET_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M7 15h0M2 9.5h20"></path></svg>;
+const ICON_TRUCK_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>;
+const ICON_DATABASE_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>;
+const ICON_GEAR_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+
+const PremiumActionCard = ({
+  icon,
+  title,
+  subtitle,
+  status = { text: "Active", color: "#ca8a04", bg: "#fef9c3" },
+  details = [],
+  primaryAction = { label: "Action", icon: ICON_SHOP, onClick: () => {} },
+  secondaryActions = [],
+  onDelete,
+  onLock,
+}) => (
+  <div style={{
+    background: "#fff",
+    borderRadius: "28px",
+    padding: "32px",
+    boxShadow: "0 10px 40px -12px rgba(0,0,0,0.06)",
+    border: "1.5px solid #f1f5f9",
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+    cursor: "default"
+  }}
+  onMouseOver={(e) => {
+    e.currentTarget.style.transform = "translateY(-4px)";
+    e.currentTarget.style.boxShadow = "0 20px 50px -12px rgba(0,0,0,0.12)";
+  }}
+  onMouseOut={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.boxShadow = "0 10px 40px -12px rgba(0,0,0,0.06)";
+  }}
+  >
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div style={{ background: "#f8fafc", padding: "12px", borderRadius: "16px", color: COLORS.sidebar }}>
+        {icon || ICON_SHOP}
+      </div>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        {status && (
+          <span style={{ 
+            background: status.bg, 
+            color: status.color, 
+            padding: "6px 16px", 
+            borderRadius: "20px", 
+            fontSize: "12px", 
+            fontWeight: "800",
+            letterSpacing: "0.2px"
+          }}>
+            {status.text}
+          </span>
+        )}
+        <button onClick={onLock} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center" }}>
+           {ICON_LOCK}
+        </button>
+        <button onClick={onDelete} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "#fca5a5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+           {ICON_TRASH}
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: "900", color: COLORS.secondary, fontFamily: "'Inter', sans-serif", letterSpacing: "-0.5px" }}>{title}</h3>
+      <p style={{ margin: "6px 0 0 0", fontSize: "11px", color: COLORS.muted, fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase" }}>{subtitle}</p>
+    </div>
+
+    <div style={{ height: "1px", background: "#f1f5f9" }} />
+
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {details.map((d, idx) => (
+        <div key={idx} style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+          <span style={{ color: "#94a3b8", display: "flex" }}>{d.icon}</span>
+          <span style={{ fontSize: "14px", fontWeight: "600", color: "#475569" }}>{d.text}</span>
+        </div>
+      ))}
+    </div>
+
+    <div style={{ height: "1px", background: "#f1f5f9" }} />
+
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <button 
+        onClick={primaryAction.onClick}
+        style={{
+          width: "100%",
+          padding: "14px",
+          borderRadius: "16px",
+          background: "#18181b",
+          color: "#fff",
+          border: "none",
+          fontWeight: "800",
+          fontSize: "14px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "10px",
+          cursor: "pointer",
+          transition: "all 0.2s"
+        }}
+        onMouseOver={(e) => e.currentTarget.style.background = "#09090b"}
+        onMouseOut={(e) => e.currentTarget.style.background = "#18181b"}
+      >
+        {primaryAction.icon}
+        {primaryAction.label}
+      </button>
+
+      {secondaryActions.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: secondaryActions.length === 1 ? "1fr" : "1fr 1fr", gap: "12px" }}>
+          {secondaryActions.map((a, idx) => (
+            <button 
+              key={idx}
+              onClick={a.onClick}
+              style={{
+                padding: "14px",
+                borderRadius: "16px",
+                background: a.variant === 'primary' ? "#facc15" : "#f8fafc",
+                color: "#1e293b",
+                border: a.variant === 'primary' ? "none" : "1.5px solid #e2e8f0",
+                fontWeight: "800",
+                fontSize: "13px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                cursor: "pointer"
+              }}
+            >
+              {a.icon}
+              {a.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+
 const Button = ({ children, onClick, variant = "primary", style = {} }) => {
   const styles = {
     primary: {
@@ -242,6 +403,13 @@ const getISTDate = () => {
   return new Date(now.getTime() + 5.5 * 60 * 60 * 1000)
     .toISOString()
     .split("T")[0];
+};
+
+const getISTDateTime = () => {
+  const now = new Date();
+  return new Date(now.getTime() + 5.5 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 16);
 };
 
 const DB = {
@@ -868,7 +1036,7 @@ Powered by Stacli mandi os`;
   });
   const [lotCreationForm, setLotCreationForm] = useState({
     lotId: generateLotId(1),
-    dateTime: new Date().toISOString().slice(0, 16),
+    dateTime: getISTDateTime(),
     farmerId: "",
     vehicleNumber: "",
     driverName: "",
@@ -1334,7 +1502,7 @@ Powered by Stacli mandi os`;
     setLotCreationForm({
       lotId: lot.lotId,
       dateTime:
-        lot.entryDate?.slice(0, 16) || new Date().toISOString().slice(0, 16),
+        lot.entryDate?.slice(0, 16) || getISTDateTime(),
       farmerId: sName,
       vehicleNumber: lot.vehicleNumber,
       driverName: lot.driverName || "",
@@ -1520,7 +1688,7 @@ Powered by Stacli mandi os`;
       );
       setIntakeForm({
         supplierId: "",
-        entryDate: new Date().toISOString().slice(0, 16).replace("Z", ""),
+        entryDate: getISTDateTime(),
         vehicleNumber: "",
         driverName: "",
         origin: "",
@@ -2805,49 +2973,64 @@ Powered by Stacli mandi os`;
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     {
-      id: "User Role",
-      roles: ["Owner / Admin"],
-      label: "Party Management",
+      id: "Dashboard",
+      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
+      label: "Dashboard",
+      icon: ICON_DASHBOARD_SIDE,
     },
     {
       id: "Lot Creation",
       roles: ["Owner / Admin", "Operations Staff"],
-      label: "Lot/Inventory Intake",
+      label: "Registered Lots",
+      icon: ICON_BOX_SIDE,
     },
     {
       id: "Lot Allocation",
       roles: ["Owner / Admin", "Operations Staff"],
-      label: "Auction & Lot Allocation",
+      label: "Record Allocations",
+      icon: ICON_CART_SIDE,
     },
     {
       id: "Supplier Billing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
-      label: "Supplier Billing",
+      label: "Generated Bills",
+      icon: ICON_PRODUCE_SIDE,
     },
     {
       id: "Buyer Invoicing",
       roles: ["Owner / Admin", "Operations Staff", "Accountant"],
-      label: "Customer Billing",
-    },
-    {
-      id: "Payments",
-      roles: ["Owner / Admin", "Accountant"],
-      label: "Payments & Settlement",
+      label: "Generated Invoices",
+      icon: ICON_CLOCK_SIDE,
     },
     {
       id: "Ledger",
       roles: ["Owner / Admin", "Accountant"],
-      label: "Ledger System",
+      label: "Financial Ledger",
+      icon: ICON_CHART_SIDE,
+    },
+    {
+      id: "User Role",
+      roles: ["Owner / Admin"],
+      label: "Registered Members",
+      icon: ICON_USERS_SIDE,
+    },
+    {
+      id: "Payments",
+      roles: ["Owner / Admin", "Accountant"],
+      label: "Payments",
+      icon: ICON_WALLET_SIDE,
+    },
+    {
+      id: "Product Master & Configuration",
+      roles: ["Owner / Admin"],
+      label: "Product Catalog",
+      icon: ICON_DATABASE_SIDE,
     },
     {
       id: "Transportation Tracking",
       roles: ["Owner / Admin", "Operations Staff"],
-      label: "Transportation Tracking",
-    },
-    {
-      id: "Dashboard",
-      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
-      label: "Dashboard & Reports",
+      label: "Logistics Tracking",
+      icon: ICON_TRUCK_SIDE,
     },
   ];
 
@@ -3436,53 +3619,84 @@ Powered by Stacli mandi os`;
           </div>
 
           <div style={{ flex: 1, overflowY: "auto", padding: "0 14px" }}>
-            {MENU.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => {
-                  setActiveSection(item.id);
-                  if (isMobile) setSidebarOpen(false);
-                }}
-                style={{
-                  padding: "14px 18px",
-                  borderRadius: "14px",
-                  marginBottom: "8px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  background:
-                    activeSection === item.id ? COLORS.primary : "transparent",
-                  color: activeSection === item.id ? "#ffffff" : "#adb5ad",
-                  boxShadow:
-                    activeSection === item.id
-                      ? `0 8px 20px -5px ${COLORS.primary}60`
-                      : "none",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <span
+            {MENU.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    if (isMobile) setSidebarOpen(false);
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.transform = "translateX(10px)";
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                      e.currentTarget.style.color = "#fff";
+                    } else {
+                      e.currentTarget.style.transform = "translateX(6px) scale(1.02)";
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.transform = "translateX(0)";
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "#adb5ad";
+                    } else {
+                      e.currentTarget.style.transform = "translateX(4px) scale(1)";
+                    }
+                  }}
                   style={{
-                    fontWeight: activeSection === item.id ? "900" : "600",
-                    fontSize: "14px",
-                    letterSpacing: "0.3px",
-                    whiteSpace: "nowrap",
-                    opacity: activeSection === item.id ? 1 : 0.85,
+                    padding: "16px 20px",
+                    borderRadius: "18px",
+                    marginBottom: "10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "16px",
+                    transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                    background: isActive ? COLORS.primary : "transparent",
+                    color: isActive ? "#1a231a" : "#adb5ad", // Deep green/black text on gold active state
+                    boxShadow: isActive 
+                      ? `0 12px 24px -10px ${COLORS.primary}90` 
+                      : "none",
+                    transform: isActive ? "translateX(4px)" : "translateX(0)",
                   }}
                 >
-                  {item.label || item.id}
-                </span>
-              </div>
-            ))}
+                  <div style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center",
+                    opacity: isActive ? 1 : 0.7,
+                    transition: "all 0.3s ease"
+                  }}>
+                    {item.icon || (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                      </svg>
+                    )}
+                  </div>
+                  <span
+                    style={{
+                      fontWeight: isActive ? "900" : "700",
+                      fontSize: "13.5px",
+                      letterSpacing: "0.2px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {item.label || item.id}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
           <div
             style={{
               marginTop: "auto",
-              padding: "16px 14px",
+              padding: "20px 14px",
               borderTop: "1px solid #1a231a",
-              background: "rgba(0,0,0,0.2)",
+              background: "rgba(0,0,0,0.3)",
             }}
           >
             <div
@@ -3493,34 +3707,20 @@ Powered by Stacli mandi os`;
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "12px",
-                padding: "12px 18px",
-                borderRadius: "12px",
+                gap: "14px",
+                padding: "16px 20px",
+                borderRadius: "16px",
                 cursor: "pointer",
                 marginBottom: "8px",
-                transition: "all 0.2s",
-                background:
-                  activeSection === "Profile"
-                    ? "rgba(255,255,255,0.08)"
-                    : "transparent",
+                transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                background: activeSection === "Profile" ? COLORS.primary : "transparent",
+                color: activeSection === "Profile" ? "#1a231a" : "#adb5ad",
               }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.background = "rgba(255,255,255,0.08)")
-              }
-              onMouseOut={(e) => {
-                if (activeSection !== "Profile")
-                  e.currentTarget.style.background = "transparent";
-              }}
+              onMouseOver={(e) => { if(activeSection !== "Profile") e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+              onMouseOut={(e) => { if(activeSection !== "Profile") e.currentTarget.style.background = "transparent"; }}
             >
-              <span
-                style={{
-                  color: "#ffffff",
-                  fontSize: "14px",
-                  fontWeight: "800",
-                }}
-              >
-                Profile Settings
-              </span>
+              <div style={{ opacity: activeSection === "Profile" ? 1 : 0.7 }}>{ICON_GEAR_SIDE}</div>
+              <span style={{ fontSize: "13.5px", fontWeight: "800" }}>Admin Panel</span>
             </div>
 
             <div
@@ -3528,31 +3728,19 @@ Powered by Stacli mandi os`;
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "12px",
-                padding: "12px 18px",
-                borderRadius: "12px",
+                gap: "14px",
+                padding: "16px 20px",
+                borderRadius: "16px",
                 cursor: "pointer",
-                transition: "all 0.2s",
+                transition: "all 0.3s",
+                color: "#f87171", // Rose-400
                 opacity: 0.8,
               }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.opacity = "1";
-                e.currentTarget.style.background = "rgba(225, 29, 72, 0.1)";
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.opacity = "0.8";
-                e.currentTarget.style.background = "transparent";
-              }}
+              onMouseOver={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.background = "rgba(248, 113, 113, 0.1)"; }}
+              onMouseOut={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.background = "transparent"; }}
             >
-              <span
-                style={{
-                  color: "#adb5ad",
-                  fontSize: "14px",
-                  fontWeight: "800",
-                }}
-              >
-                Log Out
-              </span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span style={{ fontSize: "13.5px", fontWeight: "800" }}>Terminate Session</span>
             </div>
           </div>
         </nav>
@@ -4164,36 +4352,66 @@ Powered by Stacli mandi os`;
                     <div onClick={() => setActiveRegisteredTab("Suppliers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Suppliers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Suppliers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Suppliers ({suppliers.length})</div>
                     <div onClick={() => setActiveRegisteredTab("Customers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Customers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Customers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Customers ({buyers.length})</div>
                   </div>
-                  <div style={{ maxHeight: "550px", overflowY: "auto", paddingRight: "8px" }}>
-                    <div style={{ display: "grid", gap: "12px" }}>
+                  <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                       {activeRegisteredTab === "Suppliers" ? (
                         suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).length === 0 ? (
-                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No matching suppliers found.</p>
+                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No matching suppliers found.</p>
                         ) : (
                           suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).map((s) => (
-                            <div key={s._id} style={{ padding: "16px 24px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
-                              <div><b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{s.name}</b><p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>{s.phone} | {s.village || "Location N/A"}</p></div>
-                              <div style={{ display: "flex", gap: "10px" }}>
-                                <Button variant="outline" style={{ fontSize: "12px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Supplier", data: s })}>View Details</Button>
-                                <Button variant="outline" style={{ fontSize: "12px", border: "1.5px solid #64748b", color: COLORS.secondary, borderRadius: "24px" }} onClick={() => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); }}>Modify Profile</Button>
-                                <Button style={{ fontSize: "12px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteSupplier(s._id)}>Delete</Button>
-                              </div>
-                            </div>
+                            <PremiumActionCard
+                              key={s._id}
+                              title={s.name}
+                              subtitle={`SUP-${(s._id || "NEW").slice(-6).toUpperCase()}`}
+                              icon={ICON_USER}
+                              status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
+                              details={[
+                                { icon: ICON_USER, text: s.name },
+                                { icon: ICON_PHONE, text: s.phone || "N/A" },
+                                { icon: ICON_LOCATION, text: s.village || "Location N/A" }
+                              ]}
+                              primaryAction={{ 
+                                label: "Open Profile", 
+                                icon: ICON_SHOP, 
+                                onClick: () => setViewingEntity({ type: "Supplier", data: s }) 
+                              }}
+                              secondaryActions={[
+                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } },
+                                { label: "View Ledger", icon: ICON_ARROW_RIGHT, onClick: () => { setActiveSection("Ledger"); setActiveLedgerTab("Supplier"); }, variant: 'primary' }
+                              ]}
+                              onDelete={() => handleDeleteSupplier(s._id)}
+                              onLock={() => alert("Profile locked for security.")}
+                            />
                           ))
                         )
                       ) : (
                         buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).length === 0 ? (
-                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No matching customers found.</p>
+                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No matching customers found.</p>
                         ) : (
                           buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).map((b) => (
-                            <div key={b._id} style={{ padding: "16px 24px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
-                              <div><b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{b.name}</b><p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>{b.shopName} | {b.phone}</p></div>
-                              <div style={{ display: "flex", gap: "10px" }}>
-                                <Button variant="outline" style={{ fontSize: "12px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Buyer", data: b })}>View Details</Button>
-                                <Button variant="outline" style={{ fontSize: "12px", border: "1.5px solid #64748b", color: COLORS.secondary, borderRadius: "24px" }} onClick={() => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); }}>Modify Profile</Button>
-                                <Button style={{ fontSize: "12px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteBuyer(b._id)}>Delete</Button>
-                              </div>
-                            </div>
+                            <PremiumActionCard
+                              key={b._id}
+                              title={b.shopName || b.name}
+                              subtitle={`CUST-${(b._id || "NEW").slice(-6).toUpperCase()}`}
+                              icon={ICON_SHOP}
+                              status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
+                              details={[
+                                { icon: ICON_USER, text: b.name },
+                                { icon: ICON_PHONE, text: b.phone || "N/A" },
+                                { icon: ICON_LOCATION, text: b.address || "Location N/A" }
+                              ]}
+                              primaryAction={{ 
+                                label: "Open Stall", 
+                                icon: ICON_SHOP, 
+                                onClick: () => setViewingEntity({ type: "Buyer", data: b }) 
+                              }}
+                              secondaryActions={[
+                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } },
+                                { label: "View CRM", icon: ICON_ARROW_RIGHT, onClick: () => { setViewingEntity({ type: "Buyer", data: b }); }, variant: 'primary' }
+                              ]}
+                              onDelete={() => handleDeleteBuyer(b._id)}
+                              onLock={() => alert("Stall locked.")}
+                            />
                           ))
                         )
                       )}
@@ -4414,15 +4632,25 @@ Powered by Stacli mandi os`;
                     </Button>
                     <Button
                       style={{
-                        background: "#FCFAEF",
-                        color: "#9EB343",
-                        border: "1.5px solid #E3E5DD",
+                        background: COLORS.sidebar,
+                        color: "#fff",
+                        border: "none",
                         fontWeight: "900",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                        boxShadow: `0 4px 12px ${COLORS.sidebar}30`,
                       }}
-                      onClick={() => setActiveLotTab("Registered Lots")}
+                      onClick={() => {
+                        if (
+                          !lotCreationForm.farmerId ||
+                          !lotCreationForm.vehicleNumber ||
+                          !lotCreationForm.origin
+                        ) {
+                          alert("Please complete all Intake Details first!");
+                          return;
+                        }
+                        setActiveLotTab("Produce Details");
+                      }}
                     >
-                      Manage Database
+                      Next →
                     </Button>
                     <Button
                       style={{
@@ -4486,17 +4714,11 @@ Powered by Stacli mandi os`;
                         borderRadius: "16px",
                         border: "1.5px solid #EBE9E1",
                         fontSize: "14px",
-                        fontWeight: "600",
-                        color: COLORS.sidebar,
-                        outline: "none",
-                        background: "#FDFBF4",
-                        transition: "all 0.2s"
                       }}
                     />
                   </div>
-
-                  <div style={{ maxHeight: "650px", overflowY: "auto", paddingRight: "8px" }}>
-                    <div style={{ display: "grid", gap: "12px" }}>
+                  <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                       {lots
                         .filter(l => {
                           const farmerName = (l.supplierId?.name || l.farmerName || "").toLowerCase();
@@ -4512,38 +4734,33 @@ Powered by Stacli mandi os`;
                             0,
                           );
                           return (
-                            <div
+                            <PremiumActionCard
                               key={l._id || l.lotId}
-                              style={{
-                                padding: "20px",
-                                background: "#fff",
-                                border: "1px solid #EBE9E1",
-                                borderRadius: "16px",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                              title={l.supplierId?.name || l.farmerName || "Farmer"}
+                              subtitle={l.lotId}
+                              icon={ICON_TRUCK}
+                              status={{ text: l.status || "Pending", color: "#ca8a04", bg: "#fef9c3" }}
+                              details={[
+                                { icon: ICON_TRUCK, text: l.vehicleNumber || "No Vehicle" },
+                                { icon: ICON_LOCATION, text: l.origin || "Origin N/A" },
+                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Est. Gross: ${formatCurrency(grossSale)}` }
+                              ]}
+                              primaryAction={{ 
+                                label: "View Lot Details", 
+                                icon: ICON_ARROW_RIGHT, 
+                                onClick: () => setViewingEntity({ type: "LOT", data: l }) 
                               }}
-                            >
-                              <div style={{ flex: 1 }}>
-                                <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{l.lotId} - {l.supplierId?.name || l.farmerName || "Farmer"}</b>
-                                <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                                  {l.vehicleNumber} | {l.origin}
-                                </p>
-                                <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-                                  <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross: {grossSale}</span>
-                                </div>
-                              </div>
-                              <div style={{ display: "flex", gap: "10px" }}>
-                                <Button variant="outline" style={{ fontSize: "11px", padding: "6px 16px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "LOT", data: l })}>View Details</Button>
-                                <Button variant="outline" style={{ fontSize: "11px", padding: "6px 16px", border: `1.5px solid #64748b`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => handleEditLot(l)}>Modify</Button>
-                                <Button style={{ fontSize: "11px", padding: "6px 16px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteLot(l._id)}>Delete</Button>
-                              </div>
-                            </div>
+                              secondaryActions={[
+                                { label: "Modify", icon: ICON_EDIT, onClick: () => handleEditLot(l) },
+                                { label: "Allocate", icon: ICON_SHOP, onClick: () => { setActiveSection("Lot Allocation"); setActiveAllocationTab("Allocation Form"); }, variant: 'primary' }
+                              ]}
+                              onDelete={() => handleDeleteLot(l._id)}
+                              onLock={() => alert("Lot record locked.")}
+                            />
                           );
                         })}
                       {lots.length === 0 && (
-                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No registered lots found.</p>
+                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No registered lots found.</p>
                       )}
                     </div>
                   </div>
@@ -5160,7 +5377,7 @@ Powered by Stacli mandi os`;
                         });
                       }}
                     >
-                      Reset Everything
+                      Clear All
                     </Button>
                   </div>
 
@@ -5308,9 +5525,19 @@ Powered by Stacli mandi os`;
               <datalist id="lots-list">
                 {lots
                   .filter((l) => l.status !== "Fully Sold")
-                  .map((l) => (
-                    <option key={l._id || l.lotId} value={l.lotId} />
-                  ))}
+                  .map((l) => {
+                    const supplierName = (typeof l.supplierId === "object" ? l.supplierId?.name : suppliers.find(s => s._id === l.supplierId)?.name) || "Unknown Supplier";
+                    const itemCount = l.lineItems?.length || 0;
+                    const entryDate = l.entryDate ? formatDate(l.entryDate) : "No Date";
+                    const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "—";
+                    return (
+                      <option
+                        key={l._id || l.lotId}
+                        value={l.lotId}
+                        label={`${l.lotId}  |  ${supplierName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`}
+                      />
+                    );
+                  })}
               </datalist>
 
               {/* Multi-Item Table Section */}
@@ -5373,7 +5600,7 @@ Powered by Stacli mandi os`;
                         position: "relative",
                       }}
                     >
-                      <div
+                       <div
                         style={{
                           position: "absolute",
                           top: "12px",
@@ -5382,7 +5609,32 @@ Powered by Stacli mandi os`;
                           gap: "8px",
                         }}
                       >
-                        {/* DB Sync Control Removed as per request */}
+                        <button
+                          onClick={() =>
+                            handleAllocationItemAction("Remove", idx)
+                          }
+                          style={{
+                            background: "none",
+                            border: "none",
+                            padding: "8px",
+                            cursor: "pointer",
+                            color: COLORS.danger,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: "8px",
+                            transition: "all 0.2s",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.background = "#fee2e2")
+                          }
+                          onMouseOut={(e) =>
+                            (e.currentTarget.style.background = "none")
+                          }
+                          title="Remove Item"
+                        >
+                          {ICON_TRASH}
+                        </button>
                       </div>
 
                       <div
@@ -5710,17 +5962,8 @@ Powered by Stacli mandi os`;
                   />
                 </div>
 
-                <div
-                  style={{
-                    maxHeight: "650px",
-                    overflowY: "auto",
-                    padding: "8px",
-                    background: "#FDFBF4",
-                    borderRadius: "16px",
-                    border: "1.5px solid #EBE9E1",
-                  }}
-                >
-                  <div style={{ display: "grid", gap: "12px" }}>
+                <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                     {allocations
                       .filter(a => {
                         const customerName = (a.buyerId?.name || a.buyerId || "").toLowerCase();
@@ -5731,79 +5974,32 @@ Powered by Stacli mandi os`;
                       .slice()
                       .reverse()
                       .map((a) => (
-                        <div
+                        <PremiumActionCard
                           key={a._id || Date.now() + Math.random()}
-                          style={{
-                            padding: "20px 24px",
-                            background: "#fff",
-                            border: "1px solid #EBE9E1",
-                            borderRadius: "16px",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                          title={a.buyerId?.name || a.buyerId || "Buyer"}
+                          subtitle={a.buyerInvoiceNo ? `INV: ${a.buyerInvoiceNo}` : "UNASSIGNED"}
+                          icon={ICON_USER}
+                          status={{ text: "Allocated", color: "#1d4ed8", bg: "#dbeafe" }}
+                          details={[
+                            { icon: ICON_SHOP, text: `Lot: ${a.lineItemId || "N/A"}` },
+                            { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>⚖️</span>, text: `${a.quantity} KG @ ₹${a.rate}/KG` },
+                            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: a.allocationDate }
+                          ]}
+                          primaryAction={{ 
+                            label: "View Allocation", 
+                            icon: ICON_ARROW_RIGHT, 
+                            onClick: () => setViewingEntity({ type: "Allocation", data: a }) 
                           }}
-                        >
-                          <div style={{ flex: 1 }}>
-                            <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>
-                              {a.buyerId?.name || a.buyerId || "Buyer"}
-                            </b>
-                            <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                              {a.lineItemId || "N/A"} | {a.quantity} KG @ ₹{a.rate}/KG | {a.allocationDate}
-                              {a.buyerInvoiceNo && ` | Invoice: ${a.buyerInvoiceNo}`}
-                            </p>
-                          </div>
-                          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                            <Button
-                              variant="outline"
-                              style={{
-                                fontSize: "11px",
-                                padding: "6px 20px",
-                                fontWeight: "800",
-                                border: `1.5px solid ${COLORS.primary}`,
-                                color: COLORS.secondary,
-                                borderRadius: "24px",
-                                background: "transparent",
-                              }}
-                              onClick={() => setViewingEntity({ type: "Allocation", data: a })}
-                            >
-                              View Details
-                            </Button>
-                            <Button
-                              variant="outline"
-                              style={{
-                                fontSize: "11px",
-                                padding: "6px 20px",
-                                fontWeight: "800",
-                                border: `1.5px solid #64748B`,
-                                color: COLORS.secondary,
-                                borderRadius: "24px",
-                                background: "transparent",
-                              }}
-                              onClick={() => {
-                                handleEditAllocation(a);
-                                setActiveAllocationTab("Allocation Form");
-                                window.scrollTo({ top: 0, behavior: "smooth" });
-                              }}
-                            >
-                              Modify
-                            </Button>
-                            <button
-                              onClick={async () => {
-                                if (!window.confirm("Delete this allocation record?")) return;
-                                handleDeleteAllocation(a._id);
-                              }}
-                              style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "12px", cursor: "pointer", marginLeft: "8px", textDecoration: "underline" }}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
+                          secondaryActions={[
+                            { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(a); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } },
+                            { label: "Invoice", icon: ICON_BILL, onClick: () => { setActiveSection("Customer Billing"); setActiveBuyerInvoiceTab("Invoice Header"); }, variant: 'primary' }
+                          ]}
+                          onDelete={() => { if (window.confirm("Delete this allocation record?")) handleDeleteAllocation(a._id); }}
+                          onLock={() => alert("Allocation record finalized.")}
+                        />
                       ))}
                     {allocations.length === 0 && (
-                      <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>
-                        No recorded allocations found.
-                      </p>
+                      <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No recorded allocations found.</p>
                     )}
                   </div>
                 </div>
@@ -7289,17 +7485,8 @@ Powered by Stacli mandi os`;
                     />
                   </div>
 
-                  <div
-                    style={{
-                      maxHeight: "650px",
-                      overflowY: "auto",
-                      padding: "8px",
-                      background: "#FDFBF4",
-                      borderRadius: "16px",
-                      border: "1.5px solid #EBE9E1",
-                    }}
-                  >
-                    <div style={{ display: "grid", gap: "12px" }}>
+                  <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                       {supplierBills
                         .filter(b => {
                           const supplierName = (b.supplierId?.name || b.supplierId || "").toLowerCase();
@@ -7309,71 +7496,43 @@ Powered by Stacli mandi os`;
                         })
                         .slice()
                         .reverse()
-                        .map((b) => (
-                          <div
-                            key={b._id || Date.now() + Math.random()}
-                            style={{
-                              padding: "20px",
-                              background: "#fff",
-                              border: "1px solid #EBE9E1",
-                              borderRadius: "16px",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                            }}
-                          >
-                            <div style={{ flex: 1 }}>
-                              <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{b.billNumber} — {b.supplierId?.name || b.supplierId || "Supplier"}</b>
-                              <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                                {b.vehicleNumber || "N/A"} | {b.date}
-                              </p>
-                            </div>
-                            <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-                              <Button variant="outline" style={{ fontSize: "11px", padding: "6px 16px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Bill", data: b })}>View Details</Button>
-                              <Button 
-                                onClick={() => handleSendSupplierWhatsApp(b)}
-                                style={{ 
-                                  fontSize: "11px", 
-                                  padding: "6px 16px", 
-                                  background: "#25D366", 
-                                  color: "#fff", 
-                                  border: "none",
-                                  borderRadius: "24px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "6px"
-                                }}
-                              >
-                                <span>WhatsApp</span>
-                              </Button>
-                              <button 
-                                onClick={() => {
-                                  setSupplierSettlementForm(b);
-                                  setIsEditingSupplierBill(true);
-                                  setEditingSupplierBillId(b._id);
-                                  setActiveSupplierBillTab("Bill Header");
-                                  window.scrollTo({ top: 0, behavior: "smooth" });
-                                }}
-                                style={{ background: "none", border: "none", color: COLORS.sidebar, fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-                              >
-                                Modify
-                              </button>
-                              <button 
-                                onClick={async () => {
-                                 if (!window.confirm("Are you sure you want to PERMANENTLY delete this billing record?")) return;
-                                 const res = await MandiService.deleteSupplierBill(b._id);
-                                 if (res.status === "SUCCESS") { alert("Bill deleted successfully!"); fetchData(); }
-                                }}
-                                style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                        .map((b) => {
+                          const grossTotal = (b.items || []).reduce((s, i) => s + (Number(i.quantity || 0) * Number(i.rate || 0)), 0);
+                          const totalExpenses = Object.values(b.expenses || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+                          const finalSettlement = grossTotal - totalExpenses;
+
+                          return (
+                            <PremiumActionCard
+                              key={b._id || Date.now() + Math.random()}
+                              title={b.supplierId?.name || b.supplierId || "Supplier"}
+                              subtitle={b.billNumber || "BILL-NEW"}
+                              icon={ICON_BILL}
+                              status={{ text: "Settled", color: "#166534", bg: "#dcfce7" }}
+                              details={[
+                                { icon: ICON_TRUCK, text: b.vehicleNumber || "N/A" },
+                                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: b.date },
+                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Final: ${formatCurrency(finalSettlement)}` }
+                              ]}
+                              primaryAction={{ 
+                                label: "View Statement", 
+                                icon: ICON_ARROW_RIGHT, 
+                                onClick: () => setViewingEntity({ type: "Bill", data: b }) 
+                              }}
+                              secondaryActions={[
+                                { label: "WhatsApp", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.399-4.305 9.79-9.884 9.79m8.415-18.298A11.715 11.715 0 0012.045 0C5.41 0 .011 5.393 0 12.015c0 2.115.55 4.18 1.59 6.037L0 24l6.105-1.602a11.834 11.834 0 005.937 1.598h.005c6.628 0 12.028-5.391 12.033-12.013a11.859 11.859 0 00-3.58-8.505"/></svg>, onClick: () => handleSendSupplierWhatsApp(b), variant: 'primary' },
+                                { label: "Modify", icon: ICON_EDIT, onClick: () => { setSupplierSettlementForm(b); setIsEditingSupplierBill(true); setEditingSupplierBillId(b._id); setActiveSupplierBillTab("Bill Header"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
+                              ]}
+                              onDelete={async () => {
+                                if (!window.confirm("Are you sure you want to PERMANENTLY delete this billing record?")) return;
+                                const res = await MandiService.deleteSupplierBill(b._id);
+                                if (res.status === "SUCCESS") { alert("Bill deleted successfully!"); fetchData(); }
+                              }}
+                              onLock={() => alert("Bill finalized.")}
+                            />
+                          );
+                        })}
                       {(supplierBills || []).length === 0 && (
-                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No billing records found.</p>
+                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No billing records found.</p>
                       )}
                     </div>
                   </div>
@@ -9048,17 +9207,8 @@ Powered by Stacli mandi os`;
                     />
                   </div>
 
-                  <div
-                    style={{
-                      maxHeight: "650px",
-                      overflowY: "auto",
-                      padding: "8px",
-                      background: "#FDFBF4",
-                      borderRadius: "16px",
-                      border: "1.5px solid #EBE9E1",
-                    }}
-                  >
-                    <div style={{ display: "grid", gap: "12px" }}>
+                  <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                       {buyerInvoices
                         .filter(i => {
                           const customerName = (i.buyerId?.name || i.buyerId || "").toLowerCase();
@@ -9068,71 +9218,43 @@ Powered by Stacli mandi os`;
                         })
                         .slice()
                         .reverse()
-                        .map((i) => (
-                          <div
-                            key={i._id || Date.now() + Math.random()}
-                            style={{
-                              padding: "20px",
-                              background: "#fff",
-                              border: "1px solid #EBE9E1",
-                              borderRadius: "16px",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-                            }}
-                          >
-                            <div style={{ flex: 1 }}>
-                              <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{i.invoiceNumber} — {i.buyerId?.name || i.buyerId || "Customer"}</b>
-                              <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                                {i.date} | {i.lotReference || "Direct"}
-                              </p>
-                            </div>
-                            <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-                              <Button variant="outline" style={{ fontSize: "11px", padding: "6px 14px", border: `1.5px solid ${COLORS.primary}`, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Invoice", data: i })}>View Details</Button>
-                              <Button 
-                                onClick={() => handleSendBuyerWhatsApp(i)}
-                                style={{ 
-                                  fontSize: "11px", 
-                                  padding: "6px 14px", 
-                                  background: "#25D366", 
-                                  color: "#fff", 
-                                  border: "none",
-                                  borderRadius: "24px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "6px"
-                                }}
-                              >
-                                <span>WhatsApp</span>
-                              </Button>
-                              <button 
-                                onClick={() => {
-                                  setBuyerInvoiceForm(i);
-                                  setIsEditingBuyerInvoice(true);
-                                  setEditingBuyerInvoiceId(i._id);
-                                  setActiveBuyerInvoiceTab("Invoice Header");
-                                  window.scrollTo({ top: 0, behavior: "smooth" });
-                                }}
-                                style={{ background: "none", border: "none", color: COLORS.sidebar, fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-                              >
-                                Modify
-                              </button>
-                              <button 
-                                onClick={async () => {
-                                 if (!window.confirm("Delete this invoice permanently?")) return;
-                                 const res = await MandiService.deleteBuyerInvoice(i._id);
-                                 if (res.status === "SUCCESS") { alert("Invoice deleted!"); fetchData(); }
-                                }}
-                                style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      {(buyerInvoices || []).length === 0 && (
-                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No invoices found.</p>
+                        .map((i) => {
+                          const subTotal = (i.items || []).reduce((s, it) => s + (Math.max(0, (Number(it.grossWeight) || 0) - (Number(it.deductions) || 0)) * (Number(it.rate) || 0)), 0);
+                          const totalAdditional = Object.values(i.charges || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+                          const grandTotal = subTotal + totalAdditional;
+
+                          return (
+                            <PremiumActionCard
+                              key={i._id || Date.now() + Math.random()}
+                              title={i.buyerId?.name || i.buyerId || "Customer"}
+                              subtitle={i.invoiceNumber || "INV-NEW"}
+                              icon={ICON_BILL}
+                              status={{ text: "Invoiced", color: "#166534", bg: "#dcfce7" }}
+                              details={[
+                                { icon: ICON_SHOP, text: `Ref: ${i.lotReference || "Direct Sale"}` },
+                                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: i.date },
+                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Grand Total: ${formatCurrency(grandTotal)}` }
+                              ]}
+                              primaryAction={{ 
+                                label: "Preview Invoice", 
+                                icon: ICON_ARROW_RIGHT, 
+                                onClick: () => setViewingEntity({ type: "Invoice", data: i }) 
+                              }}
+                              secondaryActions={[
+                                { label: "WhatsApp", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.399-4.305 9.79-9.884 9.79m8.415-18.298A11.715 11.715 0 0012.045 0C5.41 0 .011 5.393 0 12.015c0 2.115.55 4.18 1.59 6.037L0 24l6.105-1.602a11.834 11.834 0 005.937 1.598h.005c6.628 0 12.028-5.391 12.033-12.013a11.859 11.859 0 00-3.58-8.505"/></svg>, onClick: () => handleSendBuyerWhatsApp(i), variant: 'primary' },
+                                { label: "Modify", icon: ICON_EDIT, onClick: () => { setBuyerInvoiceForm(i); setIsEditingBuyerInvoice(true); setEditingBuyerInvoiceId(i._id); setActiveBuyerInvoiceTab("Invoice Header"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
+                              ]}
+                              onDelete={async () => {
+                                if (!window.confirm("Delete this invoice permanently?")) return;
+                                const res = await MandiService.deleteBuyerInvoice(i._id);
+                                if (res.status === "SUCCESS") { alert("Invoice deleted!"); fetchData(); }
+                              }}
+                              onLock={() => alert("Invoice finalized.")}
+                            />
+                          );
+                        })}
+                      {buyerInvoices.length === 0 && (
+                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No invoices found.</p>
                       )}
                     </div>
                   </div>
