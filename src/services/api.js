@@ -54,6 +54,8 @@ const request = async (method, path, body = null) => {
       if (path === '/allocations') return { status: "SUCCESS", data: getLocal('allocations') };
       if (path === '/bills/supplier') return { status: "SUCCESS", data: getLocal('supplierBills') };
       if (path === '/invoices/buyer') return { status: "SUCCESS", data: getLocal('buyerInvoices') };
+      if (path.includes('/ledger/supplier/')) return { status: "SUCCESS", data: getLocal('supplierBills').filter(b => b.supplierId === path.split('/').pop()) };
+      if (path.includes('/settlement/farmer/') && path.includes('/history')) return { status: "SUCCESS", data: getLocal('supplierBills').filter(b => b.supplierId === path.split('/')[3]) };
       return { status: "SUCCESS", data: [] };
     }
 

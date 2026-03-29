@@ -3413,7 +3413,18 @@ export default function App() {
             >
               {user?.username?.[0]?.toUpperCase() || "U"}
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, marginLeft: "12px" }}>
+              <div
+                style={{
+                  color: "#ffffff",
+                  fontSize: "14px",
+                  fontWeight: "900",
+                  marginBottom: "6px",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {user?.username || "Admin Staff"}
+              </div>
               <button
                 onClick={handleLogout}
                 style={{
@@ -3421,21 +3432,27 @@ export default function App() {
                   border: "none",
                   color: COLORS.secondary,
                   cursor: "pointer",
-                  fontSize: "12px",
+                  fontSize: "9px",
                   fontWeight: "900",
-                  padding: "10px 18px",
-                  borderRadius: "10px",
-                  marginLeft: "12px",
+                  padding: "4px 12px",
+                  borderRadius: "6px",
                   textTransform: "uppercase",
                   letterSpacing: "1px",
-                  transition: "all 0.2s",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                 }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.05)")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = "#FFFFFF";
+                  e.currentTarget.style.color = COLORS.sidebar;
+                  e.currentTarget.style.transform = "translateY(-1.5px)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.25)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = COLORS.accent;
+                  e.currentTarget.style.color = COLORS.secondary;
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.15)";
+                }}
               >
                 Log Out
               </button>
@@ -9414,7 +9431,7 @@ export default function App() {
                           let runningTotalBalance = 0;
                           return (supplierBills || [])
                             .filter((b) => {
-                              if (ledgerFilters.lotId && b.lotId !== ledgerFilters.lotId && b.lotCode !== ledgerFilters.lotId) return false;
+                              if (ledgerFilters.lotId && b.lotId !== ledgerFilters.lotId && b.lotCode !== ledgerFilters.lotId && b.lot_id !== ledgerFilters.lotId) return false;
                               if (ledgerFilters.startDate && (!b.date || b.date < ledgerFilters.startDate)) return false;
                               return true;
                             })
@@ -9424,31 +9441,43 @@ export default function App() {
                                 (bill.createdAt
                                   ? formatDate(bill.createdAt)
                                   : getCurrentDateFormatted());
-                              const lotIdVal = bill.lotId || bill.lotCode || "N/A";
-                              const billNoVal = bill.billNumber || bill.billNo || "DRAFT";
+                              const lotIdVal = bill.lotId || bill.lotCode || bill.lot_id || "N/A";
+                              const billNoVal = bill.billNumber || bill.billNo || bill.bill_no || "DRAFT";
 
-                              const itemsList = bill.produce || bill.items || [];
+                              const itemsList = bill.produce || bill.items || bill.lineItems || [];
                               const productSummary = itemsList.length > 0
                                 ? itemsList.map(p => `${p.productName || p.product || ""} ${Number(p.quantity||p.qty||0).toLocaleString()} KG`).join(" + ")
                                 : "N/A";
 
-                              let grossValue = Number(bill.grossValue || bill.totalValue || 0);
+                              let grossValue = Number(bill.grossValue || bill.totalValue || bill.gross_value || 0);
                               if (grossValue === 0) {
-                                grossValue = itemsList.reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate || item.saleRate)), 0);
+                                grossValue = itemsList.reduce((sum, item) => sum + (Number(item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
                               }
 
-                              let expenseValue = Number(bill.totalExpenses || bill.totalDeductions || 0);
+                              let expenseValue = Number(bill.totalExpenses || bill.totalDeductions || bill.total_expenses || 0);
                               if (expenseValue === 0 && (bill.charges || bill.expenses)) {
                                 expenseValue = (bill.expenses || []).reduce((sum, e) => sum + Number(e.value || e.amount || 0), 0);
                                 expenseValue += Object.values(bill.charges || {}).reduce((s,v) => s + (Number(v)||0), 0);
                               }
 
-                              const netValue = Number(bill.netPayable || (grossValue - expenseValue));
-                              const advanceAmt = Number(bill.advance || 0);
-                              const cashPaid = Number(bill.amountPaid || bill.paymentMade || 0);
-                              
+                              const netValue = Number(
+                                bill.netPayable ||
+                                  bill.net_payable ||
+                                  (grossValue - expenseValue),
+                              );
+                              const advanceAmt = Number(
+                                bill.advance || bill.advanceAmount || 0,
+                              );
+                              const cashPaid = Number(
+                                bill.amountPaid ||
+                                  bill.paymentMade ||
+                                  bill.paidAmount ||
+                                  0,
+                              );
+
                               // Formula: Previous Running Balance + Net Sale - Advance - Payment Made
-                              runningTotalBalance = runningTotalBalance + netValue - advanceAmt - cashPaid;
+                              runningTotalBalance =
+                                runningTotalBalance + netValue - advanceAmt - cashPaid;
 
                               return (
                                 <tr key={bill._id || bIdx} style={{ background: "#FFFFFF" }}>
@@ -9724,23 +9753,23 @@ export default function App() {
                           let runningOutstanding = 0;
                           return (buyerInvoices || [])
                             .filter((inv) => {
-                              const invNo = inv.invoiceNumber || inv.invoiceNo;
+                              const invNo = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no;
                               if (ledgerFilters.invoiceNo && invNo !== ledgerFilters.invoiceNo) return false;
                               if (ledgerFilters.startDate && (!inv.date || inv.date < ledgerFilters.startDate)) return false;
                               return true;
                             })
                             .map((inv, iIdx) => {
                               const dateVal = (inv.date && formatDate(inv.date)) || (inv.createdAt ? formatDate(inv.createdAt) : getCurrentDateFormatted());
-                              const invoiceNoVal = inv.invoiceNumber || inv.invoiceNo || `INV-${iIdx + 1}`;
+                              const invoiceNoVal = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no || `INV-${iIdx + 1}`;
                               
-                              const items = inv.items || inv.lineItems || [];
+                              const items = inv.items || inv.lineItems || inv.produce || [];
                               const fruitVariety = items.map(p => `${p.productLabel || p.product || ""} ${p.variety || ""}`).join(", ") || "N/A";
                               const totalQty = items.reduce((s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0), 0);
 
                               const subTotal = items.reduce((sum, item) => sum + (Number(item.netWeight || item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
                               const adCharges = Object.values(inv.charges || inv.additionalCharges || {}).reduce((s, v) => s + (Number(v) || 0), 0);
-                              const invAmount = Number(inv.grandTotal || inv.totalAmount || (subTotal + adCharges));
-                              const recvAmt = Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || 0);
+                              const invAmount = Number(inv.grandTotal || inv.totalAmount || inv.total_amount || (subTotal + adCharges));
+                              const recvAmt = Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || inv.paid_amount || 0);
 
                               // Formula: Previous Outstanding Balance + Invoice Amount - Payment Received
                               runningOutstanding = runningOutstanding + invAmount - recvAmt;
