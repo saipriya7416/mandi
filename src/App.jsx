@@ -1558,7 +1558,7 @@ export default function App() {
           </div>
 
           <h1 className="stacli-title" style={{ margin:"0 0 4px", fontWeight:"900", color: COLORS.secondary, fontSize:"42px", textTransform:"uppercase" }}>STACLI</h1>
-          <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.primary, letterSpacing: "4px", textTransform: "uppercase", marginBottom: "8px" }}>SPV FRUITS</div>
+          <div style={{ height: "1px", marginBottom: "32px" }}></div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "32px" }}>
             <div style={{ height: "1.5px", width: "40px", background: "#cbd5cb" }} />
             <span style={{ fontSize: "12px", fontWeight: "900", color: COLORS.secondary, letterSpacing: "4px", textTransform: "uppercase" }}>MANDI OS</span>
@@ -1624,14 +1624,14 @@ export default function App() {
             <div style={{ marginBottom:"24px" }}>
               <label className="stacli-label" style={{ display:"block", fontSize:"14px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Access ID (Email or Phone)</label>
               <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "16px" }}>👤</span>
+                <div style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", width: "20px" }}></div>
                 <input 
                   className="stacli-input" 
                   type="text" 
                   placeholder="admin@stacli.io" 
                   value={authForm.username} 
                   onChange={e=>setAuthForm({...authForm,username:e.target.value})} 
-                  style={{ width:"100%", padding:"18px 18px 18px 52px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
+                  style={{ width:"100%", padding:"18px 18px 18px 18px", borderRadius:"14px", border:"1.5px solid #eef2ee", background:"#fff", fontSize:"15px", fontWeight:"600", color:"#1a1a1a", outline:"none", boxSizing:"border-box", transition:"all 0.2s" }} 
                 />
               </div>
             </div>
@@ -1639,7 +1639,6 @@ export default function App() {
             <div style={{ marginBottom:"36px" }}>
               <label className="stacli-label" style={{ display:"block", fontSize:"14px", fontWeight:"800", color:"#1a1a2e", marginBottom:"12px" }}>Secure Passkey</label>
               <div style={{ position: "relative" }}>
-                 <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: "16px" }}>🔒</span>
                  <input 
                    className="stacli-input" 
                    type="password" 
@@ -2932,74 +2931,110 @@ export default function App() {
                        </div>
                        <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", fontSize: "12px" }}>Download Statement</Button>
                     </div>
-                    
-                    <div style={{ overflowX: "auto" }}>
-                       <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
-                          <thead>
-                             <tr style={{ background: COLORS.sidebar, color: "#FFFFFF", textAlign: "left" }}>
-                                <th title="Transaction date" style={{ padding: "16px 14px", whiteSpace: "nowrap", borderRadius: "10px 0 0 10px", fontWeight: "800" }}>Date</th>
-                                <th title="Reference lot" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Lot ID</th>
-                                <th title="Farmer bill number" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Bill Number</th>
-                                <th title="Brief: 'Mango 1754 KG + Banana 172 KG'" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Product(s) Summary</th>
-                                <th title="Total sale realized" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Gross Sale (₹)</th>
-                                <th title="Total deductions" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Expenses (₹)</th>
-                                <th title="Payable to farmer" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Net Sale (₹)</th>
-                                <th title="Advance given on that date" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Advance (₹)</th>
-                                <th title="Settlement payment made" style={{ padding: "16px 14px", whiteSpace: "nowrap", fontWeight: "800" }}>Payment Made (₹)</th>
-                                <th title="Cumulative outstanding due to farmer" style={{ padding: "16px 14px", whiteSpace: "nowrap", borderRadius: "0 10px 10px 0", fontWeight: "800" }}>Running Balance (₹)</th>
-                             </tr>
-                          </thead>
-                          <tbody>
-                             {(() => {
-                                let runningBalance = 0;
-                                return supplierBills.map((bill, bIdx) => {
-                                   const gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0);
-                                   const expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                                   const netSale = gross - expenses;
-                                   const advance = Number(bill.advancePayment || bill.advance || 0);
-                                   const paymentMade = Number(bill.amountPaid || bill.paymentMade || 0);
-                                   runningBalance = runningBalance + netSale - advance - paymentMade;
-                                   const productSummary = (bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}KG`).join(" + ") || "—";
-                                   return (
-                                      <tr key={bill._id || bIdx} style={{ background: "#FFFFFF", boxShadow: "0 2px 4px rgba(0,0,0,0.01)" }}>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderLeft: "1px solid #F1F5F9", borderRadius: "10px 0 0 10px", whiteSpace: "nowrap" }}>{bill.date || formatDate(bill.createdAt)}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", whiteSpace: "nowrap" }}>{bill.lotId || "—"}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary, whiteSpace: "nowrap" }}>{bill.billNumber || bill.invoiceNumber || `BILL-${bIdx + 1}`}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, maxWidth: "200px" }}>{productSummary}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: "#15803D", whiteSpace: "nowrap" }}>{formatCurrency(gross)}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#E11D48", whiteSpace: "nowrap" }}>-{formatCurrency(expenses)}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", fontWeight: "900", color: COLORS.sidebar, whiteSpace: "nowrap" }}>{formatCurrency(netSale)}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#7C3AED", whiteSpace: "nowrap" }}>{formatCurrency(advance)}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", color: "#0369A1", fontWeight: "700", whiteSpace: "nowrap" }}>{formatCurrency(paymentMade)}</td>
-                                         <td style={{ padding: "14px", borderTop: "1px solid #F1F5F9", borderBottom: "1px solid #F1F5F9", borderRight: "1px solid #F1F5F9", borderRadius: "0 10px 10px 0", fontWeight: "900", color: runningBalance > 0 ? "#DC2626" : "#15803D", whiteSpace: "nowrap" }}>
-                                            {formatCurrency(Math.abs(runningBalance))}
-                                            <span style={{ fontSize: "9px", marginLeft: "4px", opacity: 0.6 }}>{runningBalance > 0 ? "DUE" : "PAID"}</span>
-                                         </td>
-                                      </tr>
-                                   );
-                                });
-                             })()}
-                             {supplierBills.length > 0 && (() => {
-                                const totalGross = supplierBills.reduce((s, bill) => s + (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0), 0);
-                                const totalExpenses = supplierBills.reduce((s, bill) => s + Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0), 0);
-                                const totalNet = totalGross - totalExpenses;
-                                const totalAdvance = supplierBills.reduce((s, bill) => s + Number(bill.advancePayment || bill.advance || 0), 0);
-                                const totalPaid = supplierBills.reduce((s, bill) => s + Number(bill.amountPaid || bill.paymentMade || 0), 0);
-                                const totalBalance = totalNet - totalAdvance - totalPaid;
-                                return (
-                                   <tr style={{ background: "#F0FDF4", fontWeight: "900", borderTop: "2px solid #BBF7D0" }}>
-                                      <td colSpan="4" style={{ padding: "14px", textAlign: "right", borderRadius: "10px 0 0 10px", color: COLORS.sidebar, fontSize: "12px", letterSpacing: "0.5px" }}>LEDGER TOTALS:</td>
-                                      <td style={{ padding: "14px", color: "#15803D" }}>{formatCurrency(totalGross)}</td>
-                                      <td style={{ padding: "14px", color: "#DC2626" }}>-{formatCurrency(totalExpenses)}</td>
-                                      <td style={{ padding: "14px", color: COLORS.sidebar }}>{formatCurrency(totalNet)}</td>
-                                      <td style={{ padding: "14px", color: "#7C3AED" }}>{formatCurrency(totalAdvance)}</td>
-                                      <td style={{ padding: "14px", color: "#0369A1" }}>{formatCurrency(totalPaid)}</td>
-                                      <td style={{ padding: "14px", borderRadius: "0 10px 10px 0", color: totalBalance > 0 ? "#DC2626" : "#15803D" }}>{formatCurrency(Math.abs(totalBalance))} {totalBalance > 0 ? "DUE" : "SETTLED"}</td>
-                                   </tr>
-                                );
-                             })()}
-                          </tbody>
-                       </table>
+                    <div style={{ display: "grid", gap: "20px" }}>
+                       {(() => {
+                          let runningBalance = 0;
+                          return supplierBills.map((bill, bIdx) => {
+                             const gross = (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0);
+                             const expenses = Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0);
+                             const netSale = gross - expenses;
+                             const advance = Number(bill.advancePayment || bill.advance || 0);
+                             const paymentMade = Number(bill.amountPaid || bill.paymentMade || 0);
+                             runningBalance = runningBalance + netSale - advance - paymentMade;
+                             const productSummary = (bill.produce || []).map(p => `${p.productName || p.product} ${p.quantity || p.qty}KG`).join(" + ") || "—";
+                             
+                             return (
+                                <div key={bill._id || bIdx} style={{ padding: "24px", background: "#fff", border: "1.5px solid #EBE9E1", borderRadius: "16px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", display: "flex", flexDirection: "column", gap: "16px" }}>
+                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid #F1F5F9", paddingBottom: "12px" }}>
+                                      <div>
+                                         <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.primary, textTransform: "uppercase", letterSpacing: "1px" }}>{bill.date || formatDate(bill.createdAt)}</span>
+                                         <h3 style={{ margin: "4px 0 0", fontSize: "18px", fontWeight: "900", color: COLORS.sidebar }}>{bill.billNumber || bill.invoiceNumber || `BILL-${bIdx + 1}`}</h3>
+                                      </div>
+                                      <div style={{ textAlign: "right" }}>
+                                         <span style={{ fontSize: "11px", fontWeight: "800", color: COLORS.muted }}>Lot ID</span>
+                                         <p style={{ margin: 0, fontWeight: "900", color: COLORS.sidebar }}>{bill.lotId || "—"}</p>
+                                      </div>
+                                   </div>
+                                   
+                                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                                      <div>
+                                         <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Product(s) Summary</label>
+                                         <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.secondary, fontWeight: "600" }}>{productSummary}</p>
+                                      </div>
+                                      <div style={{ textAlign: "right" }}>
+                                         <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>Net Sale / Payable</label>
+                                         <p style={{ margin: "4px 0 0", fontSize: "16px", color: COLORS.sidebar, fontWeight: "900" }}>{formatCurrency(netSale)}</p>
+                                      </div>
+                                   </div>
+                                   
+                                   <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "12px", background: "#F8FAFC", padding: "16px", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
+                                      <div>
+                                         <label style={{ fontSize: "9px", fontWeight: "800", color: "#64748b", display: "block" }}>Gross Sale</label>
+                                         <span style={{ fontSize: "12px", fontWeight: "800", color: "#15803D" }}>{formatCurrency(gross)}</span>
+                                      </div>
+                                      <div>
+                                         <label style={{ fontSize: "9px", fontWeight: "800", color: "#64748b", display: "block" }}>Expenses</label>
+                                         <span style={{ fontSize: "12px", fontWeight: "800", color: "#E11D48" }}>-{formatCurrency(expenses)}</span>
+                                      </div>
+                                      <div>
+                                         <label style={{ fontSize: "9px", fontWeight: "800", color: "#64748b", display: "block" }}>Advance</label>
+                                         <span style={{ fontSize: "12px", fontWeight: "800", color: "#7C3AED" }}>{formatCurrency(advance)}</span>
+                                      </div>
+                                      <div>
+                                         <label style={{ fontSize: "9px", fontWeight: "800", color: "#64748b", display: "block" }}>Paid</label>
+                                         <span style={{ fontSize: "12px", fontWeight: "800", color: "#0369A1" }}>{formatCurrency(paymentMade)}</span>
+                                      </div>
+                                      <div style={{ textAlign: "right" }}>
+                                         <label style={{ fontSize: "9px", fontWeight: "800", color: "#64748b", display: "block" }}>Balance</label>
+                                         <span style={{ fontSize: "13px", fontWeight: "900", color: runningBalance > 0 ? "#DC2626" : "#15803D" }}>{formatCurrency(Math.abs(runningBalance))}</span>
+                                         <span style={{ fontSize: "8px", marginLeft: "2px", opacity: 0.6 }}>{runningBalance > 0 ? "DR" : "CR"}</span>
+                                      </div>
+                                   </div>
+                                </div>
+                             );
+                          });
+                       })()}
+                       
+                       {supplierBills.length > 0 && (() => {
+                          const totalGross = supplierBills.reduce((s, bill) => s + (bill.produce || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty) * Number(item.rate)), 0), 0);
+                          const totalExpenses = supplierBills.reduce((s, bill) => s + Object.values(bill.charges || {}).reduce((sum, val) => sum + (Number(val) || 0), 0), 0);
+                          const totalNet = totalGross - totalExpenses;
+                          const totalAdvance = supplierBills.reduce((s, bill) => s + Number(bill.advancePayment || bill.advance || 0), 0);
+                          const totalPaid = supplierBills.reduce((s, bill) => s + Number(bill.amountPaid || bill.paymentMade || 0), 0);
+                          const totalBalance = totalNet - totalAdvance - totalPaid;
+                          return (
+                             <div style={{ marginTop: "32px", padding: "32px", background: COLORS.sidebar, borderRadius: "20px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}>
+                                <div>
+                                   <label style={{ fontSize: "12px", fontWeight: "700", opacity: 0.7, textTransform: "uppercase", letterSpacing: "1px" }}>Total Outstanding Due</label>
+                                   <h2 style={{ fontSize: "36px", fontWeight: "900", margin: "4px 0 0 0", color: COLORS.primary }}>{formatCurrency(Math.abs(totalBalance))} <span style={{ fontSize: "16px", fontWeight: "700" }}>{totalBalance > 0 ? "DUE TO FARMER" : "SETTLED"}</span></h2>
+                                </div>
+                                <div style={{ textAlign: "right" }}>
+                                   <div style={{ display: "flex", gap: "24px", fontSize: "13px" }}>
+                                      <div>
+                                         <label style={{ display: "block", opacity: 0.6 }}>Total Gross</label>
+                                         <span style={{ fontWeight: "800" }}>{formatCurrency(totalGross)}</span>
+                                      </div>
+                                      <div>
+                                         <label style={{ display: "block", opacity: 0.6 }}>Total Expenses</label>
+                                         <span style={{ fontWeight: "800" }}>-{formatCurrency(totalExpenses)}</span>
+                                      </div>
+                                      <div>
+                                         <label style={{ display: "block", opacity: 0.6 }}>Total Paid</label>
+                                         <span style={{ fontWeight: "800" }}>{formatCurrency(totalPaid + totalAdvance)}</span>
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+                          );
+                       })()}
+                       
+                       {supplierBills.length === 0 && (
+                          <div style={{ textAlign: "center", padding: "80px 40px", background: "#FDFBF4", borderRadius: "24px", border: "2px dashed #EBE9E1" }}>
+                             <div style={{ fontSize: "48px", marginBottom: "20px" }}>Empty</div>
+                             <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar }}>No Transaction History</h3>
+                             <p style={{ color: COLORS.muted, fontSize: "14px" }}>Start billing this supplier to see financial entries here.</p>
+                          </div>
+                      )}
                     </div>
                   </div>
                )}
@@ -3155,7 +3190,7 @@ export default function App() {
 
                {activePaymentTab === "Customer" && (
                   <>
-                     <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "16px", border: "1px solid #EBE9E1", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
                     <div style={{ padding: "8px 0", borderBottom: "1px solid #EBE9E1", marginBottom: "20px", display: "flex", justifyContent: "space-between", fontSize: "11px", fontWeight: "750", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>
                        <span>SPV FRUITS — Mandi Management ERP</span>
                        <span style={{ color: "#E11D48" }}>Confidential — Internal Document Only</span>
