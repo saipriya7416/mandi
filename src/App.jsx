@@ -15,6 +15,55 @@ import {
   LineElement,
 } from "chart.js";
 
+// --- ROBUST DUMMY FALLBACK DATA (Global Scope) ---
+const DUMMY_SUPPLIERS = [
+  { _id: "S1", name: "Ramesh Kumar (Mock)", village: "Anantapur", phone: "+91 9876543210", advanceBalance: 5000, lots: ["L1"] },
+  { _id: "S2", name: "Kiran Farm", village: "Guntur", phone: "+91 8765432109", advanceBalance: 12000, lots: ["L2"] },
+  { _id: "S3", name: "Vikas Reddy", village: "Kurnool", phone: "+91 7654321098", advanceBalance: 0, lots: ["L3"] },
+  { _id: "S4", name: "Anita Produce", village: "Nellore", phone: "+91 6543210987", advanceBalance: 800, lots: ["L4"] },
+  { _id: "S5", name: "Sunil Agro", village: "Chittoor", phone: "+91 5432109876", advanceBalance: 3200, lots: ["L5"] }
+];
+
+const DUMMY_BUYERS = [
+  { _id: "B1", name: "Metro Supermarket", address: "Hyderabad", phone: "+91 9988776655", creditLimit: 500000, currentDues: 150000 },
+  { _id: "B2", name: "Reliance Fresh", address: "Secunderabad", phone: "+91 8877665544", creditLimit: 200000, currentDues: 45000 },
+  { _id: "B3", name: "Local Mandi Vendor", address: "Guntur", phone: "+91 7766554433", creditLimit: 50000, currentDues: 12000 },
+  { _id: "B4", name: "More Retail", address: "Vijayawada", phone: "+91 6655443322", creditLimit: 800000, currentDues: 600000 },
+  { _id: "B5", name: "Kavya Fruits", address: "Nellore", phone: "+91 5544332211", creditLimit: 100000, currentDues: 9000 }
+];
+
+const DUMMY_LOTS = [
+  { _id: "L1", lotId: "LOT-2026-001", farmerId: "S1", farmerName: "Ramesh Kumar", vehicleNo: "AP-39-DF-1234", status: "delayed", items: [{ product: "Mango", quantity: 500, rate: 40 }], dateTime: new Date().toISOString() },
+  { _id: "L2", lotId: "LOT-2026-002", farmerId: "S2", farmerName: "Kiran Farm", vehicleNo: "TS-09-EQ-4422", status: "active", items: [{ product: "Banana", quantity: 1500, rate: 15 }], dateTime: new Date().toISOString() },
+  { _id: "L3", lotId: "LOT-2026-003", farmerId: "S3", farmerName: "Vikas Reddy", vehicleNo: "MH-12-XX-8899", status: "delayed", items: [{ product: "Tomato", quantity: 800, rate: 12 }], dateTime: new Date().toISOString() },
+  { _id: "L4", lotId: "LOT-2026-004", farmerId: "S4", farmerName: "Anita Produce", vehicleNo: "KA-01-AB-1111", status: "active", items: [{ product: "Apple", quantity: 300, rate: 120 }], dateTime: new Date().toISOString() },
+  { _id: "L5", lotId: "LOT-2026-005", farmerId: "S5", farmerName: "Sunil Agro", vehicleNo: "TN-10-CD-2222", status: "active", items: [{ product: "Grapes", quantity: 1200, rate: 60 }], dateTime: new Date().toISOString() }
+];
+
+const DUMMY_ALLOCATIONS = [
+  { _id: "A1", date: new Date().toISOString(), buyerId: "B1", buyerName: "Metro Supermarket", product: "Mango", weight: 1500, status: "Shipped", transportVehicle: "AP-39-GF-8888" },
+  { _id: "A2", date: new Date().toISOString(), buyerId: "B2", buyerName: "Reliance Fresh", product: "Banana", weight: 2200, status: "Pending", transportVehicle: "AP-10-XY-1234" },
+  { _id: "A3", date: new Date().toISOString(), buyerId: "B3", buyerName: "Local Mandi Vendor", product: "Tomato", weight: 800, status: "Shipped", transportVehicle: "TS-09-MM-0000" },
+  { _id: "A4", date: new Date().toISOString(), buyerId: "B4", buyerName: "More Retail", product: "Apple", weight: 3100, status: "Shipped", transportVehicle: "KA-41-NN-9876" },
+  { _id: "A5", date: new Date().toISOString(), buyerId: "B5", buyerName: "Kavya Fruits", product: "Grapes", weight: 850, status: "Pending", transportVehicle: "TN-01-ZX-7654" }
+];
+
+const DUMMY_SUPPLIER_BILLS = [
+  { _id: "SB1", billNo: "B-2026-001", supplierId: "S1", supplierName: "Ramesh Kumar (Mock)", items: [{ product: "Mango", quantity: 500, rate: 40 }], transportFee: 5000, expenses: { freight: 5000 }, netPayable: 15000, grandTotal: 15000, status: "pending", date: new Date().toISOString(), billDate: new Date().toISOString() },
+  { _id: "SB2", billNo: "B-2026-002", supplierId: "S2", supplierName: "Kiran Farm", items: [{ product: "Banana", quantity: 1500, rate: 15 }], transportFee: 8000, expenses: { freight: 8000 }, netPayable: 22000, grandTotal: 22000, status: "settled", date: new Date().toISOString(), billDate: new Date().toISOString() },
+  { _id: "SB3", billNo: "B-2026-003", supplierId: "S3", supplierName: "Vikas Reddy", items: [{ product: "Tomato", quantity: 800, rate: 12 }], transportFee: 15000, expenses: { freight: 15000 }, netPayable: 10000, grandTotal: 10000, status: "pending", date: new Date().toISOString(), billDate: new Date().toISOString() },
+  { _id: "SB4", billNo: "B-2026-004", supplierId: "S4", supplierName: "Anita Produce", items: [{ product: "Apple", quantity: 300, rate: 120 }], transportFee: 15800, expenses: { freight: 15800 }, netPayable: 45000, grandTotal: 45000, status: "settled", date: new Date().toISOString(), billDate: new Date().toISOString() },
+  { _id: "SB5", billNo: "B-2026-005", supplierId: "S5", supplierName: "Sunil Agro", items: [{ product: "Grapes", quantity: 1200, rate: 60 }], transportFee: 2000, expenses: { freight: 2000 }, netPayable: 8000, grandTotal: 8000, status: "pending", date: new Date().toISOString(), billDate: new Date().toISOString() }
+];
+
+const DUMMY_BUYER_INVOICES = [
+  { _id: "BI1", invoiceNumber: "INV-2026-001", buyerId: "B1", buyerName: "Metro Supermarket", date: new Date().toISOString(), grandTotal: 85000, amountReceived: 45000, status: "Partially Paid", items: [{ product: "Mango", quantity: 500, rate: 45 }] },
+  { _id: "BI2", invoiceNumber: "INV-2026-002", buyerId: "B2", buyerName: "Reliance Fresh", date: new Date().toISOString(), grandTotal: 34000, amountReceived: 34000, status: "Paid", items: [{ product: "Banana", quantity: 1500, rate: 20 }] },
+  { _id: "BI3", invoiceNumber: "INV-2026-003", buyerId: "B3", buyerName: "Local Mandi Vendor", date: new Date().toISOString(), grandTotal: 12000, amountReceived: 0, status: "Unpaid", items: [{ product: "Tomato", quantity: 800, rate: 15 }] },
+  { _id: "BI4", invoiceNumber: "INV-2026-004", buyerId: "B4", buyerName: "More Retail", date: new Date().toISOString(), grandTotal: 190000, amountReceived: 90000, status: "Partially Paid", items: [{ product: "Apple", quantity: 1000, rate: 150 }] },
+  { _id: "BI5", invoiceNumber: "INV-2026-005", buyerId: "B5", buyerName: "Kavya Fruits", date: new Date().toISOString(), grandTotal: 15500, amountReceived: 10000, status: "Partially Paid", items: [{ product: "Grapes", quantity: 200, rate: 70 }] }
+];
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -648,6 +697,12 @@ export default function App() {
   const [editingSupplierId, setEditingSupplierId] = useState(null);
   const [isEditingBuyer, setIsEditingBuyer] = useState(false);
   const [editingBuyerId, setEditingBuyerId] = useState(null);
+  const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Buyer', data: ... }
+  const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
+
+
+
 
   // --- INITIALIZE SESSION ---
   useEffect(() => {
@@ -1777,37 +1832,40 @@ export default function App() {
 
   const handleLedgerSupplierChange = async (supplierId) => {
     setSelectedLedgerSupplier(supplierId);
-    if (!supplierId) {
-      setSupplierBills([]);
-      return;
-    }
     try {
-      // Try specialized ledger API or fallback to settlement history
+      if (!supplierId) {
+        // Show all bills if none selected
+        const res = await MandiService.getSupplierBills();
+        setSupplierBills(res.status === "SUCCESS" && res.data?.length > 0 ? res.data : DUMMY_SUPPLIER_BILLS);
+        return;
+      }
       const res = await MandiService.getSupplierLedger(supplierId);
-      if (res.status === "SUCCESS") {
-        setSupplierBills(res.data || []);
+      if (res.status === "SUCCESS" && res.data?.length > 0) {
+        setSupplierBills(res.data);
       } else {
-        // Fallback
-        const fallRes =
-          await MandiService.getFarmerSettlementHistory(supplierId);
-        if (fallRes.status === "SUCCESS") {
-          setSupplierBills(fallRes.data || []);
+        const fallRes = await MandiService.getFarmerSettlementHistory(supplierId);
+        if (fallRes.status === "SUCCESS" && fallRes.data?.length > 0) {
+          setSupplierBills(fallRes.data);
+        } else {
+          // Dummy filter
+          setSupplierBills(DUMMY_SUPPLIER_BILLS.filter(b => b.supplierId === supplierId));
         }
       }
     } catch (err) {
-      setSupplierBills([]);
+      setSupplierBills(supplierId ? DUMMY_SUPPLIER_BILLS.filter(b => b.supplierId === supplierId) : DUMMY_SUPPLIER_BILLS);
     }
   };
 
   const handleLedgerBuyerChange = async (buyerId) => {
     setSelectedLedgerBuyer(buyerId);
-    if (!buyerId) {
-      setBuyerInvoices([]);
-      return;
-    }
     try {
+      if (!buyerId) {
+        const res = await MandiService.getBuyerInvoices();
+        setBuyerInvoices(res.status === "SUCCESS" && res.data?.length > 0 ? res.data : DUMMY_BUYER_INVOICES);
+        return;
+      }
       const res = await MandiService.getBuyerInvoices();
-      if (res.status === "SUCCESS") {
+      if (res.status === "SUCCESS" && res.data?.length > 0) {
         // Filter invoices for this buyer
         const filtered = (res.data || []).filter(
           (inv) =>
@@ -1816,9 +1874,12 @@ export default function App() {
             (inv.buyer && inv.buyer._id === buyerId),
         );
         setBuyerInvoices(filtered);
+      } else {
+        // Dummy filter
+        setBuyerInvoices(DUMMY_BUYER_INVOICES.filter(inv => inv.buyerId === buyerId));
       }
     } catch (err) {
-      setBuyerInvoices([]);
+      setBuyerInvoices(buyerId ? DUMMY_BUYER_INVOICES.filter(inv => inv.buyerId === buyerId) : DUMMY_BUYER_INVOICES);
     }
   };
 
@@ -2119,30 +2180,22 @@ export default function App() {
   });
 
   // --- DATA SYNC WITH BACKEND ---
-  // --- DATA SYNC WITH BACKEND ---
   const fetchData = async () => {
-    // Robust fallbacks for Demo/Offline consistency
-    const dummySuppliers = [];
-
-    const dummyBuyers = [];
-
-    const dummyLots = [];
-
     try {
       const sRes = await MandiService.getSuppliers();
-      setSuppliers(sRes.status === "SUCCESS" ? sRes.data : dummySuppliers);
+      setSuppliers(sRes.status === "SUCCESS" && sRes.data?.length > 0 ? sRes.data : DUMMY_SUPPLIERS);
 
       const bRes = await MandiService.getBuyers();
-      setBuyers(bRes.status === "SUCCESS" ? bRes.data : dummyBuyers);
+      setBuyers(bRes.status === "SUCCESS" && bRes.data?.length > 0 ? bRes.data : DUMMY_BUYERS);
 
       const lRes = await MandiService.getLots();
-      setLots(lRes.status === "SUCCESS" ? lRes.data : dummyLots);
+      setLots(lRes.status === "SUCCESS" && lRes.data?.length > 0 ? lRes.data : DUMMY_LOTS);
 
       const aRes = await MandiService.getAllocations();
-      setAllocations(aRes.status === "SUCCESS" ? aRes.data : []);
+      setAllocations(aRes.status === "SUCCESS" && aRes.data?.length > 0 ? aRes.data : DUMMY_ALLOCATIONS);
 
       const sbRes = await MandiService.getSupplierBills();
-      setSupplierBills(sbRes.status === "SUCCESS" ? sbRes.data : []);
+      setSupplierBills(sbRes.status === "SUCCESS" && sbRes.data?.length > 0 ? sbRes.data : DUMMY_SUPPLIER_BILLS);
 
       const dRes = await MandiService.getDocuments();
       if (dRes.status === "SUCCESS") {
@@ -2170,20 +2223,22 @@ export default function App() {
       if (statsRes.status === "SUCCESS") setInventoryStats(statsRes.data);
 
       const billsRes = await MandiService.getSupplierBills();
-      if (billsRes.status === "SUCCESS") setSupplierBills(billsRes.data);
+      if (billsRes.status === "SUCCESS" && billsRes.data?.length > 0) setSupplierBills(billsRes.data);
 
       const invoicesRes = await MandiService.getBuyerInvoices();
-      if (invoicesRes.status === "SUCCESS") setBuyerInvoices(invoicesRes.data);
+      if (invoicesRes.status === "SUCCESS" && invoicesRes.data?.length > 0) setBuyerInvoices(invoicesRes.data);
+      else setBuyerInvoices(DUMMY_BUYER_INVOICES);
     } catch (err) {
       console.warn(
         "Backend Unreachable - Using Local Data Engine:",
         err.message,
       );
-      setSuppliers(dummySuppliers);
-      setBuyers(dummyBuyers);
-      setLots(dummyLots);
-      setSupplierBills([]);
-      setBuyerInvoices([]);
+      setSuppliers(DUMMY_SUPPLIERS);
+      setBuyers(DUMMY_BUYERS);
+      setLots(DUMMY_LOTS);
+      setAllocations(DUMMY_ALLOCATIONS);
+      setSupplierBills(DUMMY_SUPPLIER_BILLS);
+      setBuyerInvoices(DUMMY_BUYER_INVOICES);
       setInventoryStats({
         totalLotsToday: 14,
         incomingKgToday: 8500,
@@ -4063,740 +4118,144 @@ export default function App() {
           )}
 
           {activeSection === "User Role" && (
-            <div
-              style={{
-                paddingBottom: "24px",
-                marginBottom: "32px",
-                borderBottom: "1px solid #EBE9E1",
-              }}
-            >
-              <div style={{ display: "flex", gap: "20px" }}>
-                <div
-                  onClick={() => setActiveUserRoleTab("Supplier")}
-                  style={{
-                    padding: "10px 24px",
-                    cursor: "pointer",
-                    fontWeight: "700",
-                    background:
-                      activeUserRoleTab === "Supplier"
-                        ? COLORS.sidebar
-                        : "#F3F1EA",
-                    color:
-                      activeUserRoleTab === "Supplier"
-                        ? "#FFFFFF"
-                        : COLORS.muted,
-                    borderRadius: "8px",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  Supplier Registration
-                </div>
-                <div
-                  onClick={() => setActiveUserRoleTab("Buyer")}
-                  style={{
-                    padding: "10px 24px",
-                    cursor: "pointer",
-                    fontWeight: "700",
-                    background:
-                      activeUserRoleTab === "Buyer"
-                        ? COLORS.sidebar
-                        : "#F3F1EA",
-                    color:
-                      activeUserRoleTab === "Buyer" ? "#FFFFFF" : COLORS.muted,
-                    borderRadius: "8px",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  Customer Registration
+            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+              <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1" }}>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <div onClick={() => setActiveUserRoleTab("Supplier")} style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Supplier" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Supplier" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}>Supplier Registration</div>
+                  <div onClick={() => setActiveUserRoleTab("Buyer")} style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Buyer" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Buyer" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}>Customer Registration</div>
+                  <div onClick={() => setActiveUserRoleTab("Registered Members")} style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Registered Members" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Registered Members" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}>Registered Members</div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Supplier Role Module (Handles both direct "Supplier" and nested "User Role") */}
-          {(activeSection === "Supplier" ||
-            (activeSection === "User Role" &&
-              activeUserRoleTab === "Supplier")) && (
-            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              {activeSupplierTab === "Supplier Registration" && (
+              {activeUserRoleTab === "Supplier" && (
                 <div>
                   <FormGrid
                     sections={[
                       {
                         title: "Supplier Profile",
                         fields: [
-                          {
-                            label: "Name *",
-                            placeholder: "Full name as per ID",
-                            value: supplierForm.name,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                name: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Mobile Number *",
-                            type: "tel",
-                            placeholder: "Primary + optional alternate",
-                            value: supplierForm.phone,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                phone: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Location Type *",
-                            type: "select",
-                            options: ["Village", "Town"],
-                            value: supplierForm.villageOrTown,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                villageOrTown: e.target.value,
-                              }),
-                          },
-                          {
-                            label: `${supplierForm.villageOrTown} Name *`,
-                            placeholder: `Enter ${supplierForm.villageOrTown} Name`,
-                            value: supplierForm.villageOrTownName,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                villageOrTownName: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "District *",
-                            placeholder: "Manual typing of district",
-                            value: supplierForm.district,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                district: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "State *",
-                            type: "select",
-                            options: [
-                              "Andhra Pradesh",
-                              "Arunachal Pradesh",
-                              "Assam",
-                              "Bihar",
-                              "Chhattisgarh",
-                              "Goa",
-                              "Gujarat",
-                              "Haryana",
-                              "Himachal Pradesh",
-                              "Jharkhand",
-                              "Karnataka",
-                              "Kerala",
-                              "Madhya Pradesh",
-                              "Maharashtra",
-                              "Manipur",
-                              "Meghalaya",
-                              "Mizoram",
-                              "Nagaland",
-                              "Odisha",
-                              "Punjab",
-                              "Rajasthan",
-                              "Sikkim",
-                              "Tamil Nadu",
-                              "Telangana",
-                              "Tripura",
-                              "Uttar Pradesh",
-                              "Uttarakhand",
-                              "West Bengal",
-                              "Andaman and Nicobar Islands",
-                              "Chandigarh",
-                              "Dadra and Nagar Haveli and Daman and Diu",
-                              "Delhi",
-                              "Jammu and Kashmir",
-                              "Ladakh",
-                              "Lakshadweep",
-                              "Puducherry",
-                            ],
-                            value: supplierForm.state,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                state: e.target.value,
-                              }),
-                          },
+                          { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
+                          { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
+                          { label: "Location Type *", type: "select", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
+                          { label: `${supplierForm.villageOrTown} Name *`, placeholder: `Enter ${supplierForm.villageOrTown} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
+                          { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: (e) => setSupplierForm({ ...supplierForm, district: e.target.value }) },
+                          { label: "State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
                         ],
                       },
                       {
                         title: "KYC Details",
                         fields: [
-                          {
-                            label: "Aadhaar Number",
-                            type: "number",
-                            placeholder: "12-digit (For KYC compliance)",
-                            value: supplierForm.aadhaar,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                aadhaar: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "PAN Number",
-                            placeholder: "For high-value transactions",
-                            value: supplierForm.pan,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                pan: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Voter ID",
-                            placeholder: "Alternate ID",
-                            value: supplierForm.voterId,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                voterId: e.target.value,
-                              }),
-                          },
+                          { label: "Aadhaar Number", type: "number", placeholder: "12-digit (For KYC compliance)", value: supplierForm.aadhaar, onChange: (e) => setSupplierForm({ ...supplierForm, aadhaar: e.target.value }) },
+                          { label: "PAN Number", placeholder: "For high-value transactions", value: supplierForm.pan, onChange: (e) => setSupplierForm({ ...supplierForm, pan: e.target.value }) },
+                          { label: "Voter ID", placeholder: "Alternate ID", value: supplierForm.voterId, onChange: (e) => setSupplierForm({ ...supplierForm, voterId: e.target.value }) },
                         ],
                       },
                       {
                         title: "Bank Details",
                         fields: [
-                          {
-                            label: "Bank Account No.",
-                            type: "number",
-                            placeholder: "For direct bank settlements",
-                            value: supplierForm.bankAccount,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                bankAccount: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "IFSC Code",
-                            placeholder: "Bank branch code",
-                            value: supplierForm.ifsc,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                ifsc: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Advance Balance (₹)",
-                            type: "number",
-                            placeholder: "Running advance held by SPV",
-                            value: supplierForm.advanceBalance,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                advanceBalance: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Notes",
-                            placeholder: "Free-form notes",
-                            value: supplierForm.notes,
-                            onChange: (e) =>
-                              setSupplierForm({
-                                ...supplierForm,
-                                notes: e.target.value,
-                              }),
-                          },
+                          { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
+                          { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
+                          { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
+                          { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
                         ],
                       },
                     ]}
                   />
-                  <div
-                    style={{ display: "flex", gap: "16px", marginTop: "32px" }}
-                  >
-                    <Button
-                      style={{
-                        background: COLORS.sidebar,
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                      }}
-                      onClick={handleRegisterSupplier}
-                    >
-                      {isEditingSupplier ? "Update Records" : "Submit Details"}
-                    </Button>
-                    <Button
-                      style={{
-                        background: "#FFFFFF",
-                        color: "#1F3A2B",
-                        border: "1.5px solid #1F3A2B",
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                      }}
-                      onClick={() =>
-                        alert(
-                          "Draft saved locally for " +
-                            (supplierForm.name || "Supplier"),
-                        )
-                      }
-                    >
-                      Save Draft
-                    </Button>
-                    <Button
-                      style={{
-                        background: "#FCFAEF",
-                        color: "#9EB343",
-                        border: "1.5px solid #E3E5DD",
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                      }}
-                      onClick={() =>
-                        alert(
-                          "Select a supplier from the list below to edit their profile.",
-                        )
-                      }
-                    >
-                      Edit Mode
-                    </Button>
-                    <Button
-                      style={{
-                        background: "#F1F5F9",
-                        color: "#CC0000",
-                        border: "none",
-                        fontWeight: "900",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                      }}
-                      onClick={() => handleCancelAll("Supplier")}
-                    >
-                      Cancel All
-                    </Button>
-                  </div>
-
-                  {/* Supplier Database Records */}
-                  <div style={{ marginTop: "40px" }}>
-                    <h4
-                      className="font-display"
-                      style={{
-                        color: COLORS.sidebar,
-                        marginBottom: "16px",
-                        fontWeight: "900",
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Registered Suppliers
-                    </h4>
-                    <div
-                      style={{
-                        maxHeight: "450px",
-                        overflowY: "auto",
-                        padding: "8px",
-                        background: "#FDFBF4",
-                        borderRadius: "16px",
-                        border: "1.5px solid #EBE9E1",
-                      }}
-                    >
-                      <div style={{ display: "grid", gap: "12px" }}>
-                        {suppliers.map((s) => (
-                          <div
-                            key={s._id}
-                            style={{
-                              padding: "16px",
-                              background: "#fff",
-                              border: "1px solid #EBE9E1",
-                              borderRadius: "12px",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                            }}
-                          >
-                            <div>
-                              <b
-                                style={{
-                                  color: COLORS.sidebar,
-                                  fontSize: "15px",
-                                }}
-                              >
-                                {s.name}
-                              </b>
-                              <p
-                                style={{
-                                  margin: "4px 0 0",
-                                  fontSize: "12px",
-                                  color: COLORS.muted,
-                                  fontWeight: "600",
-                                }}
-                              >
-                                ☎️ {s.phone} | 📍{" "}
-                                {s.village || s.marketArea || "Location N/A"}
-                              </p>
-                            </div>
-                            <div style={{ display: "flex", gap: "10px" }}>
-                              <Button
-                                variant="outline"
-                                style={{
-                                  fontSize: "12px",
-                                  padding: "8px 18px",
-                                  fontWeight: "700",
-                                  border: `1.5px solid ${COLORS.primary}`,
-                                  color: COLORS.secondary,
-                                  borderRadius: "24px",
-                                  background: "transparent",
-                                }}
-                                onClick={() => handleEditSelect("Supplier", s)}
-                              >
-                                Modify Profile
-                              </Button>
-                              <Button
-                                style={{
-                                  fontSize: "12px",
-                                  padding: "8px 20px",
-                                  fontWeight: "800",
-                                  background: "#f1f7ff",
-                                  color: "#c2410c",
-                                  border: "none",
-                                  borderRadius: "24px",
-                                }}
-                                onClick={() => handleDeleteSupplier(s._id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? "Update Records" : "Submit Details"}</Button>
+                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Draft saved locally for " + (supplierForm.name || "Supplier"))}>Save Draft</Button>
+                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Registered</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
                   </div>
                 </div>
               )}
-            </div>
-          )}
 
-          {/* Buyer Role Module */}
-          {activeSection === "User Role" && activeUserRoleTab === "Buyer" && (
-            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              {activeBuyerTab === "Buyer Registration" && (
+              {activeUserRoleTab === "Buyer" && (
                 <div>
                   <FormGrid
                     sections={[
                       {
                         title: "Customer Profile & Location",
                         fields: [
-                          {
-                            label: "Name *",
-                            placeholder: "Individual or business name",
-                            value: buyerForm.name,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                name: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Shop / Business Name *",
-                            placeholder: "Shop / Business Name",
-                            value: buyerForm.shopName,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                shopName: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Mobile Number *",
-                            type: "tel",
-                            placeholder: "Mobile Number",
-                            value: buyerForm.phone,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                phone: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Address *",
-                            placeholder: "Delivery / shop address",
-                            value: buyerForm.address,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                address: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Location Type *",
-                            type: "select",
-                            options: ["Village", "Town"],
-                            value: buyerForm.villageOrTown,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                villageOrTown: e.target.value,
-                              }),
-                          },
-                          {
-                            label: `${buyerForm.villageOrTown} Name *`,
-                            placeholder: `Enter ${buyerForm.villageOrTown} Name`,
-                            value: buyerForm.villageOrTownName,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                villageOrTownName: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "District *",
-                            placeholder: "Manual typing of district",
-                            value: buyerForm.district,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                district: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "State *",
-                            type: "select",
-                            options: [
-                              "Andhra Pradesh",
-                              "Arunachal Pradesh",
-                              "Assam",
-                              "Bihar",
-                              "Chhattisgarh",
-                              "Goa",
-                              "Gujarat",
-                              "Haryana",
-                              "Himachal Pradesh",
-                              "Jharkhand",
-                              "Karnataka",
-                              "Kerala",
-                              "Madhya Pradesh",
-                              "Maharashtra",
-                              "Manipur",
-                              "Meghalaya",
-                              "Mizoram",
-                              "Nagaland",
-                              "Odisha",
-                              "Punjab",
-                              "Rajasthan",
-                              "Sikkim",
-                              "Tamil Nadu",
-                              "Telangana",
-                              "Tripura",
-                              "Uttar Pradesh",
-                              "Uttarakhand",
-                              "West Bengal",
-                              "Andaman and Nicobar Islands",
-                              "Chandigarh",
-                              "Dadra and Nagar Haveli and Daman and Diu",
-                              "Delhi",
-                              "Jammu and Kashmir",
-                              "Ladakh",
-                              "Lakshadweep",
-                              "Puducherry",
-                            ],
-                            value: buyerForm.state,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                state: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Government ID",
-                            placeholder: "Aadhaar / PAN / GSTIN",
-                            value: buyerForm.govIdNumber,
-                            onChange: (e) =>
-                              setBuyerForm({
-                                ...buyerForm,
-                                govIdNumber: e.target.value,
-                              }),
-                          },
+                          { label: "Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
+                          { label: "Shop / Business Name *", placeholder: "Shop / Business Name", value: buyerForm.shopName, onChange: (e) => setBuyerForm({ ...buyerForm, shopName: e.target.value }) },
+                          { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
+                          { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
+                          { label: "Location Type *", type: "select", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTown: e.target.value }) },
+                          { label: `${buyerForm.villageOrTown} Name *`, placeholder: `Enter ${buyerForm.villageOrTown} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
+                          { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
+                          { label: "State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
+                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
                         ],
                       },
                       {
                         title: "Credit Details",
                         fields: [
-                          {
-                            label: "Credit Limit (₹) *",
-                            type: "number",
-                            placeholder: "Max credit allowed; 0 = cash only",
-                          },
-                          {
-                            label: "Payment Terms *",
-                            type: "select",
-                            options: [
-                              "Immediate",
-                              "7 Days",
-                              "15 Days",
-                              "30 Days",
-                            ],
-                          },
-                          {
-                            label: "Outstanding Balance (₹)",
-                            type: "number",
-                            placeholder:
-                              "Auto-calculated from invoices - payments",
-                          },
+                          { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
+                          { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
+                          { label: "Outstanding Balance (\u20B9)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
                           { label: "Notes", placeholder: "Free-form notes" },
                         ],
                       },
                     ]}
                   />
-                  <div
-                    style={{ display: "flex", gap: "16px", marginTop: "32px" }}
-                  >
-                    <Button
-                      style={{
-                        background: COLORS.sidebar,
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                      }}
-                      onClick={handleRegisterBuyer}
-                    >
-                      {isEditingBuyer ? "Update Records" : "Submit Details"}
-                    </Button>
-                    <Button
-                      style={{
-                        background: "#FFFFFF",
-                        color: "#1F3A2B",
-                        border: "1.5px solid #1F3A2B",
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                      }}
-                      onClick={() => alert("Buyer draft saved.")}
-                    >
-                      Save Draft
-                    </Button>
-                    <Button
-                      style={{
-                        background: "#FCFAEF",
-                        color: "#9EB343",
-                        border: "1.5px solid #E3E5DD",
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                      }}
-                      onClick={() =>
-                        alert(
-                          "Use the list below to select a buyer for editing.",
-                        )
-                      }
-                    >
-                      Edit Mode
-                    </Button>
-                    <Button
-                      style={{
-                        background: "#F1F5F9",
-                        color: "#CC0000",
-                        border: "none",
-                        fontWeight: "900",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                      }}
-                      onClick={() => handleCancelAll("Buyer")}
-                    >
-                      Cancel All
-                    </Button>
-                  </div>
-
-                  {/* Customer Database Records */}
-                  <div style={{ marginTop: "40px" }}>
-                    <h4
-                      className="font-display"
-                      style={{
-                        color: COLORS.sidebar,
-                        marginBottom: "16px",
-                        fontWeight: "900",
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Registered Customers
-                    </h4>
-                    <div
-                      style={{
-                        maxHeight: "450px",
-                        overflowY: "auto",
-                        padding: "8px",
-                        background: "#FDFBF4",
-                        borderRadius: "16px",
-                        border: "1.5px solid #EBE9E1",
-                      }}
-                    >
-                      <div style={{ display: "grid", gap: "12px" }}>
-                        {buyers.map((b) => (
-                          <div
-                            key={b._id}
-                            style={{
-                              padding: "16px",
-                              background: "#fff",
-                              border: "1px solid #EBE9E1",
-                              borderRadius: "12px",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                            }}
-                          >
-                            <div>
-                              <b
-                                style={{
-                                  color: COLORS.sidebar,
-                                  fontSize: "15px",
-                                }}
-                              >
-                                {b.name}
-                              </b>
-                              <p
-                                style={{
-                                  margin: "4px 0 0",
-                                  fontSize: "12px",
-                                  color: COLORS.muted,
-                                  fontWeight: "600",
-                                }}
-                              >
-                                🏬 {b.shopName} | ☎️ {b.phone}
-                              </p>
-                            </div>
-                            <div style={{ display: "flex", gap: "10px" }}>
-                              <Button
-                                variant="outline"
-                                style={{
-                                  fontSize: "12px",
-                                  padding: "8px 18px",
-                                  fontWeight: "700",
-                                  border: `1.5px solid ${COLORS.primary}`,
-                                  color: COLORS.secondary,
-                                  borderRadius: "24px",
-                                  background: "transparent",
-                                }}
-                                onClick={() => handleEditSelect("Buyer", b)}
-                              >
-                                Modify Profile
-                              </Button>
-                              <Button
-                                style={{
-                                  fontSize: "12px",
-                                  padding: "8px 20px",
-                                  fontWeight: "800",
-                                  background: "#f1f7ff",
-                                  color: "#c2410c",
-                                  border: "none",
-                                  borderRadius: "24px",
-                                }}
-                                onClick={() => handleDeleteBuyer(b._id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
+                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Buyer draft saved.")}>Save Draft</Button>
+                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Members</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
                   </div>
                 </div>
+              )}
+
+              {activeUserRoleTab === "Registered Members" && (
+                <Card title="Registered Members Database" subtitle="Comprehensive list of verified suppliers and customers">
+                  <div style={{ marginBottom: "24px" }}>
+                    <div style={{ position: "relative" }}>
+                      <input type="text" placeholder={`Search ${activeRegisteredTab} by name or mobile...`} value={memberSearchQuery} onChange={(e) => setMemberSearchQuery(e.target.value)} style={{ width: "100%", padding: "16px 20px 16px 48px", borderRadius: "16px", border: "1.5px solid #E2E8F0", fontSize: "14px", fontWeight: "600", color: COLORS.sidebar, outline: "none", background: "#F8FAFC", transition: "all 0.2s" }} />
+                      <span style={{ position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", fontSize: "18px" }}>\uD83D\uDD0D</span>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: "12px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>
+                    <div onClick={() => setActiveRegisteredTab("Suppliers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Suppliers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Suppliers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Suppliers ({suppliers.length})</div>
+                    <div onClick={() => setActiveRegisteredTab("Customers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Customers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Customers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Customers ({buyers.length})</div>
+                  </div>
+                  <div style={{ maxHeight: "550px", overflowY: "auto", paddingRight: "8px" }}>
+                    <div style={{ display: "grid", gap: "12px" }}>
+                      {activeRegisteredTab === "Suppliers" ? (
+                        suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).length === 0 ? (
+                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No matching suppliers found.</p>
+                        ) : (
+                          suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).map((s) => (
+                            <div key={s._id} style={{ padding: "16px 24px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
+                              <div><b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{s.name}</b><p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>{s.phone} | {s.village || "Location N/A"}</p></div>
+                              <div style={{ display: "flex", gap: "10px" }}>
+                                <Button variant="outline" style={{ fontSize: "12px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Supplier", data: s })}>View Details</Button>
+                                <Button variant="outline" style={{ fontSize: "12px", border: "1.5px solid #64748b", color: COLORS.secondary, borderRadius: "24px" }} onClick={() => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); }}>Modify Profile</Button>
+                                <Button style={{ fontSize: "12px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteSupplier(s._id)}>Delete</Button>
+                              </div>
+                            </div>
+                          ))
+                        )
+                      ) : (
+                        buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).length === 0 ? (
+                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No matching customers found.</p>
+                        ) : (
+                          buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).map((b) => (
+                            <div key={b._id} style={{ padding: "16px 24px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
+                              <div><b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{b.name}</b><p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>{b.shopName} | {b.phone}</p></div>
+                              <div style={{ display: "flex", gap: "10px" }}>
+                                <Button variant="outline" style={{ fontSize: "12px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => setViewingEntity({ type: "Buyer", data: b })}>View Details</Button>
+                                <Button variant="outline" style={{ fontSize: "12px", border: "1.5px solid #64748b", color: COLORS.secondary, borderRadius: "24px" }} onClick={() => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); }}>Modify Profile</Button>
+                                <Button style={{ fontSize: "12px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteBuyer(b._id)}>Delete</Button>
+                              </div>
+                            </div>
+                          ))
+                        )
+                      )}
+                    </div>
+                  </div>
+                </Card>
               )}
             </div>
           )}
@@ -4851,6 +4310,26 @@ export default function App() {
                     }}
                   >
                     Produce Details
+                  </div>
+                  <div
+                    onClick={() => setActiveLotTab("Registered Lots")}
+                    style={{
+                      padding: "10px 24px",
+                      cursor: "pointer",
+                      fontWeight: "700",
+                      background:
+                        activeLotTab === "Registered Lots"
+                          ? COLORS.sidebar
+                          : "#F3F1EA",
+                      color:
+                        activeLotTab === "Registered Lots"
+                          ? "#FFFFFF"
+                          : COLORS.muted,
+                      borderRadius: "8px",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Registered Lots
                   </div>
                 </div>
               </div>
@@ -4990,6 +4469,18 @@ export default function App() {
                     </Button>
                     <Button
                       style={{
+                        background: "#FCFAEF",
+                        color: "#9EB343",
+                        border: "1.5px solid #E3E5DD",
+                        fontWeight: "900",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                      }}
+                      onClick={() => setActiveLotTab("Registered Lots")}
+                    >
+                      Manage Database
+                    </Button>
+                    <Button
+                      style={{
                         background: "#F1F5F9",
                         color: "#CC0000",
                         border: "none",
@@ -5024,172 +4515,71 @@ export default function App() {
                       Clear
                     </Button>
                   </div>
+                </div>
+              )}
 
-                  {/* Recently Created Lots (Vault Style) */}
-                  <div style={{ marginTop: "48px" }}>
-                    <h4
-                      className="font-display"
-                      style={{
-                        color: COLORS.sidebar,
-                        marginBottom: "16px",
-                        fontWeight: "900",
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Recently Created Lots
-                    </h4>
-                    <div
-                      style={{
-                        maxHeight: "400px",
-                        overflowY: "auto",
-                        padding: "8px",
-                        background: "#FDFBF4",
-                        borderRadius: "16px",
-                        border: "1.5px solid #EBE9E1",
-                      }}
-                    >
-                      <div style={{ display: "grid", gap: "12px" }}>
-                        {lots
-                          .slice()
-                          .reverse()
-                          .slice(0, 5)
-                          .map((l) => {
-                            const grossSale = (l.lineItems || []).reduce(
-                              (sum, item) =>
-                                sum +
-                                Number(item.grossWeight) *
-                                  Number(item.estimatedRate),
-                              0,
-                            );
-                            return (
-                              <div
-                                key={l._id || l.lotId}
-                                style={{
-                                  padding: "16px",
-                                  background: "#fff",
-                                  border: "1px solid #EBE9E1",
-                                  borderRadius: "12px",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                                }}
-                              >
-                                <div style={{ flex: 1 }}>
-                                  <b
-                                    style={{
-                                      color: COLORS.sidebar,
-                                      fontSize: "15px",
-                                    }}
-                                  >
-                                    {l.lotId} —{" "}
-                                    {l.supplierId?.name ||
-                                      l.supplierId ||
-                                      "Farmer"}
-                                  </b>
-                                  <p
-                                    style={{
-                                      margin: "4px 0 0",
-                                      fontSize: "12px",
-                                      color: COLORS.muted,
-                                      fontWeight: "600",
-                                    }}
-                                  >
-                                    🚚 {l.vehicleNumber} | 📍 {l.origin} | 📅{" "}
-                                    {new Date(
-                                      l.entryDate || l.createdAt,
-                                    ).toLocaleDateString()}
-                                  </p>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: "12px",
-                                      marginTop: "4px",
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        fontSize: "11px",
-                                        color: COLORS.accent,
-                                        fontWeight: "900",
-                                      }}
-                                    >
-                                      Gross Sale: {formatCurrency(grossSale)}
-                                    </span>
-                                    <span
-                                      style={{
-                                        fontSize: "11px",
-                                        color: COLORS.sidebar,
-                                        fontWeight: "800",
-                                      }}
-                                    >
-                                      Weight:{" "}
-                                      {(
-                                        (l.lineItems || []).reduce(
-                                          (sw, i) =>
-                                            sw +
-                                            (i.weightUnit === "Tones"
-                                              ? Number(i.grossWeight) * 1000
-                                              : Number(i.grossWeight)),
-                                          0,
-                                        ) / 1000
-                                      ).toFixed(2)}{" "}
-                                      Tones
-                                    </span>
-                                  </div>
-                                </div>
-                                <div style={{ display: "flex", gap: "10px" }}>
-                                  <Button
-                                    variant="outline"
-                                    style={{
-                                      fontSize: "11px",
-                                      padding: "6px 14px",
-                                      fontWeight: "700",
-                                      border: `1.5px solid ${COLORS.primary}`,
-                                      color: COLORS.secondary,
-                                      borderRadius: "24px",
-                                      background: "transparent",
-                                    }}
-                                    onClick={() => handleEditLot(l)}
-                                  >
-                                    Modify
-                                  </Button>
-                                  <Button
-                                    style={{
-                                      fontSize: "11px",
-                                      padding: "6px 14px",
-                                      fontWeight: "800",
-                                      background: "#f1f7ff",
-                                      color: "#c2410c",
-                                      border: "none",
-                                      borderRadius: "24px",
-                                    }}
-                                    onClick={() => handleDeleteLot(l._id)}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        {lots.length === 0 && (
-                          <p
+              {activeLotTab === "Registered Lots" && (
+                <div
+                  style={{
+                    background: "#FFFFFF",
+                    padding: "32px",
+                    borderRadius: "16px",
+                    border: "1.5px solid #EBE9E1",
+                    animation: "fadeIn 0.4s ease-out"
+                  }}
+                >
+                  <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Registered Lots & Inventory</h3>
+                      <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "13px", fontWeight: "600" }}>Manage your intake history and stock levels</p>
+                    </div>
+                  </div>
+
+                  <div style={{ maxHeight: "650px", overflowY: "auto", paddingRight: "8px" }}>
+                    <div style={{ display: "grid", gap: "12px" }}>
+                      {lots.slice().reverse().map((l) => {
+                        const grossSale = (l.lineItems || []).reduce(
+                          (sum, item) => sum + Number(item.grossWeight) * Number(item.estimatedRate),
+                          0,
+                        );
+                        return (
+                          <div
+                            key={l._id || l.lotId}
                             style={{
-                              textAlign: "center",
-                              color: COLORS.muted,
                               padding: "20px",
+                              background: "#fff",
+                              border: "1px solid #EBE9E1",
+                              borderRadius: "16px",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
                             }}
                           >
-                            No lots registered yet.
-                          </p>
-                        )}
-                      </div>
+                            <div style={{ flex: 1 }}>
+                              <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{l.lotId} - {l.supplierId?.name || "Farmer"}</b>
+                              <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                                {l.vehicleNumber} | {l.origin}
+                              </p>
+                              <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+                                <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross: {grossSale}</span>
+                              </div>
+                            </div>
+                            <div style={{ display: "flex", gap: "10px" }}>
+                              <Button variant="outline" style={{ fontSize: "12px", padding: "8px 20px", border: `1.5px solid ${COLORS.primary}`, color: COLORS.secondary, borderRadius: "24px" }} onClick={() => handleEditLot(l)}>Modify</Button>
+                              <Button style={{ fontSize: "12px", padding: "8px 20px", background: "#fef2f2", color: "#b91c1c", border: "none", borderRadius: "24px" }} onClick={() => handleDeleteLot(l._id)}>Delete</Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {lots.length === 0 && (
+                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>No registered lots found.</p>
+                      )}
                     </div>
                   </div>
                 </div>
               )}
+
 
               {activeLotTab === "Produce Details" && (
                 <div style={{ animation: "fadeIn 0.4s ease-out" }}>
@@ -5804,169 +5194,6 @@ export default function App() {
                     </Button>
                   </div>
 
-                  {/* Recently Created Lots (Vault Style) - Bottom of Produce Details */}
-                  <div style={{ marginTop: "48px" }}>
-                    <h4
-                      className="font-display"
-                      style={{
-                        color: COLORS.sidebar,
-                        marginBottom: "16px",
-                        fontWeight: "900",
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        fontSize: "14px",
-                      }}
-                    >
-                      Recently Created Lots
-                    </h4>
-                    <div
-                      style={{
-                        maxHeight: "400px",
-                        overflowY: "auto",
-                        padding: "8px",
-                        background: "#FDFBF4",
-                        borderRadius: "16px",
-                        border: "1.5px solid #EBE9E1",
-                      }}
-                    >
-                      <div style={{ display: "grid", gap: "12px" }}>
-                        {lots
-                          .slice()
-                          .reverse()
-                          .slice(0, 5)
-                          .map((l) => {
-                            const grossSale = (l.lineItems || []).reduce(
-                              (sum, item) =>
-                                sum +
-                                Number(item.grossWeight) *
-                                  Number(item.estimatedRate),
-                              0,
-                            );
-                            return (
-                              <div
-                                key={l._id || l.lotId}
-                                style={{
-                                  padding: "16px",
-                                  background: "#fff",
-                                  border: "1px solid #EBE9E1",
-                                  borderRadius: "12px",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                                }}
-                              >
-                                <div style={{ flex: 1 }}>
-                                  <b
-                                    style={{
-                                      color: COLORS.sidebar,
-                                      fontSize: "15px",
-                                    }}
-                                  >
-                                    {l.lotId} —{" "}
-                                    {l.supplierId?.name ||
-                                      l.supplierId ||
-                                      "Farmer"}
-                                  </b>
-                                  <p
-                                    style={{
-                                      margin: "4px 0 0",
-                                      fontSize: "12px",
-                                      color: COLORS.muted,
-                                      fontWeight: "600",
-                                    }}
-                                  >
-                                    🚚 {l.vehicleNumber} | 📍 {l.origin} | 📅{" "}
-                                    {new Date(
-                                      l.entryDate || l.createdAt,
-                                    ).toLocaleDateString()}
-                                  </p>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: "12px",
-                                      marginTop: "4px",
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        fontSize: "11px",
-                                        color: COLORS.accent,
-                                        fontWeight: "900",
-                                      }}
-                                    >
-                                      Gross Sale: {formatCurrency(grossSale)}
-                                    </span>
-                                    <span
-                                      style={{
-                                        fontSize: "11px",
-                                        color: COLORS.sidebar,
-                                        fontWeight: "800",
-                                      }}
-                                    >
-                                      Weight:{" "}
-                                      {(
-                                        (l.lineItems || []).reduce(
-                                          (sw, i) =>
-                                            sw +
-                                            (i.weightUnit === "Tones"
-                                              ? Number(i.grossWeight) * 1000
-                                              : Number(i.grossWeight)),
-                                          0,
-                                        ) / 1000
-                                      ).toFixed(2)}{" "}
-                                      Tones
-                                    </span>
-                                  </div>
-                                </div>
-                                <div style={{ display: "flex", gap: "10px" }}>
-                                  <Button
-                                    variant="outline"
-                                    style={{
-                                      fontSize: "11px",
-                                      padding: "6px 14px",
-                                      fontWeight: "700",
-                                      border: `1.5px solid ${COLORS.primary}`,
-                                      color: COLORS.secondary,
-                                      borderRadius: "24px",
-                                      background: "transparent",
-                                    }}
-                                    onClick={() => handleEditLot(l)}
-                                  >
-                                    Modify
-                                  </Button>
-                                  <Button
-                                    style={{
-                                      fontSize: "11px",
-                                      padding: "6px 14px",
-                                      fontWeight: "800",
-                                      background: "#f1f7ff",
-                                      color: "#c2410c",
-                                      border: "none",
-                                      borderRadius: "24px",
-                                    }}
-                                    onClick={() => handleDeleteLot(l._id)}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        {lots.length === 0 && (
-                          <p
-                            style={{
-                              textAlign: "center",
-                              color: COLORS.muted,
-                              padding: "20px",
-                            }}
-                          >
-                            No lots registered yet.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
@@ -6152,41 +5379,7 @@ export default function App() {
                           gap: "8px",
                         }}
                       >
-                        <div
-                          style={{
-                            background: "#F1F7FF",
-                            color: "#1D4ED8",
-                            padding: "6px 14px",
-                            borderRadius: "8px",
-                            fontSize: "10px",
-                            fontWeight: "900",
-                            border: "1px solid #DBEAFE",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => handleSyncAllocation(idx)}
-                        >
-                          SYNC TO DB
-                        </div>
-                        <div
-                          style={{
-                            background: "#FFF1F2",
-                            color: "#E11D48",
-                            padding: "6px 14px",
-                            borderRadius: "8px",
-                            fontSize: "10px",
-                            fontWeight: "900",
-                            border: "1px solid #FFE4E6",
-                            cursor: "pointer",
-                          }}
-                          onClick={async () => {
-                            if (item._id) {
-                              await handleDeleteAllocation(item._id);
-                            }
-                            handleAllocationItemAction("Remove", idx);
-                          }}
-                        >
-                          DELETE FROM DB
-                        </div>
+                        {/* DB Sync Control Removed as per request */}
                       </div>
 
                       <div
@@ -17523,6 +16716,128 @@ Powered by Stacli mandi os</div>
             <option key={`v-${v}`} value={v} />
           ))}
         </datalist>
+
+        {/* ENTITY DETAIL MODAL (Supplier/Buyer View) */}
+        {viewingEntity && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(30, 36, 11, 0.4)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 99999,
+              padding: "20px",
+            }}
+            onClick={() => setViewingEntity(null)}
+          >
+            <div
+              style={{
+                background: "#FFFFFF",
+                width: "100%",
+                maxWidth: "500px",
+                borderRadius: "24px",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                overflow: "hidden",
+                animation: "scaleIn 0.3s ease-out",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #1e240b 0%, #3a4714 100%)",
+                  padding: "24px 32px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <h3
+                    style={{
+                      color: "#FFFFFF",
+                      margin: 0,
+                      fontSize: "20px",
+                      fontWeight: "900",
+                    }}
+                  >
+                    {viewingEntity.type} Profile
+                  </h3>
+                  <p style={{ color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontSize: "12px", fontWeight: "600" }}>
+                    Comprehensive database record for {viewingEntity.data.name}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setViewingEntity(null)}
+                  style={{
+                    background: "rgba(255,255,255,0.1)",
+                    border: "none",
+                    color: "#FFFFFF",
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
+                <div style={{ display: "grid", gap: "20px" }}>
+                  {Object.entries(viewingEntity.data)
+                    .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password"].includes(key))
+                    .map(([key, value]) => (
+                      <div key={key} style={{ borderBottom: "1px solid #F1F5F9", paddingBottom: "12px" }}>
+                        <label
+                          style={{
+                            display: "block",
+                            fontSize: "10px",
+                            fontWeight: "900",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            letterSpacing: "1px",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          {key.replace(/([A-Z])/g, " $1").trim()}
+                        </label>
+                        <div style={{ color: COLORS.sidebar, fontWeight: "700", fontSize: "14px" }}>
+                          {typeof value === "object" ? JSON.stringify(value) : String(value || "N/A")}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  padding: "24px 32px",
+                  background: "#F8FAFC",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  borderTop: "1px solid #E2E8F0",
+                }}
+              >
+                <Button
+                  style={{ background: COLORS.sidebar, padding: "10px 30px", fontWeight: "800" }}
+                  onClick={() => setViewingEntity(null)}
+                >
+                  Close Profile
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

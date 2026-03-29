@@ -55,6 +55,7 @@ const request = async (method, path, body = null) => {
       if (path === '/bills/supplier') return { status: "SUCCESS", data: getLocal('supplierBills') };
       if (path === '/invoices/buyer') return { status: "SUCCESS", data: getLocal('buyerInvoices') };
       if (path.includes('/ledger/supplier/')) return { status: "SUCCESS", data: getLocal('supplierBills').filter(b => b.supplierId === path.split('/').pop()) };
+      if (path.includes('/ledger/buyer/')) return { status: "SUCCESS", data: getLocal('buyerInvoices').filter(inv => inv.buyerId === path.split('/').pop()) };
       if (path.includes('/settlement/farmer/') && path.includes('/history')) return { status: "SUCCESS", data: getLocal('supplierBills').filter(b => b.supplierId === path.split('/')[3]) };
       return { status: "SUCCESS", data: [] };
     }
@@ -161,6 +162,8 @@ export const MandiService = {
   recordPayment: async (data) => request('POST', '/payment', data),
   recordExpense: async (data) => request('POST', '/expense', data),
   getSupplierLedger: async (supplierId) => request('GET', `/ledger/supplier/${supplierId}`),
+  getBuyerLedger: async (buyerId) => request('GET', `/ledger/buyer/${buyerId}`),
+
 
   // --- FARMER SETTLEMENT & BILLING ---
   getFarmerSettlementData: async (farmerId) => request('GET', `/settlement/farmer/${farmerId}/pending`),
