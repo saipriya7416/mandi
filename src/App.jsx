@@ -13695,11 +13695,40 @@ Powered by Stacli mandi os</div>
                                   dl.click();
                                   dl.remove();
                                 `;
+                                const downloadJpgScript = `
+                                  const btn = event.currentTarget;
+                                  const originalText = btn.innerText;
+                                  btn.innerText = 'Capturing Data...';
+                                  const buttons = document.querySelectorAll('button');
+                                  buttons.forEach(b => b.style.display = 'none');
+                                  setTimeout(() => {
+                                    if(typeof html2canvas === 'undefined') {
+                                      alert("Image capture module is still loading. Please try again in a few seconds.");
+                                      buttons.forEach(b => b.style.display = 'inline-block');
+                                      btn.innerText = originalText;
+                                      return;
+                                    }
+                                    html2canvas(document.body, { scale: 2 }).then(canvas => {
+                                      let a = document.createElement('a');
+                                      a.download = '${rep.t.replace(/ /g, '_')}_Report.jpg';
+                                      a.href = canvas.toDataURL('image/jpeg', 1.0);
+                                      a.click();
+                                      buttons.forEach(b => b.style.display = 'inline-block');
+                                      btn.innerText = originalText;
+                                    }).catch(err => {
+                                      console.error(err);
+                                      buttons.forEach(b => b.style.display = 'inline-block');
+                                      btn.innerText = originalText;
+                                      alert("Failed to capture image.");
+                                    });
+                                  }, 150);
+                                `;
 
                                 const newWin = window.open('', '_blank');
                                 newWin.document.write(`
                                   <html>
                                     <head><title>${rep.t} - Export</title>
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
                                     <style>
                                       body { font-family: sans-serif; padding: 40px; background: #f8fafc; }
                                       .footer { margin-top: 50px; color: #64748b; font-size: 11px; }
@@ -13713,7 +13742,7 @@ Powered by Stacli mandi os</div>
                                     <body>
                                       <h2 style="font-family: sans-serif; color: #0f172a;">${rep.t} Report (Live DB Connection)</h2>
                                       ${rep.t !== 'Supplier Transaction Log' ? `
-                                        <button class="global-btn" onclick="window.print()">Print PDF</button>
+                                        <button class="global-btn" onclick="${downloadJpgScript.replace(/\n/g, ' ')}" style="background: #3b82f6;">Download as JPG Image</button>
                                         <button class="global-btn" onclick="${downloadDynamicCsvScript.replace(/\n/g, ' ')}" style="background: #10b981;">Download CSV to Device</button>
                                         <button class="global-btn" onclick="document.getElementById('report-table').contentEditable='true'; document.getElementById('report-table').focus();" style="background: #f59e0b;">Modify Changes Here</button>
                                       ` : ''}
