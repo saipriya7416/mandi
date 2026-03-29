@@ -1556,6 +1556,7 @@ export default function App() {
     startDate: "",
     endDate: "",
     lotId: "",
+    invoiceNo: "",
   });
   const [showCorrectionModal, setShowCorrectionModal] = useState(false);
 
@@ -9382,18 +9383,18 @@ export default function App() {
                   <div
                     style={{
                       display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
+                      flexDirection: "column",
+                      gap: "24px",
                       marginBottom: "24px",
                       borderBottom: "2.5px solid #F1F5F9",
-                      paddingBottom: "20px",
+                      paddingBottom: "24px",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        gap: "24px",
                       }}
                     >
                       <div>
@@ -9414,11 +9415,37 @@ export default function App() {
                             margin: "4px 0 0 0",
                           }}
                         >
-                          Financial history of sales activity and outstanding
-                          dues (DR Account).
+                          Invoice-wise receivables tracking (Invoiced - Received = Outstanding Balance).
                         </p>
                       </div>
-                      <div style={{ width: "300px" }}>
+                      <div style={{ display: "flex", gap: "12px" }}>
+                        <Button
+                          style={{
+                            background: "#F1F5F9",
+                            color: COLORS.sidebar,
+                            fontWeight: "800",
+                            fontSize: "12px",
+                            height: "fit-content",
+                          }}
+                        >
+                          Download Statement
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(200px, 1fr))",
+                        gap: "20px",
+                        background: "#FDFBF4",
+                        padding: "20px",
+                        borderRadius: "12px",
+                        border: "1px solid #EBE9E1",
+                      }}
+                    >
+                      <div>
                         <label
                           style={{
                             fontSize: "11px",
@@ -9426,10 +9453,10 @@ export default function App() {
                             color: COLORS.muted,
                             textTransform: "uppercase",
                             display: "block",
-                            marginBottom: "6px",
+                            marginBottom: "8px",
                           }}
                         >
-                          Select Customer to View Ledger
+                          Search Customer Name
                         </label>
                         <select
                           value={selectedLedgerBuyer}
@@ -9438,18 +9465,15 @@ export default function App() {
                           }
                           style={{
                             width: "100%",
-                            padding: "12px 14px",
-                            borderRadius: "10px",
-                            border: "1.5px solid #F1F5F9",
-                            background: "#FFFFFF",
-                            color: COLORS.sidebar,
-                            fontWeight: "700",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
                             outline: "none",
-                            cursor: "pointer",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+                            fontWeight: "700",
+                            background: "#fff",
                           }}
                         >
-                          <option value="">--- Select Customer ---</option>
+                          <option value="">--- All Customers ---</option>
                           {buyers.map((b) => (
                             <option key={b._id} value={b._id}>
                               {b.name} ({b.shopName || "Trader"})
@@ -9457,17 +9481,88 @@ export default function App() {
                           ))}
                         </select>
                       </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Auto-Fetch by Invoice No.
+                        </label>
+                        <select
+                          value={ledgerFilters.invoiceNo}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              invoiceNo: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            fontWeight: "700",
+                            background: "#fff",
+                          }}
+                        >
+                          <option value="">--- Select Invoice ---</option>
+                          {Array.from(
+                            new Set(
+                              buyerInvoices.map(
+                                (inv) => inv.invoiceNumber || inv.invoiceNo,
+                              ),
+                            ),
+                          )
+                            .filter(Boolean)
+                            .map((no) => (
+                              <option key={no} value={no}>
+                                {no}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Filter by Date
+                        </label>
+                        <input
+                          type="date"
+                          value={ledgerFilters.startDate}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              startDate: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "11px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            background: "#fff",
+                          }}
+                        />
+                      </div>
                     </div>
-                    <Button
-                      style={{
-                        background: "#F1F5F9",
-                        color: COLORS.sidebar,
-                        fontWeight: "800",
-                        fontSize: "12px",
-                      }}
-                    >
-                      Download Statement
-                    </Button>
                   </div>
 
                   <div style={{ overflowX: "auto" }}>
@@ -9479,294 +9574,83 @@ export default function App() {
                         fontSize: "13px",
                       }}
                     >
-                      <thead>
-                        <tr
-                          style={{
-                            background: "#F8FAFC",
-                            color: COLORS.sidebar,
-                            fontWeight: "800",
-                            textAlign: "left",
-                          }}
-                        >
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Date
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Invoice No.
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Fruit / Variety
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Quantity (KG)
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Invoice Amount (₹)
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Payment Received (₹)
-                          </th>
-                          <th style={{ padding: "14px", whiteSpace: "nowrap" }}>
-                            Outstanding Balance (₹)
-                          </th>
-                        </tr>
-                      </thead>
+                        <thead>
+                          <tr
+                            style={{
+                              background: "#F8FAFC",
+                              color: COLORS.sidebar,
+                              fontWeight: "800",
+                              textAlign: "left",
+                            }}
+                          >
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Invoice Amount (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Received (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Outstanding Balance (₹)</th>
+                          </tr>
+                        </thead>
                       <tbody>
-                        {buyerInvoices.map((inv, iIdx) => {
-                          const items = inv.items || inv.lineItems || [];
-                          const subTotal = items.reduce((sum, item) => {
-                            const qty = Number(
-                              item.netWeight || item.quantity || item.qty || 0,
-                            );
-                            const rate = Number(
-                              item.rate || item.saleRate || 0,
-                            );
-                            return sum + qty * rate;
-                          }, 0);
-                          const addl = Object.values(
-                            inv.charges || inv.additionalCharges || {},
-                          ).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                          const total =
-                            inv.grandTotal ||
-                            inv.totalAmount ||
-                            subTotal + addl;
-                          const received = Number(
-                            inv.amountReceived ||
-                              inv.paidAmount ||
-                              inv.paymentReceived ||
-                              0,
-                          );
-                          const outstanding = total - received;
-                          const fruitVariety =
-                            items
-                              .map((item) => {
-                                const name =
-                                  item.productLabel ||
-                                  item.product ||
-                                  item.productName ||
-                                  item.productInfo ||
-                                  "";
-                                const variety = item.variety
-                                  ? ` ${item.variety}`
-                                  : "";
-                                return `${name}${variety}`.trim();
-                              })
-                              .filter(Boolean)
-                              .join(", ") || "—";
-                          const totalQty = items.reduce(
-                            (sum, item) =>
-                              sum +
-                              Number(
-                                item.netWeight ||
-                                  item.quantity ||
-                                  item.qty ||
-                                  0,
-                              ),
-                            0,
-                          );
-                          return (
-                            <tr
-                              key={inv._id || iIdx}
-                              style={{ background: "#FFFFFF" }}
-                            >
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  borderTop: "1px solid #F1F5F9",
-                                  borderBottom: "1px solid #F1F5F9",
-                                  borderLeft: "1px solid #F1F5F9",
-                                  borderRadius: "10px 0 0 10px",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {inv.date ||
-                                  (inv.createdAt
-                                    ? formatDate(inv.createdAt)
-                                    : "—")}
-                              </td>
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  borderTop: "1px solid #F1F5F9",
-                                  borderBottom: "1px solid #F1F5F9",
-                                  fontWeight: "700",
-                                  color: COLORS.secondary,
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {inv.invoiceNumber ||
-                                  inv.invoiceNo ||
-                                  `INV-${iIdx + 1}`}
-                              </td>
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  borderTop: "1px solid #F1F5F9",
-                                  borderBottom: "1px solid #F1F5F9",
-                                  color: COLORS.muted,
-                                  maxWidth: "180px",
-                                }}
-                              >
-                                {fruitVariety}
-                              </td>
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  borderTop: "1px solid #F1F5F9",
-                                  borderBottom: "1px solid #F1F5F9",
-                                  fontWeight: "700",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {totalQty.toLocaleString("en-IN")} KG
-                              </td>
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  borderTop: "1px solid #F1F5F9",
-                                  borderBottom: "1px solid #F1F5F9",
-                                  fontWeight: "700",
-                                  color: "#E11D48",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {formatCurrency(total)}
-                              </td>
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  borderTop: "1px solid #F1F5F9",
-                                  borderBottom: "1px solid #F1F5F9",
-                                  color: "#15803D",
-                                  fontWeight: "700",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {formatCurrency(received)}
-                              </td>
-                              <td
-                                style={{
-                                  padding: "14px",
-                                  borderTop: "1px solid #F1F5F9",
-                                  borderBottom: "1px solid #F1F5F9",
-                                  borderRight: "1px solid #F1F5F9",
-                                  borderRadius: "0 10px 10px 0",
-                                  fontWeight: "900",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    padding: "4px 10px",
-                                    borderRadius: "20px",
-                                    background:
-                                      outstanding > 0 ? "#FFF7ED" : "#F0FDF4",
-                                    color:
-                                      outstanding > 0 ? "#C2410C" : "#15803D",
-                                    fontSize: "12px",
-                                    fontWeight: "800",
-                                  }}
-                                >
-                                  {formatCurrency(outstanding)}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                        {(() => {
+                          let runningOutstanding = 0;
+                          return (buyerInvoices || [])
+                            .filter((inv) => {
+                              const invNo = inv.invoiceNumber || inv.invoiceNo;
+                              if (ledgerFilters.invoiceNo && invNo !== ledgerFilters.invoiceNo) return false;
+                              if (ledgerFilters.startDate && (!inv.date || inv.date < ledgerFilters.startDate)) return false;
+                              return true;
+                            })
+                            .map((inv, iIdx) => {
+                              const dateVal = (inv.date && formatDate(inv.date)) || (inv.createdAt ? formatDate(inv.createdAt) : getCurrentDateFormatted());
+                              const invoiceNoVal = inv.invoiceNumber || inv.invoiceNo || `INV-${iIdx + 1}`;
+                              
+                              const items = inv.items || inv.lineItems || [];
+                              const fruitVariety = items.map(p => `${p.productLabel || p.product || ""} ${p.variety || ""}`).join(", ") || "N/A";
+                              const totalQty = items.reduce((s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0), 0);
+
+                              const subTotal = items.reduce((sum, item) => sum + (Number(item.netWeight || item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
+                              const adCharges = Object.values(inv.charges || inv.additionalCharges || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+                              const invAmount = Number(inv.grandTotal || inv.totalAmount || (subTotal + adCharges));
+                              const recvAmt = Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || 0);
+
+                              // Formula: Previous Outstanding Balance + Invoice Amount - Payment Received
+                              runningOutstanding = runningOutstanding + invAmount - recvAmt;
+
+                              return (
+                                <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", whiteSpace: "nowrap" }}>{dateVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>{invoiceNoVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, fontSize: "11px", maxWidth: "200px" }}>{fruitVariety}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{totalQty.toLocaleString()} KG</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "600", color: "#E11D48" }}>{formatCurrency(invAmount)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#15803D" }}>{formatCurrency(recvAmt)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right" }}>
+                                    <span style={{ padding: "4px 10px", borderRadius: "10px", background: runningOutstanding > 0 ? "#FFF1F2" : "#F0FDF4", color: runningOutstanding > 0 ? "#E11D48" : "#15803D", fontWeight: "800", fontSize: "12px" }}>
+                                      {formatCurrency(Math.abs(runningOutstanding))} {runningOutstanding >= 0 ? "OUTSTANDING" : "ADVANCE"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            });
+                        })()}
                         {buyerInvoices.length > 0 &&
                           (() => {
-                            const tTotal = buyerInvoices.reduce((s, inv) => {
-                              const items = inv.items || inv.lineItems || [];
-                              const sub = items.reduce(
-                                (sum, i) =>
-                                  sum +
-                                  Number(
-                                    i.netWeight || i.quantity || i.qty || 0,
-                                  ) *
-                                    Number(i.rate || i.saleRate || 0),
-                                0,
-                              );
-                              const addl = Object.values(
-                                inv.charges || inv.additionalCharges || {},
-                              ).reduce(
-                                (sum, val) => sum + (Number(val) || 0),
-                                0,
-                              );
-                              return (
-                                s +
-                                (inv.grandTotal ||
-                                  inv.totalAmount ||
-                                  sub + addl)
-                              );
-                            }, 0);
-                            const tReceived = buyerInvoices.reduce(
-                              (s, inv) =>
-                                s +
-                                Number(
-                                  inv.amountReceived ||
-                                    inv.paidAmount ||
-                                    inv.paymentReceived ||
-                                    0,
-                                ),
-                              0,
-                            );
-                            const tQty = buyerInvoices.reduce(
-                              (s, inv) =>
-                                s +
-                                (inv.items || inv.lineItems || []).reduce(
-                                  (sum, i) =>
-                                    sum +
-                                    Number(
-                                      i.netWeight || i.quantity || i.qty || 0,
-                                    ),
-                                  0,
-                                ),
-                              0,
-                            );
-                            const tOutstanding = tTotal - tReceived;
+                            const tInv = buyerInvoices.reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+                            const tRecv = buyerInvoices.reduce((s, inv) => s + Number(inv.amountReceived || inv.paidAmount || 0), 0);
+                            const tDue = tInv - tRecv;
                             return (
-                              <tr
-                                style={{
-                                  background: "#FFF7ED",
-                                  fontWeight: "900",
-                                  borderTop: "2px solid #FED7AA",
-                                }}
-                              >
-                                <td
-                                  colSpan="3"
-                                  style={{
-                                    padding: "14px",
-                                    textAlign: "right",
-                                    borderRadius: "10px 0 0 10px",
-                                    color: COLORS.sidebar,
-                                    fontSize: "12px",
-                                  }}
-                                >
-                                  LEDGER TOTALS:
+                              <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
+                                <td colSpan="3" style={{ padding: "20px", textAlign: "right", borderRadius: "12px 0 0 12px", color: COLORS.sidebar }}>CUMULATIVE RECEIVABLES:</td>
+                                <td colSpan="3" style={{ padding: "20px", textAlign: "right", fontSize: "14px" }}>
+                                  <span style={{ color: "#E11D48", marginRight: "16px" }}>Billed: {formatCurrency(tInv)}</span>
+                                  <span style={{ color: "#15803D" }}>Paid: {formatCurrency(tRecv)}</span>
                                 </td>
-                                <td style={{ padding: "14px" }}>
-                                  {tQty.toLocaleString("en-IN")} KG
-                                </td>
-                                <td
-                                  style={{ padding: "14px", color: "#DC2626" }}
-                                >
-                                  {formatCurrency(tTotal)}
-                                </td>
-                                <td
-                                  style={{ padding: "14px", color: "#15803D" }}
-                                >
-                                  {formatCurrency(tReceived)}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "14px",
-                                    borderRadius: "0 10px 10px 0",
-                                    color:
-                                      tOutstanding > 0 ? "#C2410C" : "#15803D",
-                                  }}
-                                >
-                                  {formatCurrency(tOutstanding)}{" "}
-                                  {tOutstanding > 0 ? "OUTSTANDING" : "SETTLED"}
+                                <td style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
+                                  <span style={{ padding: "8px 16px", borderRadius: "12px", background: tDue > 0 ? "#FFF1F2" : "#F0FDF4", color: tDue > 0 ? "#E11D48" : "#15803D", fontSize: "16px" }}>
+                                    {formatCurrency(Math.abs(tDue))} {tDue >= 0 ? "TOTAL DUE" : "SETTLED"}
+                                  </span>
                                 </td>
                               </tr>
                             );
