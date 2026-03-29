@@ -3010,14 +3010,14 @@ Powered by Stacli mandi os`;
       label: "Customer Billing",
     },
     {
-      id: "Ledger",
-      roles: ["Owner / Admin", "Accountant"],
-      label: "Ledger System",
-    },
-    {
       id: "Payments",
       roles: ["Owner / Admin", "Accountant"],
       label: "Payments & Settlement",
+    },
+    {
+      id: "Ledger",
+      roles: ["Owner / Admin", "Accountant"],
+      label: "Ledger System",
     },
     {
       id: "Transportation Tracking",
@@ -9321,720 +9321,6 @@ Powered by Stacli mandi os`;
             </div>
           )}
 
-          {activeSection === "Ledger" && (
-            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              {/* STACLI PREMIUM PAGE HEADINGS - DUAL TABBED NAVIGATION */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: "60px",
-                  paddingBottom: "24px",
-                  marginBottom: "48px",
-                  borderBottom: `2px solid #EBE9E1`,
-                  alignItems: "flex-end",
-                }}
-              >
-                <h1
-                  id="supplier-ledger-heading"
-                  onClick={() => setActiveLedgerTab("Supplier")}
-                  style={{
-                    fontSize: "42px",
-                    fontWeight: "900",
-                    margin: 0,
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    letterSpacing: "-1.5px",
-                    fontFamily: "'Playfair Display', serif",
-                    color: activeLedgerTab === "Supplier" ? COLORS.sidebar : "#CBD5E0",
-                    borderBottom: activeLedgerTab === "Supplier" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
-                    paddingBottom: "20px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Supplier Ledger
-                </h1>
-                <h1
-                  id="customer-ledger-heading"
-                  onClick={() => setActiveLedgerTab("Customer")}
-                  style={{
-                    fontSize: "42px",
-                    fontWeight: "900",
-                    margin: 0,
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    letterSpacing: "-1.5px",
-                    fontFamily: "'Playfair Display', serif",
-                    color: activeLedgerTab === "Customer" ? COLORS.sidebar : "#CBD5E0",
-                    borderBottom: activeLedgerTab === "Customer" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
-                    paddingBottom: "20px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Customer Ledger
-                </h1>
-              </div>
-
-
-
-              {activeLedgerTab === "Supplier" && (
-                <div
-                  style={{
-                    background: "#FFFFFF",
-                    padding: "32px",
-                    borderRadius: "16px",
-                    border: "1px solid #EBE9E1",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
-                  }}
-                >
-                  <div style={{ marginBottom: "24px" }}>
-                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements — Farmer Outstanding Tracking</p>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "24px",
-                      marginBottom: "24px",
-                      borderBottom: "2.5px solid #F1F5F9",
-                      paddingBottom: "24px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div style={{ display: "flex", flex: 1 }}></div>
-                      <div style={{ display: "flex", gap: "12px" }}>
-                        <Button
-                          onClick={() => handleDownloadLedgerCSV(activeLedgerTab === "Supplier" ? "Supplier" : "Customer")}
-                          style={{
-                            background: "linear-gradient(135deg, #1e240b 0%, #3a4714 100%)",
-                            color: "#fff",
-                            fontWeight: "800",
-                            fontSize: "12px",
-                            height: "fit-content",
-                            border: "none",
-                            padding: "10px 20px",
-                            boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
-                          }}
-                        >
-                          Download Statement
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "repeat(auto-fit, minmax(180px, 1fr))",
-                        gap: "20px",
-                        background: "#FDFBF4",
-                        padding: "20px",
-                        borderRadius: "12px",
-                        border: "1px solid #EBE9E1",
-                      }}
-                    >
-                      <div>
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                            display: "block",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          Search Farmer Name
-                        </label>
-                        <select
-                          value={selectedLedgerSupplier}
-                          onChange={(e) =>
-                            handleLedgerSupplierChange(e.target.value)
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            border: "1px solid #E2E8F0",
-                            outline: "none",
-                            fontWeight: "700",
-                            background: "#fff",
-                          }}
-                        >
-                          <option value="">--- All Suppliers ---</option>
-                          {suppliers.map((s) => (
-                            <option key={s._id} value={s._id}>
-                              {s.name} ({s.village || "Local"})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                            display: "block",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          Auto-Fetch by Lot ID
-                        </label>
-                        <select
-                          value={ledgerFilters.lotId}
-                          onChange={(e) =>
-                            setLedgerFilters({
-                              ...ledgerFilters,
-                              lotId: e.target.value,
-                            })
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            border: "1px solid #E2E8F0",
-                            outline: "none",
-                            fontWeight: "700",
-                            background: "#fff",
-                          }}
-                        >
-                          <option value="">--- Select Lot ID ---</option>
-                          {Array.from(
-                            new Set(
-                              (supplierBills || []).map((b) => b && (b.lotId || b.lotCode)),
-                            ),
-                          )
-                            .filter(Boolean)
-                            .map((lot) => (
-                              <option key={lot} value={lot}>
-                                {lot}
-                              </option>
-                            ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                            display: "block",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          Filter by Date
-                        </label>
-                        <input
-                          type="date"
-                          value={ledgerFilters.startDate}
-                          onChange={(e) =>
-                            setLedgerFilters({
-                              ...ledgerFilters,
-                              startDate: e.target.value,
-                            })
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "11px",
-                            borderRadius: "8px",
-                            border: "1px solid #E2E8F0",
-                            outline: "none",
-                            background: "#fff",
-                          }}
-                        />
-                      </div>
-
-                      <div style={{ display: "flex", alignItems: "flex-end" }}>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedLedgerSupplier("");
-                            setLedgerFilters({ ...ledgerFilters, lotId: "", startDate: "" });
-                            fetchData();
-                          }}
-                          style={{ width: "100%" }}
-                        >
-                          Reset Filters
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "separate",
-                        borderSpacing: "0 8px",
-                        fontSize: "13px",
-                      }}
-                    >
-                        <thead>
-                          <tr
-                            style={{
-                              background: "#F8FAFC",
-                              color: COLORS.sidebar,
-                              fontWeight: "800",
-                              textAlign: "left",
-                            }}
-                          >
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Number</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Product Summary</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Gross Sale (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Expenses (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Net Sale (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Advance (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Made (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Running Balance (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
-                          </tr>
-                        </thead>
-                      <tbody style={{ borderTop: "2px solid #F1F5F9" }}>
-                        {(() => {
-                          let runningTotalBalance = 0;
-                          const filteredBills = (supplierBills || [])
-                            .filter((b) => {
-                              // Essential Multi-Level Supplier Filtering
-                              if (selectedLedgerSupplier) {
-                                const bSupId = b.supplierId?._id || b.supplierId || b.farmerId?._id || b.farmerId;
-                                if (bSupId !== selectedLedgerSupplier) return false;
-                              }
-                              if (ledgerFilters.lotId && b.lotId !== ledgerFilters.lotId && b.lotCode !== ledgerFilters.lotId && b.lot_id !== ledgerFilters.lotId) return false;
-                              if (ledgerFilters.startDate && (!b.date || b.date < ledgerFilters.startDate)) return false;
-                              return true;
-                            });
-
-                          return filteredBills.map((bill, bIdx) => {
-                              const dateVal =
-                                (bill.date && formatDate(bill.date)) ||
-                                (bill.createdAt
-                                  ? formatDate(bill.createdAt)
-                                  : getCurrentDateFormatted());
-                              const lotIdVal = bill.lotId || bill.lotCode || bill.lot_id || "N/A";
-                              const billNoVal = bill.billNumber || bill.billNo || bill.bill_no || "DRAFT";
-
-                              const itemsList = bill.produce || bill.items || bill.lineItems || [];
-                              const productSummary = itemsList.length > 0
-                                ? itemsList.map(p => `${p.productName || p.product || ""} ${Number(p.quantity||p.qty||0).toLocaleString()} KG`).join(" + ")
-                                : "N/A";
-
-                              let grossValue = Number(bill.grossValue || bill.totalValue || bill.gross_value || 0);
-                              if (grossValue === 0) {
-                                grossValue = (itemsList || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
-                              }
-
-                              let expenseValue = Number(bill.totalExpenses || bill.totalDeductions || bill.total_expenses || 0);
-                              if (expenseValue === 0 && (bill.charges || bill.expenses)) {
-                                expenseValue = (bill.expenses || []).reduce((sum, e) => sum + Number(e.value || e.amount || 0), 0);
-                                expenseValue += Object.values(bill.charges || {}).reduce((s,v) => s + (Number(v)||0), 0);
-                              }
-
-                              const netValue = Number(
-                                bill.netPayable ||
-                                  bill.net_payable ||
-                                  (grossValue - expenseValue),
-                              );
-                              const advanceAmt = Number(
-                                bill.advance || bill.advanceAmount || 0,
-                              );
-                              const cashPaid = Number(
-                                bill.amountPaid ||
-                                  bill.paymentMade ||
-                                  bill.paidAmount ||
-                                  0,
-                              );
-
-                              // Formula: Previous Running Balance + Net Sale - Advance - Payment Made
-                              runningTotalBalance =
-                                runningTotalBalance + netValue - advanceAmt - cashPaid;
-
-                              return (
-                                <tr key={bill._id || bIdx} style={{ background: "#FFFFFF" }}>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", whiteSpace: "nowrap" }}>{dateVal}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>{lotIdVal}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "600" }}>{billNoVal}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, fontSize: "11px", maxWidth: "200px" }}>{productSummary}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "600" }}>{formatCurrency(grossValue)}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#E11D48" }}>{formatCurrency(expenseValue)}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "700" }}>{formatCurrency(netValue)}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#C2410C" }}>{formatCurrency(advanceAmt)}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#15803D" }}>{formatCurrency(cashPaid)}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right" }}>
-                                    <span style={{ padding: "4px 10px", borderRadius: "10px", background: runningTotalBalance >= 0 ? "#F0FDF4" : "#FFF1F2", color: runningTotalBalance >= 0 ? "#15803D" : "#E11D48", fontWeight: "800", fontSize: "12px" }}>
-                                      {formatCurrency(Math.abs(runningTotalBalance))} {runningTotalBalance >= 0 ? "CR" : "DR"}
-                                    </span>
-                                  </td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "center" }}>
-                                    <Button variant="outline" style={{ padding: "6px 12px", fontSize: "10px" }} onClick={() => setViewingEntity({ type: "Bill", data: bill })}>View Details</Button>
-                                  </td>
-                                </tr>
-                              );
-                            });
-                        })()}
-
-                        {(supplierBills || []).length > 0 &&
-                          (() => {
-                            const tNet = (supplierBills || []).reduce((s, b) => s + Number(b.netPayable || 0), 0);
-                            const tPaid = (supplierBills || []).reduce((s, b) => s + Number(b.advance || 0) + Number(b.amountPaid || b.paymentMade || 0), 0);
-                            const tBalance = tNet - tPaid;
-                            return (
-                              <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
-                                <td colSpan="4" style={{ padding: "20px", textAlign: "right", borderRadius: "12px 0 0 12px", color: COLORS.sidebar, fontSize: "14px" }}>CUMULATIVE LEDGER TOTALS:</td>
-                                <td colSpan="5" style={{ padding: "20px", textAlign: "right", fontSize: "16px" }}>
-                                  <span style={{ color: COLORS.muted, marginRight: "16px" }}>Net Sale: {formatCurrency(tNet)}</span>
-                                  <span style={{ color: "#15803D", marginRight: "16px" }}>Payments: {formatCurrency(tPaid)}</span>
-                                </td>
-                                <td style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
-                                  <span style={{ padding: "8px 16px", borderRadius: "12px", background: tBalance >= 0 ? "#F0FDF4" : "#FFF1F2", color: tBalance >= 0 ? "#15803D" : "#E11D48", fontSize: "18px" }}>
-                                    {formatCurrency(Math.abs(tBalance))} {tBalance >= 0 ? "TOTAL DUE" : "RECONCILED"}
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          })()}
-
-                        {(supplierBills || []).length === 0 && (
-                          <tr>
-                            <td
-                              colSpan="10"
-                              style={{
-                                textAlign: "center",
-                                padding: "80px 40px",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              No transactions found. Select a supplier from the
-                              dropdown to fetch data.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {activeLedgerTab === "Customer" && (
-                <div
-                  style={{
-                    background: "#FFFFFF",
-                    padding: "32px",
-                    borderRadius: "16px",
-                    border: "1px solid #EBE9E1",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
-                  }}
-                >
-                  <div style={{ marginBottom: "24px" }}>
-                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements — Invoice-wise Aging & Receivables</p>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "24px",
-                      marginBottom: "24px",
-                      borderBottom: "2.5px solid #F1F5F9",
-                      paddingBottom: "24px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div style={{ display: "flex", flex: 1 }}></div>
-                      <div style={{ display: "flex", gap: "12px" }}>
-                        <Button
-                          onClick={() => handleDownloadLedgerCSV(activeLedgerTab === "Supplier" ? "Supplier" : "Customer")}
-                          style={{
-                            background: "linear-gradient(135deg, #1e240b 0%, #3a4714 100%)",
-                            color: "#fff",
-                            fontWeight: "800",
-                            fontSize: "12px",
-                            height: "fit-content",
-                            border: "none",
-                            padding: "10px 20px",
-                            boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
-                          }}
-                        >
-                          Download Statement
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "repeat(auto-fit, minmax(180px, 1fr))",
-                        gap: "20px",
-                        background: "#FDFBF4",
-                        padding: "20px",
-                        borderRadius: "12px",
-                        border: "1px solid #EBE9E1",
-                      }}
-                    >
-                      <div>
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                            display: "block",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          Search Customer Name
-                        </label>
-                        <select
-                          value={selectedLedgerBuyer}
-                          onChange={(e) =>
-                            handleLedgerBuyerChange(e.target.value)
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            border: "1px solid #E2E8F0",
-                            outline: "none",
-                            fontWeight: "700",
-                            background: "#fff",
-                          }}
-                        >
-                          <option value="">--- All Customers ---</option>
-                          {buyers.map((b) => (
-                            <option key={b._id} value={b._id}>
-                              {b.name} ({b.shopName || "Trader"})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                            display: "block",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          Auto-Fetch by Invoice No.
-                        </label>
-                        <select
-                          value={ledgerFilters.invoiceNo}
-                          onChange={(e) =>
-                            setLedgerFilters({
-                              ...ledgerFilters,
-                              invoiceNo: e.target.value,
-                            })
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            borderRadius: "8px",
-                            border: "1px solid #E2E8F0",
-                            outline: "none",
-                            fontWeight: "700",
-                            background: "#fff",
-                          }}
-                        >
-                          <option value="">--- Select Invoice ---</option>
-                          {Array.from(
-                            new Set(
-                              (buyerInvoices || []).map((inv) => inv && (inv.invoiceNumber || inv.invoiceNo)),
-                            ),
-                          )
-                            .filter(Boolean)
-                            .map((no) => (
-                              <option key={no} value={no}>
-                                {no}
-                              </option>
-                            ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                            display: "block",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          Filter by Date
-                        </label>
-                        <input
-                          type="date"
-                          value={ledgerFilters.startDate}
-                          onChange={(e) =>
-                            setLedgerFilters({
-                              ...ledgerFilters,
-                              startDate: e.target.value,
-                            })
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "11px",
-                            borderRadius: "8px",
-                            border: "1px solid #E2E8F0",
-                            outline: "none",
-                            background: "#fff",
-                          }}
-                        />
-                      </div>
-
-                      <div style={{ display: "flex", alignItems: "flex-end" }}>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedLedgerBuyer("");
-                            setLedgerFilters({ ...ledgerFilters, invoiceNo: "", startDate: "" });
-                            fetchData();
-                          }}
-                          style={{ width: "100%" }}
-                        >
-                          Reset Filters
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "separate",
-                        borderSpacing: "0 8px",
-                        fontSize: "13px",
-                      }}
-                    >
-                        <thead>
-                          <tr
-                            style={{
-                              background: "#F8FAFC",
-                              color: COLORS.sidebar,
-                              fontWeight: "800",
-                              textAlign: "left",
-                            }}
-                          >
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Invoice Amount (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Received (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Outstanding Balance (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
-                          </tr>
-                        </thead>
-                      <tbody>
-                        {(() => {
-                          let runningOutstanding = 0;
-                          const filteredInvoices = (buyerInvoices || [])
-                            .filter((inv) => {
-                              // Essential Multi-Level Customer Filtering
-                              if (selectedLedgerBuyer) {
-                                const invBuyId = inv.buyer?._id || inv.buyer || inv.buyerId;
-                                if (invBuyId !== selectedLedgerBuyer) return false;
-                              }
-                              const invNo = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no;
-                              if (ledgerFilters.invoiceNo && invNo !== ledgerFilters.invoiceNo) return false;
-                              if (ledgerFilters.startDate && (!inv.date || inv.date < ledgerFilters.startDate)) return false;
-                              return true;
-                            });
-
-                          return filteredInvoices.map((inv, iIdx) => {
-                              const dateVal = (inv.date && formatDate(inv.date)) || (inv.createdAt ? formatDate(inv.createdAt) : getCurrentDateFormatted());
-                              const invoiceNoVal = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no || `INV-${iIdx + 1}`;
-                              
-                              const items = inv.items || inv.lineItems || inv.produce || [];
-                              const fruitVariety = items.map(p => `${p.productLabel || p.product || ""} ${p.variety || ""}`).join(", ") || "N/A";
-                              const totalQty = (items || []).reduce((s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0), 0);
-
-                              const subTotal = (items || []).reduce((sum, item) => sum + (Number(item.netWeight || item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
-                              const adCharges = Object.values(inv.charges || inv.additionalCharges || {}).reduce((s, v) => s + (Number(v) || 0), 0);
-                              const invAmount = Number(inv.grandTotal || inv.totalAmount || inv.total_amount || (subTotal + adCharges));
-                              const recvAmt = Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || inv.paid_amount || 0);
-
-                              // Formula: Previous Outstanding Balance + Invoice Amount - Payment Received
-                              runningOutstanding = runningOutstanding + invAmount - recvAmt;
-
-                              return (
-                                <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", whiteSpace: "nowrap" }}>{dateVal}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>{invoiceNoVal}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, fontSize: "11px", maxWidth: "200px" }}>{fruitVariety}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{totalQty.toLocaleString()} KG</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "600", color: "#E11D48" }}>{formatCurrency(invAmount)}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#15803D" }}>{formatCurrency(recvAmt)}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right" }}>
-                                    <span style={{ padding: "4px 10px", borderRadius: "10px", background: runningOutstanding > 0 ? "#FFF1F2" : "#F0FDF4", color: runningOutstanding > 0 ? "#E11D48" : "#15803D", fontWeight: "800", fontSize: "12px" }}>
-                                      {formatCurrency(Math.abs(runningOutstanding))} {runningOutstanding >= 0 ? "OUTSTANDING" : "ADVANCE"}
-                                    </span>
-                                  </td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "center" }}>
-                                    <Button
-                                      variant="outline"
-                                      style={{ padding: "6px 12px", fontSize: "10px" }}
-                                      onClick={() => window.open(`/invoice/${inv.invoiceNumber || inv._id}`, "_blank")}
-                                    >
-                                      View / Share
-                                    </Button>
-                                  </td>
-                                </tr>
-                              );
-                            });
-                        })()}
-                        {(buyerInvoices || []).length > 0 &&
-                          (() => {
-                            const tInv = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
-                            const tRecv = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.amountReceived || inv.paidAmount || 0), 0);
-                            const tDue = tInv - tRecv;
-                            return (
-                              <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
-                                <td colSpan="3" style={{ padding: "20px", textAlign: "right", borderRadius: "12px 0 0 12px", color: COLORS.sidebar }}>CUMULATIVE RECEIVABLES:</td>
-                                <td colSpan="3" style={{ padding: "20px", textAlign: "right", fontSize: "14px" }}>
-                                  <span style={{ color: "#E11D48", marginRight: "16px" }}>Billed: {formatCurrency(tInv)}</span>
-                                  <span style={{ color: "#15803D" }}>Paid: {formatCurrency(tRecv)}</span>
-                                </td>
-                                <td colSpan="2" style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
-                                  <span style={{ padding: "8px 16px", borderRadius: "12px", background: tDue > 0 ? "#FFF1F2" : "#F0FDF4", color: tDue > 0 ? "#E11D48" : "#15803D", fontSize: "16px" }}>
-                                    {formatCurrency(Math.abs(tDue))} {tDue >= 0 ? "TOTAL DUE" : "SETTLED"}
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          })()}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {activeSection === "Payments" && (
             <div
@@ -11411,6 +10697,721 @@ Powered by Stacli mandi os`;
                     </Card>
                   </div>
                 </>
+              )}
+            </div>
+          )}
+
+          {activeSection === "Ledger" && (
+            <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+              {/* STACLI PREMIUM PAGE HEADINGS - DUAL TABBED NAVIGATION */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "60px",
+                  paddingBottom: "24px",
+                  marginBottom: "48px",
+                  borderBottom: `2px solid #EBE9E1`,
+                  alignItems: "flex-end",
+                }}
+              >
+                <h1
+                  id="supplier-ledger-heading"
+                  onClick={() => setActiveLedgerTab("Supplier")}
+                  style={{
+                    fontSize: "42px",
+                    fontWeight: "900",
+                    margin: 0,
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    letterSpacing: "-1.5px",
+                    fontFamily: "'Playfair Display', serif",
+                    color: activeLedgerTab === "Supplier" ? COLORS.sidebar : "#CBD5E0",
+                    borderBottom: activeLedgerTab === "Supplier" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
+                    paddingBottom: "20px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Supplier Ledger
+                </h1>
+                <h1
+                  id="customer-ledger-heading"
+                  onClick={() => setActiveLedgerTab("Customer")}
+                  style={{
+                    fontSize: "42px",
+                    fontWeight: "900",
+                    margin: 0,
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    letterSpacing: "-1.5px",
+                    fontFamily: "'Playfair Display', serif",
+                    color: activeLedgerTab === "Customer" ? COLORS.sidebar : "#CBD5E0",
+                    borderBottom: activeLedgerTab === "Customer" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
+                    paddingBottom: "20px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Customer Ledger
+                </h1>
+              </div>
+
+
+
+              {activeLedgerTab === "Supplier" && (
+                <div
+                  style={{
+                    background: "#FFFFFF",
+                    padding: "32px",
+                    borderRadius: "16px",
+                    border: "1px solid #EBE9E1",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+                  }}
+                >
+                  <div style={{ marginBottom: "24px" }}>
+                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements — Farmer Outstanding Tracking</p>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "24px",
+                      marginBottom: "24px",
+                      borderBottom: "2.5px solid #F1F5F9",
+                      paddingBottom: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div style={{ display: "flex", flex: 1 }}></div>
+                      <div style={{ display: "flex", gap: "12px" }}>
+                        <Button
+                          onClick={() => handleDownloadLedgerCSV(activeLedgerTab === "Supplier" ? "Supplier" : "Customer")}
+                          style={{
+                            background: "linear-gradient(135deg, #1e240b 0%, #3a4714 100%)",
+                            color: "#fff",
+                            fontWeight: "800",
+                            fontSize: "12px",
+                            height: "fit-content",
+                            border: "none",
+                            padding: "10px 20px",
+                            boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
+                          }}
+                        >
+                          Download Statement
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(180px, 1fr))",
+                        gap: "20px",
+                        background: "#FDFBF4",
+                        padding: "20px",
+                        borderRadius: "12px",
+                        border: "1px solid #EBE9E1",
+                      }}
+                    >
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Search Farmer Name
+                        </label>
+                        <select
+                          value={selectedLedgerSupplier}
+                          onChange={(e) =>
+                            handleLedgerSupplierChange(e.target.value)
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            fontWeight: "700",
+                            background: "#fff",
+                          }}
+                        >
+                          <option value="">--- All Suppliers ---</option>
+                          {suppliers.map((s) => (
+                            <option key={s._id} value={s._id}>
+                              {s.name} ({s.village || "Local"})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Auto-Fetch by Lot ID
+                        </label>
+                        <select
+                          value={ledgerFilters.lotId}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              lotId: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            fontWeight: "700",
+                            background: "#fff",
+                          }}
+                        >
+                          <option value="">--- Select Lot ID ---</option>
+                          {Array.from(
+                            new Set(
+                              (supplierBills || []).map((b) => b && (b.lotId || b.lotCode)),
+                            ),
+                          )
+                            .filter(Boolean)
+                            .map((lot) => (
+                              <option key={lot} value={lot}>
+                                {lot}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Filter by Date
+                        </label>
+                        <input
+                          type="date"
+                          value={ledgerFilters.startDate}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              startDate: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "11px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            background: "#fff",
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "flex-end" }}>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedLedgerSupplier("");
+                            setLedgerFilters({ ...ledgerFilters, lotId: "", startDate: "" });
+                            fetchData();
+                          }}
+                          style={{ width: "100%" }}
+                        >
+                          Reset Filters
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "separate",
+                        borderSpacing: "0 8px",
+                        fontSize: "13px",
+                      }}
+                    >
+                        <thead>
+                          <tr
+                            style={{
+                              background: "#F8FAFC",
+                              color: COLORS.sidebar,
+                              fontWeight: "800",
+                              textAlign: "left",
+                            }}
+                          >
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Number</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Product Summary</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Gross Sale (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Expenses (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Net Sale (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Advance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Made (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Running Balance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
+                          </tr>
+                        </thead>
+                      <tbody style={{ borderTop: "2px solid #F1F5F9" }}>
+                        {(() => {
+                          let runningTotalBalance = 0;
+                          const filteredBills = (supplierBills || [])
+                            .filter((b) => {
+                              // Essential Multi-Level Supplier Filtering
+                              if (selectedLedgerSupplier) {
+                                const bSupId = b.supplierId?._id || b.supplierId || b.farmerId?._id || b.farmerId;
+                                if (bSupId !== selectedLedgerSupplier) return false;
+                              }
+                              if (ledgerFilters.lotId && b.lotId !== ledgerFilters.lotId && b.lotCode !== ledgerFilters.lotId && b.lot_id !== ledgerFilters.lotId) return false;
+                              if (ledgerFilters.startDate && (!b.date || b.date < ledgerFilters.startDate)) return false;
+                              return true;
+                            });
+
+                          return filteredBills.map((bill, bIdx) => {
+                              const dateVal =
+                                (bill.date && formatDate(bill.date)) ||
+                                (bill.createdAt
+                                  ? formatDate(bill.createdAt)
+                                  : getCurrentDateFormatted());
+                              const lotIdVal = bill.lotId || bill.lotCode || bill.lot_id || "N/A";
+                              const billNoVal = bill.billNumber || bill.billNo || bill.bill_no || "DRAFT";
+
+                              const itemsList = bill.produce || bill.items || bill.lineItems || [];
+                              const productSummary = itemsList.length > 0
+                                ? itemsList.map(p => `${p.productName || p.product || ""} ${Number(p.quantity||p.qty||0).toLocaleString()} KG`).join(" + ")
+                                : "N/A";
+
+                              let grossValue = Number(bill.grossValue || bill.totalValue || bill.gross_value || 0);
+                              if (grossValue === 0) {
+                                grossValue = (itemsList || []).reduce((sum, item) => sum + (Number(item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
+                              }
+
+                              let expenseValue = Number(bill.totalExpenses || bill.totalDeductions || bill.total_expenses || 0);
+                              if (expenseValue === 0 && (bill.charges || bill.expenses)) {
+                                expenseValue = (bill.expenses || []).reduce((sum, e) => sum + Number(e.value || e.amount || 0), 0);
+                                expenseValue += Object.values(bill.charges || {}).reduce((s,v) => s + (Number(v)||0), 0);
+                              }
+
+                              const netValue = Number(
+                                bill.netPayable ||
+                                  bill.net_payable ||
+                                  (grossValue - expenseValue),
+                              );
+                              const advanceAmt = Number(
+                                bill.advance || bill.advanceAmount || 0,
+                              );
+                              const cashPaid = Number(
+                                bill.amountPaid ||
+                                  bill.paymentMade ||
+                                  bill.paidAmount ||
+                                  0,
+                              );
+
+                              // Formula: Previous Running Balance + Net Sale - Advance - Payment Made
+                              runningTotalBalance =
+                                runningTotalBalance + netValue - advanceAmt - cashPaid;
+
+                              return (
+                                <tr key={bill._id || bIdx} style={{ background: "#FFFFFF" }}>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", whiteSpace: "nowrap" }}>{dateVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>{lotIdVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "600" }}>{billNoVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, fontSize: "11px", maxWidth: "200px" }}>{productSummary}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "600" }}>{formatCurrency(grossValue)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#E11D48" }}>{formatCurrency(expenseValue)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "700" }}>{formatCurrency(netValue)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#C2410C" }}>{formatCurrency(advanceAmt)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#15803D" }}>{formatCurrency(cashPaid)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right" }}>
+                                    <span style={{ padding: "4px 10px", borderRadius: "10px", background: runningTotalBalance >= 0 ? "#F0FDF4" : "#FFF1F2", color: runningTotalBalance >= 0 ? "#15803D" : "#E11D48", fontWeight: "800", fontSize: "12px" }}>
+                                      {formatCurrency(Math.abs(runningTotalBalance))} {runningTotalBalance >= 0 ? "CR" : "DR"}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "center" }}>
+                                    <Button variant="outline" style={{ padding: "6px 12px", fontSize: "10px" }} onClick={() => setViewingEntity({ type: "Bill", data: bill })}>View Details</Button>
+                                  </td>
+                                </tr>
+                              );
+                            });
+                        })()}
+
+                        {(supplierBills || []).length > 0 &&
+                          (() => {
+                            const tNet = (supplierBills || []).reduce((s, b) => s + Number(b.netPayable || 0), 0);
+                            const tPaid = (supplierBills || []).reduce((s, b) => s + Number(b.advance || 0) + Number(b.amountPaid || b.paymentMade || 0), 0);
+                            const tBalance = tNet - tPaid;
+                            return (
+                              <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
+                                <td colSpan="4" style={{ padding: "20px", textAlign: "right", borderRadius: "12px 0 0 12px", color: COLORS.sidebar, fontSize: "14px" }}>CUMULATIVE LEDGER TOTALS:</td>
+                                <td colSpan="5" style={{ padding: "20px", textAlign: "right", fontSize: "16px" }}>
+                                  <span style={{ color: COLORS.muted, marginRight: "16px" }}>Net Sale: {formatCurrency(tNet)}</span>
+                                  <span style={{ color: "#15803D", marginRight: "16px" }}>Payments: {formatCurrency(tPaid)}</span>
+                                </td>
+                                <td style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
+                                  <span style={{ padding: "8px 16px", borderRadius: "12px", background: tBalance >= 0 ? "#F0FDF4" : "#FFF1F2", color: tBalance >= 0 ? "#15803D" : "#E11D48", fontSize: "18px" }}>
+                                    {formatCurrency(Math.abs(tBalance))} {tBalance >= 0 ? "TOTAL DUE" : "RECONCILED"}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })()}
+
+                        {(supplierBills || []).length === 0 && (
+                          <tr>
+                            <td
+                              colSpan="10"
+                              style={{
+                                textAlign: "center",
+                                padding: "80px 40px",
+                                color: COLORS.muted,
+                              }}
+                            >
+                              No transactions found. Select a supplier from the
+                              dropdown to fetch data.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {activeLedgerTab === "Customer" && (
+                <div
+                  style={{
+                    background: "#FFFFFF",
+                    padding: "32px",
+                    borderRadius: "16px",
+                    border: "1px solid #EBE9E1",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+                  }}
+                >
+                  <div style={{ marginBottom: "24px" }}>
+                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements — Invoice-wise Aging & Receivables</p>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "24px",
+                      marginBottom: "24px",
+                      borderBottom: "2.5px solid #F1F5F9",
+                      paddingBottom: "24px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div style={{ display: "flex", flex: 1 }}></div>
+                      <div style={{ display: "flex", gap: "12px" }}>
+                        <Button
+                          onClick={() => handleDownloadLedgerCSV(activeLedgerTab === "Supplier" ? "Supplier" : "Customer")}
+                          style={{
+                            background: "linear-gradient(135deg, #1e240b 0%, #3a4714 100%)",
+                            color: "#fff",
+                            fontWeight: "800",
+                            fontSize: "12px",
+                            height: "fit-content",
+                            border: "none",
+                            padding: "10px 20px",
+                            boxShadow: "0 4px 12px rgba(30,36,11,0.2)",
+                          }}
+                        >
+                          Download Statement
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(180px, 1fr))",
+                        gap: "20px",
+                        background: "#FDFBF4",
+                        padding: "20px",
+                        borderRadius: "12px",
+                        border: "1px solid #EBE9E1",
+                      }}
+                    >
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Search Customer Name
+                        </label>
+                        <select
+                          value={selectedLedgerBuyer}
+                          onChange={(e) =>
+                            handleLedgerBuyerChange(e.target.value)
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            fontWeight: "700",
+                            background: "#fff",
+                          }}
+                        >
+                          <option value="">--- All Customers ---</option>
+                          {buyers.map((b) => (
+                            <option key={b._id} value={b._id}>
+                              {b.name} ({b.shopName || "Trader"})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Auto-Fetch by Invoice No.
+                        </label>
+                        <select
+                          value={ledgerFilters.invoiceNo}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              invoiceNo: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            fontWeight: "700",
+                            background: "#fff",
+                          }}
+                        >
+                          <option value="">--- Select Invoice ---</option>
+                          {Array.from(
+                            new Set(
+                              (buyerInvoices || []).map((inv) => inv && (inv.invoiceNumber || inv.invoiceNo)),
+                            ),
+                          )
+                            .filter(Boolean)
+                            .map((no) => (
+                              <option key={no} value={no}>
+                                {no}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            color: COLORS.muted,
+                            textTransform: "uppercase",
+                            display: "block",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Filter by Date
+                        </label>
+                        <input
+                          type="date"
+                          value={ledgerFilters.startDate}
+                          onChange={(e) =>
+                            setLedgerFilters({
+                              ...ledgerFilters,
+                              startDate: e.target.value,
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "11px",
+                            borderRadius: "8px",
+                            border: "1px solid #E2E8F0",
+                            outline: "none",
+                            background: "#fff",
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "flex-end" }}>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedLedgerBuyer("");
+                            setLedgerFilters({ ...ledgerFilters, invoiceNo: "", startDate: "" });
+                            fetchData();
+                          }}
+                          style={{ width: "100%" }}
+                        >
+                          Reset Filters
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "separate",
+                        borderSpacing: "0 8px",
+                        fontSize: "13px",
+                      }}
+                    >
+                        <thead>
+                          <tr
+                            style={{
+                              background: "#F8FAFC",
+                              color: COLORS.sidebar,
+                              fontWeight: "800",
+                              textAlign: "left",
+                            }}
+                          >
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Date</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Invoice Amount (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Received (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Outstanding Balance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
+                          </tr>
+                        </thead>
+                      <tbody>
+                        {(() => {
+                          let runningOutstanding = 0;
+                          const filteredInvoices = (buyerInvoices || [])
+                            .filter((inv) => {
+                              // Essential Multi-Level Customer Filtering
+                              if (selectedLedgerBuyer) {
+                                const invBuyId = inv.buyer?._id || inv.buyer || inv.buyerId;
+                                if (invBuyId !== selectedLedgerBuyer) return false;
+                              }
+                              const invNo = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no;
+                              if (ledgerFilters.invoiceNo && invNo !== ledgerFilters.invoiceNo) return false;
+                              if (ledgerFilters.startDate && (!inv.date || inv.date < ledgerFilters.startDate)) return false;
+                              return true;
+                            });
+
+                          return filteredInvoices.map((inv, iIdx) => {
+                              const dateVal = (inv.date && formatDate(inv.date)) || (inv.createdAt ? formatDate(inv.createdAt) : getCurrentDateFormatted());
+                              const invoiceNoVal = inv.invoiceNumber || inv.invoiceNo || inv.invoice_no || `INV-${iIdx + 1}`;
+                              
+                              const items = inv.items || inv.lineItems || inv.produce || [];
+                              const fruitVariety = items.map(p => `${p.productLabel || p.product || ""} ${p.variety || ""}`).join(", ") || "N/A";
+                              const totalQty = (items || []).reduce((s, i) => s + Number(i.netWeight || i.quantity || i.qty || 0), 0);
+
+                              const subTotal = (items || []).reduce((sum, item) => sum + (Number(item.netWeight || item.quantity || item.qty || 0) * Number(item.rate || item.saleRate || 0)), 0);
+                              const adCharges = Object.values(inv.charges || inv.additionalCharges || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+                              const invAmount = Number(inv.grandTotal || inv.totalAmount || inv.total_amount || (subTotal + adCharges));
+                              const recvAmt = Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || inv.paid_amount || 0);
+
+                              // Formula: Previous Outstanding Balance + Invoice Amount - Payment Received
+                              runningOutstanding = runningOutstanding + invAmount - recvAmt;
+
+                              return (
+                                <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", whiteSpace: "nowrap" }}>{dateVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>{invoiceNoVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, fontSize: "11px", maxWidth: "200px" }}>{fruitVariety}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{totalQty.toLocaleString()} KG</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "600", color: "#E11D48" }}>{formatCurrency(invAmount)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", color: "#15803D" }}>{formatCurrency(recvAmt)}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right" }}>
+                                    <span style={{ padding: "4px 10px", borderRadius: "10px", background: runningOutstanding > 0 ? "#FFF1F2" : "#F0FDF4", color: runningOutstanding > 0 ? "#E11D48" : "#15803D", fontWeight: "800", fontSize: "12px" }}>
+                                      {formatCurrency(Math.abs(runningOutstanding))} {runningOutstanding >= 0 ? "OUTSTANDING" : "ADVANCE"}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "center" }}>
+                                    <Button
+                                      variant="outline"
+                                      style={{ padding: "6px 12px", fontSize: "10px" }}
+                                      onClick={() => window.open(`/invoice/${inv.invoiceNumber || inv._id}`, "_blank")}
+                                    >
+                                      View / Share
+                                    </Button>
+                                  </td>
+                                </tr>
+                              );
+                            });
+                        })()}
+                        {(buyerInvoices || []).length > 0 &&
+                          (() => {
+                            const tInv = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+                            const tRecv = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.amountReceived || inv.paidAmount || 0), 0);
+                            const tDue = tInv - tRecv;
+                            return (
+                              <tr style={{ background: "#FDFBF4", fontWeight: "900", borderTop: "2px solid #EBE9E1" }}>
+                                <td colSpan="3" style={{ padding: "20px", textAlign: "right", borderRadius: "12px 0 0 12px", color: COLORS.sidebar }}>CUMULATIVE RECEIVABLES:</td>
+                                <td colSpan="3" style={{ padding: "20px", textAlign: "right", fontSize: "14px" }}>
+                                  <span style={{ color: "#E11D48", marginRight: "16px" }}>Billed: {formatCurrency(tInv)}</span>
+                                  <span style={{ color: "#15803D" }}>Paid: {formatCurrency(tRecv)}</span>
+                                </td>
+                                <td colSpan="2" style={{ padding: "20px", borderRadius: "0 12px 12px 0", textAlign: "right" }}>
+                                  <span style={{ padding: "8px 16px", borderRadius: "12px", background: tDue > 0 ? "#FFF1F2" : "#F0FDF4", color: tDue > 0 ? "#E11D48" : "#15803D", fontSize: "16px" }}>
+                                    {formatCurrency(Math.abs(tDue))} {tDue >= 0 ? "TOTAL DUE" : "SETTLED"}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })()}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               )}
             </div>
           )}
