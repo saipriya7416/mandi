@@ -749,26 +749,38 @@ export default function App() {
     const amountReceived = Number(b.amountReceived) || 0;
     const balanceDue = grandTotal - amountReceived;
 
+    const itemsTxt = items.map((it, idx) => {
+        const wt = Math.max(0, (Number(it.grossWeight) || 0) - (Number(it.deductions) || 0));
+        return `  ${idx+1}. ${it.productInfo || "Product"} - ${wt.toFixed(2)}kg @ ₹${it.rate}/kg`;
+    }).join('\n');
+
+    const chargesList = [];
+    if (Number(ch.transport)) chargesList.push(`  Transport: ₹${ch.transport}`);
+    if (Number(ch.commission)) chargesList.push(`  Commission: ₹${ch.commission}`);
+    if (Number(ch.handling)) chargesList.push(`  Handling: ₹${ch.handling}`);
+    if (Number(ch.otherAmount)) chargesList.push(`  Other: ₹${ch.otherAmount}`);
+    const chargesTxt = chargesList.length > 0 ? `\n➕ Additional Charges:\n${chargesList.join('\n')}` : "";
+
     const msg = `Hello Customer 👋
 
 Your invoice from *SPV Fruits* is ready.
 
 📊 Product: ${productName}
-📦 Quantity: ${totalQty.toFixed(2)} kg
-💰 Amount: ${formatCurrency(grandTotal)}
+📦 Total Quantity: ${totalQty.toFixed(2)} kg
+💰 Total Amount: ${formatCurrency(grandTotal)}
 
-📄 View Invoice:
-https://mandi-zeta.vercel.app/#/invoice/${b._id}
-
-For any queries, please contact us.
-
-— SPV Fruits
-Powered by Stacli mandi os
+🛒 Billing Items:
+${itemsTxt}${chargesTxt}
 
 --- FINANCIALS ---
 Total amount: ${formatCurrency(grandTotal)}
 Payment Received: ${formatCurrency(amountReceived)}
-Balance Amount: ${formatCurrency(balanceDue)}`;
+Balance Amount: ${formatCurrency(balanceDue)}
+
+For any queries, please contact us.
+
+— SPV Fruits
+Powered by Stacli mandi os`;
 
     const phoneStr = String(phone);
     const url = `https://wa.me/${phoneStr.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`;
@@ -790,26 +802,40 @@ Balance Amount: ${formatCurrency(balanceDue)}`;
     const advance = Number(ex.advance || 0);
     const balancePayable = netSale - advance;
 
+    const itemsTxt = (b.items || []).map((it, idx) => {
+        return `  ${idx+1}. ${it.productName || "Product"} - ${it.quantity}kg @ ₹${it.rate}/kg`;
+    }).join('\n');
+
+    const expensesList = [];
+    if (Number(ex.transport)) expensesList.push(`  Transport: ₹${ex.transport}`);
+    if (Number(ex.commission)) expensesList.push(`  Commission: ₹${ex.commission}`);
+    if (Number(ex.labour)) expensesList.push(`  Labour: ₹${ex.labour}`);
+    if (Number(ex.weighing)) expensesList.push(`  Weighing: ₹${ex.weighing}`);
+    if (Number(ex.packing)) expensesList.push(`  Packing: ₹${ex.packing}`);
+    if (Number(ex.miscAmount)) expensesList.push(`  Misc: ₹${ex.miscAmount}`);
+    const expensesTxt = expensesList.length > 0 ? `\n📉 Deductions:\n${expensesList.join('\n')}` : "";
+
     const msg1 = `Hello Supplier 👋
 
-Your invoice from *SPV Fruits* is ready.
+Your bill from *SPV Fruits* is ready.
 
 🍎 Product: ${productName}
-📦 Quantity: ${totalQty} kg
-💰 Amount: ${formatCurrency(balancePayable)}
+📦 Total Quantity: ${totalQty} kg
+💰 Final Payable: ${formatCurrency(balancePayable)}
 
-📄 View Invoice:
-https://mandi-zeta.vercel.app/#/invoice/${b._id}
+🛒 Itemized Billing:
+${itemsTxt}${expensesTxt}
+
+--- FINANCIALS ---
+Gross Total: ${formatCurrency(totalGross)}
+Total Deductions: ${formatCurrency(totalExpenses)}
+Advance Paid: ${formatCurrency(advance)}
+Balance Payable: ${formatCurrency(balancePayable)}
 
 For any queries, please contact us.
 
 — SPV Fruits
-Powered by Stacli mandi os
-
---- FINANCIALS ---
-Total amount: ${formatCurrency(totalGross)}
-advance payable: ${formatCurrency(advance)}
-balance amount: ${formatCurrency(balancePayable)}`;
+Powered by Stacli mandi os`;
 
     const phoneStr = String(phone);
     const url = `https://wa.me/${phoneStr.replace(/\D/g, "")}?text=${encodeURIComponent(msg1)}`;
@@ -7513,7 +7539,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             <div style={{ flex: 1 }}>
                               <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{b.billNumber} — {b.supplierId?.name || b.supplierId || "Supplier"}</b>
                               <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                                🚚 {b.vehicleNumber || "N/A"} | 📅 {b.date}
+                                {b.vehicleNumber || "N/A"} | {b.date}
                               </p>
                             </div>
                             <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
@@ -9272,7 +9298,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             <div style={{ flex: 1 }}>
                               <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>{i.invoiceNumber} — {i.buyerId?.name || i.buyerId || "Customer"}</b>
                               <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                                📅 {i.date} | 🚛 {i.lotReference || "Direct"}
+                                {i.date} | {i.lotReference || "Direct"}
                               </p>
                             </div>
                             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
@@ -10406,49 +10432,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                           }}
                         />
                       </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                        }}
-                      >
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          Balance Amount (₹)
-                        </label>
-                        <input
-                          type="number"
-                          readOnly
-                          value={
-                            farmerPaymentForm.farmerId
-                              ? Math.max(0, (() => {
-                                  const selId = farmerPaymentForm.farmerId;
-                                  const bills = (supplierBills || []).filter((b) => b.supplierId === selId || b.farmerId === selId);
-                                  const tNet = bills.reduce((sum, b) => sum + Number(b.netPayable || 0), 0);
-                                  const tPaid = bills.reduce((sum, b) => sum + Number(b.advance || 0) + Number(b.amountPaid || b.paymentMade || 0), 0);
-                                  return (tNet - tPaid) - Number(farmerPaymentForm.amount || 0);
-                                })())
-                              : 0
-                          }
-                          style={{
-                            padding: "12px 14px",
-                            borderRadius: "8px",
-                            border: "1px solid #F1F5F9",
-                            color: COLORS.danger,
-                            background: "#FFF1F2",
-                            outline: "none",
-                            fontSize: "13px",
-                            fontWeight: "700",
-                          }}
-                        />
-                      </div>
+
                       <div
                         style={{
                           display: "flex",
@@ -11000,49 +10984,7 @@ balance amount: ${formatCurrency(balancePayable)}`;
                             }}
                           />
                         </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "8px",
-                          }}
-                        >
-                          <label
-                            style={{
-                              fontSize: "11px",
-                              fontWeight: "800",
-                              color: COLORS.muted,
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            Balance Amount (₹)
-                          </label>
-                          <input
-                            type="number"
-                            readOnly
-                            value={
-                              buyerPaymentForm.buyerId
-                                ? Math.max(0, (() => {
-                                    const selId = buyerPaymentForm.buyerId;
-                                    const invoices = (buyerInvoices || []).filter((inv) => inv.buyerId === selId);
-                                    const tBilled = invoices.reduce((sum, inv) => sum + Number(inv.grandTotal || inv.totalAmount || 0), 0);
-                                    const tReceived = invoices.reduce((sum, inv) => sum + Number(inv.amountReceived || inv.paidAmount || inv.paymentReceived || 0), 0);
-                                    return (tBilled - tReceived) - Number(buyerPaymentForm.amountReceived || 0);
-                                  })())
-                                : 0
-                            }
-                            style={{
-                              padding: "12px 14px",
-                              borderRadius: "8px",
-                              border: "1px solid #F1F5F9",
-                              color: COLORS.danger,
-                              background: "#FFF1F2",
-                              outline: "none",
-                              fontSize: "13px",
-                              fontWeight: "700",
-                            }}
-                          />
-                        </div>
+
                         <div
                           style={{
                             display: "flex",
