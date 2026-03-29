@@ -17,54 +17,13 @@ import {
   LineElement,
 } from "chart.js";
 
-// --- ROBUST DUMMY FALLBACK DATA (Global Scope) ---
-const DUMMY_SUPPLIERS = [
-  { _id: "S1", name: "Ramesh Kumar (Mock)", village: "Anantapur", phone: "+91 9876543210", advanceBalance: 5000, lots: ["L1"] },
-  { _id: "S2", name: "Kiran Farm", village: "Guntur", phone: "+91 8765432109", advanceBalance: 12000, lots: ["L2"] },
-  { _id: "S3", name: "Vikas Reddy", village: "Kurnool", phone: "+91 7654321098", advanceBalance: 0, lots: ["L3"] },
-  { _id: "S4", name: "Anita Produce", village: "Nellore", phone: "+91 6543210987", advanceBalance: 800, lots: ["L4"] },
-  { _id: "S5", name: "Sunil Agro", village: "Chittoor", phone: "+91 5432109876", advanceBalance: 3200, lots: ["L5"] }
-];
-
-const DUMMY_BUYERS = [
-  { _id: "B1", name: "Metro Supermarket", address: "Hyderabad", phone: "+91 9988776655", creditLimit: 500000, currentDues: 150000 },
-  { _id: "B2", name: "Reliance Fresh", address: "Secunderabad", phone: "+91 8877665544", creditLimit: 200000, currentDues: 45000 },
-  { _id: "B3", name: "Local Mandi Vendor", address: "Guntur", phone: "+91 7766554433", creditLimit: 50000, currentDues: 12000 },
-  { _id: "B4", name: "More Retail", address: "Vijayawada", phone: "+91 6655443322", creditLimit: 800000, currentDues: 600000 },
-  { _id: "B5", name: "Kavya Fruits", address: "Nellore", phone: "+91 5544332211", creditLimit: 100000, currentDues: 9000 }
-];
-
-const DUMMY_LOTS = [
-  { _id: "L1", lotId: "LOT-2026-001", farmerId: "S1", farmerName: "Ramesh Kumar", vehicleNo: "AP-39-DF-1234", status: "delayed", items: [{ product: "Mango", quantity: 500, rate: 40 }], dateTime: new Date().toISOString() },
-  { _id: "L2", lotId: "LOT-2026-002", farmerId: "S2", farmerName: "Kiran Farm", vehicleNo: "TS-09-EQ-4422", status: "active", items: [{ product: "Banana", quantity: 1500, rate: 15 }], dateTime: new Date().toISOString() },
-  { _id: "L3", lotId: "LOT-2026-003", farmerId: "S3", farmerName: "Vikas Reddy", vehicleNo: "MH-12-XX-8899", status: "delayed", items: [{ product: "Tomato", quantity: 800, rate: 12 }], dateTime: new Date().toISOString() },
-  { _id: "L4", lotId: "LOT-2026-004", farmerId: "S4", farmerName: "Anita Produce", vehicleNo: "KA-01-AB-1111", status: "active", items: [{ product: "Apple", quantity: 300, rate: 120 }], dateTime: new Date().toISOString() },
-  { _id: "L5", lotId: "LOT-2026-005", farmerId: "S5", farmerName: "Sunil Agro", vehicleNo: "TN-10-CD-2222", status: "active", items: [{ product: "Grapes", quantity: 1200, rate: 60 }], dateTime: new Date().toISOString() }
-];
-
-const DUMMY_ALLOCATIONS = [
-  { _id: "A1", date: new Date().toISOString(), buyerId: "B1", buyerName: "Metro Supermarket", product: "Mango", weight: 1500, status: "Shipped", transportVehicle: "AP-39-GF-8888" },
-  { _id: "A2", date: new Date().toISOString(), buyerId: "B2", buyerName: "Reliance Fresh", product: "Banana", weight: 2200, status: "Pending", transportVehicle: "AP-10-XY-1234" },
-  { _id: "A3", date: new Date().toISOString(), buyerId: "B3", buyerName: "Local Mandi Vendor", product: "Tomato", weight: 800, status: "Shipped", transportVehicle: "TS-09-MM-0000" },
-  { _id: "A4", date: new Date().toISOString(), buyerId: "B4", buyerName: "More Retail", product: "Apple", weight: 3100, status: "Shipped", transportVehicle: "KA-41-NN-9876" },
-  { _id: "A5", date: new Date().toISOString(), buyerId: "B5", buyerName: "Kavya Fruits", product: "Grapes", weight: 850, status: "Pending", transportVehicle: "TN-01-ZX-7654" }
-];
-
-const DUMMY_SUPPLIER_BILLS = [
-  { _id: "SB1", billNo: "B-2026-001", supplierId: "S1", supplierName: "Ramesh Kumar (Mock)", items: [{ product: "Mango", quantity: 500, rate: 40 }], transportFee: 5000, expenses: { freight: 5000 }, netPayable: 15000, grandTotal: 15000, status: "pending", date: new Date().toISOString(), billDate: new Date().toISOString() },
-  { _id: "SB2", billNo: "B-2026-002", supplierId: "S2", supplierName: "Kiran Farm", items: [{ product: "Banana", quantity: 1500, rate: 15 }], transportFee: 8000, expenses: { freight: 8000 }, netPayable: 22000, grandTotal: 22000, status: "settled", date: new Date().toISOString(), billDate: new Date().toISOString() },
-  { _id: "SB3", billNo: "B-2026-003", supplierId: "S3", supplierName: "Vikas Reddy", items: [{ product: "Tomato", quantity: 800, rate: 12 }], transportFee: 15000, expenses: { freight: 15000 }, netPayable: 10000, grandTotal: 10000, status: "pending", date: new Date().toISOString(), billDate: new Date().toISOString() },
-  { _id: "SB4", billNo: "B-2026-004", supplierId: "S4", supplierName: "Anita Produce", items: [{ product: "Apple", quantity: 300, rate: 120 }], transportFee: 15800, expenses: { freight: 15800 }, netPayable: 45000, grandTotal: 45000, status: "settled", date: new Date().toISOString(), billDate: new Date().toISOString() },
-  { _id: "SB5", billNo: "B-2026-005", supplierId: "S5", supplierName: "Sunil Agro", items: [{ product: "Grapes", quantity: 1200, rate: 60 }], transportFee: 2000, expenses: { freight: 2000 }, netPayable: 8000, grandTotal: 8000, status: "pending", date: new Date().toISOString(), billDate: new Date().toISOString() }
-];
-
-const DUMMY_BUYER_INVOICES = [
-  { _id: "BI1", invoiceNumber: "INV-2026-001", buyerId: "B1", buyerName: "Metro Supermarket", date: new Date().toISOString(), grandTotal: 85000, amountReceived: 45000, status: "Partially Paid", items: [{ product: "Mango", quantity: 500, rate: 45 }] },
-  { _id: "BI2", invoiceNumber: "INV-2026-002", buyerId: "B2", buyerName: "Reliance Fresh", date: new Date().toISOString(), grandTotal: 34000, amountReceived: 34000, status: "Paid", items: [{ product: "Banana", quantity: 1500, rate: 20 }] },
-  { _id: "BI3", invoiceNumber: "INV-2026-003", buyerId: "B3", buyerName: "Local Mandi Vendor", date: new Date().toISOString(), grandTotal: 12000, amountReceived: 0, status: "Unpaid", items: [{ product: "Tomato", quantity: 800, rate: 15 }] },
-  { _id: "BI4", invoiceNumber: "INV-2026-004", buyerId: "B4", buyerName: "More Retail", date: new Date().toISOString(), grandTotal: 190000, amountReceived: 90000, status: "Partially Paid", items: [{ product: "Apple", quantity: 1000, rate: 150 }] },
-  { _id: "BI5", invoiceNumber: "INV-2026-005", buyerId: "B5", buyerName: "Kavya Fruits", date: new Date().toISOString(), grandTotal: 15500, amountReceived: 10000, status: "Partially Paid", items: [{ product: "Grapes", quantity: 200, rate: 70 }] }
-];
+// --- PRODUCTION DATA FEED (Clean slate) ---
+const DUMMY_SUPPLIERS = [];
+const DUMMY_BUYERS = [];
+const DUMMY_LOTS = [];
+const DUMMY_ALLOCATIONS = [];
+const DUMMY_SUPPLIER_BILLS = [];
+const DUMMY_BUYER_INVOICES = [];
 
 ChartJS.register(
   CategoryScale,
@@ -868,6 +827,14 @@ Powered by Stacli mandi os`;
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // --- LOT SEQUENCE COUNTER (Session-scoped: resets on page refresh) ---
+  const [lotCounter, setLotCounter] = useState(1);
+  const generateLotId = (counter) => {
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const seq = String(counter).padStart(3, "0");
+    return `LOT-${dateStr}-${seq}`;
+  };
+
   // --- FORM STATES ---
   // --- FORM STATES & HANDLERS ---
   const [supplierForm, setSupplierForm] = useState({
@@ -900,7 +867,7 @@ Powered by Stacli mandi os`;
     notes: "",
   });
   const [lotCreationForm, setLotCreationForm] = useState({
-    lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-001`,
+    lotId: generateLotId(1),
     dateTime: new Date().toISOString().slice(0, 16),
     farmerId: "",
     vehicleNumber: "",
@@ -1309,9 +1276,11 @@ Powered by Stacli mandi os`;
         `✅ LOT CREATED: ${lotCreationForm.lotId} permanently stored in Database!`,
       );
 
+      const nextCounter = lotCounter + 1;
+      setLotCounter(nextCounter);
       setLotCreationForm({
         ...lotCreationForm,
-        lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+        lotId: generateLotId(nextCounter),
         vehicleNumber: "",
         driverName: "",
         origin: "",
@@ -2025,9 +1994,9 @@ Powered by Stacli mandi os`;
   };
 
   const [dailyCashSummary, setDailyCashSummary] = useState({
-    cash: 45000,
-    upi: 125000,
-    bank: 320000,
+    cash: 0,
+    upi: 0,
+    bank: 0,
   });
 
   const [correctionForm, setCorrectionForm] = useState({
@@ -2070,28 +2039,7 @@ Powered by Stacli mandi os`;
   const [activeConfigTab, setActiveConfigTab] = useState("Product"); // "Product" | "Expense" | "System"
   const [masterProducts, setMasterProducts] = useState(() => {
     const saved = localStorage.getItem("master_products");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            name: "Mango",
-            varieties: [
-              "Alphonso",
-              "Banganapalli",
-              "Rumani",
-              "Nillam",
-              "Kesar",
-            ],
-            grades: ["A-Grade", "B-Grade", "Export"],
-            units: ["KG", "Ton", "Crate"],
-          },
-          {
-            name: "Banana",
-            varieties: ["Yelakki", "G9", "Nendran"],
-            grades: ["Local", "Export"],
-            units: ["KG", "Ton"],
-          },
-        ];
+    return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
@@ -2183,31 +2131,7 @@ Powered by Stacli mandi os`;
 
   const [masterExpenses, setMasterExpenses] = useState(() => {
     const saved = localStorage.getItem("master_expenses");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            id: "1",
-            name: "Commission",
-            type: "Percentage",
-            default: 4,
-            active: true,
-          },
-          {
-            id: "2",
-            name: "Labour/Handling",
-            type: "Fixed",
-            default: 0,
-            active: true,
-          },
-          {
-            id: "3",
-            name: "Market Fee",
-            type: "Percentage",
-            default: 1,
-            active: true,
-          },
-        ];
+    return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
@@ -2227,36 +2151,7 @@ Powered by Stacli mandi os`;
 
   // --- USER ROLES & SECURITY STATES ---
   const [activeSecurityTab, setActiveSecurityTab] = useState("Staff Hub"); // "Staff Hub" | "Permissions" | "Security"
-  const [staffUsers, setStaffUsers] = useState([
-    {
-      id: "U001",
-      name: "Srinivasa Rao",
-      role: "Admin",
-      status: "Active",
-      lastLogin: "10 mins ago",
-    },
-    {
-      id: "U002",
-      name: "Anil Kumar",
-      role: "Accountant",
-      status: "Active",
-      lastLogin: "3 hours ago",
-    },
-    {
-      id: "U003",
-      name: "Ramesh Babu",
-      role: "Operations Staff",
-      status: "Active",
-      lastLogin: "Yesterday",
-    },
-    {
-      id: "U004",
-      name: "Venkatesh",
-      role: "Viewer",
-      status: "Deactivated",
-      lastLogin: "5 days ago",
-    },
-  ]);
+  const [staffUsers, setStaffUsers] = useState([]);
 
   const [newStaffForm, setNewStaffForm] = useState({
     name: "",
@@ -2289,26 +2184,7 @@ Powered by Stacli mandi os`;
     alert("✅ Staff Identity Created Successfully! User added to Directory.");
   };
 
-  const [securityAuditLogs, setSecurityAuditLogs] = useState([
-    {
-      timestamp: "2026-03-25 14:10",
-      user: "Admin",
-      action: "System Config Updated",
-      status: "SUCCESS",
-    },
-    {
-      timestamp: "2026-03-25 11:45",
-      user: "Accountant",
-      action: "Void Bill #129 Attempt",
-      status: "DENIED",
-    },
-    {
-      timestamp: "2026-03-25 09:30",
-      user: "Admin",
-      action: "Database Backup Initiated",
-      status: "SUCCESS",
-    },
-  ]);
+  const [securityAuditLogs, setSecurityAuditLogs] = useState([]);
 
   // --- CONNECTION MODULE STATES ---
   const [connSearchQuery, setConnSearchQuery] = useState("");
@@ -2342,22 +2218,7 @@ Powered by Stacli mandi os`;
       if (dRes.status === "SUCCESS") {
         setDocuments(dRes.data);
       } else {
-        setDocuments([
-          {
-            _id: "d-1",
-            originalName: "Land-Patta-Vikram.pdf",
-            docType: "KYC",
-            fileSize: 1024 * 500,
-            url: "#",
-          },
-          {
-            _id: "d-2",
-            originalName: "Aadhaar-Sandhya.jpg",
-            docType: "KYC",
-            fileSize: 1024 * 200,
-            url: "#",
-          },
-        ]);
+        setDocuments([]);
       }
 
       const statsRes = await MandiService.getInventoryDashboard();
@@ -2381,17 +2242,17 @@ Powered by Stacli mandi os`;
       setSupplierBills(DUMMY_SUPPLIER_BILLS);
       setBuyerInvoices(DUMMY_BUYER_INVOICES);
       setInventoryStats({
-        totalLotsToday: 14,
-        incomingKgToday: 8500,
-        totalSoldKg: 12400,
-        remainingStockKg: 3200,
-        pendingDeliveryKg: 850,
-        netRevenue: 284560,
-        settlementsPending: 15,
-        settlementsPendingAmount: 45200,
-        activeProcurementLots: 6,
-        totalProcurementLots: 8,
-        lowStockAlerts: 2,
+        totalLotsToday: 0,
+        incomingKgToday: 0,
+        totalSoldKg: 0,
+        remainingStockKg: 0,
+        pendingDeliveryKg: 0,
+        netRevenue: 0,
+        settlementsPending: 0,
+        settlementsPendingAmount: 0,
+        activeProcurementLots: 0,
+        totalProcurementLots: 0,
+        lowStockAlerts: 0,
       });
     }
   };
@@ -2433,45 +2294,6 @@ Powered by Stacli mandi os`;
 
   useEffect(() => {
     if (loggedIn) fetchData();
-    if (
-      loggedIn &&
-      activeSection === "Supplier Billing" &&
-      settlementData.length === 0
-    ) {
-      // Seed mock visuals for "duplicated data" requirement
-      setSettlementData([
-        {
-          _id: "s-mock-1",
-          lotRef: { lotId: "LOT-2026-X01", vehicleNumber: "AP-02-TX-1234" },
-          lineItem: { product: "Mango", variety: "Alphonso" },
-          quantity: 450,
-          saleRate: 75,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          _id: "s-mock-2",
-          lotRef: { lotId: "LOT-2026-X01", vehicleNumber: "AP-02-TX-1234" },
-          lineItem: { product: "Mango", variety: "Kesar" },
-          quantity: 300,
-          saleRate: 55,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-      setFarmerBillsList([
-        {
-          _id: "b-mock-1",
-          billNo: "FB-2026-9999",
-          date: "2026-03-15",
-          netPayable: 45000,
-        },
-        {
-          _id: "b-mock-2",
-          billNo: "FB-2026-9998",
-          date: "2026-03-10",
-          netPayable: 32000,
-        },
-      ]);
-    }
   }, [activeSection, loggedIn]);
 
   const getGreeting = () => {
@@ -2558,10 +2380,8 @@ Powered by Stacli mandi os`;
       setDuplicateWarning(false);
       return;
     }
-    // Mocking a duplicate check: if buyerId is 'b-1' (Harsha Wholesale) and date is today, trigger warning
-    const today = new Date().toISOString().slice(0, 10);
-    const isDuplicate = buyerId === "b-1" && buyerInvoiceForm.date === today;
-    setDuplicateWarning(isDuplicate);
+    // Removed mock duplicate check logic
+    setDuplicateWarning(false);
   };
 
   const addInvoiceItem = () => {
@@ -4615,7 +4435,7 @@ Powered by Stacli mandi os`;
                       onClick={() =>
                         setLotCreationForm({
                           ...lotCreationForm,
-                          lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+                          lotId: generateLotId(lotCounter),
                           vehicleNumber: "",
                           driverName: "",
                           origin: "",
@@ -5318,7 +5138,7 @@ Powered by Stacli mandi os`;
                         setActiveLotTab("LOT Creation");
                         setLotCreationForm({
                           ...lotCreationForm,
-                          lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+                          lotId: generateLotId(lotCounter),
                           vehicleNumber: "",
                           driverName: "",
                           origin: "",
@@ -5926,11 +5746,11 @@ Powered by Stacli mandi os`;
                         >
                           <div style={{ flex: 1 }}>
                             <b style={{ color: COLORS.sidebar, fontSize: "16px" }}>
-                              — {a.buyerId?.name || a.buyerId || "Buyer"}
+                              {a.buyerId?.name || a.buyerId || "Buyer"}
                             </b>
                             <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                              📦 {a.lineItemId || "N/A"} | ⚖️ {a.quantity} KG @ ₹{a.rate}/KG | 📅 {a.allocationDate}
-                              {a.buyerInvoiceNo && ` | 🧾 ${a.buyerInvoiceNo}`}
+                              {a.lineItemId || "N/A"} | {a.quantity} KG @ ₹{a.rate}/KG | {a.allocationDate}
+                              {a.buyerInvoiceNo && ` | Invoice: ${a.buyerInvoiceNo}`}
                             </p>
                           </div>
                           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -5970,7 +5790,7 @@ Powered by Stacli mandi os`;
                             </Button>
                             <button
                               onClick={async () => {
-                                if (!window.confirm("🗑️ Delete this allocation record?")) return;
+                                if (!window.confirm("Delete this allocation record?")) return;
                                 handleDeleteAllocation(a._id);
                               }}
                               style={{ background: "none", border: "none", color: "#E11D48", fontWeight: "800", fontSize: "12px", cursor: "pointer", marginLeft: "8px", textDecoration: "underline" }}
