@@ -9323,50 +9323,58 @@ Powered by Stacli mandi os`;
 
           {activeSection === "Ledger" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              {/* PAGE SELECTION HEADINGS */}
+              {/* STACLI PREMIUM PAGE HEADINGS - DUAL TABBED NAVIGATION */}
               <div
                 style={{
                   display: "flex",
-                  gap: "40px",
-                  paddingBottom: "16px",
-                  marginBottom: "32px",
-                  borderBottom: "1px solid #EBE9E1",
+                  gap: "60px",
+                  paddingBottom: "24px",
+                  marginBottom: "48px",
+                  borderBottom: `2px solid #EBE9E1`,
                   alignItems: "flex-end",
                 }}
               >
                 <h1
+                  id="supplier-ledger-heading"
                   onClick={() => setActiveLedgerTab("Supplier")}
                   style={{
-                    fontSize: "32px",
+                    fontSize: "42px",
                     fontWeight: "900",
                     margin: 0,
                     cursor: "pointer",
-                    transition: "0.2s",
-                    letterSpacing: "-1px",
-                    color: activeLedgerTab === "Supplier" ? COLORS.sidebar : COLORS.muted,
-                    borderBottom: activeLedgerTab === "Supplier" ? `4px solid ${COLORS.accent}` : "4px solid transparent",
-                    paddingBottom: "12px",
+                    transition: "all 0.3s ease",
+                    letterSpacing: "-1.5px",
+                    fontFamily: "'Playfair Display', serif",
+                    color: activeLedgerTab === "Supplier" ? COLORS.sidebar : "#CBD5E0",
+                    borderBottom: activeLedgerTab === "Supplier" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
+                    paddingBottom: "20px",
+                    textTransform: "uppercase",
                   }}
                 >
                   Supplier Ledger
                 </h1>
                 <h1
+                  id="customer-ledger-heading"
                   onClick={() => setActiveLedgerTab("Customer")}
                   style={{
-                    fontSize: "32px",
+                    fontSize: "42px",
                     fontWeight: "900",
                     margin: 0,
                     cursor: "pointer",
-                    transition: "0.2s",
-                    letterSpacing: "-1px",
-                    color: activeLedgerTab === "Customer" ? COLORS.sidebar : COLORS.muted,
-                    borderBottom: activeLedgerTab === "Customer" ? `4px solid ${COLORS.accent}` : "4px solid transparent",
-                    paddingBottom: "12px",
+                    transition: "all 0.3s ease",
+                    letterSpacing: "-1.5px",
+                    fontFamily: "'Playfair Display', serif",
+                    color: activeLedgerTab === "Customer" ? COLORS.sidebar : "#CBD5E0",
+                    borderBottom: activeLedgerTab === "Customer" ? `6px solid ${COLORS.accent}` : "6px solid transparent",
+                    paddingBottom: "20px",
+                    textTransform: "uppercase",
                   }}
                 >
                   Customer Ledger
                 </h1>
               </div>
+
+
 
               {activeLedgerTab === "Supplier" && (
                 <div
