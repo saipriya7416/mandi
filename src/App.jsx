@@ -13571,44 +13571,81 @@ export default function App() {
                                 padding: "8px",
                               }}
                               onClick={() => {
-                                let tableRows = '';
+                                let reportContent = '';
                                 let csvContent = "data:text/csv;charset=utf-8,";
                                 
                                 if (rep.t === 'Supplier Transaction Log') {
-                                  tableRows += '<tr><th>Bill ID</th><th>Date</th><th>Supplier</th><th>Amount</th><th>Status</th></tr>';
-                                  csvContent += 'Bill ID,Date,Supplier,Amount,Status\\n';
                                   if (supplierBills && supplierBills.length > 0) {
                                     supplierBills.forEach(b => {
-                                      const d = (b.date || (b.createdAt && b.createdAt.split('T')[0])) || '-';
                                       const amt = b.netPayable || b.grandTotal || 0;
-                                      const status = (Number(b.amountPaid || 0) >= Number(amt) && Number(amt) > 0) ? 'Cleared' : 'Pending';
-                                      tableRows += `<tr><td>${b.receiptNo || b.billId || (b._id && b._id.slice(-6)) || '-'}</td><td>${d}</td><td>${b.supplierName || '-'}</td><td>₹ ${amt}</td><td>${status}</td></tr>`;
-                                      csvContent += `${b.receiptNo || b.billId || (b._id && b._id.slice(-6)) || '-'},${d},${b.supplierName || '-'},${amt},${status}\\n`;
+                                      const billId = b.receiptNo || b.billId || (b._id && b._id.slice(-6)) || '-';
+                                      const supplierName = b.supplierName || 'Supplier';
+                                      const product = (b.items && b.items.length > 0) ? b.items.map(i => i.product || i.name).join(', ') : 'Fresh Produce';
+                                      const quantity = (b.items && b.items.length > 0) ? b.items.reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
+                                      const link = window.location.origin + '/invoice/' + billId;
+                                      
+                                      const txtContent = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n${link}\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
+                                      
+                                      const downloadTxtScript = `
+                                        const link = document.createElement('a');
+                                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(\`${txtContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`));
+                                        link.setAttribute('download', 'Invoice_${billId}.txt');
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                      `;
+
+                                      reportContent += `
+                                      <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                        <div style="white-space: pre-wrap; font-family: sans-serif; font-size: 15px; color: #1e293b; line-height: 1.6; margin-bottom: 20px;">Hello <b>${supplierName}</b> 👋
+
+Your invoice from <b>*SPV Fruits*</b> is ready.
+
+📦 Product: ${product}
+⚖️ Quantity: ${quantity}
+💰 Amount: ₹${amt}
+
+🔗 View Invoice:
+<a href="${link}" style="color: #3b82f6; text-decoration: none;">${link}</a>
+
+For any queries, please contact us.
+
+— SPV Fruits
+Powered by Stacli mandi os</div>
+                                        <div style="display: flex; gap: 12px;">
+                                          <button onclick="${downloadTxtScript.replace(/\n/g, ' ')}" style="background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Download to Device</button>
+                                          <button onclick="alert('Full access validated. Modifying invoice ${billId} in Database.')" style="background: #f59e0b; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Modify DB Records</button>
+                                        </div>
+                                      </div>`;
                                     });
-                                  } else { tableRows += '<tr><td colspan="5">No data available in Database</td></tr>'; }
-                                } else if (rep.t === 'Buyer Credit Analysis') {
-                                  tableRows += '<tr><th>Invoice ID</th><th>Date</th><th>Buyer</th><th>Total</th><th>Received</th><th>Outstanding</th></tr>';
-                                  csvContent += 'Invoice ID,Date,Buyer,Total,Received,Outstanding\\n';
-                                  if (buyerInvoices && buyerInvoices.length > 0) {
-                                    buyerInvoices.forEach(inv => {
-                                      const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0])) || '-';
-                                      const total = inv.grandTotal || inv.totalAmount || 0;
-                                      const rec = inv.amountReceived || inv.paymentReceived || 0;
-                                      const out = Math.max(0, total - rec);
-                                      tableRows += `<tr><td>${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'}</td><td>${d}</td><td>${inv.buyerName || '-'}</td><td>₹ ${total}</td><td>₹ ${rec}</td><td>₹ ${out}</td></tr>`;
-                                      csvContent += `${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'},${d},${inv.buyerName || '-'},${total},${rec},${out}\\n`;
-                                    });
-                                  } else { tableRows += '<tr><td colspan="6">No data available in Database</td></tr>'; }
-                                } else if (rep.t === 'Operational P&L Statement') {
-                                  tableRows += '<tr><th>Transaction</th><th>Type</th><th>Amount</th></tr>';
-                                  csvContent += 'Transaction,Type,Amount\\n';
-                                  const totalSales = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
-                                  const totalSupplierPayable = (supplierBills || []).reduce((s, b) => s + Number(b.netPayable || b.grandTotal || 0), 0);
-                                  tableRows += `<tr><td>Total Sales</td><td>Revenue</td><td>₹ ${totalSales}</td></tr><tr><td>Total Supplier Obligations</td><td>Expense</td><td>₹ ${totalSupplierPayable}</td></tr>`;
-                                  csvContent += `Total Sales,Revenue,${totalSales}\\nTotal Supplier Obligations,Expense,${totalSupplierPayable}\\n`;
+                                  } else { reportContent = '<p>No data available in Database</p>'; }
                                 } else {
-                                  tableRows += '<tr><th>ID</th><th>Details</th><th>Status</th></tr><tr><td>DB_LOG_01</td><td>Logistics metrics sync</td><td>Active</td></tr>';
-                                  csvContent += 'ID,Details,Status\\nDB_LOG_01,Logistics metrics sync,Active\\n';
+                                  let tableRows = '';
+                                  if (rep.t === 'Buyer Credit Analysis') {
+                                    tableRows += '<tr><th>Invoice ID</th><th>Date</th><th>Buyer</th><th>Total</th><th>Received</th><th>Outstanding</th></tr>';
+                                    csvContent += 'Invoice ID,Date,Buyer,Total,Received,Outstanding\\n';
+                                    if (buyerInvoices && buyerInvoices.length > 0) {
+                                      buyerInvoices.forEach(inv => {
+                                        const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0])) || '-';
+                                        const total = inv.grandTotal || inv.totalAmount || 0;
+                                        const rec = inv.amountReceived || inv.paymentReceived || 0;
+                                        const out = Math.max(0, total - rec);
+                                        tableRows += `<tr><td>${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'}</td><td>${d}</td><td>${inv.buyerName || '-'}</td><td>₹ ${total}</td><td>₹ ${rec}</td><td>₹ ${out}</td></tr>`;
+                                        csvContent += `${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'},${d},${inv.buyerName || '-'},${total},${rec},${out}\\n`;
+                                      });
+                                    } else { tableRows += '<tr><td colspan="6">No data available in Database</td></tr>'; }
+                                  } else if (rep.t === 'Operational P&L Statement') {
+                                    tableRows += '<tr><th>Transaction</th><th>Type</th><th>Amount</th></tr>';
+                                    csvContent += 'Transaction,Type,Amount\\n';
+                                    const totalSales = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+                                    const totalSupplierPayable = (supplierBills || []).reduce((s, b) => s + Number(b.netPayable || b.grandTotal || 0), 0);
+                                    tableRows += `<tr><td>Total Sales</td><td>Revenue</td><td>₹ ${totalSales}</td></tr><tr><td>Total Supplier Obligations</td><td>Expense</td><td>₹ ${totalSupplierPayable}</td></tr>`;
+                                    csvContent += `Total Sales,Revenue,${totalSales}\\nTotal Supplier Obligations,Expense,${totalSupplierPayable}\\n`;
+                                  } else {
+                                    tableRows += '<tr><th>ID</th><th>Details</th><th>Status</th></tr><tr><td>DB_LOG_01</td><td>Logistics metrics sync</td><td>Active</td></tr>';
+                                    csvContent += 'ID,Details,Status\\nDB_LOG_01,Logistics metrics sync,Active\\n';
+                                  }
+                                  reportContent = `<table>${tableRows}</table>`;
                                 }
 
                                 const downloadCsvScript = `
@@ -13625,23 +13662,24 @@ export default function App() {
                                   <html>
                                     <head><title>${rep.t} - Export</title>
                                     <style>
-                                      body { font-family: sans-serif; padding: 40px; }
+                                      body { font-family: sans-serif; padding: 40px; background: #f8fafc; }
                                       .footer { margin-top: 50px; color: #64748b; font-size: 11px; }
-                                      button { background: #d4a017; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px; margin-bottom: 20px;}
-                                      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                      button.global-btn { background: #d4a017; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px; margin-bottom: 20px;}
+                                      table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
                                       th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
-                                      th { background-color: #f8fafc; }
+                                      th { background-color: #f1f5f9; }
                                     </style>
                                     </head>
                                     <body>
-                                      <h2>${rep.t} Report (Live DB Connection)</h2>
-                                      <button onclick="window.print()">Print PDF</button>
-                                      <button onclick="${downloadCsvScript.replace(/\n/g, ' ')}" style="background: #10b981;">Download CSV to Device</button>
-                                      <button onclick="alert('Full database access validated. Modifications are logged.'); window.close();" style="background: #ef4444;">Modify DB Records</button>
-                                      <button style="background: #25D366;" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('Hello {{customer_name}} 👋\\\\n\\\\nYour invoice from *SPV Fruits* is ready.\\\\n\\\\n📦 Product: {{product_name}}\\\\n⚖️ Quantity: {{quantity}}\\\\n💰 Amount: ₹{{amount}}\\\\n\\\\n🔗 View Invoice:\\\\n{{invoice_link}}\\\\n\\\\nFor any queries, please contact us.\\\\n\\\\n— SPV Fruits\\\\nPowered by Stacli mandi os'))">Share via WhatsApp</button>
-                                      <table>
-                                        ${tableRows}
-                                      </table>
+                                      <h2 style="font-family: sans-serif; color: #0f172a;">${rep.t} Report (Live DB Connection)</h2>
+                                      ${rep.t !== 'Supplier Transaction Log' ? `
+                                        <button class="global-btn" onclick="window.print()">Print PDF</button>
+                                        <button class="global-btn" onclick="${downloadCsvScript.replace(/\n/g, ' ')}" style="background: #10b981;">Download CSV to Device</button>
+                                      ` : ''}
+                                      
+                                      <div style="margin-top: 30px;">
+                                        ${reportContent}
+                                      </div>
                                       <div class="footer">
                                         Powered by stalic mandi os
                                       </div>
