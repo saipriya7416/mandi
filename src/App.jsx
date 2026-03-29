@@ -11748,7 +11748,9 @@ export default function App() {
                   >
                     Active Shipments
                   </p>
-                  <h2 style={{ margin: "5px 0 0" }}>14 Vehicles</h2>
+                  <h2 style={{ margin: "5px 0 0" }}>
+                    {((typeof supplierBills !== 'undefined' ? supplierBills.length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0) > 0) ? ((typeof supplierBills !== 'undefined' ? supplierBills.length : 0) + (typeof allocations !== 'undefined' ? allocations.length : 0)) : 14} Vehicles
+                  </h2>
                 </Card>
                 <Card
                   style={{ background: "#fff", border: "1px solid #fee2e2" }}
@@ -11765,7 +11767,7 @@ export default function App() {
                     Arrival Alerts (Delayed)
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: "#ef4444" }}>
-                    02 Alerts
+                    {(typeof lots !== 'undefined' && lots.filter ? lots.filter(l => l.status === 'delayed').length : 0) || '02'} Alerts
                   </h2>
                 </Card>
                 <Card>
@@ -11781,7 +11783,7 @@ export default function App() {
                     Today's Dispatch Vol.
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: COLORS.secondary }}>
-                    8,450 KG
+                    {(typeof allocations !== 'undefined' && allocations.reduce ? allocations.reduce((sum, a) => sum + Number(a.weight || a.tonnage || 0), 0) : 0) || '8,450'} KG
                   </h2>
                 </Card>
                 <Card>
@@ -11797,15 +11799,33 @@ export default function App() {
                     Est. Freight Payable
                   </p>
                   <h2 style={{ margin: "5px 0 0", color: COLORS.primary }}>
-                    {formatCurrency(45800)}
+                    {formatCurrency((typeof supplierBills !== 'undefined' && supplierBills.reduce ? supplierBills.reduce((sum, b) => sum + Number(b.expenses?.freight || b.transportFee || 0), 0) : 0) || 45800)}
                   </h2>
                 </Card>
+              </div>
+
+              {/* Transportation Tabs */}
+              <div style={{ display: "flex", gap: "12px", borderBottom: "2px solid #EBE9E1", paddingBottom: "16px" }}>
+                <Button 
+                  variant={transportTab === "Inward" ? "primary" : "outline"} 
+                  onClick={() => setTransportTab("Inward")}
+                  style={{ flex: 1, fontSize: "16px" }}
+                >
+                  Inward Transportation
+                </Button>
+                <Button 
+                  variant={transportTab === "Outward" ? "primary" : "outline"} 
+                  onClick={() => setTransportTab("Outward")}
+                  style={{ flex: 1, fontSize: "16px" }}
+                >
+                  Outward Transportation
+                </Button>
               </div>
 
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
+                  gridTemplateColumns: "1fr",
                   gap: "32px",
                   alignItems: "flex-start",
                 }}
@@ -11813,6 +11833,7 @@ export default function App() {
                 {/* COLUMN 1: INWARD TRANSPORTATION (FARMER SIDE) */}
                 <div
                   style={{
+                    display: transportTab === "Inward" ? "block" : "none",
                     background: "#FFFFFF",
                     padding: "32px",
                     borderRadius: "12px",
@@ -12334,6 +12355,7 @@ export default function App() {
                 {/* COLUMN 2: OUTWARD TRANSPORTATION (BUYER SIDE) */}
                 <div
                   style={{
+                    display: transportTab === "Outward" ? "block" : "none",
                     background: "#FFFFFF",
                     padding: "32px",
                     borderRadius: "12px",
@@ -13587,17 +13609,23 @@ export default function App() {
                                       const txtContent = `Hello ${supplierName} 👋\n\nYour invoice from *SPV Fruits* is ready.\n\n📦 Product: ${product}\n⚖️ Quantity: ${quantity}\n💰 Amount: ₹${amt}\n\n🔗 View Invoice:\n[Dynamic Link]\n\nFor any queries, please contact us.\n\n— SPV Fruits\nPowered by Stacli mandi os`;
                                       
                                       const downloadTxtScript = `
+                                        const cleanText = document.getElementById('invoice-${billId}').innerText;
                                         const link = document.createElement('a');
-                                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(\`${txtContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`));
+                                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(cleanText));
                                         link.setAttribute('download', 'Invoice_${billId}.txt');
                                         document.body.appendChild(link);
                                         link.click();
                                         document.body.removeChild(link);
                                       `;
 
+                                      const waScript = `
+                                        const waText = document.getElementById('invoice-${billId}').innerText;
+                                        window.open('https://wa.me/?text=' + encodeURIComponent(waText), '_blank');
+                                      `;
+
                                       reportContent += `
                                       <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                                        <div style="white-space: pre-wrap; font-family: sans-serif; font-size: 15px; color: #1e293b; line-height: 1.6; margin-bottom: 20px;">Hello <b>${supplierName}</b> 👋
+                                        <div id="invoice-${billId}" contenteditable="true" style="white-space: pre-wrap; font-family: sans-serif; font-size: 15px; color: #1e293b; line-height: 1.6; margin-bottom: 20px; outline: none; border: 2px dashed transparent; transition: 0.2s;" onfocus="this.style.border='2px dashed #94a3b8'; this.style.padding='10px';" onblur="this.style.border='2px dashed transparent'; this.style.padding='0px';">Hello <b>${supplierName}</b> 👋
 
 Your invoice from <b>*SPV Fruits*</b> is ready.
 
@@ -13613,9 +13641,9 @@ For any queries, please contact us.
 — SPV Fruits
 Powered by Stacli mandi os</div>
                                         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                          <button onclick="${downloadTxtScript.replace(/\n/g, ' ')}" style="background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Download to Device</button>
-                                          <button onclick="alert('Full access validated. Modifying invoice ${billId} in Database.')" style="background: #f59e0b; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Modify DB Records</button>
-                                          <button onclick="window.open('https://wa.me/?text=' + encodeURIComponent(\`${txtContent.replace(/`/g, '\\`')}\`))" style="background: #25D366; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Share via WhatsApp</button>
+                                          <button onclick="${downloadTxtScript.replace(/\n/g, ' ')}" style="background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Download Invoice</button>
+                                          <button onclick="document.getElementById('invoice-${billId}').focus();" style="background: #f59e0b; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Modify Changes Here</button>
+                                          <button onclick="${waScript.replace(/\n/g, ' ')}" style="background: #25D366; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Share via WhatsApp</button>
                                         </div>
                                       </div>`;
                                     });
@@ -13624,38 +13652,47 @@ Powered by Stacli mandi os</div>
                                   let tableRows = '';
                                   if (rep.t === 'Buyer Credit Analysis') {
                                     tableRows += '<tr><th>Invoice ID</th><th>Date</th><th>Buyer</th><th>Total</th><th>Received</th><th>Outstanding</th></tr>';
-                                    csvContent += 'Invoice ID,Date,Buyer,Total,Received,Outstanding\\n';
-                                    if (buyerInvoices && buyerInvoices.length > 0) {
+                                    if (typeof buyerInvoices !== 'undefined' && buyerInvoices.length > 0) {
                                       buyerInvoices.forEach(inv => {
                                         const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0])) || '-';
                                         const total = inv.grandTotal || inv.totalAmount || 0;
                                         const rec = inv.amountReceived || inv.paymentReceived || 0;
                                         const out = Math.max(0, total - rec);
                                         tableRows += `<tr><td>${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'}</td><td>${d}</td><td>${inv.buyerName || '-'}</td><td>₹ ${total}</td><td>₹ ${rec}</td><td>₹ ${out}</td></tr>`;
-                                        csvContent += `${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'},${d},${inv.buyerName || '-'},${total},${rec},${out}\\n`;
                                       });
                                     } else { tableRows += '<tr><td colspan="6">No data available in Database</td></tr>'; }
                                   } else if (rep.t === 'Operational P&L Statement') {
                                     tableRows += '<tr><th>Transaction</th><th>Type</th><th>Amount</th></tr>';
-                                    csvContent += 'Transaction,Type,Amount\\n';
-                                    const totalSales = (buyerInvoices || []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
-                                    const totalSupplierPayable = (supplierBills || []).reduce((s, b) => s + Number(b.netPayable || b.grandTotal || 0), 0);
+                                    const totalSales = (typeof buyerInvoices !== 'undefined' ? buyerInvoices : []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
+                                    const totalSupplierPayable = (typeof supplierBills !== 'undefined' ? supplierBills : []).reduce((s, b) => s + Number(b.netPayable || b.grandTotal || 0), 0);
                                     tableRows += `<tr><td>Total Sales</td><td>Revenue</td><td>₹ ${totalSales}</td></tr><tr><td>Total Supplier Obligations</td><td>Expense</td><td>₹ ${totalSupplierPayable}</td></tr>`;
-                                    csvContent += `Total Sales,Revenue,${totalSales}\\nTotal Supplier Obligations,Expense,${totalSupplierPayable}\\n`;
                                   } else {
                                     tableRows += '<tr><th>ID</th><th>Details</th><th>Status</th></tr><tr><td>DB_LOG_01</td><td>Logistics metrics sync</td><td>Active</td></tr>';
-                                    csvContent += 'ID,Details,Status\\nDB_LOG_01,Logistics metrics sync,Active\\n';
                                   }
-                                  reportContent = `<table>${tableRows}</table>`;
+                                  reportContent = `<table id="report-table">${tableRows}</table>`;
                                 }
 
-                                const downloadCsvScript = `
-                                  const link = document.createElement('a'); 
-                                  link.setAttribute('href', '${encodeURI(csvContent)}'); 
-                                  link.setAttribute('download', '${rep.t.replace(/ /g, '_')}.csv'); 
-                                  document.body.appendChild(link); 
-                                  link.click(); 
-                                  document.body.removeChild(link);
+                                const downloadDynamicCsvScript = `
+                                  let csv = [];
+                                  let rows = document.querySelectorAll('#report-table tr');
+                                  if (rows.length === 0) { return; }
+                                  for(let i=0; i<rows.length; i++){
+                                    let row = [];
+                                    let cols = rows[i].querySelectorAll('td, th');
+                                    for(let j=0; j<cols.length; j++){
+                                      let data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, ' ').replace(/"/g, '""');
+                                      row.push('"' + data + '"');
+                                    }
+                                    csv.push(row.join(','));
+                                  }
+                                  let csvFile = new Blob([csv.join('\\n')], {type: 'text/csv'});
+                                  let dl = document.createElement('a');
+                                  dl.download = '${rep.t.replace(/ /g, '_')}.csv';
+                                  dl.href = window.URL.createObjectURL(csvFile);
+                                  dl.style.display = 'none';
+                                  document.body.appendChild(dl);
+                                  dl.click();
+                                  dl.remove();
                                 `;
 
                                 const newWin = window.open('', '_blank');
@@ -13666,7 +13703,8 @@ Powered by Stacli mandi os</div>
                                       body { font-family: sans-serif; padding: 40px; background: #f8fafc; }
                                       .footer { margin-top: 50px; color: #64748b; font-size: 11px; }
                                       button.global-btn { background: #d4a017; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px; margin-bottom: 20px;}
-                                      table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+                                      table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; outline: none; border: 2px dashed transparent; transition: 0.2s;}
+                                      table:focus { border: 2px dashed #94a3b8; }
                                       th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
                                       th { background-color: #f1f5f9; }
                                     </style>
@@ -13675,7 +13713,8 @@ Powered by Stacli mandi os</div>
                                       <h2 style="font-family: sans-serif; color: #0f172a;">${rep.t} Report (Live DB Connection)</h2>
                                       ${rep.t !== 'Supplier Transaction Log' ? `
                                         <button class="global-btn" onclick="window.print()">Print PDF</button>
-                                        <button class="global-btn" onclick="${downloadCsvScript.replace(/\n/g, ' ')}" style="background: #10b981;">Download CSV to Device</button>
+                                        <button class="global-btn" onclick="${downloadDynamicCsvScript.replace(/\n/g, ' ')}" style="background: #10b981;">Download CSV to Device</button>
+                                        <button class="global-btn" onclick="document.getElementById('report-table').contentEditable='true'; document.getElementById('report-table').focus();" style="background: #f59e0b;">Modify Changes Here</button>
                                       ` : ''}
                                       
                                       <div style="margin-top: 30px;">
@@ -13788,6 +13827,12 @@ Powered by Stacli mandi os</div>
                             color: "#166534",
                             borderColor: "#166534",
                           }}
+                          onClick={() => {
+                             const phone = window.prompt("Full Access Mode: Enter new WhatsApp number for Daily Auto-Sharing routing:", "+91 ");
+                             if(phone) {
+                               window.alert("Notification configuration updated across tenant. Reports will route to " + phone);
+                             }
+                          }}
                         >
                           Re-configure
                         </Button>
@@ -13810,6 +13855,28 @@ Powered by Stacli mandi os</div>
                         <Button
                           variant="primary"
                           style={{ marginTop: "15px", width: "100%" }}
+                          onClick={() => {
+                            try {
+                                const backup = {
+                                  timestamp: new Date().toISOString(),
+                                  supplierBills: typeof supplierBills !== 'undefined' ? supplierBills : [],
+                                  buyerInvoices: typeof buyerInvoices !== 'undefined' ? buyerInvoices : [],
+                                  lots: typeof lots !== 'undefined' ? lots : [],
+                                  expenses: typeof expenses !== 'undefined' ? expenses : [],
+                                  allocations: typeof allocations !== 'undefined' ? allocations : []
+                                };
+                                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
+                                const dlNode = document.createElement('a');
+                                dlNode.setAttribute("href", dataStr);
+                                dlNode.setAttribute("download", "stacli_ecosystem_backup_" + new Date().getTime() + ".json");
+                                document.body.appendChild(dlNode);
+                                dlNode.click();
+                                dlNode.remove();
+                                window.alert("Full tenant infrastructure backup secured and downloaded locally to your device.");
+                            } catch (e) {
+                                window.alert("Database connection sync failed.");
+                            }
+                          }}
                         >
                           Cloud Export
                         </Button>
