@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import "./index.css";
 import { MandiService } from "./services/api";
-import { Users, Boxes, Gavel, Receipt, CreditCard, IndianRupee, BookOpen, Truck, BarChart3, Database, Printer, RefreshCw } from "lucide-react";
+import { Users, Boxes, Gavel, Receipt, CreditCard, IndianRupee, BookOpen, Truck, BarChart3, Database, Printer, RefreshCw, Phone, Edit2, Trash2, UserCheck, Package, FileText, FileCheck } from "lucide-react";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -187,6 +187,92 @@ const ICON_WALLET_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="n
 const ICON_TRUCK_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>;
 const ICON_DATABASE_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>;
 const ICON_GEAR_SIDE = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+// --- SMART DATA NODE (Context-Aware Hover) ---
+const SmartDataNode = ({ text, type, data = {}, onAdd, onView }) => {
+  const [hover, setHover] = useState(false);
+
+  // Helper to open details in a new tab by generating a standalone diagnostic page
+  const openDetailsInNewTab = () => {
+    const detailsHtml = `
+      <html>
+        <head>
+          <title>Mandi record - ${text}</title>
+          <style>
+            body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FDFBF4; padding: 40px; color: #1e293b; }
+            .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); max-width: 800px; margin: auto; border: 1.5px solid #EBE9E1; }
+            h1 { color: #1a1a2e; border-bottom: 2px solid #D4A017; padding-bottom: 20px; font-family: 'Playfair Display', serif; }
+            .row { display: flex; border-bottom: 1px solid #f1f5f9; padding: 15px 0; }
+            .label { flex: 1; font-weight: 800; color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+            .value { flex: 2; font-weight: 700; color: #1f3a2b; font-size: 14px; }
+          </style>
+          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+        </head>
+        <body>
+          <div class="card">
+            <h1 style="color: #1a1a2e;">📄 ${type} Record: ${text}</h1>
+            ${Object.entries(data)
+              .filter(([k]) => k !== "_id" && k !== "password" && k !== "__v")
+              .map(([k, v]) => `
+                <div class="row">
+                  <div class="label">${k.replace(/([A-Z])/g, ' $1').trim()}</div>
+                  <div class="value">${typeof v === 'object' ? JSON.stringify(v) : v}</div>
+                </div>
+              `).join('')}
+              <p style="margin-top: 40px; text-align: center; color: #D4A017; font-weight: 900; font-size: 12px; letter-spacing: 1px;">POWERED BY MANDI OS v8.0</p>
+          </div>
+        </body>
+      </html>
+    `;
+    const win = window.open("", "_blank");
+    win.document.open();
+    win.document.write(detailsHtml);
+    win.document.close();
+  };
+
+  return (
+    <div 
+      style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <span style={{ color: 'inherit', fontWeight: 'inherit', textDecoration: hover ? 'underline' : 'none', cursor: 'pointer' }}>
+        {text}
+      </span>
+      {hover && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: '0',
+          zIndex: 10000,
+          background: 'white',
+          padding: '12px',
+          borderRadius: '12px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
+          border: '1.5px solid #D4A017',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          minWidth: '180px',
+          marginTop: '8px',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <button 
+            onClick={() => { onView ? onView() : openDetailsInNewTab(); }}
+            style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#F8FAFC', color: '#1f3a2b', fontWeight: '800', fontSize: '11px', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: '8px', alignItems: 'center' }}
+          >
+            📂 View details
+          </button>
+          <button 
+            onClick={onAdd}
+            style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#D4A017', color: 'white', fontWeight: '800', fontSize: '11px', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: '8px', alignItems: 'center' }}
+          >
+            ➕ Add {type === 'Name' ? 'the name' : (type === 'Bill' ? 'bill no' : 'invoice number')}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const PremiumActionCard = ({
   icon,
@@ -1079,6 +1165,7 @@ Powered by Stacli mandi os`;
 
   // --- FORM STATES ---
   // --- FORM STATES & HANDLERS ---
+  const [partyStep, setPartyStep] = useState(1); // 1 or 2
   const [supplierForm, setSupplierForm] = useState({
     name: "",
     phone: "",
@@ -1975,7 +2062,7 @@ Powered by Stacli mandi os`;
   };
   const [intakeForm, setIntakeForm] = useState({
     supplierId: "",
-    entryDate: new Date().toISOString().slice(0, 10),
+    entryDate: getISTDateTime(),
     vehicleNumber: "",
     driverName: "",
     origin: "",
@@ -2568,7 +2655,19 @@ Powered by Stacli mandi os`;
 
   useEffect(() => {
     if (loggedIn) fetchData();
+    // Auto-update form for new entries when entering section
+    if (activeSection === "Lot Creation") {
+      setLotCreationForm(prev => ({ 
+        ...prev, 
+        dateTime: getISTDateTime(),
+        lotId: generateLotId(lotCounter)
+      }));
+    }
   }, [activeSection, loggedIn]);
+
+  useEffect(() => {
+    setPartyStep(1);
+  }, [activeUserRoleTab]);
 
   const getGreeting = () => {
     const hours = new Date().getHours();
@@ -3079,16 +3178,22 @@ Powered by Stacli mandi os`;
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     {
+      id: "Records Tracking",
+      roles: ["Owner / Admin", "Accountant"],
+      label: "Recorded Data",
+      icon: <Database size={20} strokeWidth={1.8} />,
+    },
+    {
+      id: "Dashboard",
+      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
+      label: "Dashboard & Reports",
+      icon: <BarChart3 size={20} strokeWidth={1.8} />,
+    },
+    {
       id: "User Role",
       roles: ["Owner / Admin"],
       label: "Party Management",
       icon: <Users size={20} strokeWidth={1.8} />,
-    },
-    {
-      id: "Records Tracking",
-      roles: ["Owner / Admin", "Accountant"],
-      label: "Master Records UI",
-      icon: <Database size={20} strokeWidth={1.8} />,
     },
     {
       id: "Lot Creation",
@@ -3131,12 +3236,6 @@ Powered by Stacli mandi os`;
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Transportation Tracking",
       icon: <Truck size={20} strokeWidth={1.8} />,
-    },
-    {
-      id: "Dashboard",
-      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
-      label: "Dashboard & Reports",
-      icon: <BarChart3 size={20} strokeWidth={1.8} />,
     },
   ];
 
@@ -4375,7 +4474,6 @@ Powered by Stacli mandi os`;
               </Card>
             </div>
           )}
-
           {activeSection === "User Role" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
               <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1" }}>
@@ -4409,20 +4507,29 @@ Powered by Stacli mandi os`;
                           { label: "Voter ID", placeholder: "Alternate ID", value: supplierForm.voterId, onChange: (e) => setSupplierForm({ ...supplierForm, voterId: e.target.value }) },
                         ],
                       },
-                      {
-                        title: "Bank Details",
-                        fields: [
-                          { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
-                          { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
-                          { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
-                          { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
-                        ],
-                      },
-                    ]}
+                    ].filter((_, idx) => (partyStep === 1 ? idx < 2 : false)).concat(
+                      partyStep === 2 ? [
+                        {
+                          title: "Bank Details",
+                          fields: [
+                            { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
+                            { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
+                            { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
+                            { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
+                          ],
+                        }
+                      ] : []
+                    )}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? "Update Records" : "Submit Details"}</Button>
-                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Draft saved locally for " + (supplierForm.name || "Supplier"))}>Save Draft</Button>
+                    
+                    {partyStep === 1 ? (
+                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next</Button>
+                    ) : (
+                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
+                    )}
+
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Registered</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
                   </div>
@@ -4447,20 +4554,29 @@ Powered by Stacli mandi os`;
                           { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
                         ],
                       },
-                      {
-                        title: "Credit Details",
-                        fields: [
-                          { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
-                          { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
-                          { label: "Outstanding Balance (\u20B9)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
-                          { label: "Notes", placeholder: "Free-form notes" },
-                        ],
-                      },
-                    ]}
+                    ].filter((_, idx) => (partyStep === 1 ? idx === 0 : false)).concat(
+                      partyStep === 2 ? [
+                        {
+                          title: "Credit Details",
+                          fields: [
+                            { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
+                            { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
+                            { label: "Outstanding Balance (\u20B9)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
+                            { label: "Notes", placeholder: "Free-form notes" },
+                          ],
+                        }
+                      ] : []
+                    )}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
-                    <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Buyer draft saved.")}>Save Draft</Button>
+                    
+                    {partyStep === 1 ? (
+                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next</Button>
+                    ) : (
+                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
+                    )}
+
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Members</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
                   </div>
@@ -4504,7 +4620,7 @@ Powered by Stacli mandi os`;
                           suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).map((s) => (
                             <PremiumActionCard
                               key={s._id}
-                              title={s.name}
+                              title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => setActiveUserRoleTab("Supplier")} />}
                               subtitle={`SUP-${(s._id || "NEW").slice(-6).toUpperCase()}`}
                               icon={ICON_USER}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -4534,7 +4650,7 @@ Powered by Stacli mandi os`;
                           buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).map((b) => (
                             <PremiumActionCard
                               key={b._id}
-                              title={b.shopName || b.name}
+                              title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => setActiveUserRoleTab("Buyer")} />}
                               subtitle={`CUST-${(b._id || "NEW").slice(-6).toUpperCase()}`}
                               icon={ICON_SHOP}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -7811,8 +7927,8 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={b._id || Date.now() + Math.random()}
-                              title={b.supplierId?.name || b.supplierId || "Supplier"}
-                              subtitle={b.billNumber ? `Bill No: ${b.billNumber}` : "BILL-NEW"}
+                              title={<SmartDataNode text={b.supplierId?.name || b.supplierId || "Supplier"} type="Name" data={b.supplierId || {}} onAdd={() => setActiveUserRoleTab("Supplier")} />}
+                              subtitle={b.billNumber ? <SmartDataNode text={`Bill No: ${b.billNumber}`} type="Bill" data={b} onAdd={() => { setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} /> : "BILL-NEW"}
                               icon={ICON_BILL}
                               status={{ text: "Settled", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -9552,8 +9668,8 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={i._id || Date.now() + Math.random()}
-                              title={i.buyerId?.name || i.buyerId || "Customer"}
-                              subtitle={i.invoiceNumber ? `Invoice No: ${i.invoiceNumber}` : "INV-NEW"}
+                              title={<SmartDataNode text={i.buyerId?.name || i.buyerId || "Customer"} type="Name" data={i.buyerId || {}} onAdd={() => setActiveUserRoleTab("Buyer")} />}
+                              subtitle={i.invoiceNumber ? <SmartDataNode text={`Invoice No: ${i.invoiceNumber}`} type="Invoice" data={i} onAdd={() => { setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} /> : "INV-NEW"}
                               icon={ICON_BILL}
                               status={{ text: "Invoiced", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -11635,7 +11751,9 @@ Powered by Stacli mandi os`;
                               return (
                                 <tr key={inv._id || iIdx} style={{ background: "#FFFFFF" }}>
                                   <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", whiteSpace: "nowrap" }}>{dateVal}</td>
-                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>{invoiceNoVal}</td>
+                                  <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700", color: COLORS.secondary }}>
+                                     <SmartDataNode text={invoiceNoVal} type="Invoice" data={inv} onAdd={() => { setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />
+                                  </td>
                                   <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", color: COLORS.muted, fontSize: "11px", maxWidth: "200px" }}>{fruitVariety}</td>
                                   <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", fontWeight: "700" }}>{totalQty.toLocaleString()} KG</td>
                                   <td style={{ padding: "14px", borderBottom: "1px solid #F1F5F9", textAlign: "right", fontWeight: "600", color: "#E11D48" }}>{formatCurrency(invAmount)}</td>
@@ -13350,120 +13468,104 @@ Powered by Stacli mandi os`;
           {/* 11. DASHBOARD & REPORTS */}
           {activeSection === "Records Tracking" && (
             <div style={{ animation: "fadeIn 0.5s ease-out" }}>
-              <div style={{ marginBottom: "40px" }}>
-                <h1 style={{ fontSize: "36px", fontWeight: "900", color: COLORS.sidebar, margin: 0, fontFamily: "'Playfair Display', serif" }}>Master System Records</h1>
-                <p style={{ color: COLORS.muted, fontSize: "15px", marginTop: "4px" }}>Centralized visibility into all registered entities and transactions</p>
-              </div>
+              <div style={{ marginTop: "20px" }}></div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "32px" }}>
                 {/* 1. Registered Members */}
-                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                    <div style={{ background: "rgba(16, 185, 129, 0.1)", padding: "10px", borderRadius: "12px", color: "#10b981" }}>
-                      <Users size={24} />
+                <div style={{ background: "#FDFBF4", padding: "32px", borderRadius: "24px", border: "1.5px solid #EBE9E1", position: "relative" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+                    <div style={{ width: "80px", height: "80px", borderRadius: "40px", background: "#f0ece0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", fontWeight: "900", color: "#D4A017", fontFamily: "'Playfair Display', serif" }}>
+                      S
                     </div>
-                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#10b981", background: "rgba(16, 185, 129, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Active Members</span>
+                    <span style={{ fontSize: "12px", fontWeight: "900", color: "#10b981", background: "rgba(16, 185, 129, 0.1)", padding: "6px 14px", borderRadius: "20px" }}>Active</span>
                   </div>
-                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Registered Members</h3>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
-                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{(suppliers.length + buyers.length)}</span>
+                  
+                  <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 4px 0", fontFamily: "'Playfair Display', serif" }}>Members Directory</h2>
+                  <p style={{ color: COLORS.muted, margin: "0 0 4px 0", fontSize: "16px" }}><b>{(suppliers.length + buyers.length)}</b> Active Staff & Users</p>
+                  <div style={{ color: "#D4A017", display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
+                    <Phone size={16} /> <span style={{ fontWeight: "700" }}>+91 Mandi Support</span>
                   </div>
-                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
-                    <b>{suppliers.length}</b> Suppliers | <b>{buyers.length}</b> Buyers
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                    <Button variant="outline" style={{ borderRadius: "20px", display: "flex", gap: "8px", justifyContent: "center" }} onClick={() => setActiveSection("User Role")}>
+                       <Edit2 size={16} /> Edit
+                    </Button>
+                    <Button variant="outline" style={{ borderRadius: "20px", color: COLORS.danger, borderColor: "#ffe4e4" }} onClick={() => alert("Member pool access locked.")}>
+                       Disable
+                    </Button>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
-                    onClick={() => setActiveSection("User Role")}
-                  >View Member Directory</Button>
+                  
+                  <Button style={{ width: "100%", background: "#FFFBCC", color: "#7A5500", border: "1px solid #FFE58F", borderRadius: "20px", fontWeight: "800", marginBottom: "24px", display: "flex", gap: "8px", justifyContent: "center" }} onClick={() => alert("Simulating login as Master Administrator...")}>
+                    <UserCheck size={18} /> Login as Staff
+                  </Button>
+
+                  <div style={{ borderTop: "1.5px solid #f0ece0", paddingTop: "20px", display: "flex", justifyContent: "flex-end" }}>
+                    <button style={{ background: "none", border: "none", color: COLORS.muted, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px", fontWeight: "700" }} onClick={() => alert("Permanent deletion requires database authorization.")}>
+                      <Trash2 size={16} /> Delete Account
+                    </button>
+                  </div>
                 </div>
 
                 {/* 2. Registered Lots */}
-                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                    <div style={{ background: "rgba(230, 126, 34, 0.1)", padding: "10px", borderRadius: "12px", color: COLORS.primary }}>
-                      <Boxes size={24} />
+                <div style={{ background: "#FDFBF4", padding: "32px", borderRadius: "24px", border: "1.5px solid #EBE9E1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+                    <div style={{ width: "80px", height: "80px", borderRadius: "40px", background: "rgba(230, 126, 34, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", color: COLORS.primary }}>
+                      <Boxes size={40} />
                     </div>
-                    <span style={{ fontSize: "12px", fontWeight: "850", color: COLORS.primary, background: "rgba(230, 126, 34, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Warehouse Intake</span>
+                    <span style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, background: "rgba(230, 126, 34, 0.1)", padding: "6px 14px", borderRadius: "20px" }}>Warehoused</span>
                   </div>
-                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Registered Lots</h3>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
-                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{lots.length}</span>
+                  
+                  <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 4px 0", fontFamily: "'Playfair Display', serif" }}>Inventory Lots</h2>
+                  <p style={{ color: COLORS.muted, margin: "0 0 4px 0", fontSize: "16px" }}><b>{lots.length}</b> Recorded Procurements</p>
+                  <div style={{ color: COLORS.primary, display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
+                    <Package size={16} /> <span style={{ fontWeight: "700" }}>{lots.filter(l => l.status === "Pending").length} Unallocated</span>
                   </div>
-                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
-                    <b>{lots.filter(l => l.status === "Pending").length}</b> Awaiting Allocation
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                    <Button variant="outline" style={{ borderRadius: "20px" }} onClick={() => setActiveSection("Lot Creation")}>
+                       Edit Stock
+                    </Button>
+                    <Button variant="outline" style={{ borderRadius: "20px", color: COLORS.danger }} onClick={() => alert("Inventory locking enabled.")}>
+                       Freeze
+                    </Button>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
-                    onClick={() => setActiveSection("Lot Creation")}
-                  >Manage Inventory</Button>
+                  
+                  <div style={{ borderTop: "1.5px solid #f0ece0", paddingTop: "20px", display: "flex", justifyContent: "flex-end" }}>
+                    <button style={{ background: "none", border: "none", color: COLORS.muted, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px", fontWeight: "700" }} onClick={() => alert("Requires Manager PIN to delete recorded lots.")}>
+                      <Trash2 size={16} /> Purge Records
+                    </button>
+                  </div>
                 </div>
 
-                {/* 3. Recorded Allocations */}
-                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                    <div style={{ background: "rgba(52, 152, 219, 0.1)", padding: "10px", borderRadius: "12px", color: "#3498db" }}>
-                      <Gavel size={24} />
+                {/* 3. Generated Documents (Bills & Invoices) */}
+                <div style={{ background: "#FDFBF4", padding: "32px", borderRadius: "24px", border: "1.5px solid #EBE9E1" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+                    <div style={{ width: "80px", height: "80px", borderRadius: "40px", background: "rgba(142, 68, 173, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", color: "#8e44ad" }}>
+                      <FileText size={40} />
                     </div>
-                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#3498db", background: "rgba(52, 152, 219, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Sales Operations</span>
+                    <span style={{ fontSize: "12px", fontWeight: "900", color: "#8e44ad", background: "rgba(142, 68, 173, 0.1)", padding: "6px 14px", borderRadius: "20px" }}>Audit Ready</span>
                   </div>
-                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Recorded Allocations</h3>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
-                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{allocations.length}</span>
+                  
+                  <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: "0 0 4px 0", fontFamily: "'Playfair Display', serif" }}>Financial Docs</h2>
+                  <p style={{ color: COLORS.muted, margin: "0 0 4px 0", fontSize: "16px" }}><b>{supplierBills.length + buyerInvoices.length}</b> Issued Documents</p>
+                  <div style={{ color: "#8e44ad", display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
+                    <FileCheck size={16} /> <span style={{ fontWeight: "700" }}>{supplierBills.length} Bills | {buyerInvoices.length} Invoices</span>
                   </div>
-                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
-                    <b>{formatCurrency(allocations.reduce((s, a) => s + (Number(a.rate) * Number(a.quantity || a.netWeight || 0)), 0))}</b> Total Value
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
-                    onClick={() => setActiveSection("Lot Allocation")}
-                  >View Allocations</Button>
-                </div>
 
-                {/* 4. Generated Bills */}
-                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                    <div style={{ background: "rgba(121, 85, 72, 0.1)", padding: "10px", borderRadius: "12px", color: "#795548" }}>
-                      <Receipt size={24} />
-                    </div>
-                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#795548", background: "rgba(121, 85, 72, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Supplier Payables</span>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+                    <Button variant="outline" style={{ borderRadius: "20px" }} onClick={() => setActiveSection("Supplier Billing")}>
+                       Manage Bills
+                    </Button>
+                    <Button variant="outline" style={{ borderRadius: "20px", color: COLORS.danger }} onClick={() => alert("Document editing requires Admin Override.")}>
+                       Void Doc
+                    </Button>
                   </div>
-                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Generated Bills</h3>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
-                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{supplierBills.length}</span>
+                  
+                  <div style={{ borderTop: "1.5px solid #f0ece0", paddingTop: "20px", display: "flex", justifyContent: "flex-end" }}>
+                    <button style={{ background: "none", border: "none", color: COLORS.muted, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px", fontWeight: "700" }} onClick={() => alert("Permanent document purge restricted for audit trail.")}>
+                      <Trash2 size={16} /> Archive All
+                    </button>
                   </div>
-                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
-                    Audit-ready settlements in bank queue
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
-                    onClick={() => setActiveSection("Supplier Billing")}
-                  >Open Billing Vault</Button>
-                </div>
-
-                {/* 5. Generated Invoices */}
-                <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                    <div style={{ background: "rgba(142, 68, 173, 0.1)", padding: "10px", borderRadius: "12px", color: "#8e44ad" }}>
-                      <CreditCard size={24} />
-                    </div>
-                    <span style={{ fontSize: "12px", fontWeight: "850", color: "#8e44ad", background: "rgba(142, 68, 173, 0.05)", padding: "4px 10px", borderRadius: "20px" }}>Customer Receivables</span>
-                  </div>
-                  <h3 style={{ fontSize: "14px", color: COLORS.muted, fontWeight: "700", margin: 0 }}>Generated Invoices</h3>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px", margin: "12px 0" }}>
-                    <span style={{ fontSize: "32px", fontWeight: "900", color: COLORS.sidebar }}>{buyerInvoices.length}</span>
-                  </div>
-                  <div style={{ fontSize: "13px", color: COLORS.muted }}>
-                    <b>{buyerInvoices.length}</b> Invoices stored in database
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    style={{ width: "100%", marginTop: "16px", fontSize: "13px" }}
-                    onClick={() => setActiveSection("Buyer Invoicing")}
-                  >Manage Invoices</Button>
                 </div>
               </div>
             </div>
@@ -13482,10 +13584,7 @@ Powered by Stacli mandi os`;
               <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                 {/* Header Controls */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", margin: "0 0 4px 0", color: "#1a1a2e" }}>Dashboard</h1>
-                    <p style={{ color: COLORS.muted, margin: 0, fontSize: "14px" }}>Performance overview and live metrics</p>
-                  </div>
+                  <div></div>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <div style={{ position: 'relative' }}>
                       <select 
