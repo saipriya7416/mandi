@@ -4840,7 +4840,7 @@ Powered by Stacli mandi os`;
                           { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceBalance, onChange: (e) => setBuyerForm({ ...buyerForm, advanceBalance: e.target.value }) },
                           { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
                         ],
-                      }
+                      },
                       {
                         title: "Credit Details",
                         fields: [
