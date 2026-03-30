@@ -355,10 +355,9 @@ const PremiumActionCard = ({
           fontFamily: "'Montserrat', sans-serif",
           letterSpacing: "-0.3px" 
         }}>{title}</h3>
-        <p style={{ margin: "4px 0 8px 0", fontSize: "14px", color: COLORS.muted, fontWeight: "600" }}>{subtitle || "No email provided"}</p>
         
         {details.filter(d => d.icon === ICON_PHONE).map((d, idx) => (
-          <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center", color: "#E11D48" }}>
+          <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center", color: "#166534" }}>
             <span style={{ display: "flex", width: "16px" }}>{d.icon}</span>
             <span style={{ fontSize: "13px", fontWeight: "700" }}>{d.text}</span>
           </div>
@@ -378,45 +377,38 @@ const PremiumActionCard = ({
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: secondaryActions[1] || onLock ? "2fr 1fr" : "1fr", gap: "10px" }}>
-          {(secondaryActions[0] || (!secondaryActions[0] && secondaryActions.length === 0)) && (
-          <button 
-            onClick={secondaryActions[0]?.onClick}
-            style={{
-              padding: "12px",
-              borderRadius: "24px",
-              background: "#fff",
-              color: "#1a1a2e",
-              border: "1.5px solid #E2E8F0",
-              fontWeight: "800",
-              fontSize: "13px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              cursor: "pointer"
-            }}
-          >
-            {secondaryActions[0]?.icon || ICON_EDIT} {secondaryActions[0]?.label || "Edit"}
-          </button>
-          )}
-          {(secondaryActions[1] || onLock) && (
-          <button 
-            onClick={secondaryActions[1]?.onClick || onLock}
-            style={{
-              padding: "12px",
-              borderRadius: "24px",
-              background: "#fff",
-              color: "#E11D48",
-              border: "1.5px solid #E2E8F0",
-              fontWeight: "800",
-              fontSize: "13px",
-              cursor: "pointer"
-            }}
-          >
-            {secondaryActions[1]?.label || "Disable"}
-          </button>
-          )}
+        <div style={{ display: "grid", gridTemplateColumns: secondaryActions.length > 1 ? "1fr 1fr" : "1fr", gap: "10px" }}>
+          {secondaryActions.map((act, idx) => (
+            <button 
+              key={idx}
+              onClick={act.onClick}
+              style={{
+                padding: "14px",
+                borderRadius: "12px",
+                background: idx === 0 ? "#1e293b" : "#f1f5f9",
+                color: idx === 0 ? "#ffffff" : "#1e293b",
+                border: "none",
+                fontWeight: "800",
+                fontSize: "13px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.opacity = "0.9";
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.opacity = "1";
+              }}
+            >
+              {act.icon} {act.label}
+            </button>
+          ))}
         </div>
 
         {primaryAction && (
@@ -881,12 +873,13 @@ function OthersDropdown({
             width: "100%",
             padding: "12px 14px",
             borderRadius: "8px",
-            border: "1px solid #EBE9E1",
-            background: disabled ? "#FDFBF4" : COLORS.secondary,
-            color: disabled ? COLORS.muted : "#FFFFFF",
+            border: "1.5px solid #EBE9E1",
+            background: (disabled ? "#FDFBF4" : "#FFFFFF") + " !important",
+            color: (disabled ? COLORS.muted : COLORS.sidebar) + " !important",
             outline: "none",
             fontSize: "13px",
             fontWeight: "600",
+            ...style
           }}
         />
         <datalist id={listId}>
@@ -969,17 +962,18 @@ function FormGrid({ sections }) {
                       style={{
                         padding: "12px 14px",
                         borderRadius: "8px",
-                        border: "1px solid #EBE9E1",
-                        background: f.disabled ? "#FDFBF4" : COLORS.secondary,
-                        color: f.disabled ? COLORS.muted : "#FFFFFF",
+                        border: "1.5px solid #EBE9E1",
+                        background: (f.disabled ? "#FDFBF4" : "#FFFFFF") + " !important",
+                        color: (f.disabled ? COLORS.muted : COLORS.sidebar) + " !important",
                         outline: "none",
                         fontSize: "13px",
                         fontWeight: "600",
                         cursor: "pointer",
+                        appearance: "auto"
                       }}
                     >
                       {f.options && f.options.map((opt, i) => (
-                        <option key={i} value={opt}>{opt}</option>
+                        <option key={i} value={opt} style={{ background: COLORS.secondary, color: "#FFFFFF" }}>{opt}</option>
                       ))}
                     </select>
                   ) : (
@@ -1313,6 +1307,8 @@ Powered by Stacli mandi os`;
     idType: "Aadhaar",
     govIdNumber: "",
     bankAccount: "",
+    bankLocation: "",
+    bankBranch: "",
     ifsc: "",
     advanceBalance: "",
     notes: "",
@@ -1330,6 +1326,8 @@ Powered by Stacli mandi os`;
     govIdNumber: "",
     idType: "Aadhaar",
     bankAccount: "",
+    bankLocation: "",
+    bankBranch: "",
     ifsc: "",
     advanceBalance: "",
     creditLimit: "",
@@ -1376,6 +1374,8 @@ Powered by Stacli mandi os`;
       pan: supplierForm.idType === "PAN" ? supplierForm.govIdNumber : "",
       voterId: supplierForm.idType === "Voter ID" ? supplierForm.govIdNumber : "",
       bankAccount: supplierForm.bankAccount,
+      bankLocation: supplierForm.bankLocation,
+      bankBranch: supplierForm.bankBranch,
       ifsc: supplierForm.ifsc,
       advanceBalance: supplierForm.advanceBalance,
       notes: supplierForm.notes || "Registered via Profile Hub",
@@ -1412,6 +1412,8 @@ Powered by Stacli mandi os`;
         idType: "Aadhaar",
         govIdNumber: "",
         bankAccount: "",
+        bankLocation: "",
+        bankBranch: "",
         ifsc: "",
         advanceBalance: "",
         notes: "",
@@ -1433,6 +1435,8 @@ Powered by Stacli mandi os`;
         govIdNumber: "",
         creditLimit: "",
         bankAccount: "",
+        bankLocation: "",
+        bankBranch: "",
         ifsc: "",
         advanceBalance: "",
         notes: "",
@@ -1627,6 +1631,8 @@ Powered by Stacli mandi os`;
         idType: record.idType || (record.aadhaar ? "Aadhaar" : record.pan ? "PAN" : record.voterId ? "Voter ID" : "Aadhaar"),
         govIdNumber: record.govIdNumber || record.aadhaar || record.pan || record.voterId || "",
         bankAccount: record.bankAccount || "",
+        bankLocation: record.bankLocation || "",
+        bankBranch: record.bankBranch || "",
         ifsc: record.ifsc || "",
         advanceBalance: record.advanceBalance || "",
         notes: record.notes || "",
@@ -1647,6 +1653,11 @@ Powered by Stacli mandi os`;
         idType: record.idType || "Aadhaar",
         govIdNumber: record.govIdNumber || "",
         creditLimit: record.creditLimit || "",
+        bankAccount: record.bankAccount || "",
+        bankLocation: record.bankLocation || "",
+        bankBranch: record.bankBranch || "",
+        ifsc: record.ifsc || "",
+        advanceBalance: record.advanceBalance || "",
         notes: record.notes || "",
       });
       setIsEditingBuyer(true);
@@ -1941,6 +1952,11 @@ Powered by Stacli mandi os`;
       idType: buyerForm.idType,
       govIdNumber: buyerForm.govIdNumber || "N/A",
       creditLimit: Number(buyerForm.creditLimit) || 0,
+      bankAccount: buyerForm.bankAccount || "",
+      bankLocation: buyerForm.bankLocation || "",
+      bankBranch: buyerForm.bankBranch || "",
+      ifsc: buyerForm.ifsc || "",
+      advanceBalance: buyerForm.advanceBalance || "",
       notes: "Registered via Unified Dashboard",
     };
     try {
@@ -4799,6 +4815,8 @@ Powered by Stacli mandi os`;
                         title: "Bank Details",
                         fields: [
                           { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
+                          { label: "Bank Location", placeholder: "Bank City/Location", value: supplierForm.bankLocation, onChange: (e) => setSupplierForm({ ...supplierForm, bankLocation: e.target.value }) },
+                          { label: "Bank Branch", placeholder: "Branch Name", value: supplierForm.bankBranch, onChange: (e) => setSupplierForm({ ...supplierForm, bankBranch: e.target.value }) },
                           { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
                           { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
                           { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
@@ -4841,6 +4859,8 @@ Powered by Stacli mandi os`;
                         title: "Bank Details",
                         fields: [
                           { label: "Bank Account No.", type: "number", placeholder: "For bank settlements", value: buyerForm.bankAccount, onChange: (e) => setBuyerForm({ ...buyerForm, bankAccount: e.target.value }) },
+                          { label: "Bank Location", placeholder: "Bank City/Location", value: buyerForm.bankLocation, onChange: (e) => setBuyerForm({ ...buyerForm, bankLocation: e.target.value }) },
+                          { label: "Bank Branch", placeholder: "Branch Name", value: buyerForm.bankBranch, onChange: (e) => setBuyerForm({ ...buyerForm, bankBranch: e.target.value }) },
                           { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerForm, ifsc: e.target.value }) },
                           { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceBalance, onChange: (e) => setBuyerForm({ ...buyerForm, advanceBalance: e.target.value }) },
                           { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
@@ -4903,7 +4923,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={s._id}
                               title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                              subtitle={s.phone || "No phone registered"}
+                              subtitle=""
                               icon={ICON_USER}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -4911,27 +4931,9 @@ Powered by Stacli mandi os`;
                                 { icon: ICON_PHONE, text: s.phone || "N/A" },
                                 { icon: ICON_LOCATION, text: s.village || "Location N/A" }
                               ]}
-                              primaryAction={{ 
-                                label: "Login as Staff", 
-                                icon: ICON_USER, 
-                                onClick: async () => {
-                                  try {
-                                    const res = await MandiService.getSupplier(s._id);
-                                    const record = res?.data || res;
-                                    if (record && record.name) {
-                                      alert(`✅ Logged in as Staff for: ${record.name}\nID: ${record.supplierId || s._id}\nPhone: ${record.phone || 'N/A'}`);
-                                      setViewingEntity({ type: "Supplier", data: record });
-                                    } else {
-                                      alert("⚠️ Record not found in database.");
-                                    }
-                                  } catch (err) {
-                                    alert("❌ Authentication failed. Could not connect to database.");
-                                  }
-                                } 
-                              }}
                               secondaryActions={[
-                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } },
-                                { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Supplier", data: s }), variant: 'primary' }
+                                { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Supplier", data: s }), variant: 'primary' },
+                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } }
                               ]}
                               onDelete={() => {
                                 const code = prompt("🔒 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
@@ -4950,7 +4952,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={b._id}
                               title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
-                              subtitle={b.phone || b.name}
+                              subtitle=""
                               icon={ICON_SHOP}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -4958,27 +4960,9 @@ Powered by Stacli mandi os`;
                                 { icon: ICON_PHONE, text: b.phone || "N/A" },
                                 { icon: ICON_LOCATION, text: b.address || "Location N/A" }
                               ]}
-                              primaryAction={{ 
-                                label: "Login as Staff", 
-                                icon: ICON_USER, 
-                                onClick: async () => {
-                                  try {
-                                    const res = await MandiService.getBuyer(b._id);
-                                    const record = res?.data || res;
-                                    if (record && record.name) {
-                                      alert(`✅ Logged in as Staff for: ${record.name}\nID: ${record.buyerId || b._id}\nPhone: ${record.phone || 'N/A'}`);
-                                      setViewingEntity({ type: "Customer", data: record });
-                                    } else {
-                                      alert("⚠️ Record not found in database.");
-                                    }
-                                  } catch (err) {
-                                    alert("❌ Authentication failed. Could not connect to database.");
-                                  }
-                                } 
-                              }}
                               secondaryActions={[
-                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } },
-                                { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: 'primary' }
+                                { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: 'primary' },
+                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } }
                               ]}
                               onDelete={() => {
                                 const code = prompt("🔒 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
