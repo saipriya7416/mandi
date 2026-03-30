@@ -288,6 +288,7 @@ const PremiumActionCard = ({
   secondaryActions = [],
   onDelete,
   onLock,
+  children,
 }) => {
   const initial = typeof title === 'object' && title.props?.text ? title.props.text.charAt(0) : (String(title).charAt(0) || "?");
   
@@ -364,6 +365,18 @@ const PremiumActionCard = ({
           </div>
         ))}
       </div>
+
+      {children && (
+        <div style={{ 
+          background: "#f8fafc", 
+          borderRadius: "12px", 
+          padding: "16px",
+          border: "1px solid #E2E8F0",
+          fontSize: "12px"
+        }}>
+          {children}
+        </div>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: secondaryActions[1] || onLock ? "2fr 1fr" : "1fr", gap: "10px" }}>
@@ -5000,7 +5013,7 @@ Powered by Stacli mandi os`;
                 </Card>
                 <div style={{ display: "flex", gap: "16px", marginTop: "20px", paddingBottom: "8px" }}>
                   <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800" }} onClick={() => setActiveUserRoleTab("Buyer")}>← Previous</Button>
-                  <Button style={{ background: COLORS.sidebar, color: "#fff", fontWeight: "800" }} onClick={fetchData}>🔄 Refresh Data</Button>
+                  <Button style={{ background: COLORS.sidebar, color: "#fff", fontWeight: "800" }} onClick={fetchData}>Refresh Data</Button>
                 </div>
                 </div>
               )}
@@ -5336,7 +5349,35 @@ Powered by Stacli mandi os`;
                               primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "LOT", data: l }) }}
                               onDelete={isAdmin ? () => handleDeleteLot(l._id) : undefined}
                               onLock={() => alert("Lot record locked.")}
-                            />
+                            >
+                              <div style={{ marginBottom: "8px", fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Line Items</div>
+                              <div style={{ overflowX: "auto" }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
+                                  <thead>
+                                    <tr style={{ borderBottom: "1.5px solid #E2E8F0", textAlign: "left", color: COLORS.muted }}>
+                                      <th style={{ padding: "8px 4px" }}>Product</th>
+                                      <th style={{ padding: "8px 4px", textAlign: "right" }}>Wt</th>
+                                      <th style={{ padding: "8px 4px", textAlign: "right" }}>Est. Rate</th>
+                                      <th style={{ padding: "8px 4px", textAlign: "right" }}>Total</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {(l.lineItems || []).map((it, idx) => {
+                                      const pName = `${it.product || it.productId || ""} ${it.variety || ""}`.trim() || "Produce";
+                                      const totalAmt = Number(it.grossWeight) * Number(it.estimatedRate);
+                                      return (
+                                        <tr key={idx} style={{ borderBottom: idx < l.lineItems.length - 1 ? "1px solid #F1F5F9" : "none" }}>
+                                          <td style={{ padding: "8px 4px", fontWeight: "700" }}>{pName}</td>
+                                          <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "700" }}>{it.grossWeight} {it.weightUnit}</td>
+                                          <td style={{ padding: "8px 4px", textAlign: "right", color: COLORS.primary }}>₹{it.estimatedRate}</td>
+                                          <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "900" }}>₹{totalAmt.toLocaleString()}</td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </PremiumActionCard>
                           );
                         })}
                       {lots.length === 0 && (
@@ -6375,14 +6416,14 @@ Powered by Stacli mandi os`;
                         <input
                           type="text"
                           disabled
-                          value={item.balanceLeft}
+                          value={Number(item.balanceLeft || 0) - Number(item.quantity || 0)}
                           style={{
                             padding: "12px 14px",
                             borderRadius: "8px",
                             border: "1px solid #EBE9E1",
                             background: "#F1F5F9",
                             color:
-                              item.balanceLeft <= 0
+                              Number(item.balanceLeft || 0) - Number(item.quantity || 0) <= 0
                                 ? "#CC0000"
                                 : COLORS.primary,
                             fontSize: "13px",
@@ -6467,6 +6508,40 @@ Powered by Stacli mandi os`;
                             outline: "none",
                             fontSize: "13px",
                             fontWeight: "600",
+                          }}
+                        />
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <label
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "700",
+                            color: COLORS.muted,
+                          }}
+                        >
+                          Allocated Amount (₹) Auto
+                        </label>
+                        <input
+                          type="text"
+                          disabled
+                          value={
+                            Number(item.quantity) * Number(item.saleRate) || 0
+                          }
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #EBE9E1",
+                            background: "#FFF4E5",
+                            color: "#D97706",
+                            fontSize: "13px",
+                            fontWeight: "800",
                           }}
                         />
                       </div>
@@ -6601,36 +6676,74 @@ Powered by Stacli mandi os`;
 
                 <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
-                    {allocations
-                      .filter(a => {
-                        const customerName = (a.buyerId?.name || a.buyerId || "").toLowerCase();
-                        const invoiceNo = (a.buyerInvoiceNo || "").toLowerCase();
-                        const query = (allocationSearchQuery || "").toLowerCase();
-                        const dateMatch = isWithinFilterRange(a.allocationDate || a.date);
-                        return dateMatch && (customerName.includes(query) || invoiceNo.includes(query));
-                      })
-                      .slice()
-                      .reverse()
-                      .map((a) => (
+                    {(() => {
+                      const filtered = allocations
+                        .filter(a => {
+                          const customerName = (a.buyerId?.name || a.buyerId || "").toLowerCase();
+                          const invoiceNo = (a.buyerInvoiceNo || "").toLowerCase();
+                          const query = (allocationSearchQuery || "").toLowerCase();
+                          const dateMatch = isWithinFilterRange(a.allocationDate || a.date);
+                          return dateMatch && (customerName.includes(query) || invoiceNo.includes(query));
+                        })
+                        .slice()
+                        .reverse();
+
+                      // Group by Buyer Name
+                      const groups = filtered.reduce((acc, a) => {
+                        const name = a.buyerId?.name || a.buyerId || "Buyer";
+                        if (!acc[name]) acc[name] = [];
+                        acc[name].push(a);
+                        return acc;
+                      }, {});
+
+                      return Object.entries(groups).map(([buyerName, items]) => (
                         <PremiumActionCard
-                          key={a._id || Date.now() + Math.random()}
-                          title={<SmartDataNode text={a.buyerId?.name || a.buyerId || "Buyer"} type="Name" data={a.buyerId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
-                          subtitle={a.buyerInvoiceNo ? <SmartDataNode text={`INV: ${a.buyerInvoiceNo}`} type="Invoice" data={a} /> : "UNASSIGNED"}
+                          key={buyerName}
+                          title={<SmartDataNode text={buyerName} type="Name" data={items[0].buyerId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
+                          subtitle={items[0].buyerInvoiceNo ? <SmartDataNode text={`INV: ${items[0].buyerInvoiceNo}`} type="Invoice" data={items[0]} /> : "UNASSIGNED"}
                           icon={ICON_USER}
                           status={{ text: "Allocated", color: "#1d4ed8", bg: "#dbeafe" }}
                           details={[
-                            { icon: ICON_SHOP, text: `Lot: ${a.lineItemId || "N/A"}` },
-                            { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>⚖️</span>, text: `${a.quantity} KG @ ₹${a.rate}/KG` },
-                            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: a.allocationDate }
+                            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: items[0].allocationDate }
                           ]}
                           secondaryActions={[
-                            { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(a); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
+                            { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(items[0]); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
                           ]}
-                          primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: a }) }}
-                          onDelete={isAdmin ? () => { if (window.confirm("Delete this allocation record?")) handleDeleteAllocation(a._id); } : undefined}
-                          onLock={() => alert("Allocation record finalized.")}
-                        />
-                      ))}
+                          primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: items[0] }) }}
+                          onDelete={isAdmin ? () => { if (window.confirm("Delete this allocation group?")) items.forEach(i => handleDeleteAllocation(i._id)); } : undefined}
+                          onLock={() => alert("Allocation group finalized.")}
+                        >
+                          <div style={{ marginBottom: "8px", fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Line Items</div>
+                          <div style={{ overflowX: "auto" }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
+                              <thead>
+                                <tr style={{ borderBottom: "1.5px solid #E2E8F0", textAlign: "left", color: COLORS.muted }}>
+                                  <th style={{ padding: "8px 4px" }}>Product</th>
+                                  <th style={{ padding: "8px 4px", textAlign: "right" }}>Qty</th>
+                                  <th style={{ padding: "8px 4px", textAlign: "right" }}>Rate</th>
+                                  <th style={{ padding: "8px 4px", textAlign: "right" }}>Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {items.map((it, idx) => (
+                                  <tr key={idx} style={{ borderBottom: idx < items.length - 1 ? "1px solid #F1F5F9" : "none" }}>
+                                    <td style={{ padding: "8px 4px", fontWeight: "700" }}>
+                                      <div style={{ display: "flex", flexDirection: "column" }}>
+                                        <span>{it.lineItemId || "Produce"}</span>
+                                        <span style={{ fontSize: '9px', color: COLORS.muted }}>Lot: {it.lotNumber || it.lotReference || "-"}</span>
+                                      </div>
+                                    </td>
+                                    <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "700" }}>{it.quantity} KG</td>
+                                    <td style={{ padding: "8px 4px", textAlign: "right", color: COLORS.primary }}>₹{it.rate}</td>
+                                    <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "900" }}>₹{(Number(it.quantity) * Number(it.rate)).toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </PremiumActionCard>
+                      ));
+                    })()}
                     {allocations.length === 0 && (
                       <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No recorded allocations found.</p>
                     )}
@@ -18168,30 +18281,63 @@ Powered by Stacli mandi os`;
                           {typeof value === "object" && value !== null ? (
                             Array.isArray(value) ? (
                               value.length > 0 ? (
+                                (() => {
+                                  // Inject calculated columns for line items
+                                  let displayValue = value;
+                                  if (key === 'lineItems' || key === 'produce' || key === 'items') {
+                                    const supplier = suppliers?.find(s => s._id === viewingEntity.data.supplierId) || viewingEntity.data.supplierId || {};
+                                    const advancePayment = Number(supplier.advanceBalance || viewingEntity.data.advancePayment || 0);
+
+                                    displayValue = value.map(row => {
+                                      const gross = Number(row.grossWeight || 0);
+                                      const rate = Number(row.estimatedRate || row.rate || 0);
+                                      const deduct = (Number(row.deductions) || 0);
+                                      const totalAmount = Math.max(0, gross - deduct) * rate;
+                                      const thotrasi = totalAmount * 0.06;
+                                      const grading = totalAmount * 0.04; // Assuming 4% typical grading deduction
+                                      const netAmount = totalAmount - thotrasi - grading;
+                                      
+                                      return {
+                                        ...row,
+                                        totalAmount: Number(totalAmount.toFixed(2)),
+                                        totarasiDeduction: Number(thotrasi.toFixed(2)),
+                                        gradingDeduction: Number(grading.toFixed(2)),
+                                        advancePaymentTaken: advancePayment,
+                                        balanceAmount: Number((netAmount - advancePayment).toFixed(2))
+                                      };
+                                    });
+                                  }
+                                  
+                                  return (
                                 <div style={{ overflowX: "auto", marginTop: "8px" }}>
-                                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "8px", overflow: "hidden" }}>
+                                  <table style={{ minWidth: "800px", width: "100%", borderCollapse: "collapse", fontSize: "13px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "8px", overflow: "hidden" }}>
                                     <thead>
                                       <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
-                                        {Object.keys(value[0]).map(k => (
-                                          <th key={k} style={{ padding: "10px", textAlign: "left", color: COLORS.muted, fontWeight: "900" }}>
+                                        {Object.keys(displayValue[0]).filter(k => k !== '_id' && k !== 'id').map(k => (
+                                          <th key={k} style={{ padding: "10px", textAlign: "left", color: COLORS.muted, fontWeight: "900", whiteSpace: "nowrap" }}>
                                             {k.replace(/([A-Z])/g, " $1").trim().toUpperCase()}
                                           </th>
                                         ))}
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {value.map((row, rIdx) => (
+                                      {displayValue.map((row, rIdx) => (
                                         <tr key={rIdx} style={{ borderBottom: "1px solid #F1F5F9" }}>
-                                          {Object.values(row).map((cell, cIdx) => (
-                                            <td key={cIdx} style={{ padding: "10px", color: COLORS.sidebar, fontWeight: "700" }}>
+                                          {Object.keys(displayValue[0]).filter(k => k !== '_id' && k !== 'id').map(k => {
+                                            const cell = row[k];
+                                            return (
+                                            <td key={k} style={{ padding: "10px", color: COLORS.sidebar, fontWeight: "700", whiteSpace: "nowrap" }}>
                                               {typeof cell === 'object' && cell !== null ? JSON.stringify(cell) : String(cell || "-")}
                                             </td>
-                                          ))}
+                                            );
+                                          })}
                                         </tr>
                                       ))}
                                     </tbody>
                                   </table>
                                 </div>
+                                  );
+                                })()
                               ) : "[]"
                             ) : (
                               <div style={{ marginTop: "8px" }}>
