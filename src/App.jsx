@@ -257,16 +257,20 @@ const SmartDataNode = ({ text, type, data = {}, onAdd, onView }) => {
           animation: 'fadeIn 0.2s ease-out'
         }}>
           <button 
-            onClick={() => { onView ? onView() : openDetailsInNewTab(); }}
-            style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#F8FAFC', color: '#1f3a2b', fontWeight: '800', fontSize: '11px', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: '8px', alignItems: 'center' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setHover(false);
+              if (onAdd) {
+                onAdd();
+              } else if (onView) {
+                onView();
+              } else {
+                openDetailsInNewTab();
+              }
+            }}
+            style={{ padding: '10px 14px', borderRadius: '8px', border: 'none', background: '#D4A017', color: '#fff', fontWeight: '800', fontSize: '12px', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: '8px', alignItems: 'center' }}
           >
             📂 View details
-          </button>
-          <button 
-            onClick={onAdd}
-            style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#D4A017', color: 'white', fontWeight: '800', fontSize: '11px', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: '8px', alignItems: 'center' }}
-          >
-            ➕ Add {type === 'Name' ? 'the name' : (type === 'Bill' ? 'bill no' : 'invoice number')}
           </button>
         </div>
       )}
@@ -770,114 +774,175 @@ const TabHeader = ({ tabs, active, set }) => (
   </div>
 );
 
-const FormGrid = ({ sections }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-    {sections.map((sec, i) => (
-      <div
-        key={i}
-        style={{
-          background: "#FFFFFF",
-          padding: "32px",
-          borderRadius: "12px",
-          border: "1px solid #EBE9E1",
-        }}
-      >
-        <h3
-          style={{
-            fontSize: "16px",
-            fontWeight: "800",
-            color: COLORS.sidebar,
-            borderBottom: "1px solid #EBE9E1",
-            paddingBottom: "16px",
-            marginBottom: "24px",
-            marginTop: 0,
-          }}
-        >
-          {sec.title}
-        </h3>
+function FormGrid({ sections }) {
+  const [othersMap, setOthersMap] = React.useState({});
+
+  const setOther = (key, val) =>
+    setOthersMap((prev) => ({ ...prev, [key]: val }));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {sections.map((sec, i) => (
         <div
+          key={i}
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "24px",
+            background: "#FFFFFF",
+            padding: "32px",
+            borderRadius: "12px",
+            border: "1px solid #EBE9E1",
           }}
         >
-          {sec.fields.map((f, j) => (
-            <div
-              key={j}
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-            >
-              <label
-                style={{
-                  fontSize: "12px",
-                  fontWeight: "700",
-                  color: COLORS.muted,
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
-                <span>{f.label}</span>
-                {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
-              </label>
-              {f.type === "select" ? (
-                <select
-                  value={f.value}
-                  defaultValue={
-                    f.value === undefined ? f.defaultValue : undefined
-                  }
-                  onChange={f.onChange}
-                  disabled={f.disabled}
-                  style={{
-                    padding: "12px 14px",
-                    borderRadius: "8px",
-                    border: "1px solid #EBE9E1",
-                    background: f.disabled ? "#FDFBF4" : "#FFFFFF",
-                    color: COLORS.sidebar,
-                    outline: "none",
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    appearance: "none",
-                  }}
+          <h3
+            style={{
+              fontSize: "16px",
+              fontWeight: "800",
+              color: COLORS.sidebar,
+              borderBottom: "1px solid #EBE9E1",
+              paddingBottom: "16px",
+              marginBottom: "24px",
+              marginTop: 0,
+            }}
+          >
+            {sec.title}
+          </h3>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "24px",
+            }}
+          >
+            {sec.fields.map((f, j) => {
+              const key = `${i}-${j}`;
+              const isOther = othersMap[key];
+              return (
+                <div
+                  key={j}
+                  style={{ display: "flex", flexDirection: "column", gap: "8px" }}
                 >
-                  <option value="" disabled selected={f.value === undefined}>
-                    Select {f.label}
-                  </option>
-                  {f.options?.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type={f.type || "text"}
-                  list={f.list}
-                  placeholder={f.placeholder || ""}
-                  disabled={f.disabled}
-                  value={f.value}
-                  defaultValue={
-                    f.value === undefined ? f.defaultValue : undefined
-                  }
-                  onChange={f.onChange}
-                  style={{
-                    padding: "12px 14px",
-                    borderRadius: "8px",
-                    border: "1px solid #EBE9E1",
-                    background: f.disabled ? "#FDFBF4" : "#FFFFFF",
-                    color: f.disabled ? COLORS.muted : COLORS.sidebar,
-                    outline: "none",
-                    fontSize: "13px",
-                    fontWeight: "600",
-                  }}
-                />
-              )}
-            </div>
-          ))}
+                  <label
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: "700",
+                      color: COLORS.muted,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <span>{f.label}</span>
+                    {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
+                  </label>
+                  {f.type === "select" ? (
+                    isOther ? (
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        <input
+                          type="text"
+                          placeholder={`Type ${f.label}...`}
+                          value={f.value === "Others" ? "" : f.value}
+                          onChange={f.onChange}
+                          autoFocus
+                          style={{
+                            flex: 1,
+                            padding: "12px 14px",
+                            borderRadius: "8px",
+                            border: "1.5px solid #D4A017",
+                            background: "#FFFEF5",
+                            color: COLORS.sidebar,
+                            outline: "none",
+                            fontSize: "13px",
+                            fontWeight: "600",
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            setOther(key, false);
+                            if (f.onChange) f.onChange({ target: { value: "" } });
+                          }}
+                          title="Back to list"
+                          style={{
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            border: "1px solid #EBE9E1",
+                            background: "#F8FAFC",
+                            color: COLORS.muted,
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            lineHeight: 1,
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <select
+                        value={f.value}
+                        defaultValue={
+                          f.value === undefined ? f.defaultValue : undefined
+                        }
+                        onChange={(e) => {
+                          if (e.target.value === "Others") {
+                            setOther(key, true);
+                            if (f.onChange) f.onChange({ target: { value: "Others" } });
+                          } else {
+                            if (f.onChange) f.onChange(e);
+                          }
+                        }}
+                        disabled={f.disabled}
+                        style={{
+                          padding: "12px 14px",
+                          borderRadius: "8px",
+                          border: "1px solid #EBE9E1",
+                          background: f.disabled ? "#FDFBF4" : "#FFFFFF",
+                          color: COLORS.sidebar,
+                          outline: "none",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          appearance: "none",
+                        }}
+                      >
+                        <option value="" disabled>
+                          Select {f.label}
+                        </option>
+                        <option value="Others">Others</option>
+                        {f.options?.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    )
+                  ) : (
+                    <input
+                      type={f.type || "text"}
+                      list={f.list}
+                      placeholder={f.placeholder || ""}
+                      disabled={f.disabled}
+                      value={f.value}
+                      defaultValue={
+                        f.value === undefined ? f.defaultValue : undefined
+                      }
+                      onChange={f.onChange}
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #EBE9E1",
+                        background: f.disabled ? "#FDFBF4" : "#FFFFFF",
+                        color: f.disabled ? COLORS.muted : COLORS.sidebar,
+                        outline: "none",
+                        fontSize: "13px",
+                        fontWeight: "600",
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+}
 
 // --- MAIN ARCHITECTURE ---
 export default function App() {
@@ -1182,6 +1247,7 @@ Powered by Stacli mandi os`;
     notes: "",
   });
   const [buyerForm, setBuyerForm] = useState({
+    invoiceNo: "",
     name: "",
     shopName: "",
     phone: "",
@@ -1780,8 +1846,10 @@ Powered by Stacli mandi os`;
 
   const handleRegisterBuyer = async () => {
     if (!buyerForm.name || !buyerForm.phone)
-      return alert("Name and phone are required!");
+      return alert("Customer Name and phone are required!");
+    const nextInvoiceNo = isEditingBuyer ? buyerForm.invoiceNo : (buyers.length + 1);
     const payload = {
+      invoiceNo: nextInvoiceNo,
       name: buyerForm.name,
       phone: buyerForm.phone,
       address: buyerForm.address || "unknown",
@@ -3218,7 +3286,7 @@ Powered by Stacli mandi os`;
     },
     {
       id: "Ledger",
-      roles: ["Owner / Admin", "Accountant"],
+      roles: ["Owner / Admin", "Accountant", "Viewer"],
       label: "Ledger System",
       icon: <BookOpen size={20} strokeWidth={1.8} />,
     },
@@ -3230,7 +3298,7 @@ Powered by Stacli mandi os`;
     },
     {
       id: "Records Tracking",
-      roles: ["Owner / Admin", "Accountant"],
+      roles: ["Owner / Admin", "Accountant", "Viewer"],
       label: "Recorded Data",
       icon: <Database size={20} strokeWidth={1.8} />,
     },
@@ -3383,10 +3451,10 @@ Powered by Stacli mandi os`;
           style={{
             animation: "slideUp 0.6s ease-out",
             width: "100%",
-            maxWidth: "520px",
+            maxWidth: "420px",
             background: "#ffffff",
             borderRadius: "32px",
-            padding: "40px 40px",
+            padding: "32px 32px",
             boxShadow: "0 20px 60px rgba(0,0,0,0.04)",
             border: "1px solid #eef2ee",
             textAlign: "center",
@@ -3401,8 +3469,8 @@ Powered by Stacli mandi os`;
           >
             <div
               style={{
-                width: "95px",
-                height: "95px",
+                width: "80px",
+                height: "80px",
                 borderRadius: "50%",
                 background: "#fff",
                 display: "flex",
@@ -3481,7 +3549,6 @@ Powered by Stacli mandi os`;
                 { id: "Admin", val: "Owner / Admin" },
                 { id: "Staff", val: "Operations Staff" },
                 { id: "Accountant", val: "Accountant" },
-                { id: "Viewer", val: "Viewer" },
               ].map((r, idx) => {
                 const isSelected = authForm.role === r.val;
                 return (
@@ -4060,7 +4127,7 @@ Powered by Stacli mandi os`;
                 }}
               >
                 <RefreshCw size={18} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
-                <span>{isRefreshing ? "Syncing..." : "Refresh each pagg"}</span>
+                <span>{isRefreshing ? "Syncing..." : "Refresh"}</span>
               </button>
             </div>
           </div>
@@ -4519,16 +4586,21 @@ Powered by Stacli mandi os`;
                           { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
                         ],
                       },
-                    ].filter((_, idx) => (partyStep === 1 ? idx < 3 : false))}
+                    ].filter((_, idx) => (partyStep === 1 ? idx < 2 : (partyStep === 2 ? idx === 2 : false)))}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? "Update Records" : "Submit Details"}</Button>
                     
-                    {partyStep === 1 ? (
-                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next</Button>
-                    ) : (
-                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
-                    )}
+                    <div style={{ display: "flex", gap: "16px" }}>
+                      {partyStep === 1 ? (
+                        <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next Step</Button>
+                      ) : (
+                        <>
+                          <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
+                          <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next: Customer Registration</Button>
+                        </>
+                      )}
+                    </div>
 
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Registered</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
@@ -4543,8 +4615,8 @@ Powered by Stacli mandi os`;
                       {
                         title: "Customer Profile & Location",
                         fields: [
-                          { label: "Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
-                          { label: "Shop / Business Name *", placeholder: "Shop / Business Name", value: buyerForm.shopName, onChange: (e) => setBuyerForm({ ...buyerForm, shopName: e.target.value }) },
+                          { label: "Invoice Number", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.invoiceNo : `CUST-${buyers.length + 1}`, disabled: true, info: `#${buyers.length + 1}` },
+                          { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
                           { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
                           { label: "Location Type *", type: "select", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTown: e.target.value }) },
@@ -4587,11 +4659,13 @@ Powered by Stacli mandi os`;
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
                     
                     <div style={{ display: "flex", gap: "16px" }}>
-                      {partyStep === 2 && (
-                        <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
-                      )}
-                      {partyStep === 1 && (
+                      {partyStep === 1 ? (
                         <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next Step</Button>
+                      ) : (
+                        <>
+                          <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
+                          <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Registered Members"); setPartyStep(1); }}>Next: Registered Members</Button>
+                        </>
                       )}
                     </div>
 
@@ -4638,7 +4712,7 @@ Powered by Stacli mandi os`;
                           suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).map((s) => (
                             <PremiumActionCard
                               key={s._id}
-                              title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => setActiveUserRoleTab("Supplier")} />}
+                              title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
                               subtitle={`SUP-${(s._id || "NEW").slice(-6).toUpperCase()}`}
                               icon={ICON_USER}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -4651,7 +4725,7 @@ Powered by Stacli mandi os`;
                                 { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } },
                                 { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Supplier", data: s }), variant: 'primary' }
                               ]}
-                              onDelete={() => handleDeleteSupplier(s._id)}
+                              onDelete={isAdmin ? () => handleDeleteSupplier(s._id) : undefined}
                               onLock={() => alert("Profile locked for security.")}
                             />
                           ))
@@ -4663,7 +4737,7 @@ Powered by Stacli mandi os`;
                           buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).map((b) => (
                             <PremiumActionCard
                               key={b._id}
-                              title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => setActiveUserRoleTab("Buyer")} />}
+                              title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
                               subtitle={`CUST-${(b._id || "NEW").slice(-6).toUpperCase()}`}
                               icon={ICON_SHOP}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -4676,7 +4750,7 @@ Powered by Stacli mandi os`;
                                 { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } },
                                 { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: 'primary' }
                               ]}
-                              onDelete={() => handleDeleteBuyer(b._id)}
+                              onDelete={isAdmin ? () => handleDeleteBuyer(b._id) : undefined}
                               onLock={() => alert("Stall locked.")}
                             />
                           ))
@@ -5003,8 +5077,8 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={l._id || l.lotId}
-                              title={l.supplierId?.name || l.farmerName || "Farmer"}
-                              subtitle={l.lotId}
+                              title={<SmartDataNode text={l.supplierId?.name || l.farmerName || "Farmer"} type="Name" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                              subtitle={<SmartDataNode text={l.lotId} type="Lot ID" data={l} />}
                               icon={ICON_TRUCK}
                               status={{ text: l.status || "Pending", color: "#ca8a04", bg: "#fef9c3" }}
                               details={[
@@ -5012,16 +5086,11 @@ Powered by Stacli mandi os`;
                                 { icon: ICON_LOCATION, text: l.origin || "Origin N/A" },
                                 { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Est. Gross: ${formatCurrency(grossSale)}` }
                               ]}
-                              primaryAction={{ 
-                                label: "View Lot Details", 
-                                icon: ICON_ARROW_RIGHT, 
-                                onClick: () => setViewingEntity({ type: "LOT", data: l }) 
-                              }}
                               secondaryActions={[
                                 { label: "Modify", icon: ICON_EDIT, onClick: () => handleEditLot(l) },
-                                { label: "Allocate", icon: ICON_SHOP, onClick: () => { setActiveSection("Lot Allocation"); setActiveAllocationTab("Allocation Form"); }, variant: 'primary' }
+                                { label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "LOT", data: l }), variant: 'primary' }
                               ]}
-                              onDelete={() => handleDeleteLot(l._id)}
+                              onDelete={isAdmin ? () => handleDeleteLot(l._id) : undefined}
                               onLock={() => alert("Lot record locked.")}
                             />
                           );
@@ -5112,7 +5181,7 @@ Powered by Stacli mandi os`;
                           <div
                             style={{
                               position: "absolute",
-                              top: "12px",
+                              bottom: "12px",
                               right: "12px",
                               display: "flex",
                               gap: "8px",
@@ -5545,6 +5614,138 @@ Powered by Stacli mandi os`;
                                 color: COLORS.muted,
                               }}
                             >
+                              Est. Gross (₹)
+                            </label>
+                            <input
+                              type="text"
+                              disabled
+                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0))}
+                              style={{
+                                padding: "12px 14px",
+                                borderRadius: "8px",
+                                border: "1px solid #EBE9E1",
+                                background: "#F1F5F9",
+                                color: COLORS.muted,
+                                outline: "none",
+                                fontSize: "13px",
+                                fontWeight: "800",
+                              }}
+                            />
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}
+                          >
+                            <label
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "700",
+                                color: COLORS.muted,
+                              }}
+                            >
+                              THOTRASI (6%)
+                            </label>
+                            <input
+                              type="text"
+                              disabled
+                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0) * 0.06)}
+                              style={{
+                                padding: "12px 14px",
+                                borderRadius: "8px",
+                                border: "1px solid #EBE9E1",
+                                background: "#FFF1F2",
+                                color: "#E11D48",
+                                outline: "none",
+                                fontSize: "13px",
+                                fontWeight: "800",
+                              }}
+                            />
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}
+                          >
+                            <label
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "700",
+                                color: COLORS.muted,
+                              }}
+                            >
+                              Grading (4%)
+                            </label>
+                            <input
+                              type="text"
+                              disabled
+                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0) * 0.04)}
+                              style={{
+                                padding: "12px 14px",
+                                borderRadius: "8px",
+                                border: "1px solid #EBE9E1",
+                                background: "#FFF7ED",
+                                color: "#EA580C",
+                                outline: "none",
+                                fontSize: "13px",
+                                fontWeight: "800",
+                              }}
+                            />
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}
+                          >
+                            <label
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "700",
+                                color: COLORS.muted,
+                              }}
+                            >
+                              Final Bill (₹)
+                            </label>
+                            <input
+                              type="text"
+                              disabled
+                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0) * 0.90)}
+                              style={{
+                                padding: "12px 14px",
+                                borderRadius: "8px",
+                                border: "1px solid #84CC16",
+                                background: "#ECFCCB",
+                                color: "#3F6212",
+                                outline: "none",
+                                fontSize: "13px",
+                                fontWeight: "900",
+                              }}
+                            />
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}
+                          >
+                            <label
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "700",
+                                color: COLORS.muted,
+                              }}
+                            >
                               Inventory Status (Auto)
                             </label>
                             <input
@@ -5757,11 +5958,17 @@ Powered by Stacli mandi os`;
                         type: "select",
                         options: ["", ...buyers.map((b) => b.name)],
                         value: allocationForm.buyerId,
-                        onChange: (e) =>
+                        onChange: (e) => {
+                          const selectedName = e.target.value;
+                          const matchedBuyer = buyers.find(b => b.name === selectedName);
                           setAllocationForm({
                             ...allocationForm,
-                            buyerId: e.target.value,
-                          }),
+                            buyerId: selectedName,
+                            buyerInvoiceNo: matchedBuyer
+                              ? (matchedBuyer.invoiceNo ? `CUST-${matchedBuyer.invoiceNo}` : `CUST-${buyers.indexOf(matchedBuyer) + 1}`)
+                              : "",
+                          });
+                        },
                       },
                       {
                         label: "Allocation Date *",
@@ -5777,12 +5984,8 @@ Powered by Stacli mandi os`;
                         label: "Customer Invoice No",
                         type: "text",
                         value: allocationForm.buyerInvoiceNo,
-                        onChange: (e) =>
-                          setAllocationForm({
-                            ...allocationForm,
-                            buyerInvoiceNo: e.target.value,
-                          }),
-                        placeholder: "Optional invoice #",
+                        disabled: !!allocationForm.buyerId,
+                        placeholder: allocationForm.buyerId ? "Auto-generated from Customer" : "Select a customer first",
                       },
                       {
                         label: "Notes",
@@ -6261,8 +6464,8 @@ Powered by Stacli mandi os`;
                       .map((a) => (
                         <PremiumActionCard
                           key={a._id || Date.now() + Math.random()}
-                          title={a.buyerId?.name || a.buyerId || "Buyer"}
-                          subtitle={a.buyerInvoiceNo ? `INV: ${a.buyerInvoiceNo}` : "UNASSIGNED"}
+                          title={<SmartDataNode text={a.buyerId?.name || a.buyerId || "Buyer"} type="Name" data={a.buyerId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
+                          subtitle={a.buyerInvoiceNo ? <SmartDataNode text={`INV: ${a.buyerInvoiceNo}`} type="Invoice" data={a} /> : "UNASSIGNED"}
                           icon={ICON_USER}
                           status={{ text: "Allocated", color: "#1d4ed8", bg: "#dbeafe" }}
                           details={[
@@ -6270,16 +6473,11 @@ Powered by Stacli mandi os`;
                             { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>⚖️</span>, text: `${a.quantity} KG @ ₹${a.rate}/KG` },
                             { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: a.allocationDate }
                           ]}
-                          primaryAction={{ 
-                            label: "View Allocation", 
-                            icon: ICON_ARROW_RIGHT, 
-                            onClick: () => setViewingEntity({ type: "Allocation", data: a }) 
-                          }}
                           secondaryActions={[
                             { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(a); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } },
-                            { label: "Invoice", icon: ICON_BILL, onClick: () => { setActiveSection("Customer Billing"); setActiveBuyerInvoiceTab("Invoice Header"); }, variant: 'primary' }
+                            { label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: a }), variant: 'primary' }
                           ]}
-                          onDelete={() => { if (window.confirm("Delete this allocation record?")) handleDeleteAllocation(a._id); }}
+                          onDelete={isAdmin ? () => { if (window.confirm("Delete this allocation record?")) handleDeleteAllocation(a._id); } : undefined}
                           onLock={() => alert("Allocation record finalized.")}
                         />
                       ))}
@@ -6577,24 +6775,32 @@ Powered by Stacli mandi os`;
                               )
                             : null;
 
-                          setSupplierSettlementForm((prev) => ({
-                            ...prev,
-                            lotId: selectedLotId,
-                            supplierId: resolvedSupplier
-                              ? resolvedSupplier.name
-                              : matchedLot?.supplierId?.name ||
-                                matchedLot?.supplierId ||
-                                prev.supplierId,
-                            supplierPhone: resolvedSupplier?.phone || resolvedSupplier?.mobile || prev.supplierPhone || "",
-                            vehicleNumber: matchedLot
-                              ? matchedLot.vehicleNumber || prev.vehicleNumber
-                              : prev.vehicleNumber,
-                            date:
-                              matchedLot && matchedLot.entryDate
-                                ? matchedLot.entryDate.slice(0, 10)
-                                : prev.date,
-                            items: itemsToAdd,
-                          }));
+                          setSupplierSettlementForm((prev) => {
+                            const lotSuffix = selectedLotId ? selectedLotId.split('-').pop() : "";
+                            let newBillNumber = prev.billNumber;
+                            if (lotSuffix) {
+                              newBillNumber = lotSuffix.length > 2 ? lotSuffix.slice(-2) : lotSuffix;
+                            }
+                            return {
+                              ...prev,
+                              lotId: selectedLotId,
+                              billNumber: newBillNumber,
+                              supplierId: resolvedSupplier
+                                ? resolvedSupplier.name
+                                : matchedLot?.supplierId?.name ||
+                                  matchedLot?.supplierId ||
+                                  prev.supplierId,
+                              supplierPhone: resolvedSupplier?.phone || resolvedSupplier?.mobile || prev.supplierPhone || "",
+                              vehicleNumber: matchedLot
+                                ? matchedLot.vehicleNumber || prev.vehicleNumber
+                                : prev.vehicleNumber,
+                              date:
+                                matchedLot && matchedLot.entryDate
+                                  ? matchedLot.entryDate.slice(0, 10)
+                                  : prev.date,
+                              items: itemsToAdd,
+                            };
+                          });
                         }}
                         style={{
                           padding: "12px 14px",
@@ -7940,7 +8146,7 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={b._id || Date.now() + Math.random()}
-                              title={<SmartDataNode text={b.supplierId?.name || b.supplierId || "Supplier"} type="Name" data={b.supplierId || {}} onAdd={() => setActiveUserRoleTab("Supplier")} />}
+                              title={<SmartDataNode text={b.supplierId?.name || b.supplierId || "Supplier"} type="Name" data={b.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
                               subtitle={b.billNumber ? <SmartDataNode text={`Bill No: ${b.billNumber}`} type="Bill" data={b} onAdd={() => { setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} /> : "BILL-NEW"}
                               icon={ICON_BILL}
                               status={{ text: "Settled", color: "#166534", bg: "#dcfce7" }}
@@ -7958,11 +8164,11 @@ Powered by Stacli mandi os`;
                                 { label: "WhatsApp", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.399-4.305 9.79-9.884 9.79m8.415-18.298A11.715 11.715 0 0012.045 0C5.41 0 .011 5.393 0 12.015c0 2.115.55 4.18 1.59 6.037L0 24l6.105-1.602a11.834 11.834 0 005.937 1.598h.005c6.628 0 12.028-5.391 12.033-12.013a11.859 11.859 0 00-3.58-8.505"/></svg>, onClick: () => handleSendSupplierWhatsApp(b), variant: 'primary' },
                                 { label: "Modify", icon: ICON_EDIT, onClick: () => { setSupplierSettlementForm(b); setIsEditingSupplierBill(true); setEditingSupplierBillId(b._id); setActiveSupplierBillTab("Bill Header"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
                               ]}
-                              onDelete={async () => {
+                              onDelete={isAdmin ? async () => {
                                 if (!window.confirm("Are you sure you want to PERMANENTLY delete this billing record?")) return;
                                 const res = await MandiService.deleteSupplierBill(b._id);
                                 if (res.status === "SUCCESS") { alert("Bill deleted successfully!"); fetchData(); }
-                              }}
+                              } : undefined}
                               onLock={() => alert("Bill finalized.")}
                             />
                           );
@@ -8060,7 +8266,22 @@ Powered by Stacli mandi os`;
                     }
                   }}
                 >
-                  Finish & Save
+                  Generate Bills
+                </Button>
+                <Button
+                  style={{
+                    background: "#FFFFFF",
+                    color: COLORS.sidebar,
+                    border: `1.5px solid ${COLORS.sidebar}`,
+                    fontWeight: "800",
+                    padding: "16px 32px",
+                  }}
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    setActiveSupplierBillTab("Preview & Print");
+                  }}
+                >
+                  Next →
                 </Button>
                 <Button
                   style={{
@@ -8503,9 +8724,11 @@ Powered by Stacli mandi os`;
                           const matchedLot = lots.find(
                             (l) => l.lotId === selectedLotId,
                           );
+                          const lotSuffix = selectedLotId ? selectedLotId.split('-').pop() : "";
                           setBuyerInvoiceForm({
                             ...buyerInvoiceForm,
                             lotReference: selectedLotId,
+                            invoiceNumber: lotSuffix || buyerInvoiceForm.invoiceNumber,
                             // If it's a new lot selection, we could potentially reset items or prefill one
                           });
                         }}
@@ -8519,11 +8742,10 @@ Powered by Stacli mandi os`;
                           fontWeight: "600",
                         }}
                       >
-                        <option value="">Select Lot ID</option>
+                        <option value="">Select Lot Reference</option>
                         {lots.map((l) => (
                           <option key={l._id || l.lotId} value={l.lotId}>
-                            {l.lotId} (
-                            {l.supplierId?.name || l.supplierId || "Farmer"})
+                            {l.supplierId?.name || l.supplierId || "Farmer"} — {l.lotId}
                           </option>
                         ))}
                       </select>
@@ -8640,7 +8862,7 @@ Powered by Stacli mandi os`;
                         <div
                           style={{
                             position: "absolute",
-                            top: "12px",
+                            bottom: "12px",
                             right: "12px",
                             display: "flex",
                             gap: "8px",
@@ -9681,7 +9903,7 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={i._id || Date.now() + Math.random()}
-                              title={<SmartDataNode text={i.buyerId?.name || i.buyerId || "Customer"} type="Name" data={i.buyerId || {}} onAdd={() => setActiveUserRoleTab("Buyer")} />}
+                              title={<SmartDataNode text={i.buyerId?.name || i.buyerId || "Customer"} type="Name" data={i.buyerId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
                               subtitle={i.invoiceNumber ? <SmartDataNode text={`Invoice No: ${i.invoiceNumber}`} type="Invoice" data={i} onAdd={() => { setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} /> : "INV-NEW"}
                               icon={ICON_BILL}
                               status={{ text: "Invoiced", color: "#166534", bg: "#dcfce7" }}
@@ -9699,11 +9921,11 @@ Powered by Stacli mandi os`;
                                 { label: "WhatsApp", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.399-4.305 9.79-9.884 9.79m8.415-18.298A11.715 11.715 0 0012.045 0C5.41 0 .011 5.393 0 12.015c0 2.115.55 4.18 1.59 6.037L0 24l6.105-1.602a11.834 11.834 0 005.937 1.598h.005c6.628 0 12.028-5.391 12.033-12.013a11.859 11.859 0 00-3.58-8.505"/></svg>, onClick: () => handleSendBuyerWhatsApp(i), variant: 'primary' },
                                 { label: "Modify", icon: ICON_EDIT, onClick: () => { setBuyerInvoiceForm(i); setIsEditingBuyerInvoice(true); setEditingBuyerInvoiceId(i._id); setActiveBuyerInvoiceTab("Invoice Header"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
                               ]}
-                              onDelete={async () => {
+                              onDelete={isAdmin ? async () => {
                                 if (!window.confirm("Delete this invoice permanently?")) return;
                                 const res = await MandiService.deleteBuyerInvoice(i._id);
                                 if (res.status === "SUCCESS") { alert("Invoice deleted!"); fetchData(); }
-                              }}
+                              } : undefined}
                               onLock={() => alert("Invoice finalized.")}
                             />
                           );
@@ -17699,13 +17921,15 @@ Powered by Stacli mandi os`;
                               View
                             </Button>
                           </a>
-                          <Button
-                            variant="danger"
-                            onClick={() => handleDeleteDoc(doc._id)}
-                            style={{ padding: "8px 12px", fontSize: "12px" }}
-                          >
-                            🗑️
-                          </Button>
+                          {isAdmin && (
+                            <Button
+                              variant="danger"
+                              onClick={() => handleDeleteDoc(doc._id)}
+                              style={{ padding: "8px 12px", fontSize: "12px" }}
+                            >
+                              🗑️
+                            </Button>
+                          )}
                         </div>
                       </div>
                     ))
@@ -17807,8 +18031,20 @@ Powered by Stacli mandi os`;
                 <div style={{ display: "grid", gap: "20px" }}>
                   {Object.entries(viewingEntity.data)
                     .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password"].includes(key))
-                    .map(([key, value]) => (
-                      <div key={key} style={{ borderBottom: "1px solid #F1F5F9", paddingBottom: "12px" }}>
+                    .map(([key, rawValue]) => {
+                      let value = rawValue;
+                      if (typeof rawValue === "string") {
+                        const trimmed = rawValue.trim();
+                        if ((trimmed.startsWith("[") && trimmed.endsWith("]")) || (trimmed.startsWith("{") && trimmed.endsWith("}"))) {
+                          try {
+                            value = JSON.parse(trimmed);
+                          } catch (e) {
+                            value = rawValue;
+                          }
+                        }
+                      }
+                      return (
+                        <div key={key} style={{ borderBottom: "1px solid #F1F5F9", paddingBottom: "12px" }}>
                         <label
                           style={{
                             display: "block",
@@ -17822,11 +18058,60 @@ Powered by Stacli mandi os`;
                         >
                           {key.replace(/([A-Z])/g, " $1").trim()}
                         </label>
-                        <div style={{ color: COLORS.sidebar, fontWeight: "700", fontSize: "14px" }}>
-                          {typeof value === "object" ? JSON.stringify(value) : String(value || "N/A")}
+                        <div style={{ color: COLORS.sidebar, fontWeight: "500", fontSize: "14px" }}>
+                          {typeof value === "object" && value !== null ? (
+                            Array.isArray(value) ? (
+                              value.length > 0 ? (
+                                <div style={{ overflowX: "auto", marginTop: "8px" }}>
+                                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "8px", overflow: "hidden" }}>
+                                    <thead>
+                                      <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
+                                        {Object.keys(value[0]).map(k => (
+                                          <th key={k} style={{ padding: "10px", textAlign: "left", color: COLORS.muted, fontWeight: "900" }}>
+                                            {k.replace(/([A-Z])/g, " $1").trim().toUpperCase()}
+                                          </th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {value.map((row, rIdx) => (
+                                        <tr key={rIdx} style={{ borderBottom: "1px solid #F1F5F9" }}>
+                                          {Object.values(row).map((cell, cIdx) => (
+                                            <td key={cIdx} style={{ padding: "10px", color: COLORS.sidebar, fontWeight: "700" }}>
+                                              {typeof cell === 'object' && cell !== null ? JSON.stringify(cell) : String(cell || "-")}
+                                            </td>
+                                          ))}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : "[]"
+                            ) : (
+                              <div style={{ marginTop: "8px" }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "8px", overflow: "hidden" }}>
+                                  <tbody>
+                                    {Object.entries(value).map(([k, v]) => (
+                                      <tr key={k} style={{ borderBottom: "1px solid #F1F5F9" }}>
+                                        <td style={{ padding: "10px", fontWeight: "900", color: COLORS.muted, background: "#F8FAFC", width: "40%", borderRight: "1px solid #EBE9E1" }}>
+                                          {k.replace(/([A-Z])/g, " $1").trim().toUpperCase()}
+                                        </td>
+                                        <td style={{ padding: "10px", color: COLORS.sidebar, fontWeight: "700" }}>
+                                          {typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v || "-")}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )
+                          ) : (
+                            <span style={{ fontWeight: "700" }}>{String(value || "N/A")}</span>
+                          )}
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                 </div>
               </div>
 

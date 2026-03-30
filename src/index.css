@@ -35,6 +35,18 @@ input {
   transition: 0.2s all;
 }
 
+/* ===== Remove number input spinners globally ===== */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 input:focus {
   border-color: #facc15;
   box-shadow: 0 0 5px rgba(250, 204, 21, 0.5);
