@@ -1192,6 +1192,9 @@ Powered by Stacli mandi os`;
     state: "",
     govIdNumber: "",
     idType: "Aadhaar",
+    bankAccount: "",
+    ifsc: "",
+    advanceBalance: "",
     creditLimit: "",
     notes: "",
   });
@@ -4057,7 +4060,7 @@ Powered by Stacli mandi os`;
                 }}
               >
                 <RefreshCw size={18} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
-                <span>{isRefreshing ? "Syncing..." : "Refresh App"}</span>
+                <span>{isRefreshing ? "Syncing..." : "Refresh each pagg"}</span>
               </button>
             </div>
           </div>
@@ -4507,19 +4510,16 @@ Powered by Stacli mandi os`;
                           { label: "Voter ID", placeholder: "Alternate ID", value: supplierForm.voterId, onChange: (e) => setSupplierForm({ ...supplierForm, voterId: e.target.value }) },
                         ],
                       },
-                    ].filter((_, idx) => (partyStep === 1 ? idx < 2 : false)).concat(
-                      partyStep === 2 ? [
-                        {
-                          title: "Bank Details",
-                          fields: [
-                            { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
-                            { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
-                            { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
-                            { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
-                          ],
-                        }
-                      ] : []
-                    )}
+                      {
+                        title: "Bank Details",
+                        fields: [
+                          { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
+                          { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
+                          { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
+                          { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
+                        ],
+                      },
+                    ].filter((_, idx) => (partyStep === 1 ? idx < 3 : false))}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? "Update Records" : "Submit Details"}</Button>
@@ -4551,10 +4551,25 @@ Powered by Stacli mandi os`;
                           { label: `${buyerForm.villageOrTown} Name *`, placeholder: `Enter ${buyerForm.villageOrTown} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
                           { label: "State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
-                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
                         ],
                       },
-                    ].filter((_, idx) => (partyStep === 1 ? idx === 0 : false)).concat(
+                      {
+                        title: "KYC Details",
+                        fields: [
+                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
+                          { label: "ID Type", type: "select", options: ["Aadhaar", "PAN", "GSTIN", "Voter ID"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
+                        ],
+                      },
+                      {
+                        title: "Bank Details",
+                        fields: [
+                          { label: "Bank Account No.", type: "number", placeholder: "For bank settlements", value: buyerForm.bankAccount, onChange: (e) => setBuyerForm({ ...buyerForm, bankAccount: e.target.value }) },
+                          { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerForm, ifsc: e.target.value }) },
+                          { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceBalance, onChange: (e) => setBuyerForm({ ...buyerForm, advanceBalance: e.target.value }) },
+                          { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
+                        ],
+                      }
+                    ].filter((_, idx) => (partyStep === 1 ? idx < 3 : false)).concat(
                       partyStep === 2 ? [
                         {
                           title: "Credit Details",
@@ -4571,11 +4586,14 @@ Powered by Stacli mandi os`;
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
                     
-                    {partyStep === 1 ? (
-                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next</Button>
-                    ) : (
-                      <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
-                    )}
+                    <div style={{ display: "flex", gap: "16px" }}>
+                      {partyStep === 2 && (
+                        <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
+                      )}
+                      {partyStep === 1 && (
+                        <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next Step</Button>
+                      )}
+                    </div>
 
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Members</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
@@ -4612,7 +4630,7 @@ Powered by Stacli mandi os`;
                     <div onClick={() => setActiveRegisteredTab("Customers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Customers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Customers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Customers ({buyers.length})</div>
                   </div>
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "24px" }}>
                       {activeRegisteredTab === "Suppliers" ? (
                         suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).length === 0 ? (
                           <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No matching suppliers found.</p>
@@ -4629,14 +4647,9 @@ Powered by Stacli mandi os`;
                                 { icon: ICON_PHONE, text: s.phone || "N/A" },
                                 { icon: ICON_LOCATION, text: s.village || "Location N/A" }
                               ]}
-                              primaryAction={{ 
-                                label: "Open Profile", 
-                                icon: ICON_SHOP, 
-                                onClick: () => setViewingEntity({ type: "Supplier", data: s }) 
-                              }}
                               secondaryActions={[
                                 { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } },
-                                { label: "View Ledger", icon: ICON_ARROW_RIGHT, onClick: () => { setActiveSection("Ledger"); setActiveLedgerTab("Supplier"); }, variant: 'primary' }
+                                { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Supplier", data: s }), variant: 'primary' }
                               ]}
                               onDelete={() => handleDeleteSupplier(s._id)}
                               onLock={() => alert("Profile locked for security.")}
@@ -4659,14 +4672,9 @@ Powered by Stacli mandi os`;
                                 { icon: ICON_PHONE, text: b.phone || "N/A" },
                                 { icon: ICON_LOCATION, text: b.address || "Location N/A" }
                               ]}
-                              primaryAction={{ 
-                                label: "Open Stall", 
-                                icon: ICON_SHOP, 
-                                onClick: () => setViewingEntity({ type: "Buyer", data: b }) 
-                              }}
                               secondaryActions={[
                                 { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } },
-                                { label: "View CRM", icon: ICON_ARROW_RIGHT, onClick: () => { setViewingEntity({ type: "Buyer", data: b }); }, variant: 'primary' }
+                                { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: 'primary' }
                               ]}
                               onDelete={() => handleDeleteBuyer(b._id)}
                               onLock={() => alert("Stall locked.")}
