@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,8 +7,8 @@
 
 /* ===== Modern Design System ===== */
 :root {
-  --font-main: 'Plus Jakarta Sans', sans-serif;
-  --font-display: 'Outfit', sans-serif;
+  --font-main: 'Inter', sans-serif;
+  --font-display: 'Montserrat', sans-serif;
 }
 
 body {
@@ -16,6 +16,7 @@ body {
   padding: 0;
   background-color: #f8fafc;
   font-family: var(--font-main);
+  font-weight: 400;
   color: #1a202c;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -23,11 +24,65 @@ body {
 
 h1, h2, h3, h4, h5, h6, .display-font {
   font-family: var(--font-display);
+  font-weight: 700;
 }
 
+/* ===== Design System Font Utilities ===== */
+
+/* Logo / Brand Mark — Montserrat 800 */
+.font-logo {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+}
+
+/* Main section heading — Montserrat 700 */
+.font-heading {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+
+/* Navigation / menu labels — Inter 500 */
+.font-nav,
+nav,
+aside {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+/* Data & numbers — Inter 600 */
+.font-data,
+td,
+th,
+.data-value {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+/* Small labels / form labels / fine print — Inter 400 */
+.font-label,
+label,
+small,
+caption {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+/* Buttons default to Inter 500 */
+button {
+  cursor: pointer;
+  transition: 0.2s all;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+button:hover {
+  opacity: 0.9;
+}
 
 /* ===== Inputs ===== */
-input {
+input, select, textarea {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
   padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -35,7 +90,7 @@ input {
   transition: 0.2s all;
 }
 
-/* ===== Remove number input spinners globally (Chrome, Safari, Edge, Firefox) ===== */
+/* ===== Remove number input spinners globally ===== */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -47,20 +102,9 @@ input[type=number] {
   appearance: textfield;
 }
 
-input:focus {
+input:focus, select:focus, textarea:focus {
   border-color: #facc15;
   box-shadow: 0 0 5px rgba(250, 204, 21, 0.5);
-}
-
-/* ===== Buttons ===== */
-button {
-  cursor: pointer;
-  transition: 0.2s all;
-  font-weight: bold;
-}
-
-button:hover {
-  opacity: 0.9;
 }
 
 /* ===== Tables ===== */

@@ -43,10 +43,10 @@ const request = async (method, path, body = null) => {
     }
     
     return await res.json();
+
   } catch (err) {
-    console.warn(`🌉 [BRIDGE] Mandi Service redirected to Local Simulation Store (${path})`);
-    
     // --- LOCAL SIMULATION STORE ---
+    // Persistent data storage for user-specific sessions (persisted in localStorage)
     if (method === 'GET') {
       if (path === '/suppliers') return { status: "SUCCESS", data: getLocal('suppliers') };
       if (path === '/buyers') return { status: "SUCCESS", data: getLocal('buyers') };

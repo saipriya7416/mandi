@@ -325,9 +325,9 @@ const PremiumActionCard = ({
           alignItems: "center", 
           justifyContent: "center",
           fontSize: "24px",
-          fontWeight: "900",
+          fontWeight: "800",
           color: "#D4A017",
-          fontFamily: "'Playfair Display', serif"
+          fontFamily: "'Montserrat', sans-serif"
         }}>
           {initial}
         </div>
@@ -350,10 +350,10 @@ const PremiumActionCard = ({
         <h3 style={{ 
           margin: 0, 
           fontSize: "22px", 
-          fontWeight: "900", 
+          fontWeight: "700", 
           color: "#1a1a2e", 
-          fontFamily: "'Playfair Display', serif",
-          letterSpacing: "-0.5px" 
+          fontFamily: "'Montserrat', sans-serif",
+          letterSpacing: "-0.3px" 
         }}>{title}</h3>
         <p style={{ margin: "4px 0 8px 0", fontSize: "14px", color: COLORS.muted, fontWeight: "600" }}>{subtitle || "No email provided"}</p>
         
@@ -3935,7 +3935,8 @@ Powered by Stacli mandi os`;
             <h2
               style={{
                 color: "#ffffff",
-                fontWeight: "900",
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: "800",
                 fontSize: "19px",
                 letterSpacing: "1.5px",
                 margin: 0,
@@ -3946,7 +3947,8 @@ Powered by Stacli mandi os`;
             <div
               style={{
                 fontSize: "11px",
-                fontWeight: "850",
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: "800",
                 color: COLORS.primary,
                 letterSpacing: "2.5px",
                 textTransform: "uppercase",
@@ -4799,7 +4801,7 @@ Powered by Stacli mandi os`;
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? "Update Records" : "Submit Details"}</Button>
-                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next: Customer Registration</Button>
+                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next</Button>
 
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Registered</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
@@ -4846,7 +4848,6 @@ Powered by Stacli mandi os`;
                         fields: [
                           { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
                           { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
-                          { label: "Outstanding Balance (\u20B9)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
                           { label: "Notes", placeholder: "Free-form notes" },
                         ],
                       }
@@ -4854,7 +4855,7 @@ Powered by Stacli mandi os`;
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
-                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Registered Members"); setPartyStep(1); }}>Next: Registered Members</Button>
+                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Registered Members"); setPartyStep(1); }}>Next</Button>
 
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Members</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
@@ -4908,11 +4909,30 @@ Powered by Stacli mandi os`;
                                 { icon: ICON_PHONE, text: s.phone || "N/A" },
                                 { icon: ICON_LOCATION, text: s.village || "Location N/A" }
                               ]}
+                              primaryAction={{ 
+                                label: "Login as Staff", 
+                                icon: ICON_USER, 
+                                onClick: async () => {
+                                  try {
+                                    const res = await MandiService.getSupplier(s._id);
+                                    if(res && res.name) {
+                                      alert(`✅ Authenticated as Staff for ${res.name}. Redirecting to internal portal...`);
+                                      setViewingEntity({ type: "Supplier", data: res });
+                                    }
+                                  } catch (err) {
+                                    alert("❌ Authentication failed. Could not connect to database.");
+                                  }
+                                } 
+                              }}
                               secondaryActions={[
                                 { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } },
                                 { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Supplier", data: s }), variant: 'primary' }
                               ]}
-                              onDelete={isAdmin ? () => handleDeleteSupplier(s._id) : undefined}
+                              onDelete={() => {
+                                const code = prompt("🔒 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+                                if (code === "0000") handleDeleteSupplier(s._id);
+                                else if (code !== null) alert("⛔ ACCESS DENIED: Invalid deletion code.");
+                              }}
                               onLock={() => alert("Profile locked for security.")}
                             />
                           ))
@@ -4933,11 +4953,30 @@ Powered by Stacli mandi os`;
                                 { icon: ICON_PHONE, text: b.phone || "N/A" },
                                 { icon: ICON_LOCATION, text: b.address || "Location N/A" }
                               ]}
+                              primaryAction={{ 
+                                label: "Login as Staff", 
+                                icon: ICON_USER, 
+                                onClick: async () => {
+                                  try {
+                                    const res = await MandiService.getBuyer(b._id);
+                                    if(res && res.name) {
+                                      alert(`✅ Authenticated as Staff for ${res.name}. Redirecting to customer portal...`);
+                                      setViewingEntity({ type: "Customer", data: res });
+                                    }
+                                  } catch (err) {
+                                    alert("❌ Authentication failed. Could not connect to database.");
+                                  }
+                                } 
+                              }}
                               secondaryActions={[
                                 { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } },
                                 { label: "Open Profile", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: 'primary' }
                               ]}
-                              onDelete={isAdmin ? () => handleDeleteBuyer(b._id) : undefined}
+                              onDelete={() => {
+                                const code = prompt("🔒 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+                                if (code === "0000") handleDeleteBuyer(b._id);
+                                else if (code !== null) alert("⛔ ACCESS DENIED: Invalid deletion code.");
+                              }}
                               onLock={() => alert("Stall locked.")}
                             />
                           ))
