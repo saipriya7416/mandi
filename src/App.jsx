@@ -1875,7 +1875,7 @@ Powered by Stacli mandi os`;
 
   const handleCreateLot = async () => {
     if (!intakeForm.supplierId)
-      return alert("⚠️ Farmer selection is mandatory for traceability.");
+      return alert("⚠️ Supplier selection is mandatory for traceability.");
     if (!intakeForm.vehicleNumber)
       return alert("⚠️ Vehicle / Lorry number is required.");
     if (!intakeForm.origin)
@@ -3125,7 +3125,7 @@ Powered by Stacli mandi os`;
 
   const handleCreateFarmerBill = async () => {
     const targetFarmerId = farmerBillForm.farmerId;
-    if (!targetFarmerId) return alert("⚠️ Please select a farmer first.");
+    if (!targetFarmerId) return alert("⚠️ Please select a supplier first.");
     if (settlementData.length === 0)
       return alert(
         "⚠️ No sale entries added to this bill. Please ensure items are present.",
@@ -7129,7 +7129,6 @@ Powered by Stacli mandi os`;
                                 );
                               }
                             }}
-                            info="DB-LINKED"
                             style={{ flex: "none" }}
                           />
                         <div
@@ -10064,7 +10063,7 @@ Powered by Stacli mandi os`;
                             textTransform: "uppercase",
                           }}
                         >
-                          Farmer / Party
+                          Supplier / Party
                         </label>
                         <select
                           value={farmerPaymentForm.farmerId}
@@ -10245,7 +10244,7 @@ Powered by Stacli mandi os`;
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "repeat(3, 1fr)",
+                        gridTemplateColumns: "1fr 1fr",
                         gap: "16px",
                       }}
                     >
@@ -10797,7 +10796,7 @@ Powered by Stacli mandi os`;
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "repeat(3, 1fr)",
+                          gridTemplateColumns: "1fr 1fr",
                           gap: "16px",
                         }}
                       >
@@ -16512,7 +16511,7 @@ Powered by Stacli mandi os`;
                     {/* MIDDLE: Live Traceability Table */}
                     <Card
                       title="Detailed Connection & Sales Ledger"
-                      subtitle="Immutable Farmer-to-Buyer Log"
+                      subtitle="Immutable Supplier-to-Buyer Log"
                       style={{ overflow: "hidden", padding: 0 }}
                     >
                       <div style={{ padding: "24px" }}>
