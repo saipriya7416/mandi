@@ -3859,8 +3859,6 @@ Powered by Stacli mandi os`;
         .font-display { font-family: 'Outfit', sans-serif !important; letter-spacing: 0.05em; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        select { background-color: ${COLORS.secondary} !important; color: white !important; padding: 10px !important; border-radius: 8px !important; border: 1px solid #EBE9E1 !important; outline: none !important; cursor: pointer !important; }
-        select option { background-color: ${COLORS.secondary} !important; color: white !important; }
       `}</style>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
