@@ -972,7 +972,7 @@ function FormGrid({ sections }) {
                       }}
                     >
                       {f.options && f.options.map((opt, i) => (
-                        <option key={i} value={opt} style={{ background: "#e2e8f0", color: COLORS.sidebar }}>{opt}</option>
+                        <option key={i} value={opt}>{opt}</option>
                       ))}
                     </select>
                   ) : (
@@ -18249,21 +18249,27 @@ Powered by Stacli mandi os`;
                         }
                       }
                       return (
-                        <div key={key} style={{ borderBottom: "1px solid #F1F5F9", paddingBottom: "12px" }}>
+                        <div key={key} style={{ 
+                          display: "grid", 
+                          gridTemplateColumns: "160px 1fr", 
+                          gap: "16px",
+                          alignItems: "start",
+                          borderBottom: "1px solid #F1F5F9", 
+                          padding: "16px 0" 
+                        }}>
                         <label
                           style={{
-                            display: "block",
-                            fontSize: "10px",
-                            fontWeight: "900",
+                            fontSize: "11px",
+                            fontWeight: "800",
                             color: COLORS.muted,
                             textTransform: "uppercase",
-                            letterSpacing: "1px",
-                            marginBottom: "4px",
+                            letterSpacing: "0.5px",
+                            marginTop: "2px"
                           }}
                         >
                           {key.replace(/([A-Z])/g, " $1").trim()}
                         </label>
-                        <div style={{ color: COLORS.sidebar, fontWeight: "500", fontSize: "14px" }}>
+                        <div style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "14px" }}>
                           {typeof value === "object" && value !== null ? (
                             Array.isArray(value) ? (
                               value.length > 0 ? (
