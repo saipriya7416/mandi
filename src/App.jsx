@@ -2949,6 +2949,7 @@ Powered by Stacli mandi os`;
       for (const item of allocationForm.items) {
         const payload = {
           lotId: matchedLot?._id || allocationForm.lotId,
+          farmerId: matchedLot?.supplierId || matchedLot?.farmerId, // Ensure link for automated billing
           lineItemId: item.lineItemId,
           buyerId: allocationForm.buyerId,
           quantity: Number(item.quantity),
@@ -4856,7 +4857,6 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={s._id}
                               title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                              subtitle={`SUP-${(s._id || "NEW").slice(-6).toUpperCase()}`}
                               icon={ICON_USER}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -4881,7 +4881,6 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={b._id}
                               title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
-                              subtitle={`CUST-${(b._id || "NEW").slice(-6).toUpperCase()}`}
                               icon={ICON_SHOP}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
