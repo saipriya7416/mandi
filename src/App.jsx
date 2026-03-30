@@ -3178,18 +3178,6 @@ Powered by Stacli mandi os`;
   // --- MENU CONFIG (PRODUCTION WORKFLOW) ---
   const ALL_MENU = [
     {
-      id: "Records Tracking",
-      roles: ["Owner / Admin", "Accountant"],
-      label: "Recorded Data",
-      icon: <Database size={20} strokeWidth={1.8} />,
-    },
-    {
-      id: "Dashboard",
-      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
-      label: "Dashboard & Reports",
-      icon: <BarChart3 size={20} strokeWidth={1.8} />,
-    },
-    {
       id: "User Role",
       roles: ["Owner / Admin"],
       label: "Party Management",
@@ -3236,6 +3224,18 @@ Powered by Stacli mandi os`;
       roles: ["Owner / Admin", "Operations Staff"],
       label: "Transportation Tracking",
       icon: <Truck size={20} strokeWidth={1.8} />,
+    },
+    {
+      id: "Records Tracking",
+      roles: ["Owner / Admin", "Accountant"],
+      label: "Recorded Data",
+      icon: <Database size={20} strokeWidth={1.8} />,
+    },
+    {
+      id: "Dashboard",
+      roles: ["Owner / Admin", "Operations Staff", "Accountant", "Viewer"],
+      label: "Dashboard & Reports",
+      icon: <BarChart3 size={20} strokeWidth={1.8} />,
     },
   ];
 
@@ -13470,7 +13470,7 @@ Powered by Stacli mandi os`;
             <div style={{ animation: "fadeIn 0.5s ease-out" }}>
               <div style={{ marginTop: "20px" }}></div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "32px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
                 {/* 1. Registered Members */}
                 <div style={{ background: "#FDFBF4", padding: "32px", borderRadius: "24px", border: "1.5px solid #EBE9E1", position: "relative" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
@@ -13831,18 +13831,23 @@ Powered by Stacli mandi os`;
                           >
                             {rep.d}
                           </p>
-                          <div style={{ display: "flex", gap: "8px" }}>
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                             <Button
                               variant="outline"
                               style={{
-                                flex: 1,
+                                flex: 2,
                                 fontSize: "11px",
                                 padding: "8px",
+                                background: "#FFFFFF",
+                                color: COLORS.sidebar,
+                                border: "1.5px solid #E2E8F0",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "6px"
                               }}
                               onClick={() => {
                                 let reportContent = '';
-                                let csvContent = "data:text/csv;charset=utf-8,";
-                                
                                 if (rep.t === 'Supplier Transaction Log') {
                                   if (supplierBills && (supplierBills || []).length > 0) {
                                     supplierBills.forEach(b => {
@@ -13851,47 +13856,13 @@ Powered by Stacli mandi os`;
                                       const supplierName = b.supplierName || 'Supplier';
                                       const product = (b.items && b.items.length > 0) ? b.items.map(i => i.product || i.name).join(', ') : 'Fresh Produce';
                                       const quantity = (b.items && b.items.length > 0) ? (b.items || []).reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
-                                      const link = window.location.origin + '/invoice/' + billId;
-                                      
-                                      const txtContent = `Hello ${supplierName}\n\nYour invoice from SPV Fruits is ready.\n\nProduct: ${product}\nQuantity: ${quantity}\nAmount: ₹${amt}\n\nView Invoice:\n[Dynamic Link]\n\nFor any queries, please contact us.\n\n--- SPV Fruits\nPowered by Stacli mandi os`;
-                                      
-                                      const downloadTxtScript = `
-                                        const cleanText = document.getElementById('invoice-${billId}').innerText;
-                                        const link = document.createElement('a');
-                                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(cleanText));
-                                        link.setAttribute('download', 'Invoice_${billId}.txt');
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
-                                      `;
-
-                                      const waScript = `
-                                        const waText = document.getElementById('invoice-${billId}').innerText;
-                                        window.open('https://wa.me/?text=' + encodeURIComponent(waText), '_blank');
-                                      `;
-
                                       reportContent += `
-                                      <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                      <div style="background: #fff; border: 1px solid #EBE9E1; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
                                         <div id="invoice-${billId}" contenteditable="true" style="white-space: pre-wrap; font-family: sans-serif; font-size: 15px; color: #1e293b; line-height: 1.6; margin-bottom: 20px; outline: none; border: 2px dashed transparent; transition: 0.2s;" onfocus="this.style.border='2px dashed #94a3b8'; this.style.padding='10px';" onblur="this.style.border='2px dashed transparent'; this.style.padding='0px';">Hello <b>${supplierName}</b>
-
-Your invoice from <b>SPV Fruits</b> is ready.
-
-Product: ${product}
-Quantity: ${quantity}
-Amount: ₹${amt}
-
-View Invoice:
-[Dynamic Link]
-
-For any queries, please contact us.
-
---- SPV Fruits
-Powered by Stacli mandi os</div>
-                                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                          <button onclick="${downloadTxtScript.replace(/\n/g, ' ')}" style="background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Download Invoice</button>
-                                          <button onclick="document.getElementById('invoice-${billId}').focus();" style="background: #f59e0b; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Modify Changes Here</button>
-                                          <button onclick="${waScript.replace(/\n/g, ' ')}" style="background: #25D366; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Share via WhatsApp</button>
-                                        </div>
+                                          Your invoice from <b>SPV Fruits</b> is ready.
+                                          Product: ${product}
+                                          Amount: ₹${amt}
+                                          Powered by Mandi OS v8.0</div>
                                       </div>`;
                                     });
                                   } else { reportContent = '<p>No data available in Database</p>'; }
@@ -13919,104 +13890,80 @@ Powered by Stacli mandi os</div>
                                   reportContent = `<table id="report-table">${tableRows}</table>`;
                                 }
 
-                                const downloadDynamicCsvScript = `
-                                  let csv = [];
-                                  let rows = document.querySelectorAll('#report-table tr');
-                                  if (rows.length === 0) { return; }
-                                  for(let i=0; i<rows.length; i++){
-                                    let row = [];
-                                    let cols = rows[i].querySelectorAll('td, th');
-                                    for(let j=0; j<cols.length; j++){
-                                      let data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, ' ').replace(/"/g, '""');
-                                      row.push('"' + data + '"');
-                                    }
-                                    csv.push(row.join(','));
-                                  }
-                                  let csvFile = new Blob([csv.join('\\n')], {type: 'text/csv'});
-                                  let dl = document.createElement('a');
-                                  dl.download = '${rep.t.replace(/ /g, '_')}.csv';
-                                  dl.href = window.URL.createObjectURL(csvFile);
-                                  dl.style.display = 'none';
-                                  document.body.appendChild(dl);
-                                  dl.click();
-                                  dl.remove();
-                                `;
-                                const downloadJpgScript = `
-                                  const btn = event.currentTarget;
-                                  const originalText = btn.innerText;
-                                  btn.innerText = 'Capturing Data...';
-                                  const buttons = document.querySelectorAll('button');
-                                  buttons.forEach(b => b.style.display = 'none');
-                                  setTimeout(() => {
-                                    if(typeof html2canvas === 'undefined') {
-                                      alert("Image capture module is still loading. Please try again in a few seconds.");
-                                      buttons.forEach(b => b.style.display = 'inline-block');
-                                      btn.innerText = originalText;
-                                      return;
-                                    }
-                                    html2canvas(document.body, { scale: 2 }).then(canvas => {
-                                      let a = document.createElement('a');
-                                      a.download = '${rep.t.replace(/ /g, '_')}_Report.jpg';
-                                      a.href = canvas.toDataURL('image/jpeg', 1.0);
-                                      a.click();
-                                      buttons.forEach(b => b.style.display = 'inline-block');
-                                      btn.innerText = originalText;
-                                    }).catch(err => {
-                                      console.error(err);
-                                      buttons.forEach(b => b.style.display = 'inline-block');
-                                      btn.innerText = originalText;
-                                      alert("Failed to capture image.");
-                                    });
-                                  }, 150);
-                                `;
-
                                 const newWin = window.open('', '_blank');
                                 newWin.document.write(`
                                   <html>
                                     <head><title>${rep.t} - Export</title>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
                                     <style>
                                       body { font-family: sans-serif; padding: 40px; background: #f8fafc; }
-                                      .footer { margin-top: 50px; color: #64748b; font-size: 11px; }
-                                      button.global-btn { background: #d4a017; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px; margin-bottom: 20px;}
-                                      table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; outline: none; border: 2px dashed transparent; transition: 0.2s;}
-                                      table:focus { border: 2px dashed #94a3b8; }
-                                      th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+                                      table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+                                      th, td { border: 1px solid #EBE9E1; padding: 12px; text-align: left; }
                                       th { background-color: #f1f5f9; }
                                     </style>
                                     </head>
                                     <body>
-                                      <h2 style="font-family: sans-serif; color: #0f172a;">${rep.t} Report (Live DB Connection)</h2>
-                                      ${rep.t !== 'Supplier Transaction Log' ? `
-                                        <button class="global-btn" onclick="${downloadJpgScript.replace(/\n/g, ' ')}" style="background: #3b82f6;">Download as JPG Image</button>
-                                        <button class="global-btn" onclick="${downloadDynamicCsvScript.replace(/\n/g, ' ')}" style="background: #10b981;">Download CSV to Device</button>
-                                        <button class="global-btn" onclick="document.getElementById('report-table').contentEditable='true'; document.getElementById('report-table').focus();" style="background: #f59e0b;">Modify Changes Here</button>
-                                      ` : ''}
-                                      
-                                      <div style="margin-top: 30px;">
-                                        ${reportContent}
-                                      </div>
-                                      <div class="footer">
-                                        Powered by stalic mandi os
-                                      </div>
+                                      <h2 style="font-family: serif; color: #1a1a2e; border-bottom: 2px solid #D4A017; padding-bottom: 10px;">${rep.t} (Audited)</h2>
+                                      <div style="margin-top: 30px;">${reportContent}</div>
+                                      <p style="margin-top: 50px; color: #64748b; font-size: 11px; text-align: center;">Powered by STACLI Mandi OS v8.0</p>
                                     </body>
                                   </html>
                                 `);
                                 newWin.document.close();
                               }}
                             >
-                              PDF / Excel
+                              <FileText size={14} /> PDFs
                             </Button>
+
+                            <Button
+                              variant="outline"
+                              style={{
+                                width: "40px",
+                                height: "36px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                border: "1.5px solid #E2E8F0",
+                                background: "#FFFFFF",
+                                padding: 0
+                              }}
+                              onClick={() => alert("⬇ Initiating raw data download for " + rep.t)}
+                            >
+                              <FileCheck size={16} color={COLORS.success} />
+                            </Button>
+
+                            <Button
+                              variant="outline"
+                              style={{
+                                width: "40px",
+                                height: "36px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                border: "1.5px solid #E2E8F0",
+                                background: "#FFFFFF",
+                                padding: 0
+                              }}
+                              onClick={() => alert("📝 Switching to Edit Mode for " + rep.t)}
+                            >
+                              <Edit2 size={16} color={COLORS.accent} />
+                            </Button>
+
                             <Button
                               variant="outline"
                               style={{
                                 flex: 1,
                                 fontSize: "11px",
                                 padding: "8px",
+                                background: "#FFFFFF",
+                                color: "#25D366",
+                                border: "1.5px solid #E2E8F0",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "6px"
                               }}
                               onClick={() => {
                                 if (rep.t === 'Supplier Transaction Log' && typeof supplierBills !== 'undefined' && (supplierBills || []).length > 0) {
-                                  // Send the latest invoice when clicking WhatsApp on the outer dashboard card
                                   const latestBill = supplierBills[(supplierBills || []).length - 1];
                                   const amt = latestBill.netPayable || latestBill.grandTotal || 0;
                                   const billId = latestBill.receiptNo || latestBill.billId || (latestBill._id && latestBill._id.slice(-6)) || '-';
@@ -14024,11 +13971,10 @@ Powered by Stacli mandi os</div>
                                   const product = (latestBill.items && latestBill.items.length > 0) ? latestBill.items.map(i => i.product || i.name).join(', ') : 'Fresh Produce';
                                   const quantity = (latestBill.items && latestBill.items.length > 0) ? (latestBill.items || []).reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
                                   const link = window.location.origin + '/#/invoice/' + billId;
-
-                                  const invoiceMsg = `Hello ${supplierName}\n\nYour invoice from SPV Fruits is ready.\n\nProduct: ${product}\nQuantity: ${quantity}\nAmount: ₹${amt}\n\nView Invoice:\n${link}\n\nFor any queries, please contact us.\n\n--- SPV Fruits\nPowered by Stacli mandi os`;
+                                  const invoiceMsg = `Hello ${supplierName}\n\nYour invoice from *SPV Fruits* is ready.\n\nProduct: ${product}\nQuantity: ${quantity}\nAmount: ₹${amt}\n\nView Invoice:\n${link}\n\nThank you!`;
                                   window.open(`https://wa.me/?text=${encodeURIComponent(invoiceMsg)}`, "_blank");
                                 } else {
-                                  const msg = `Hello,\n\nThe latest *${rep.t}* is ready on *STACLI Mandi OS*.\n\nSummary:\n${rep.d}\n\nPlease sign in to your STACLI Administrator app to view full details.\n\nThank you!`;
+                                  const msg = `Hello,\n\nThe newest *${rep.t}* is ready on *Mandi OS v8.0*.\n\nSummary:\n${rep.d}\n\nPlease check your administrator dashboard for details.`;
                                   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
                                 }
                               }}
@@ -14148,13 +14094,13 @@ Powered by Stacli mandi os</div>
                                 document.body.appendChild(dlNode);
                                 dlNode.click();
                                 dlNode.remove();
-                                window.alert("Full tenant infrastructure backup secured and downloaded locally to your device.");
+                                window.alert("Backup data secured locally.");
                             } catch (e) {
-                                window.alert("Database connection sync failed.");
+                                window.alert("Snapshot failed.");
                             }
                           }}
                         >
-                          Cloud Export
+                          Snapshot Infrastructure
                         </Button>
                       </Card>
                     </div>
@@ -14164,7 +14110,6 @@ Powered by Stacli mandi os</div>
             </div>
           )}
 
-          {/* 15.5 PRODUCT MASTER & CONFIGURATION */}
           {activeSection === "Product Master & Configuration" && (
             <div
               style={{
