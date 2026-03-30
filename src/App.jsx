@@ -874,8 +874,8 @@ function OthersDropdown({
             padding: "12px 14px",
             borderRadius: "8px",
             border: "1.5px solid #EBE9E1",
-            background: (disabled ? "#FDFBF4" : "#FFFFFF") + " !important",
-            color: (disabled ? COLORS.muted : COLORS.sidebar) + " !important",
+            backgroundColor: disabled ? "#FDFBF4" : "#FFFFFF",
+            color: disabled ? COLORS.muted : COLORS.sidebar,
             outline: "none",
             fontSize: "13px",
             fontWeight: "600",
@@ -963,17 +963,16 @@ function FormGrid({ sections }) {
                         padding: "12px 14px",
                         borderRadius: "8px",
                         border: "1.5px solid #EBE9E1",
-                        background: (f.disabled ? "#FDFBF4" : "#FFFFFF") + " !important",
-                        color: (f.disabled ? COLORS.muted : COLORS.sidebar) + " !important",
+                        backgroundColor: f.disabled ? "#FDFBF4" : "#FFFFFF",
+                        color: f.disabled ? COLORS.muted : COLORS.sidebar,
                         outline: "none",
                         fontSize: "13px",
                         fontWeight: "600",
-                        cursor: "pointer",
-                        appearance: "auto"
+                        cursor: "pointer"
                       }}
                     >
                       {f.options && f.options.map((opt, i) => (
-                        <option key={i} value={opt} style={{ background: COLORS.secondary, color: "#FFFFFF" }}>{opt}</option>
+                        <option key={i} value={opt} style={{ background: "#e2e8f0", color: COLORS.sidebar }}>{opt}</option>
                       ))}
                     </select>
                   ) : (
@@ -4818,7 +4817,7 @@ Powered by Stacli mandi os`;
                           { label: "Bank Location", placeholder: "Bank City/Location", value: supplierForm.bankLocation, onChange: (e) => setSupplierForm({ ...supplierForm, bankLocation: e.target.value }) },
                           { label: "Bank Branch", placeholder: "Branch Name", value: supplierForm.bankBranch, onChange: (e) => setSupplierForm({ ...supplierForm, bankBranch: e.target.value }) },
                           { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
-                          { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance held by SPV", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
+                          { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
                           { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
                         ],
                       },
