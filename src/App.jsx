@@ -775,6 +775,8 @@ const TabHeader = ({ tabs, active, set }) => (
 );
 
 // --- Smart Dropdown with "Others" Support Component ---
+// --- Smart Datalist with Manual Entry Support ---
+// This version removes the overt "Others" option from the list but allows typing anything.
 function OthersDropdown({ 
   label, 
   value, 
@@ -786,21 +788,7 @@ function OthersDropdown({
   info,
   style = {}
 }) {
-  const [isOther, setIsOther] = useState(value && !options.includes(value) && value !== "");
-
-  const handleSelectChange = (e) => {
-    if (e.target.value === "Others") {
-      setIsOther(true);
-      onChange({ target: { value: "" } }); // Clear value to allow manual entry
-    } else {
-      setIsOther(false);
-      onChange(e);
-    }
-  };
-
-  const handleTextChange = (e) => {
-    onChange(e);
-  };
+  const listId = `list-${label.replace(/\s+/g, '-').toLowerCase()}-${Math.random().toString(36).substr(2, 5)}`;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, ...style }}>
@@ -817,52 +805,16 @@ function OthersDropdown({
         {info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{info}</span>}
       </label>
 
-      {isOther ? (
-        <div style={{ display: "flex", gap: "6px" }}>
-          <input
-            type="text"
-            placeholder={placeholder || `Type ${label}...`}
-            value={value}
-            onChange={handleTextChange}
-            autoFocus
-            style={{
-              flex: 1,
-              padding: "12px 14px",
-              borderRadius: "8px",
-              border: "1.5px solid #D4A017",
-              background: "#FFFEF5",
-              color: COLORS.sidebar,
-              outline: "none",
-              fontSize: "13px",
-              fontWeight: "600",
-            }}
-          />
-          <button
-            onClick={() => {
-              setIsOther(false);
-              onChange({ target: { value: "" } });
-            }}
-            title="Back to list"
-            style={{
-              padding: "8px 10px",
-              borderRadius: "8px",
-              border: "1px solid #EBE9E1",
-              background: "#F8FAFC",
-              color: COLORS.muted,
-              cursor: "pointer",
-              fontSize: "16px",
-              lineHeight: 1,
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      ) : (
-        <select
+      <div style={{ position: "relative" }}>
+        <input
+          type="text"
+          list={listId}
+          placeholder={placeholder || `Select or type ${label}...`}
           value={value}
-          onChange={handleSelectChange}
+          onChange={onChange}
           disabled={disabled}
           style={{
+            width: "100%",
             padding: "12px 14px",
             borderRadius: "8px",
             border: "1px solid #EBE9E1",
@@ -872,30 +824,18 @@ function OthersDropdown({
             fontSize: "13px",
             fontWeight: "600",
           }}
-        >
-          <option value="" disabled>
-            Select {label}
-          </option>
+        />
+        <datalist id={listId}>
           {options.map((o) => (
-            <option key={o} value={o}>
-              {o}
-            </option>
+            <option key={o} value={o} />
           ))}
-          <option value="Others" style={{ fontStyle: "italic", color: COLORS.primary }}>
-            + Others (Manual Entry)
-          </option>
-        </select>
-      )}
+        </datalist>
+      </div>
     </div>
   );
 }
 
 function FormGrid({ sections }) {
-  const [othersMap, setOthersMap] = React.useState({});
-
-  const setOther = (key, val) =>
-    setOthersMap((prev) => ({ ...prev, [key]: val }));
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       {sections.map((sec, i) => (
@@ -929,8 +869,6 @@ function FormGrid({ sections }) {
             }}
           >
             {sec.fields.map((f, j) => {
-              const key = `${i}-${j}`;
-              const isOther = othersMap[key];
               return (
                 <div
                   key={j}
@@ -1279,6 +1217,7 @@ Powered by Stacli mandi os`;
   // --- FORM STATES & HANDLERS ---
   const [partyStep, setPartyStep] = useState(1); // 1 or 2
   const [supplierForm, setSupplierForm] = useState({
+    supplierId: "",
     name: "",
     phone: "",
     villageOrTown: "Village",
@@ -1294,7 +1233,6 @@ Powered by Stacli mandi os`;
     notes: "",
   });
   const [buyerForm, setBuyerForm] = useState({
-    invoiceNo: "",
     name: "",
     shopName: "",
     phone: "",
@@ -1339,6 +1277,7 @@ Powered by Stacli mandi os`;
     if (!supplierForm.name || !supplierForm.phone)
       return alert("Name and phone are required!");
     const payload = {
+      supplierId: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`,
       name: supplierForm.name,
       phone: supplierForm.phone,
       village: supplierForm.villageOrTownName,
@@ -1374,6 +1313,7 @@ Powered by Stacli mandi os`;
   const handleCancelAll = (type) => {
     if (type === "Supplier") {
       setSupplierForm({
+        supplierId: "",
         name: "",
         phone: "",
         villageOrTown: "Village",
@@ -1403,6 +1343,9 @@ Powered by Stacli mandi os`;
         govIdNumber: "",
         idType: "Aadhaar",
         creditLimit: "",
+        bankAccount: "",
+        ifsc: "",
+        advanceBalance: "",
         notes: "",
       });
       setIsEditingBuyer(false);
@@ -1585,6 +1528,7 @@ Powered by Stacli mandi os`;
   const handleEditSelect = (type, record) => {
     if (type === "Supplier") {
       setSupplierForm({
+        supplierId: record.supplierId || "",
         name: record.name,
         phone: record.phone,
         villageOrTown: record.villageOrTown || "Village",
@@ -1894,9 +1838,7 @@ Powered by Stacli mandi os`;
   const handleRegisterBuyer = async () => {
     if (!buyerForm.name || !buyerForm.phone)
       return alert("Customer Name and phone are required!");
-    const nextInvoiceNo = isEditingBuyer ? buyerForm.invoiceNo : (buyers.length + 1);
     const payload = {
-      invoiceNo: nextInvoiceNo,
       name: buyerForm.name,
       phone: buyerForm.phone,
       address: buyerForm.address || "unknown",
@@ -4737,6 +4679,7 @@ Powered by Stacli mandi os`;
                       {
                         title: "Supplier Profile",
                         fields: [
+                          { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`, disabled: true, info: `#${suppliers.length + 1}` },
                           { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
                           { label: "Location Type *", type: "select", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
@@ -4772,8 +4715,8 @@ Powered by Stacli mandi os`;
                         <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next Step</Button>
                       ) : (
                         <>
-                          <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
-                          <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next: Customer Registration</Button>
+                           <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
+                           <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next: Customer Registration</Button>
                         </>
                       )}
                     </div>
@@ -4791,7 +4734,6 @@ Powered by Stacli mandi os`;
                       {
                         title: "Customer Profile & Location",
                         fields: [
-                          { label: "Invoice Number", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.invoiceNo : `CUST-${buyers.length + 1}`, disabled: true, info: `#${buyers.length + 1}` },
                           { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
                           { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
