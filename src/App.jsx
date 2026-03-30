@@ -882,8 +882,8 @@ function OthersDropdown({
             padding: "12px 14px",
             borderRadius: "8px",
             border: "1px solid #EBE9E1",
-            background: disabled ? "#FDFBF4" : "#FFFFFF",
-            color: COLORS.sidebar,
+            background: disabled ? "#FDFBF4" : COLORS.secondary,
+            color: disabled ? COLORS.muted : "#FFFFFF",
             outline: "none",
             fontSize: "13px",
             fontWeight: "600",
@@ -970,8 +970,8 @@ function FormGrid({ sections }) {
                         padding: "12px 14px",
                         borderRadius: "8px",
                         border: "1px solid #EBE9E1",
-                        background: f.disabled ? "#FDFBF4" : "#FFFFFF",
-                        color: f.disabled ? COLORS.muted : COLORS.sidebar,
+                        background: f.disabled ? "#FDFBF4" : COLORS.secondary,
+                        color: f.disabled ? COLORS.muted : "#FFFFFF",
                         outline: "none",
                         fontSize: "13px",
                         fontWeight: "600",
@@ -1310,14 +1310,12 @@ Powered by Stacli mandi os`;
     villageOrTownName: "",
     district: "",
     state: "",
-    aadhaar: "",
-    pan: "",
-    voterId: "",
+    idType: "Aadhaar",
+    govIdNumber: "",
     bankAccount: "",
     ifsc: "",
     advanceBalance: "",
     notes: "",
-    email: "",
   });
   const [buyerForm, setBuyerForm] = useState({
     buyerId: "",
@@ -1336,7 +1334,6 @@ Powered by Stacli mandi os`;
     advanceBalance: "",
     creditLimit: "",
     notes: "",
-    email: "",
   });
   const [lotCreationForm, setLotCreationForm] = useState({
     lotId: generateLotId(1),
@@ -1363,12 +1360,9 @@ Powered by Stacli mandi os`;
   });
 
   const handleRegisterSupplier = async () => {
-    if (!supplierForm.name || !supplierForm.phone || !supplierForm.email)
-      return alert("Name, phone, and email are mandatory!");
+    if (!supplierForm.name || !supplierForm.phone)
+      return alert("Name and phone are mandatory!");
       
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(supplierForm.email))
-      return alert("Invalid email format!");
     const payload = {
       supplierId: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`,
       name: supplierForm.name,
@@ -1376,13 +1370,14 @@ Powered by Stacli mandi os`;
       village: supplierForm.villageOrTownName,
       district: supplierForm.district,
       state: supplierForm.state,
-      aadhaar: supplierForm.aadhaar,
-      pan: supplierForm.pan,
-      voterId: supplierForm.voterId,
+      idType: supplierForm.idType,
+      govIdNumber: supplierForm.govIdNumber,
+      aadhaar: supplierForm.idType === "Aadhaar" ? supplierForm.govIdNumber : "",
+      pan: supplierForm.idType === "PAN" ? supplierForm.govIdNumber : "",
+      voterId: supplierForm.idType === "Voter ID" ? supplierForm.govIdNumber : "",
       bankAccount: supplierForm.bankAccount,
       ifsc: supplierForm.ifsc,
       advanceBalance: supplierForm.advanceBalance,
-      email: supplierForm.email,
       notes: supplierForm.notes || "Registered via Profile Hub",
     };
     try {
@@ -1414,14 +1409,12 @@ Powered by Stacli mandi os`;
         villageOrTownName: "",
         district: "",
         state: "",
-        aadhaar: "",
-        pan: "",
-        voterId: "",
+        idType: "Aadhaar",
+        govIdNumber: "",
         bankAccount: "",
         ifsc: "",
         advanceBalance: "",
         notes: "",
-        email: "",
       });
       setIsEditingSupplier(false);
       setEditingSupplierId(null);
@@ -1436,14 +1429,13 @@ Powered by Stacli mandi os`;
         villageOrTownName: "",
         district: "",
         state: "",
-        govIdNumber: "",
         idType: "Aadhaar",
+        govIdNumber: "",
         creditLimit: "",
         bankAccount: "",
         ifsc: "",
         advanceBalance: "",
         notes: "",
-        email: "",
       });
       setIsEditingBuyer(false);
       setEditingBuyerId(null);
@@ -1632,14 +1624,12 @@ Powered by Stacli mandi os`;
         villageOrTownName: record.village || "",
         district: record.district || "",
         state: record.state || "",
-        aadhaar: record.aadhaar || "",
-        pan: record.pan || "",
-        voterId: record.voterId || "",
+        idType: record.idType || (record.aadhaar ? "Aadhaar" : record.pan ? "PAN" : record.voterId ? "Voter ID" : "Aadhaar"),
+        govIdNumber: record.govIdNumber || record.aadhaar || record.pan || record.voterId || "",
         bankAccount: record.bankAccount || "",
         ifsc: record.ifsc || "",
         advanceBalance: record.advanceBalance || "",
         notes: record.notes || "",
-        email: record.email || "",
       });
       setIsEditingSupplier(true);
       setEditingSupplierId(record._id);
@@ -1654,11 +1644,10 @@ Powered by Stacli mandi os`;
         villageOrTownName: record.village || "",
         district: record.district || "",
         state: record.state || "",
-        govIdNumber: record.govIdNumber || "",
         idType: record.idType || "Aadhaar",
+        govIdNumber: record.govIdNumber || "",
         creditLimit: record.creditLimit || "",
         notes: record.notes || "",
-        email: record.email || "",
       });
       setIsEditingBuyer(true);
       setEditingBuyerId(record._id);
@@ -1937,12 +1926,9 @@ Powered by Stacli mandi os`;
   };
 
   const handleRegisterBuyer = async () => {
-    if (!buyerForm.name || !buyerForm.phone || !buyerForm.email)
-      return alert("Customer Name, phone, and email are mandatory!");
+    if (!buyerForm.name || !buyerForm.phone)
+      return alert("Customer Name and phone are mandatory!");
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(buyerForm.email))
-      return alert("Invalid email format!");
     const payload = {
       buyerId: isEditingBuyer ? buyerForm.buyerId : `CUST-${buyers.length + 1}`,
       name: buyerForm.name,
@@ -1952,9 +1938,9 @@ Powered by Stacli mandi os`;
       village: buyerForm.villageOrTownName,
       district: buyerForm.district,
       state: buyerForm.state,
+      idType: buyerForm.idType,
       govIdNumber: buyerForm.govIdNumber || "N/A",
       creditLimit: Number(buyerForm.creditLimit) || 0,
-      email: buyerForm.email,
       notes: "Registered via Unified Dashboard",
     };
     try {
@@ -2125,7 +2111,7 @@ Powered by Stacli mandi os`;
         ...buyerInvoiceForm,
         items: [
           {
-            productId: "",
+            id: Date.now(),
             productLabel: "",
             variety: "",
             grade: "",
@@ -2932,7 +2918,7 @@ Powered by Stacli mandi os`;
         items: [
           ...prev.items,
           {
-            productId: "",
+            id: Date.now(),
             productLabel: "",
             variety: "",
             grade: "",
@@ -2959,7 +2945,7 @@ Powered by Stacli mandi os`;
           ? newItems
           : [
               {
-                productId: "",
+                id: Date.now(),
                 productLabel: "",
                 variety: "",
                 grade: "",
@@ -3509,7 +3495,7 @@ Powered by Stacli mandi os`;
                     const waLink = `https://wa.me/${pMobile}?text=${encodeURIComponent(msg)}`;
                     window.open(waLink, "_blank");
                   }} style={{ background: "#25D366", color: "#fff", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.884-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
                     Send via WhatsApp
                   </Button>
                 </div>
@@ -3857,6 +3843,8 @@ Powered by Stacli mandi os`;
         .font-display { font-family: 'Outfit', sans-serif !important; letter-spacing: 0.05em; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        select { background-color: ${COLORS.secondary} !important; color: white !important; padding: 10px !important; border-radius: 8px !important; border: 1px solid #EBE9E1 !important; outline: none !important; cursor: pointer !important; }
+        select option { background-color: ${COLORS.secondary} !important; color: white !important; }
       `}</style>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
@@ -4798,15 +4786,13 @@ Powered by Stacli mandi os`;
                           { label: `${supplierForm.villageOrTown} Name *`, placeholder: `Enter ${supplierForm.villageOrTown} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: (e) => setSupplierForm({ ...supplierForm, district: e.target.value }) },
                           { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
-                          { label: "Email Address *", placeholder: "e.g. contact@example.com", value: supplierForm.email, onChange: (e) => setSupplierForm({ ...supplierForm, email: e.target.value }) },
                         ],
                       },
                       {
                         title: "KYC Details",
                         fields: [
-                          { label: "Aadhaar Number", type: "number", placeholder: "12-digit (For KYC compliance)", value: supplierForm.aadhaar, onChange: (e) => setSupplierForm({ ...supplierForm, aadhaar: e.target.value }) },
-                          { label: "PAN Number", placeholder: "For high-value transactions", value: supplierForm.pan, onChange: (e) => setSupplierForm({ ...supplierForm, pan: e.target.value }) },
-                          { label: "Voter ID", placeholder: "Alternate ID", value: supplierForm.voterId, onChange: (e) => setSupplierForm({ ...supplierForm, voterId: e.target.value }) },
+                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN", "Voter ID"], value: supplierForm.idType, onChange: (e) => setSupplierForm({ ...supplierForm, idType: e.target.value }) },
+                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: supplierForm.govIdNumber, onChange: (e) => setSupplierForm({ ...supplierForm, govIdNumber: e.target.value }) },
                         ],
                       },
                       {
@@ -4821,10 +4807,7 @@ Powered by Stacli mandi os`;
                     ]}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? "Update Records" : "Submit Details"}</Button>
-                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next</Button>
-
-                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Registered</Button>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>Save</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
                   </div>
                 </div>
@@ -4845,14 +4828,13 @@ Powered by Stacli mandi os`;
                           { label: `${buyerForm.villageOrTown} Name *`, placeholder: `Enter ${buyerForm.villageOrTown} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
                           { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
-                          { label: "Email Address *", placeholder: "e.g. contact@example.com", value: buyerForm.email, onChange: (e) => setBuyerForm({ ...buyerForm, email: e.target.value }) },
                         ],
                       },
                       {
                         title: "KYC Details",
                         fields: [
-                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
                           { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN", "Voter ID"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
+                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
                         ],
                       },
                       {
@@ -4876,9 +4858,7 @@ Powered by Stacli mandi os`;
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
                     <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Supplier")}>← Previous</Button>
-                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
-                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Registered Members"); setPartyStep(1); }}>Next</Button>
-                    <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Members</Button>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>Save</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
                   </div>
                 </div>
@@ -4923,7 +4903,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={s._id}
                               title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                              subtitle={s.email || "No email registered"}
+                              subtitle={s.phone || "No phone registered"}
                               icon={ICON_USER}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -4970,7 +4950,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={b._id}
                               title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
-                              subtitle={b.email || b.name}
+                              subtitle={b.phone || b.name}
                               icon={ICON_SHOP}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -5565,7 +5545,8 @@ Powered by Stacli mandi os`;
                                 padding: "12px 14px",
                                 borderRadius: "8px",
                                 border: "1px solid #EBE9E1",
-                                color: COLORS.sidebar,
+                                background: COLORS.secondary,
+                                color: "#FFFFFF",
                                 outline: "none",
                                 fontSize: "13px",
                                 fontWeight: "600",
