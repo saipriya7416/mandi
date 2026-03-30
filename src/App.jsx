@@ -18204,7 +18204,7 @@ Powered by Stacli mandi os`;
               style={{
                 background: "#FFFFFF",
                 width: "100%",
-                maxWidth: "500px",
+                maxWidth: "1000px",
                 borderRadius: "24px",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                 overflow: "hidden",
@@ -18257,129 +18257,61 @@ Powered by Stacli mandi os`;
               </div>
 
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
-                <div style={{ display: "grid", gap: "20px" }}>
-                  {Object.entries(viewingEntity.data)
-                    .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName"].includes(key))
-                    .map(([key, rawValue]) => {
-                      let value = rawValue;
-                      if (typeof rawValue === "string") {
-                        const trimmed = rawValue.trim();
-                        if ((trimmed.startsWith("[") && trimmed.endsWith("]")) || (trimmed.startsWith("{") && trimmed.endsWith("}"))) {
-                          try {
-                            value = JSON.parse(trimmed);
-                          } catch (e) {
-                            value = rawValue;
-                          }
-                        }
-                      }
-                      return (
-                        <div key={key} style={{ 
-                          display: "grid", 
-                          gridTemplateColumns: "160px 1fr", 
-                          gap: "16px",
-                          alignItems: "start",
-                          borderBottom: "1px solid #F1F5F9", 
-                          padding: "16px 0" 
-                        }}>
-                        <label
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: "800",
-                            color: COLORS.muted,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.5px",
-                            marginTop: "2px"
-                          }}
-                        >
-                          {key.replace(/([A-Z])/g, " $1").trim()}
-                        </label>
-                        <div style={{ color: COLORS.sidebar, fontWeight: "600", fontSize: "14px" }}>
-                          {typeof value === "object" && value !== null ? (
-                            Array.isArray(value) ? (
-                              value.length > 0 ? (
-                                (() => {
-                                  // Inject calculated columns for line items
-                                  let displayValue = value;
-                                  if (key === 'lineItems' || key === 'produce' || key === 'items') {
-                                    const supplier = suppliers?.find(s => s._id === viewingEntity.data.supplierId) || viewingEntity.data.supplierId || {};
-                                    const advancePayment = Number(supplier.advanceBalance || viewingEntity.data.advancePayment || 0);
+                <div style={{ overflowX: "auto", border: "1px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                    <thead>
+                      <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
+                        {Object.entries(viewingEntity.data)
+                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName"].includes(key))
+                          .map(([key]) => (
+                            <th 
+                              key={key} 
+                              style={{ 
+                                padding: "12px 16px", 
+                                textAlign: "left", 
+                                color: COLORS.muted, 
+                                fontWeight: "900", 
+                                textTransform: "uppercase",
+                                fontSize: "11px",
+                                whiteSpace: "nowrap",
+                                borderRight: "1px solid #EBE9E1"
+                              }}
+                            >
+                              {key.replace(/([A-Z])/g, " $1").trim()}
+                            </th>
+                          ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        {Object.entries(viewingEntity.data)
+                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName"].includes(key))
+                          .map(([key, rawValue]) => (
+                            <td 
+                              key={key} 
+                              style={{ 
+                                padding: "16px", 
+                                color: COLORS.sidebar, 
+                                fontWeight: "700",
+                                borderRight: "1px solid #EBE9E1",
+                                whiteSpace: "nowrap"
+                              }}
+                            >
+                              {typeof rawValue === 'object' && rawValue !== null 
+                                ? JSON.stringify(rawValue) 
+                                : String(rawValue || "N/A")}
+                            </td>
+                          ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
 
-                                    displayValue = value.map(row => {
-                                      const gross = Number(row.grossWeight || 0);
-                                      const rate = Number(row.estimatedRate || row.rate || 0);
-                                      const deduct = (Number(row.deductions) || 0);
-                                      const totalAmount = Math.max(0, gross - deduct) * rate;
-                                      const thotrasi = totalAmount * 0.06;
-                                      const grading = totalAmount * 0.04; // Assuming 4% typical grading deduction
-                                      const netAmount = totalAmount - thotrasi - grading;
-                                      
-                                      return {
-                                        ...row,
-                                        totalAmount: Number(totalAmount.toFixed(2)),
-                                        totarasiDeduction: Number(thotrasi.toFixed(2)),
-                                        gradingDeduction: Number(grading.toFixed(2)),
-                                        advancePaymentTaken: advancePayment,
-                                        balanceAmount: Number((netAmount - advancePayment).toFixed(2))
-                                      };
-                                    });
-                                  }
-                                  
-                                  return (
-                                <div style={{ overflowX: "auto", marginTop: "8px" }}>
-                                  <table style={{ minWidth: "800px", width: "100%", borderCollapse: "collapse", fontSize: "13px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "8px", overflow: "hidden" }}>
-                                    <thead>
-                                      <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
-                                        {Object.keys(displayValue[0]).filter(k => k !== '_id' && k !== 'id').map(k => (
-                                          <th key={k} style={{ padding: "10px", textAlign: "left", color: COLORS.muted, fontWeight: "900", whiteSpace: "nowrap" }}>
-                                            {k.replace(/([A-Z])/g, " $1").trim().toUpperCase()}
-                                          </th>
-                                        ))}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {displayValue.map((row, rIdx) => (
-                                        <tr key={rIdx} style={{ borderBottom: "1px solid #F1F5F9" }}>
-                                          {Object.keys(displayValue[0]).filter(k => k !== '_id' && k !== 'id').map(k => {
-                                            const cell = row[k];
-                                            return (
-                                            <td key={k} style={{ padding: "10px", color: COLORS.sidebar, fontWeight: "700", whiteSpace: "nowrap" }}>
-                                              {typeof cell === 'object' && cell !== null ? JSON.stringify(cell) : String(cell || "-")}
-                                            </td>
-                                            );
-                                          })}
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                                  );
-                                })()
-                              ) : "[]"
-                            ) : (
-                              <div style={{ marginTop: "8px" }}>
-                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "8px", overflow: "hidden" }}>
-                                  <tbody>
-                                    {Object.entries(value).map(([k, v]) => (
-                                      <tr key={k} style={{ borderBottom: "1px solid #F1F5F9" }}>
-                                        <td style={{ padding: "10px", fontWeight: "900", color: COLORS.muted, background: "#F8FAFC", width: "40%", borderRight: "1px solid #EBE9E1" }}>
-                                          {k.replace(/([A-Z])/g, " $1").trim().toUpperCase()}
-                                        </td>
-                                        <td style={{ padding: "10px", color: COLORS.sidebar, fontWeight: "700" }}>
-                                          {typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v || "-")}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )
-                          ) : (
-                            <span style={{ fontWeight: "700" }}>{String(value || "N/A")}</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div style={{ display: "none" }}>
+                  {[].map(() => (
+                    <div key="dummy"></div>
+                  ))}
+                </div>
 
                   {/* SPECIAL TABLE FOR GROUPED ALLOCATIONS OR LOT TRACEABILITY */}
                   {(() => {
