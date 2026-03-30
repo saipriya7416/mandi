@@ -900,6 +900,27 @@ function FormGrid({ sections }) {
                       info={f.info}
                       hideLabel={true}
                     />
+                  ) : f.type === "dropdown" ? (
+                    <select
+                      value={f.value}
+                      onChange={f.onChange}
+                      disabled={f.disabled}
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #EBE9E1",
+                        background: f.disabled ? "#FDFBF4" : "#FFFFFF",
+                        color: f.disabled ? COLORS.muted : COLORS.sidebar,
+                        outline: "none",
+                        fontSize: "13px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {f.options && f.options.map((opt, i) => (
+                        <option key={i} value={opt}>{opt}</option>
+                      ))}
+                    </select>
                   ) : (
                     <input
                       type={f.type || "text"}
@@ -4686,10 +4707,10 @@ Powered by Stacli mandi os`;
                           { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`, disabled: true, info: `#${suppliers.length + 1}` },
                           { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
-                          { label: "Location Type *", type: "select", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
+                          { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
                           { label: `${supplierForm.villageOrTown} Name *`, placeholder: `Enter ${supplierForm.villageOrTown} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: (e) => setSupplierForm({ ...supplierForm, district: e.target.value }) },
-                          { label: "State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
+                          { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
                         ],
                       },
                       {
@@ -4741,17 +4762,17 @@ Powered by Stacli mandi os`;
                           { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
                           { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
-                          { label: "Location Type *", type: "select", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTown: e.target.value }) },
+                          { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTown: e.target.value }) },
                           { label: `${buyerForm.villageOrTown} Name *`, placeholder: `Enter ${buyerForm.villageOrTown} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
-                          { label: "State *", type: "select", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
+                          { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
                         ],
                       },
                       {
                         title: "KYC Details",
                         fields: [
                           { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
-                          { label: "ID Type", type: "select", options: ["Aadhaar", "PAN", "GSTIN", "Voter ID"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
+                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN", "Voter ID"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
                         ],
                       },
                       {
@@ -4769,7 +4790,7 @@ Powered by Stacli mandi os`;
                           title: "Credit Details",
                           fields: [
                             { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
-                            { label: "Payment Terms *", type: "select", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
+                            { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
                             { label: "Outstanding Balance (\u20B9)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
                             { label: "Notes", placeholder: "Free-form notes" },
                           ],
