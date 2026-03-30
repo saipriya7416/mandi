@@ -5528,18 +5528,19 @@ Powered by Stacli mandi os`;
                                 padding: "12px 14px",
                                 borderRadius: "8px",
                                 border: "1px solid #EBE9E1",
-                                background: COLORS.secondary,
-                                color: "#FFFFFF",
+                                backgroundColor: "#FFFFFF",
+                                color: COLORS.sidebar,
                                 outline: "none",
                                 fontSize: "13px",
                                 fontWeight: "600",
+                                cursor: "pointer"
                               }}
                             >
-                              <option value="A">A Grade</option>
-                              <option value="B">B Grade</option>
-                              <option value="C">C Grade</option>
-                              <option value="Export">Export</option>
-                              <option value="Local">Local</option>
+                              <option value="A" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>A Grade</option>
+                              <option value="B" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>B Grade</option>
+                              <option value="C" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>C Grade</option>
+                              <option value="Export" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Export</option>
+                              <option value="Local" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Local</option>
                             </select>
                           </div>
 
@@ -7048,13 +7049,15 @@ Powered by Stacli mandi os`;
                           padding: "12px 14px",
                           borderRadius: "8px",
                           border: "1px solid #EBE9E1",
+                          backgroundColor: "#FFFFFF",
                           color: COLORS.sidebar,
                           outline: "none",
                           fontSize: "13px",
                           fontWeight: "600",
+                          cursor: "pointer"
                         }}
                       >
-                        <option value="">
+                        <option value="" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
                           -- Auto-filled from Supplier --
                         </option>
                         {lots
@@ -7075,7 +7078,7 @@ Powered by Stacli mandi os`;
                             );
                           })
                           .map((l) => (
-                            <option key={l._id || l.lotId} value={l.lotId}>
+                            <option key={l._id || l.lotId} value={l.lotId} style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
                               {l.lotId}
                             </option>
                           ))}
@@ -8850,17 +8853,19 @@ Powered by Stacli mandi os`;
                           padding: "12px 14px",
                           borderRadius: "8px",
                           border: "1px solid #EBE9E1",
+                          backgroundColor: "#FFFFFF",
                           color: COLORS.sidebar,
                           outline: "none",
                           fontSize: "13px",
                           fontWeight: "600",
+                          cursor: "pointer"
                         }}
                       >
-                        <option value="" disabled>
+                        <option value="" disabled style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
                           Select Customer
                         </option>
                         {buyers.map((b) => (
-                          <option key={b._id} value={b._id}>
+                          <option key={b._id} value={b._id} style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
                             {b.name}
                           </option>
                         ))}
