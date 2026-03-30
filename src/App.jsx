@@ -282,136 +282,179 @@ const PremiumActionCard = ({
   icon,
   title,
   subtitle,
-  status = { text: "Active", color: "#ca8a04", bg: "#fef9c3" },
+  status = { text: "Active", color: "#166534", bg: "#dcfce7" },
   details = [],
-  primaryAction = { label: "Action", icon: ICON_SHOP, onClick: () => {} },
+  primaryAction = { label: "Login as Staff", icon: ICON_USER, onClick: () => {} },
   secondaryActions = [],
   onDelete,
   onLock,
-}) => (
-  <div style={{
-    background: "#fff",
-    borderRadius: "28px",
-    padding: "32px",
-    boxShadow: "0 10px 40px -12px rgba(0,0,0,0.06)",
-    border: "1.5px solid #f1f5f9",
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    gap: "24px",
-    transition: "transform 0.2s ease, box-shadow 0.2s ease",
-    cursor: "default"
-  }}
-  onMouseOver={(e) => {
-    e.currentTarget.style.transform = "translateY(-4px)";
-    e.currentTarget.style.boxShadow = "0 20px 50px -12px rgba(0,0,0,0.12)";
-  }}
-  onMouseOut={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.boxShadow = "0 10px 40px -12px rgba(0,0,0,0.06)";
-  }}
-  >
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-      <div style={{ background: "#f8fafc", padding: "12px", borderRadius: "16px", color: COLORS.sidebar }}>
-        {icon || ICON_SHOP}
-      </div>
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+}) => {
+  const initial = typeof title === 'object' && title.props?.text ? title.props.text.charAt(0) : (String(title).charAt(0) || "?");
+  
+  return (
+    <div style={{
+      background: "#fcfaf4",
+      borderRadius: "24px",
+      padding: "24px",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+      border: "1.5px solid #EBE9E1",
+      position: "relative",
+      display: "flex",
+      flexDirection: "column",
+      gap: "20px",
+      transition: "all 0.3s ease",
+      cursor: "default",
+      minHeight: "340px"
+    }}
+    onMouseOver={(e) => {
+      e.currentTarget.style.transform = "translateY(-4px)";
+      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.08)";
+    }}
+    onMouseOut={(e) => {
+      e.currentTarget.style.transform = "translateY(0)";
+      e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.04)";
+    }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ 
+          width: "64px", 
+          height: "64px", 
+          borderRadius: "50%", 
+          background: "#F3EFE0", 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center",
+          fontSize: "24px",
+          fontWeight: "900",
+          color: "#D4A017",
+          fontFamily: "'Playfair Display', serif"
+        }}>
+          {initial}
+        </div>
         {status && (
           <span style={{ 
             background: status.bg, 
             color: status.color, 
             padding: "6px 16px", 
-            borderRadius: "20px", 
+            borderRadius: "24px", 
             fontSize: "12px", 
-            fontWeight: "800",
-            letterSpacing: "0.2px"
+            fontWeight: "900",
+            letterSpacing: "0.5px"
           }}>
             {status.text}
           </span>
         )}
-        <button onClick={onLock} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center" }}>
-           {ICON_LOCK}
+      </div>
+
+      <div>
+        <h3 style={{ 
+          margin: 0, 
+          fontSize: "22px", 
+          fontWeight: "900", 
+          color: "#1a1a2e", 
+          fontFamily: "'Playfair Display', serif",
+          letterSpacing: "-0.5px" 
+        }}>{title}</h3>
+        <p style={{ margin: "4px 0 8px 0", fontSize: "14px", color: COLORS.muted, fontWeight: "600" }}>{subtitle || "No email provided"}</p>
+        
+        {details.filter(d => d.icon === ICON_PHONE).map((d, idx) => (
+          <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center", color: "#E11D48" }}>
+            <span style={{ display: "flex", width: "16px" }}>{d.icon}</span>
+            <span style={{ fontSize: "13px", fontWeight: "700" }}>{d.text}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "10px" }}>
+          <button 
+            onClick={secondaryActions[0]?.onClick}
+            style={{
+              padding: "12px",
+              borderRadius: "24px",
+              background: "#fff",
+              color: "#1a1a2e",
+              border: "1.5px solid #E2E8F0",
+              fontWeight: "800",
+              fontSize: "13px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              cursor: "pointer"
+            }}
+          >
+            {ICON_EDIT} Edit
+          </button>
+          <button 
+            onClick={onLock}
+            style={{
+              padding: "12px",
+              borderRadius: "24px",
+              background: "#fff",
+              color: "#E11D48",
+              border: "1.5px solid #E2E8F0",
+              fontWeight: "800",
+              fontSize: "13px",
+              cursor: "pointer"
+            }}
+          >
+            Disable
+          </button>
+        </div>
+
+        <button 
+          onClick={primaryAction.onClick}
+          style={{
+            width: "100%",
+            padding: "14px",
+            borderRadius: "24px",
+            background: "#FEF9C3",
+            color: "#854d0e",
+            border: "1.5px solid #fde047",
+            fontWeight: "850",
+            fontSize: "14px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            cursor: "pointer",
+            transition: "all 0.2s"
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = "#fef08a"}
+          onMouseOut={(e) => e.currentTarget.style.background = "#FEF9C3"}
+        >
+          {ICON_USER} {primaryAction.label}
         </button>
-        <button onClick={onDelete} style={{ background: "none", border: "none", padding: "4px", cursor: "pointer", color: "#fca5a5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-           {ICON_TRASH}
+      </div>
+
+      <div style={{ 
+        marginTop: "12px", 
+        borderTop: "1.5px solid #EBE9E1", 
+        paddingTop: "12px",
+        display: "flex",
+        justifyContent: "flex-end"
+      }}>
+        <button 
+          onClick={onDelete}
+          style={{ 
+            background: "none", 
+            border: "none", 
+            color: COLORS.muted, 
+            fontSize: "12px", 
+            fontWeight: "750", 
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px"
+          }}
+        >
+          {ICON_TRASH} Delete Account
         </button>
       </div>
     </div>
-
-    <div>
-      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: "900", color: COLORS.secondary, fontFamily: "'Inter', sans-serif", letterSpacing: "-0.5px" }}>{title}</h3>
-      <p style={{ margin: "6px 0 0 0", fontSize: "11px", color: COLORS.muted, fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase" }}>{subtitle}</p>
-    </div>
-
-    <div style={{ height: "1px", background: "#f1f5f9" }} />
-
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      {details.map((d, idx) => (
-        <div key={idx} style={{ display: "flex", gap: "14px", alignItems: "center" }}>
-          <span style={{ color: "#94a3b8", display: "flex" }}>{d.icon}</span>
-          <span style={{ fontSize: "14px", fontWeight: "600", color: "#475569" }}>{d.text}</span>
-        </div>
-      ))}
-    </div>
-
-    <div style={{ height: "1px", background: "#f1f5f9" }} />
-
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-      <button 
-        onClick={primaryAction.onClick}
-        style={{
-          width: "100%",
-          padding: "14px",
-          borderRadius: "16px",
-          background: "#18181b",
-          color: "#fff",
-          border: "none",
-          fontWeight: "800",
-          fontSize: "14px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "10px",
-          cursor: "pointer",
-          transition: "all 0.2s"
-        }}
-        onMouseOver={(e) => e.currentTarget.style.background = "#09090b"}
-        onMouseOut={(e) => e.currentTarget.style.background = "#18181b"}
-      >
-        {primaryAction.icon}
-        {primaryAction.label}
-      </button>
-
-      {secondaryActions.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: secondaryActions.length === 1 ? "1fr" : "1fr 1fr", gap: "12px" }}>
-          {secondaryActions.map((a, idx) => (
-            <button 
-              key={idx}
-              onClick={a.onClick}
-              style={{
-                padding: "14px",
-                borderRadius: "16px",
-                background: a.variant === 'primary' ? "#facc15" : "#f8fafc",
-                color: "#1e293b",
-                border: a.variant === 'primary' ? "none" : "1.5px solid #e2e8f0",
-                fontWeight: "800",
-                fontSize: "13px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                cursor: "pointer"
-              }}
-            >
-              {a.icon}
-              {a.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  </div>
-);
+  );
+};
 
 
 const Button = ({ children, onClick, variant = "primary", style = {} }) => {
@@ -1256,8 +1299,10 @@ Powered by Stacli mandi os`;
     ifsc: "",
     advanceBalance: "",
     notes: "",
+    email: "",
   });
   const [buyerForm, setBuyerForm] = useState({
+    buyerId: "",
     name: "",
     shopName: "",
     phone: "",
@@ -1273,6 +1318,7 @@ Powered by Stacli mandi os`;
     advanceBalance: "",
     creditLimit: "",
     notes: "",
+    email: "",
   });
   const [lotCreationForm, setLotCreationForm] = useState({
     lotId: generateLotId(1),
@@ -1299,8 +1345,12 @@ Powered by Stacli mandi os`;
   });
 
   const handleRegisterSupplier = async () => {
-    if (!supplierForm.name || !supplierForm.phone)
-      return alert("Name and phone are required!");
+    if (!supplierForm.name || !supplierForm.phone || !supplierForm.email)
+      return alert("Name, phone, and email are mandatory!");
+      
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(supplierForm.email))
+      return alert("Invalid email format!");
     const payload = {
       supplierId: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`,
       name: supplierForm.name,
@@ -1314,6 +1364,7 @@ Powered by Stacli mandi os`;
       bankAccount: supplierForm.bankAccount,
       ifsc: supplierForm.ifsc,
       advanceBalance: supplierForm.advanceBalance,
+      email: supplierForm.email,
       notes: supplierForm.notes || "Registered via Profile Hub",
     };
     try {
@@ -1352,11 +1403,13 @@ Powered by Stacli mandi os`;
         ifsc: "",
         advanceBalance: "",
         notes: "",
+        email: "",
       });
       setIsEditingSupplier(false);
       setEditingSupplierId(null);
     } else {
       setBuyerForm({
+        buyerId: "",
         name: "",
         shopName: "",
         phone: "",
@@ -1372,6 +1425,7 @@ Powered by Stacli mandi os`;
         ifsc: "",
         advanceBalance: "",
         notes: "",
+        email: "",
       });
       setIsEditingBuyer(false);
       setEditingBuyerId(null);
@@ -1567,11 +1621,13 @@ Powered by Stacli mandi os`;
         ifsc: record.ifsc || "",
         advanceBalance: record.advanceBalance || "",
         notes: record.notes || "",
+        email: record.email || "",
       });
       setIsEditingSupplier(true);
       setEditingSupplierId(record._id);
     } else {
       setBuyerForm({
+        buyerId: record.buyerId || "",
         name: record.name,
         shopName: record.shopName,
         phone: record.phone,
@@ -1584,6 +1640,7 @@ Powered by Stacli mandi os`;
         idType: record.idType || "Aadhaar",
         creditLimit: record.creditLimit || "",
         notes: record.notes || "",
+        email: record.email || "",
       });
       setIsEditingBuyer(true);
       setEditingBuyerId(record._id);
@@ -1861,9 +1918,14 @@ Powered by Stacli mandi os`;
   };
 
   const handleRegisterBuyer = async () => {
-    if (!buyerForm.name || !buyerForm.phone)
-      return alert("Customer Name and phone are required!");
+    if (!buyerForm.name || !buyerForm.phone || !buyerForm.email)
+      return alert("Customer Name, phone, and email are mandatory!");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(buyerForm.email))
+      return alert("Invalid email format!");
     const payload = {
+      buyerId: isEditingBuyer ? buyerForm.buyerId : `CUST-${buyers.length + 1}`,
       name: buyerForm.name,
       phone: buyerForm.phone,
       address: buyerForm.address || "unknown",
@@ -1873,6 +1935,7 @@ Powered by Stacli mandi os`;
       state: buyerForm.state,
       govIdNumber: buyerForm.govIdNumber || "N/A",
       creditLimit: Number(buyerForm.creditLimit) || 0,
+      email: buyerForm.email,
       notes: "Registered via Unified Dashboard",
     };
     try {
@@ -4705,13 +4768,14 @@ Powered by Stacli mandi os`;
                       {
                         title: "Supplier Profile",
                         fields: [
-                          { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`, disabled: true, info: `#${suppliers.length + 1}` },
+                          { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`, disabled: true },
                           { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
                           { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
                           { label: `${supplierForm.villageOrTown} Name *`, placeholder: `Enter ${supplierForm.villageOrTown} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: (e) => setSupplierForm({ ...supplierForm, district: e.target.value }) },
                           { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
+                          { label: "Email Address *", placeholder: "e.g. contact@example.com", value: supplierForm.email, onChange: (e) => setSupplierForm({ ...supplierForm, email: e.target.value }) },
                         ],
                       },
                       {
@@ -4731,21 +4795,11 @@ Powered by Stacli mandi os`;
                           { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
                         ],
                       },
-                    ].filter((_, idx) => (partyStep === 1 ? idx < 2 : (partyStep === 2 ? idx === 2 : false)))}
+                    ]}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>{isEditingSupplier ? "Update Records" : "Submit Details"}</Button>
-                    
-                    <div style={{ display: "flex", gap: "16px" }}>
-                      {partyStep === 1 ? (
-                        <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next Step</Button>
-                      ) : (
-                        <>
-                           <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
-                           <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next: Customer Registration</Button>
-                        </>
-                      )}
-                    </div>
+                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Buyer"); setPartyStep(1); }}>Next: Customer Registration</Button>
 
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Registered</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
@@ -4760,6 +4814,7 @@ Powered by Stacli mandi os`;
                       {
                         title: "Customer Profile & Location",
                         fields: [
+                          { label: "Customer ID", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.buyerId : `CUST-${buyers.length + 1}`, disabled: true },
                           { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
                           { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
@@ -4767,6 +4822,7 @@ Powered by Stacli mandi os`;
                           { label: `${buyerForm.villageOrTown} Name *`, placeholder: `Enter ${buyerForm.villageOrTown} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
                           { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
+                          { label: "Email Address *", placeholder: "e.g. contact@example.com", value: buyerForm.email, onChange: (e) => setBuyerForm({ ...buyerForm, email: e.target.value }) },
                         ],
                       },
                       {
@@ -4785,33 +4841,20 @@ Powered by Stacli mandi os`;
                           { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
                         ],
                       }
-                    ].filter((_, idx) => (partyStep === 1 ? idx < 3 : false)).concat(
-                      partyStep === 2 ? [
-                        {
-                          title: "Credit Details",
-                          fields: [
-                            { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
-                            { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
-                            { label: "Outstanding Balance (\u20B9)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
-                            { label: "Notes", placeholder: "Free-form notes" },
-                          ],
-                        }
-                      ] : []
-                    )}
+                      {
+                        title: "Credit Details",
+                        fields: [
+                          { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
+                          { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
+                          { label: "Outstanding Balance (\u20B9)", type: "number", placeholder: "Auto-calculated from invoices - payments" },
+                          { label: "Notes", placeholder: "Free-form notes" },
+                        ],
+                      }
+                    ]}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
-                    
-                    <div style={{ display: "flex", gap: "16px" }}>
-                      {partyStep === 1 ? (
-                        <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(2)}>Next Step</Button>
-                      ) : (
-                        <>
-                          <Button style={{ background: "#FFFFFF", color: "#1F3A2B", border: "1.5px solid #1F3A2B", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setPartyStep(1)}>Previous</Button>
-                          <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Registered Members"); setPartyStep(1); }}>Next: Registered Members</Button>
-                        </>
-                      )}
-                    </div>
+                    <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Registered Members"); setPartyStep(1); }}>Next: Registered Members</Button>
 
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Members</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
@@ -4848,7 +4891,7 @@ Powered by Stacli mandi os`;
                     <div onClick={() => setActiveRegisteredTab("Customers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Customers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Customers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Customers ({buyers.length})</div>
                   </div>
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "20px" }}>
                       {activeRegisteredTab === "Suppliers" ? (
                         suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).length === 0 ? (
                           <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No matching suppliers found.</p>
@@ -4857,6 +4900,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={s._id}
                               title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                              subtitle={s.email || "No email registered"}
                               icon={ICON_USER}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -4881,6 +4925,7 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={b._id}
                               title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
+                              subtitle={b.email || b.name}
                               icon={ICON_SHOP}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
