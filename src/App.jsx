@@ -963,12 +963,13 @@ function FormGrid({ sections }) {
                         padding: "12px 14px",
                         borderRadius: "8px",
                         border: "1.5px solid #EBE9E1",
-                        backgroundColor: f.disabled ? "#FDFBF4" : "#FFFFFF",
+                        background: f.disabled ? "#FDFBF4" : "#FFFFFF",
                         color: f.disabled ? COLORS.muted : COLORS.sidebar,
                         outline: "none",
                         fontSize: "13px",
                         fontWeight: "600",
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        appearance: "auto",
                       }}
                     >
                       {f.options && f.options.map((opt, i) => (
