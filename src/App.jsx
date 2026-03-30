@@ -18307,81 +18307,74 @@ Powered by Stacli mandi os`;
                   </table>
                 </div>
 
-                <div style={{ display: "none" }}>
-                  {[].map(() => (
-                    <div key="dummy"></div>
-                  ))}
-                </div>
+                {/* SPECIAL TABLE FOR GROUPED ALLOCATIONS OR LOT TRACEABILITY */}
+                {(() => {
+                  let itemsToShow = [];
+                  let tableTitle = "";
 
-                  {/* SPECIAL TABLE FOR GROUPED ALLOCATIONS OR LOT TRACEABILITY */}
-                  {(() => {
-                    let itemsToShow = [];
-                    let tableTitle = "";
+                  if (viewingEntity.type === "Allocation" && viewingEntity.data.allItems) {
+                    itemsToShow = viewingEntity.data.allItems;
+                    tableTitle = "ALL ALLOCATION LINE ITEMS IN THIS TRANSACTION";
+                  } else if (viewingEntity.type === "LOT") {
+                    itemsToShow = (allocations || []).filter(a => a.lotId === viewingEntity.data._id || a.lotId === viewingEntity.data.lotId || a.lotReference === viewingEntity.data.lotId);
+                    tableTitle = "LINKED TRANSACTION LEDGER (TRACED SALES FROM THIS LOT)";
+                  }
 
-                    if (viewingEntity.type === "Allocation" && viewingEntity.data.allItems) {
-                      itemsToShow = viewingEntity.data.allItems;
-                      tableTitle = "ALL ALLOCATION LINE ITEMS IN THIS TRANSACTION";
-                    } else if (viewingEntity.type === "LOT") {
-                      itemsToShow = (allocations || []).filter(a => a.lotId === viewingEntity.data._id || a.lotId === viewingEntity.data.lotId || a.lotReference === viewingEntity.data.lotId);
-                      tableTitle = "LINKED TRANSACTION LEDGER (TRACED SALES FROM THIS LOT)";
-                    }
-
-                    if (itemsToShow.length > 0) {
-                      return (
-                        <div style={{ marginTop: "32px", borderTop: "2px solid #FDFBF4", paddingTop: "24px" }}>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "900", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px", borderLeft: `4px solid ${COLORS.sidebar}`, paddingLeft: "12px" }}>
-                            {tableTitle}
-                          </label>
-                          <div style={{ overflowX: "auto" }}>
-                            <table style={{ minWidth: "100%", borderCollapse: "collapse", fontSize: "12px", background: "#fcfcfc", border: `1.5px solid ${COLORS.sidebar}`, borderRadius: "12px", overflow: "hidden" }}>
-                              <thead>
-                                <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
-                                  <th style={{ padding: "12px", textAlign: "left" }}>Product / Variety / Grade</th>
-                                  <th style={{ padding: "12px", textAlign: "right" }}>Qty (KG)</th>
-                                  <th style={{ padding: "12px", textAlign: "right" }}>Rate (₹)</th>
-                                  <th style={{ padding: "12px", textAlign: "right" }}>Allocated Amt (₹)</th>
-                                  <th style={{ padding: "12px", textAlign: "right" }}>Total Sale (₹)</th>
-                                  <th style={{ padding: "12px", textAlign: "left" }}>Invoice Ref</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {itemsToShow.map((it, idx) => {
-                                  const autoAmt = (Number(it.quantity) * Number(it.rate)) || 0;
-                                  const manualAmt = Number(it.allocatedAmount);
-                                  const finalAmt = !isNaN(manualAmt) && it.allocatedAmount !== "" ? manualAmt : autoAmt;
-                                  
-                                  return (
-                                    <tr key={idx} style={{ borderBottom: "1px solid #EBE9E1" }}>
-                                      <td style={{ padding: "12px", fontWeight: "800", color: COLORS.sidebar }}>{it.lineItemId || "Standard Produce"}</td>
-                                      <td style={{ padding: "12px", textAlign: "right", fontWeight: "700" }}>{it.quantity}</td>
-                                      <td style={{ padding: "12px", textAlign: "right", color: COLORS.primary, fontWeight: "700" }}>₹{it.rate}</td>
-                                      <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: "#C2410C", background: "#FFF7ED" }}>₹{finalAmt.toLocaleString()}</td>
-                                      <td style={{ padding: "12px", textAlign: "right", fontWeight: "900" }}>₹{finalAmt.toLocaleString()}</td>
-                                      <td style={{ padding: "12px", color: COLORS.muted, fontSize: "11px" }}>{it.buyerInvoiceNo || "UNLINKED"}</td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                              <tfoot>
-                                <tr style={{ background: "#F1F5F9", fontWeight: "900" }}>
-                                  <td colSpan="3" style={{ padding: "12px", textAlign: "right" }}>GRAND TOTAL SUMMARY:</td>
-                                  <td style={{ padding: "12px", textAlign: "right", color: "#C2410C" }}>
-                                    ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
-                                  </td>
-                                  <td style={{ padding: "12px", textAlign: "right" }}>
-                                    ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
-                                  </td>
-                                  <td></td>
-                                </tr>
-                              </tfoot>
-                            </table>
-                          </div>
+                  if (itemsToShow.length > 0) {
+                    return (
+                      <div style={{ marginTop: "32px", borderTop: "2px solid #FDFBF4", paddingTop: "24px" }}>
+                        <label style={{ display: "block", fontSize: "11px", fontWeight: "900", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px", borderLeft: `4px solid ${COLORS.sidebar}`, paddingLeft: "12px" }}>
+                          {tableTitle}
+                        </label>
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ minWidth: "100%", borderCollapse: "collapse", fontSize: "12px", background: "#fcfcfc", border: `1.5px solid ${COLORS.sidebar}`, borderRadius: "12px", overflow: "hidden" }}>
+                            <thead>
+                              <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
+                                <th style={{ padding: "12px", textAlign: "left" }}>Product / Variety / Grade</th>
+                                <th style={{ padding: "12px", textAlign: "right" }}>Qty (KG)</th>
+                                <th style={{ padding: "12px", textAlign: "right" }}>Rate (₹)</th>
+                                <th style={{ padding: "12px", textAlign: "right" }}>Allocated Amt (₹)</th>
+                                <th style={{ padding: "12px", textAlign: "right" }}>Total Sale (₹)</th>
+                                <th style={{ padding: "12px", textAlign: "left" }}>Invoice Ref</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {itemsToShow.map((it, idx) => {
+                                const autoAmt = (Number(it.quantity) * Number(it.rate)) || 0;
+                                const manualAmt = Number(it.allocatedAmount);
+                                const finalAmt = !isNaN(manualAmt) && it.allocatedAmount !== "" ? manualAmt : autoAmt;
+                                
+                                return (
+                                  <tr key={idx} style={{ borderBottom: "1px solid #EBE9E1" }}>
+                                    <td style={{ padding: "12px", fontWeight: "800", color: COLORS.sidebar }}>{it.lineItemId || "Standard Produce"}</td>
+                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "700" }}>{it.quantity}</td>
+                                    <td style={{ padding: "12px", textAlign: "right", color: COLORS.primary, fontWeight: "700" }}>₹{it.rate}</td>
+                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: "#C2410C", background: "#FFF7ED" }}>₹{finalAmt.toLocaleString()}</td>
+                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "900" }}>₹{finalAmt.toLocaleString()}</td>
+                                    <td style={{ padding: "12px", color: COLORS.muted, fontSize: "11px" }}>{it.buyerInvoiceNo || "UNLINKED"}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                            <tfoot>
+                              <tr style={{ background: "#F1F5F9", fontWeight: "900" }}>
+                                <td colSpan="3" style={{ padding: "12px", textAlign: "right" }}>GRAND TOTAL SUMMARY:</td>
+                                <td style={{ padding: "12px", textAlign: "right", color: "#C2410C" }}>
+                                  ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
+                                </td>
+                                <td style={{ padding: "12px", textAlign: "right" }}>
+                                  ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
+                                </td>
+                                <td></td>
+                              </tr>
+                            </tfoot>
+                          </table>
                         </div>
-                      );
-                    }
-                    return null;
-                  })()}
-                </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               <div
