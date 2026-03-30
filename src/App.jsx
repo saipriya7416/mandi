@@ -786,30 +786,33 @@ function OthersDropdown({
   disabled, 
   required, 
   info,
-  style = {}
+  style = {},
+  hideLabel = false
 }) {
   const listId = `list-${label.replace(/\s+/g, '-').toLowerCase()}-${Math.random().toString(36).substr(2, 5)}`;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, ...style }}>
-      <label
-        style={{
-          fontSize: "12px",
-          fontWeight: "700",
-          color: COLORS.muted,
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <span>{label}{required ? " *" : ""}</span>
-        {info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{info}</span>}
-      </label>
+      {!hideLabel && (
+        <label
+          style={{
+            fontSize: "12px",
+            fontWeight: "700",
+            color: COLORS.muted,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <span>{label}{required ? " *" : ""}</span>
+          {info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{info}</span>}
+        </label>
+      )}
 
       <div style={{ position: "relative" }}>
         <input
           type="text"
           list={listId}
-          placeholder={placeholder || `Select or type ${label}...`}
+          placeholder={placeholder || "Type or Select..."}
           value={value}
           onChange={onChange}
           disabled={disabled}
@@ -895,6 +898,7 @@ function FormGrid({ sections }) {
                       disabled={f.disabled}
                       required={f.required}
                       info={f.info}
+                      hideLabel={true}
                     />
                   ) : (
                     <input
