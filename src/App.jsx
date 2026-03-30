@@ -3859,6 +3859,7 @@ Powered by Stacli mandi os`;
         .font-display { font-family: 'Outfit', sans-serif !important; letter-spacing: 0.05em; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        select option { background-color: #f2f2f2; color: #1e240b; }
       `}</style>
       {/* MOBILE HEADER (Conditional) */}
       {loggedIn && isMobile && (
