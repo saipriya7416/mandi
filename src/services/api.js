@@ -73,6 +73,17 @@ const request = async (method, path, body = null) => {
         const id = path.split('/')[3];
         return { status: "SUCCESS", data: getLocal('settlements').filter(s => s.farmerId === id) };
       }
+      // Single record lookups by ID
+      if (path.startsWith('/supplier/')) {
+        const id = path.split('/').pop();
+        const found = getLocal('suppliers').find(s => s._id === id);
+        return found ? { status: "SUCCESS", ...found } : { status: "ERROR", message: "Not found" };
+      }
+      if (path.startsWith('/buyer/') && !path.includes('intelligence')) {
+        const id = path.split('/').pop();
+        const found = getLocal('buyers').find(b => b._id === id);
+        return found ? { status: "SUCCESS", ...found } : { status: "ERROR", message: "Not found" };
+      }
       return { status: "SUCCESS", data: [] };
     }
 
@@ -186,12 +197,14 @@ export const MandiService = {
 
   // --- SUPPLIERS ---
   getSuppliers: async () => request('GET', '/suppliers'),
+  getSupplier: async (id) => request('GET', `/supplier/${id}`),
   addSupplier: async (data) => request('POST', '/supplier', data),
   updateSupplier: async (id, data) => request('PUT', `/supplier/${id}`, data),
   deleteSupplier: async (id) => request('DELETE', `/supplier/${id}`),
 
   // --- BUYERS ---
   getBuyers: async () => request('GET', '/buyers'),
+  getBuyer: async (id) => request('GET', `/buyer/${id}`),
   addBuyer: async (data) => request('POST', '/buyer', data),
   updateBuyer: async (id, data) => request('PUT', `/buyer/${id}`, data),
   deleteBuyer: async (id) => request('DELETE', `/buyer/${id}`),

@@ -1,68 +1,104 @@
-﻿[36mvite v8.0.0 [32mbuilding client environment for production...[36m[39m
+﻿
+> mandi-frontend@0.1.0 build
+> vite build
+
+[36mvite v8.0.0 [32mbuilding client environment for production...[36m[39m
 [2K
 transforming...Γ£ô 13 modules transformed.
-node.exe : [31mΓ£ù[39m Build failed in 1.02s
+node.exe : [31mΓ£ù[39m Build failed in 462ms
 At line:1 char:1
 + & "C:\Program Files\nodejs/node.exe" "C:\Program 
 Files\nodejs/node_mo ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: ([31mΓ£ù[39m Build faile 
-   d in 1.02s:String) [], RemoteException
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([31mΓ£ù[39m B 
+   uild failed in 462ms:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
 [31merror during build:
 [31mBuild failed with 1 error:
 
-[31m[builtin:vite-transform] Error:[0m Expected `,` or `)` but found 
-`}`
+[31m[builtin:vite-transform] Error:[0m Expected `,` or `)` 
+but found `Identifier`
       [38;5;246mΓò¡[0m[38;5;246mΓöÇ[0m[38;5;246m[[0m 
-src/App.jsx:1929:21 [38;5;246m][0m
+src/App.jsx:4994:22 [38;5;246m][0m
       [38;5;246mΓöé[0m
- [38;5;246m1800 Γöé[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m{[0m[3
-8;5;249mi[0m[38;5;249mn[0m[38;5;249mt[0m[38;5;249ma[0m[38;5;249
-mk[0m[38;5;249me[0m[38;5;249mF[0m[38;5;249mo[0m[38;5;249mr[0m
-[38;5;249mm[0m[38;5;249m.[0m[38;5;249ml[0m[38;5;249mi[0m[38;5;2
-49mn[0m[38;5;249me[0m[38;5;249mI[0m[38;5;249mt[0m[38;5;249me[0
-m[38;5;249mm[0m[38;5;249ms[0m[38;5;249m.[0m[38;5;249mm[0m[38;5
-;249ma[0m[38;5;249mp[0m([38;5;249m([0m[38;5;249mi[0m[38;5;249mt
-[0m[38;5;249me[0m[38;5;249mm[0m[38;5;249m,[0m[38;5;249m [0m[3
-8;5;249mi[0m[38;5;249mn[0m[38;5;249md[0m[38;5;249me[0m[38;5;249
-mx[0m[38;5;249m)[0m[38;5;249m 
-[0m[38;5;249m=[0m[38;5;249m>[0m[38;5;249m [0m[38;5;249m([0m
- [38;5;240m     Γöé[0m                                            
-Γö¼  
- [38;5;240m     Γöé[0m                                            
-Γò░ΓöÇΓöÇ Opened here
+ [38;5;246m4866 Γöé[0m [38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;24
+9m{[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249mt[0m[38;5
+;249mi[0m[38;5;249mv[0m[38;5;249me[0m[38;5;249mU[0m[3
+8;5;249ms[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249mR[0m
+[38;5;249mo[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249mT
+[0m[38;5;249ma[0m[38;5;249mb[0m[38;5;249m [0m[38;5;249
+m=[0m[38;5;249m=[0m[38;5;249m=[0m[38;5;249m [0m[38;5;
+249m"[0m[38;5;249mR[0m[38;5;249me[0m[38;5;249mg[0m[38
+;5;249mi[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249me[0m
+[38;5;249mr[0m[38;5;249me[0m[38;5;249md[0m[38;5;249m [
+0m[38;5;249mM[0m[38;5;249me[0m[38;5;249mm[0m[38;5;249m
+b[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249ms[0m[38;5;2
+49m"[0m[38;5;249m 
+[0m[38;5;249m&[0m[38;5;249m&[0m[38;5;249m [0m(
+ [38;5;240m     Γöé[0m                                     
+                         Γö¼  
+ [38;5;240m     Γöé[0m                                     
+                         Γò░ΓöÇΓöÇ Opened here
  [38;5;240m     Γöé[0m 
- [38;5;246m1929 Γöé[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
-[0m[38;5;249m)[0m}
- [38;5;240m     Γöé[0m                     Γö¼  
- [38;5;240m     Γöé[0m                     Γò░ΓöÇΓöÇ `,` or `)` 
-expected
+ [38;5;246m4994 Γöé[0m [38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m 
+[0m[38;5;249m [0m[38;5;249m [0m[38;5;249m<[0m[38;5;24
+9md[0m[38;5;249mi[0m[38;5;249mv[0m[38;5;249m [0mstyle
+[38;5;249m=[0m[38;5;249m{[0m[38;5;249m{[0m[38;5;249m [
+0m[38;5;249md[0m[38;5;249mi[0m[38;5;249ms[0m[38;5;249m
+p[0m[38;5;249ml[0m[38;5;249ma[0m[38;5;249my[0m[38;5;2
+49m:[0m[38;5;249m [0m[38;5;249m"[0m[38;5;249mf[0m[38;
+5;249ml[0m[38;5;249me[0m[38;5;249mx[0m[38;5;249m"[0m[
+38;5;249m,[0m[38;5;249m [0m[38;5;249mg[0m[38;5;249ma[0
+m[38;5;249mp[0m[38;5;249m:[0m[38;5;249m [0m[38;5;249m"
+[0m[38;5;249m1[0m[38;5;249m6[0m[38;5;249mp[0m[38;5;24
+9mx[0m[38;5;249m"[0m[38;5;249m,[0m[38;5;249m [0m[38;5
+;249mm[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249mg[0m[3
+8;5;249mi[0m[38;5;249mn[0m[38;5;249mT[0m[38;5;249mo[0m
+[38;5;249mp[0m[38;5;249m:[0m[38;5;249m [0m[38;5;249m"
+[0m[38;5;249m2[0m[38;5;249m0[0m[38;5;249mp[0m[38;5;249
+mx[0m[38;5;249m"[0m[38;5;249m,[0m[38;5;249m [0m[38;5;
+249mp[0m[38;5;249ma[0m[38;5;249md[0m[38;5;249md[0m[38
+;5;249mi[0m[38;5;249mn[0m[38;5;249mg[0m[38;5;249mB[0m
+[38;5;249mo[0m[38;5;249mt[0m[38;5;249mt[0m[38;5;249mo[
+0m[38;5;249mm[0m[38;5;249m:[0m[38;5;249m [0m[38;5;249m
+"[0m[38;5;249m8[0m[38;5;249mp[0m[38;5;249mx[0m[38;5;2
+49m"[0m[38;5;249m 
+[0m[38;5;249m}[0m[38;5;249m}[0m[38;5;249m>[0m
+ [38;5;240m     Γöé[0m                      
+ΓöÇΓöÇΓö¼ΓöÇΓöÇ  
+ [38;5;240m     Γöé[0m                        
+Γò░ΓöÇΓöÇΓöÇΓöÇ `,` or `)` expected
 [38;5;246mΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓò»[0m
 [31m
-    at aggregateBindingErrorsIntoJsError (file:///C:/Users/sailo/Deskto
-p/mandi-frontend/node_modules/rolldown/dist/shared/error-CP8smW_P.mjs:4
-8:18)
-    at unwrapBindingResult (file:///C:/Users/sailo/Desktop/mandi-fronte
-nd/node_modules/rolldown/dist/shared/error-CP8smW_P.mjs:18:128)
-    at #build (file:///C:/Users/sailo/Desktop/mandi-frontend/node_modul
-es/rolldown/dist/shared/rolldown-build-4YnQkA76.mjs:3311:34)
-    at async buildEnvironment (file:///C:/Users/sailo/Desktop/mandi-fro
-ntend/node_modules/vite/dist/node/chunks/node.js:32794:64)
-    at async Object.build (file:///C:/Users/sailo/Desktop/mandi-fronten
-d/node_modules/vite/dist/node/chunks/node.js:33216:19)
-    at async Object.buildApp (file:///C:/Users/sailo/Desktop/mandi-fron
-tend/node_modules/vite/dist/node/chunks/node.js:33213:153)
-    at async CAC.<anonymous> (file:///C:/Users/sailo/Desktop/mandi-fron
-tend/node_modules/vite/dist/node/cli.js:778:3) {
+    at aggregateBindingErrorsIntoJsError (file:///C:/Users/sa
+ilo/Desktop/mandi-frontend/node_modules/rolldown/dist/shared/
+error-CP8smW_P.mjs:48:18)
+    at unwrapBindingResult (file:///C:/Users/sailo/Desktop/ma
+ndi-frontend/node_modules/rolldown/dist/shared/error-CP8smW_P
+.mjs:18:128)
+    at #build (file:///C:/Users/sailo/Desktop/mandi-frontend/
+node_modules/rolldown/dist/shared/rolldown-build-4YnQkA76.mjs
+:3311:34)
+    at async buildEnvironment (file:///C:/Users/sailo/Desktop
+/mandi-frontend/node_modules/vite/dist/node/chunks/node.js:32
+794:64)
+    at async Object.build (file:///C:/Users/sailo/Desktop/man
+di-frontend/node_modules/vite/dist/node/chunks/node.js:33216:
+19)
+    at async Object.buildApp (file:///C:/Users/sailo/Desktop/
+mandi-frontend/node_modules/vite/dist/node/chunks/node.js:332
+13:153)
+    at async CAC.<anonymous> (file:///C:/Users/sailo/Desktop/
+mandi-frontend/node_modules/vite/dist/node/cli.js:778:3) {
   errors: [Getter/Setter]
 }[39m

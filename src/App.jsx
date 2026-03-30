@@ -284,7 +284,7 @@ const PremiumActionCard = ({
   subtitle,
   status = { text: "Active", color: "#166534", bg: "#dcfce7" },
   details = [],
-  primaryAction = { label: "Login as Staff", icon: ICON_USER, onClick: () => {} },
+  primaryAction = null,
   secondaryActions = [],
   onDelete,
   onLock,
@@ -366,7 +366,8 @@ const PremiumActionCard = ({
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "10px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: secondaryActions[1] || onLock ? "2fr 1fr" : "1fr", gap: "10px" }}>
+          {(secondaryActions[0] || (!secondaryActions[0] && secondaryActions.length === 0)) && (
           <button 
             onClick={secondaryActions[0]?.onClick}
             style={{
@@ -384,10 +385,12 @@ const PremiumActionCard = ({
               cursor: "pointer"
             }}
           >
-            {ICON_EDIT} Edit
+            {secondaryActions[0]?.icon || ICON_EDIT} {secondaryActions[0]?.label || "Edit"}
           </button>
+          )}
+          {(secondaryActions[1] || onLock) && (
           <button 
-            onClick={onLock}
+            onClick={secondaryActions[1]?.onClick || onLock}
             style={{
               padding: "12px",
               borderRadius: "24px",
@@ -399,33 +402,36 @@ const PremiumActionCard = ({
               cursor: "pointer"
             }}
           >
-            Disable
+            {secondaryActions[1]?.label || "Disable"}
           </button>
+          )}
         </div>
 
-        <button 
-          onClick={primaryAction.onClick}
-          style={{
-            width: "100%",
-            padding: "14px",
-            borderRadius: "24px",
-            background: "#FEF9C3",
-            color: "#854d0e",
-            border: "1.5px solid #fde047",
-            fontWeight: "850",
-            fontSize: "14px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            cursor: "pointer",
-            transition: "all 0.2s"
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = "#fef08a"}
-          onMouseOut={(e) => e.currentTarget.style.background = "#FEF9C3"}
-        >
-          {ICON_USER} {primaryAction.label}
-        </button>
+        {primaryAction && (
+          <button 
+            onClick={primaryAction.onClick}
+            style={{
+              width: "100%",
+              padding: "14px",
+              borderRadius: "24px",
+              background: "#FEF9C3",
+              color: "#854d0e",
+              border: "1.5px solid #fde047",
+              fontWeight: "850",
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = "#fef08a"}
+            onMouseOut={(e) => e.currentTarget.style.background = "#FEF9C3"}
+          >
+            {primaryAction.icon || ICON_USER} {primaryAction.label}
+          </button>
+        )}
       </div>
 
       <div style={{ 
@@ -3579,7 +3585,7 @@ Powered by Stacli mandi os`;
           >
             STACLI
           </h1>
-          <div style={{ height: "1px", marginBottom: "32px" }}></div>
+          <div style={{ height: "1px", marginBottom: "8px" }}></div>
           <div
             style={{
               display: "flex",
@@ -4853,10 +4859,10 @@ Powered by Stacli mandi os`;
                       }
                     ]}
                   />
-                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
+                    <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Supplier")}>← Previous</Button>
                     <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>{isEditingBuyer ? "Update Records" : "Submit Details"}</Button>
                     <Button style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => { setActiveUserRoleTab("Registered Members"); setPartyStep(1); }}>Next</Button>
-
                     <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Registered Members")}>View Members</Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
                   </div>
@@ -4864,7 +4870,8 @@ Powered by Stacli mandi os`;
               )}
 
               {activeUserRoleTab === "Registered Members" && (
-                <Card>
+                <div>
+                  <Card>
                   <div style={{ marginBottom: "24px" }}>
                     <div style={{ position: "relative" }}>
                       <input
@@ -4915,9 +4922,12 @@ Powered by Stacli mandi os`;
                                 onClick: async () => {
                                   try {
                                     const res = await MandiService.getSupplier(s._id);
-                                    if(res && res.name) {
-                                      alert(`✅ Authenticated as Staff for ${res.name}. Redirecting to internal portal...`);
-                                      setViewingEntity({ type: "Supplier", data: res });
+                                    const record = res?.data || res;
+                                    if (record && record.name) {
+                                      alert(`✅ Logged in as Staff for: ${record.name}\nID: ${record.supplierId || s._id}\nPhone: ${record.phone || 'N/A'}`);
+                                      setViewingEntity({ type: "Supplier", data: record });
+                                    } else {
+                                      alert("⚠️ Record not found in database.");
                                     }
                                   } catch (err) {
                                     alert("❌ Authentication failed. Could not connect to database.");
@@ -4959,9 +4969,12 @@ Powered by Stacli mandi os`;
                                 onClick: async () => {
                                   try {
                                     const res = await MandiService.getBuyer(b._id);
-                                    if(res && res.name) {
-                                      alert(`✅ Authenticated as Staff for ${res.name}. Redirecting to customer portal...`);
-                                      setViewingEntity({ type: "Customer", data: res });
+                                    const record = res?.data || res;
+                                    if (record && record.name) {
+                                      alert(`✅ Logged in as Staff for: ${record.name}\nID: ${record.buyerId || b._id}\nPhone: ${record.phone || 'N/A'}`);
+                                      setViewingEntity({ type: "Customer", data: record });
+                                    } else {
+                                      alert("⚠️ Record not found in database.");
                                     }
                                   } catch (err) {
                                     alert("❌ Authentication failed. Could not connect to database.");
@@ -4985,6 +4998,11 @@ Powered by Stacli mandi os`;
                     </div>
                   </div>
                 </Card>
+                <div style={{ display: "flex", gap: "16px", marginTop: "20px", paddingBottom: "8px" }}>
+                  <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800" }} onClick={() => setActiveUserRoleTab("Buyer")}>← Previous</Button>
+                  <Button style={{ background: COLORS.sidebar, color: "#fff", fontWeight: "800" }} onClick={fetchData}>🔄 Refresh Data</Button>
+                </div>
+                </div>
               )}
             </div>
           )}
@@ -5313,9 +5331,9 @@ Powered by Stacli mandi os`;
                                 { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Est. Gross: ${formatCurrency(grossSale)}` }
                               ]}
                               secondaryActions={[
-                                { label: "Modify", icon: ICON_EDIT, onClick: () => handleEditLot(l) },
-                                { label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "LOT", data: l }), variant: 'primary' }
+                                { label: "Modify", icon: ICON_EDIT, onClick: () => handleEditLot(l) }
                               ]}
+                              primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "LOT", data: l }) }}
                               onDelete={isAdmin ? () => handleDeleteLot(l._id) : undefined}
                               onLock={() => alert("Lot record locked.")}
                             />
@@ -6606,9 +6624,9 @@ Powered by Stacli mandi os`;
                             { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: a.allocationDate }
                           ]}
                           secondaryActions={[
-                            { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(a); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } },
-                            { label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: a }), variant: 'primary' }
+                            { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(a); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
                           ]}
+                          primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: a }) }}
                           onDelete={isAdmin ? () => { if (window.confirm("Delete this allocation record?")) handleDeleteAllocation(a._id); } : undefined}
                           onLock={() => alert("Allocation record finalized.")}
                         />
