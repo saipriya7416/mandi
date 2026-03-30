@@ -5680,7 +5680,6 @@ Powered by Stacli mandi os`;
                       letterSpacing: "-0.5px",
                     }}
                   >
-                    Auction & Lot Allocation
                   </h2>
                   <p
                     style={{
@@ -5871,41 +5870,47 @@ Powered by Stacli mandi os`;
                         position: "relative",
                       }}
                     >
-                       <div
+                      <div
                         style={{
                           position: "absolute",
-                          top: "12px",
+                          bottom: "12px",
                           right: "12px",
                           display: "flex",
                           gap: "8px",
                         }}
                       >
-                        <button
+                        <div
+                          style={{
+                            background: "#F1F7FF",
+                            color: "#1D4ED8",
+                            padding: "4px 10px",
+                            borderRadius: "6px",
+                            fontSize: "10px",
+                            fontWeight: "900",
+                            border: "1px solid #DBEAFE",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => alert("SYNCING: Matching with Database inventory...")}
+                        >
+                          MODIFY
+                        </div>
+                        <div
+                          style={{
+                            background: "#FFF1F2",
+                            color: "#E11D48",
+                            padding: "4px 10px",
+                            borderRadius: "6px",
+                            fontSize: "10px",
+                            fontWeight: "900",
+                            border: "1px solid #FFE4E6",
+                            cursor: "pointer",
+                          }}
                           onClick={() =>
                             handleAllocationItemAction("Remove", idx)
                           }
-                          style={{
-                            background: "none",
-                            border: "none",
-                            padding: "8px",
-                            cursor: "pointer",
-                            color: COLORS.danger,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "8px",
-                            transition: "all 0.2s",
-                          }}
-                          onMouseOver={(e) =>
-                            (e.currentTarget.style.background = "#fee2e2")
-                          }
-                          onMouseOut={(e) =>
-                            (e.currentTarget.style.background = "none")
-                          }
-                          title="Remove Item"
                         >
-                          {ICON_TRASH}
-                        </button>
+                          DELETE
+                        </div>
                       </div>
 
                       <div
