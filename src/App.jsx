@@ -8183,153 +8183,155 @@ Powered by Stacli mandi os`;
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                 {activeSupplierBillTab === "Financial Summary" && (
-                  <Button
-                    style={{
-                      background: "#F1F5F9",
-                      color: COLORS.sidebar,
-                      fontWeight: "800",
-                      border: "none",
-                      padding: "16px 32px",
-                    }}
-                    onClick={() => {
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                      setActiveSupplierBillTab("Expense Deductions");
-                    }}
-                  >
-                    ← Previous
-                  </Button>
-                )}
-                <Button
-                  style={{
-                    background: COLORS.sidebar,
-                    fontWeight: "900",
-                    padding: "16px 40px",
-                    boxShadow: "0 4px 12px rgba(55,81,68,0.2)",
-                  }}
-                  onClick={async () => {
-                    try {
-                      if (!supplierSettlementForm.supplierId)
-                        return alert("⚠️ Supplier is required.");
-                      let res;
-                      if (isEditingSupplierBill) {
-                        res = await MandiService.updateSupplierBill(
-                          editingSupplierBillId,
-                          supplierSettlementForm,
-                        );
-                      } else {
-                        res = await MandiService.generateSupplierBill(
-                          supplierSettlementForm,
-                        );
-                      }
+                  <>
+                    <Button
+                      style={{
+                        background: "#F1F5F9",
+                        color: COLORS.sidebar,
+                        fontWeight: "800",
+                        border: "none",
+                        padding: "16px 32px",
+                      }}
+                      onClick={() => {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        setActiveSupplierBillTab("Expense Deductions");
+                      }}
+                    >
+                      ← Previous
+                    </Button>
+                    <Button
+                      style={{
+                        background: COLORS.sidebar,
+                        fontWeight: "900",
+                        padding: "16px 40px",
+                        boxShadow: "0 4px 12px rgba(55,81,68,0.2)",
+                      }}
+                      onClick={async () => {
+                        try {
+                          if (!supplierSettlementForm.supplierId)
+                            return alert("⚠️ Supplier is required.");
+                          let res;
+                          if (isEditingSupplierBill) {
+                            res = await MandiService.updateSupplierBill(
+                              editingSupplierBillId,
+                              supplierSettlementForm,
+                            );
+                          } else {
+                            res = await MandiService.generateSupplierBill(
+                              supplierSettlementForm,
+                            );
+                          }
 
-                      if (res.status === "SUCCESS") {
-                        setLastGeneratedBill(res.data);
-                        alert(
-                          `✅ BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
-                        );
-                        // Reset but keep track of last one for preview
-                        const savedBillNumber = supplierSettlementForm.billNumber;
-                        setSupplierSettlementForm({
-                          billNumber: getNextBillNumber(sbRes.data),
-                          date: getISTDate(),
-                          supplierId: "",
-                          lotId: "",
-                          vehicleNumber: "",
-                          items: [
-                            {
-                              id: Date.now(),
-                              productName: "",
-                              quantity: "",
-                              rate: "",
-                            },
-                          ],
-                          expenses: {
-                            transport: "",
-                            commission: "",
-                            labour: "",
-                            advance: "",
-                            weighing: "",
-                            packing: "",
-                            miscName: "",
-                            miscAmount: "",
-                          },
-                        });
+                          if (res.status === "SUCCESS") {
+                            setLastGeneratedBill(res.data);
+                            alert(
+                              `✅ BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
+                            );
+                            // Reset but keep track of last one for preview
+                            const savedBillNumber = supplierSettlementForm.billNumber;
+                            setSupplierSettlementForm({
+                              billNumber: getNextBillNumber(sbRes.data),
+                              date: getISTDate(),
+                              supplierId: "",
+                              lotId: "",
+                              vehicleNumber: "",
+                              items: [
+                                {
+                                  id: Date.now(),
+                                  productName: "",
+                                  quantity: "",
+                                  rate: "",
+                                },
+                              ],
+                              expenses: {
+                                transport: "",
+                                commission: "",
+                                labour: "",
+                                advance: "",
+                                weighing: "",
+                                packing: "",
+                                miscName: "",
+                                miscAmount: "",
+                              },
+                            });
+                            setActiveSupplierBillTab("Preview & Print");
+                            setIsEditingSupplierBill(false);
+                            setEditingSupplierBillId(null);
+                            fetchData();
+                          } else {
+                            alert(`❌ FAILED: ${res.message || "Database Error"}`);
+                          }
+                        } catch (e) {
+                          alert("Error processing bill.");
+                        }
+                      }}
+                    >
+                      Generate Bills
+                    </Button>
+                    <Button
+                      style={{
+                        background: "#FFFFFF",
+                        color: COLORS.sidebar,
+                        border: `1.5px solid ${COLORS.sidebar}`,
+                        fontWeight: "800",
+                        padding: "16px 32px",
+                      }}
+                      onClick={() => {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                         setActiveSupplierBillTab("Preview & Print");
-                        setIsEditingSupplierBill(false);
-                        setEditingSupplierBillId(null);
-                        fetchData();
-                      } else {
-                        alert(`❌ FAILED: ${res.message || "Database Error"}`);
-                      }
-                    } catch (e) {
-                      alert("Error processing bill.");
-                    }
-                  }}
-                >
-                  Generate Bills
-                </Button>
-                <Button
-                  style={{
-                    background: "#FFFFFF",
-                    color: COLORS.sidebar,
-                    border: `1.5px solid ${COLORS.sidebar}`,
-                    fontWeight: "800",
-                    padding: "16px 32px",
-                  }}
-                  onClick={() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                    setActiveSupplierBillTab("Preview & Print");
-                  }}
-                >
-                  Next →
-                </Button>
-                <Button
-                  style={{
-                    background: "#F1F5F9",
-                    color: "#CC0000",
-                    border: "none",
-                    fontWeight: "900",
-                    padding: "16px 32px",
-                  }}
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to clear this entire billing draft?",
-                      )
-                    ) {
-                      setSupplierSettlementForm({
-                        billNumber: getNextBillNumber(),
-                        date: getISTDate(),
-                        supplierId: "",
-                        lotId: "",
-                        vehicleNumber: "",
-                        items: [
-                          {
-                            id: Date.now(),
-                            productName: "",
-                            quantity: "",
-                            rate: "",
-                          },
-                        ],
-                        expenses: {
-                          transport: "",
-                          commission: "",
-                          labour: "",
-                          advance: "",
-                          weighing: "",
-                          packing: "",
-                          miscName: "",
-                          miscAmount: "",
-                        },
-                      });
-                      setIsEditingSupplierBill(false);
-                      setEditingSupplierBillId(null);
-                      setActiveSupplierBillTab("Bill Header");
-                    }
-                  }}
-                >
-                  Clear
-                </Button>
+                      }}
+                    >
+                      Next →
+                    </Button>
+                    <Button
+                      style={{
+                        background: "#F1F5F9",
+                        color: "#CC0000",
+                        border: "none",
+                        fontWeight: "900",
+                        padding: "16px 32px",
+                      }}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to clear this entire billing draft?",
+                          )
+                        ) {
+                          setSupplierSettlementForm({
+                            billNumber: getNextBillNumber(),
+                            date: getISTDate(),
+                            supplierId: "",
+                            lotId: "",
+                            vehicleNumber: "",
+                            items: [
+                              {
+                                id: Date.now(),
+                                productName: "",
+                                quantity: "",
+                                rate: "",
+                              },
+                            ],
+                            expenses: {
+                              transport: "",
+                              commission: "",
+                              labour: "",
+                              advance: "",
+                              weighing: "",
+                              packing: "",
+                              miscName: "",
+                              miscAmount: "",
+                            },
+                          });
+                          setIsEditingSupplierBill(false);
+                          setEditingSupplierBillId(null);
+                          setActiveSupplierBillTab("Bill Header");
+                        }
+                      }}
+                    >
+                      Clear
+                    </Button>
+                  </>
+                )}
               </div>
 
             </div>
