@@ -253,7 +253,6 @@ const SmartDataNode = ({ text, type, data = {}, onAdd, onView }) => {
           flexDirection: 'column',
           gap: '8px',
           minWidth: '180px',
-          marginTop: '8px',
           animation: 'fadeIn 0.2s ease-out'
         }}>
           <button 
@@ -1870,6 +1869,7 @@ Powered by Stacli mandi os`;
         saleRate: "",
         totalAvailable: 0,
         balanceLeft: 0,
+        allocatedAmount: "",
       });
     } else if (action === "Remove") {
       items.splice(idx, 1);
@@ -2010,7 +2010,7 @@ Powered by Stacli mandi os`;
     if (res.status === "SUCCESS") {
       const sName =
         suppliers.find((s) => s._id === intakeForm.supplierId)?.name ||
-        "Farmer";
+        "Supplier";
       alert(
         `✅ LOT CREATED: Lot ${res.data.lotId} for ${sName} successfully committed to Database.`,
       );
@@ -2301,6 +2301,7 @@ Powered by Stacli mandi os`;
         saleRate: "",
         totalAvailable: 0,
         balanceLeft: 0,
+        allocatedAmount: "",
       },
     ],
   });
@@ -3036,6 +3037,7 @@ Powered by Stacli mandi os`;
           buyerId: allocationForm.buyerId,
           quantity: Number(item.quantity),
           rate: Number(item.saleRate),
+          allocatedAmount: Number(item.allocatedAmount) || (Number(item.quantity) * Number(item.saleRate)),
           allocationDate: allocationForm.allocationDate,
           buyerInvoiceNo: allocationForm.buyerInvoiceNo || "",
           notes: allocationForm.notes || "",
@@ -5013,7 +5015,6 @@ Powered by Stacli mandi os`;
                 </Card>
                 <div style={{ display: "flex", gap: "16px", marginTop: "20px", paddingBottom: "8px" }}>
                   <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800" }} onClick={() => setActiveUserRoleTab("Buyer")}>← Previous</Button>
-                  <Button style={{ background: COLORS.sidebar, color: "#fff", fontWeight: "800" }} onClick={fetchData}>Refresh Data</Button>
                 </div>
                 </div>
               )}
@@ -5186,7 +5187,7 @@ Powered by Stacli mandi os`;
                                 attachedBill: e.target.files[0],
                               }),
                             placeholder:
-                              "Photo of paper bill / delivery challan from farmer",
+                              "Photo of paper bill / delivery challan from supplier",
                           },
                           {
                             label: "Notes",
@@ -5319,10 +5320,10 @@ Powered by Stacli mandi os`;
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                       {lots
                         .filter(l => {
-                          const farmerName = (l.supplierId?.name || l.farmerName || "").toLowerCase();
+                          const supplierName = (l.supplierId?.name || l.farmerName || "").toLowerCase();
                           const vehicleNo = (l.vehicleNumber || "").toLowerCase();
                           const query = (lotSearchQuery || "").toLowerCase();
-                          return farmerName.includes(query) || vehicleNo.includes(query);
+                          return supplierName.includes(query) || vehicleNo.includes(query);
                         })
                         .slice()
                         .reverse()
@@ -5334,7 +5335,7 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={l._id || l.lotId}
-                              title={<SmartDataNode text={l.supplierId?.name || l.farmerName || "Farmer"} type="Name" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                              title={<SmartDataNode text={l.supplierId?.name || l.farmerName || "Supplier"} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
                               subtitle={<SmartDataNode text={l.lotId} type="Lot ID" data={l} />}
                               icon={ICON_TRUCK}
                               status={{ text: l.status || "Pending", color: "#ca8a04", bg: "#fef9c3" }}
@@ -6526,14 +6527,20 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Allocated Amount (₹) Auto
+                          Allocated Amount (₹)
                         </label>
                         <input
-                          type="text"
-                          disabled
-                          value={
-                            Number(item.quantity) * Number(item.saleRate) || 0
+                          type="number"
+                          value={item.allocatedAmount}
+                          onChange={(e) =>
+                            handleAllocationItemAction(
+                              "Update",
+                              idx,
+                              "allocatedAmount",
+                              e.target.value,
+                            )
                           }
+                          placeholder={Number(item.quantity) * Number(item.saleRate) || "0"}
                           style={{
                             padding: "12px 14px",
                             borderRadius: "8px",
@@ -6542,6 +6549,7 @@ Powered by Stacli mandi os`;
                             color: "#D97706",
                             fontSize: "13px",
                             fontWeight: "800",
+                            outline: "none"
                           }}
                         />
                       </div>
@@ -6566,7 +6574,9 @@ Powered by Stacli mandi os`;
                           type="text"
                           disabled
                           value={
-                            Number(item.quantity) * Number(item.saleRate) || 0
+                            (item.allocatedAmount !== "" && item.allocatedAmount !== undefined) 
+                              ? item.allocatedAmount 
+                              : (Number(item.quantity) * Number(item.saleRate) || 0)
                           }
                           style={{
                             padding: "12px 14px",
@@ -6633,6 +6643,7 @@ Powered by Stacli mandi os`;
                           saleRate: "",
                           totalAvailable: 0,
                           balanceLeft: 0,
+                          allocatedAmount: "",
                         },
                       ],
                     })
@@ -6709,7 +6720,7 @@ Powered by Stacli mandi os`;
                           secondaryActions={[
                             { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(items[0]); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
                           ]}
-                          primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: items[0] }) }}
+                          primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: { ...items[0], allItems: items, buyerName: buyerName } }) }}
                           onDelete={isAdmin ? () => { if (window.confirm("Delete this allocation group?")) items.forEach(i => handleDeleteAllocation(i._id)); } : undefined}
                           onLock={() => alert("Allocation group finalized.")}
                         >
@@ -6948,6 +6959,10 @@ Powered by Stacli mandi os`;
                                 ? latestLot.entryDate.slice(0, 10)
                                 : prev.date,
                             items: itemsToAdd,
+                            expenses: {
+                              ...prev.expenses,
+                              advance: matchedSupplier?.advanceBalance || prev.expenses.advance || "",
+                            }
                           }));
                         }}
                         style={{
@@ -8363,8 +8378,8 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={b._id || Date.now() + Math.random()}
-                              title={<SmartDataNode text={b.supplierId?.name || b.supplierId || "Supplier"} type="Name" data={b.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                              subtitle={b.billNumber ? <SmartDataNode text={`Bill No: ${b.billNumber}`} type="Bill" data={b} onAdd={() => { setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} /> : "BILL-NEW"}
+                              title={<SmartDataNode text={b.supplierId?.name || b.supplierId || "Supplier Name"} type="Supplier" data={b.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                              subtitle={b.billNumber ? <SmartDataNode text={`Bill No: ${b.billNumber}`} type="Bill" data={b} onAdd={() => { setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} /> : "Bill Number"}
                               icon={ICON_BILL}
                               status={{ text: "Settled", color: "#166534", bg: "#dcfce7" }}
                               details={[
@@ -10334,11 +10349,12 @@ Powered by Stacli mandi os`;
                             );
                             const currentDue = tNet - tPaid;
 
+                            const matchedSupp = suppliers.find(s => s._id === selId);
                             setFarmerPaymentForm({
                               ...farmerPaymentForm,
                               farmerId: selId,
                               againstBillNo: `${supplierPrefix}-${randomId}`,
-                              amount: currentDue > 0 ? String(currentDue) : "",
+                              amount: currentDue > 0 ? String(currentDue) : (matchedSupp?.advanceBalance || ""),
                             });
                           }}
                           style={{
@@ -10884,6 +10900,7 @@ Powered by Stacli mandi os`;
                                 0,
                               );
                               const currentDue = tBilled - tReceived;
+                              const matchedBuyer = buyers.find(b => b._id === selId);
 
                               setBuyerPaymentForm({
                                 ...buyerPaymentForm,
@@ -16691,7 +16708,7 @@ Powered by Stacli mandi os`;
                         Connection Matrix Standby
                       </h3>
                       <p style={{ margin: "8px 0 0 0", fontSize: "14px" }}>
-                        Select a farmer to generate exhaustive traceability
+                        Select a supplier to generate exhaustive traceability
                         intelligence.
                       </p>
                     </div>
@@ -16730,7 +16747,7 @@ Powered by Stacli mandi os`;
                         }}
                       >
                         Buyer <b>'Reliance Fresh'</b> holds pending ₹1,45,000
-                        affecting the liquidation of this farmer's supply.
+                        affecting the liquidation of this supplier's supply.
                         Escalate collection strategy.
                       </div>
                     </div>
@@ -18249,7 +18266,7 @@ Powered by Stacli mandi os`;
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
                 <div style={{ display: "grid", gap: "20px" }}>
                   {Object.entries(viewingEntity.data)
-                    .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password"].includes(key))
+                    .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName"].includes(key))
                     .map(([key, rawValue]) => {
                       let value = rawValue;
                       if (typeof rawValue === "string") {
@@ -18364,6 +18381,75 @@ Powered by Stacli mandi os`;
                       </div>
                     );
                   })}
+
+                  {/* SPECIAL TABLE FOR GROUPED ALLOCATIONS OR LOT TRACEABILITY */}
+                  {(() => {
+                    let itemsToShow = [];
+                    let tableTitle = "";
+
+                    if (viewingEntity.type === "Allocation" && viewingEntity.data.allItems) {
+                      itemsToShow = viewingEntity.data.allItems;
+                      tableTitle = "ALL ALLOCATION LINE ITEMS IN THIS TRANSACTION";
+                    } else if (viewingEntity.type === "LOT") {
+                      itemsToShow = (allocations || []).filter(a => a.lotId === viewingEntity.data._id || a.lotId === viewingEntity.data.lotId || a.lotReference === viewingEntity.data.lotId);
+                      tableTitle = "LINKED TRANSACTION LEDGER (TRACED SALES FROM THIS LOT)";
+                    }
+
+                    if (itemsToShow.length > 0) {
+                      return (
+                        <div style={{ marginTop: "32px", borderTop: "2px solid #FDFBF4", paddingTop: "24px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "900", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px", borderLeft: `4px solid ${COLORS.sidebar}`, paddingLeft: "12px" }}>
+                            {tableTitle}
+                          </label>
+                          <div style={{ overflowX: "auto" }}>
+                            <table style={{ minWidth: "100%", borderCollapse: "collapse", fontSize: "12px", background: "#fcfcfc", border: `1.5px solid ${COLORS.sidebar}`, borderRadius: "12px", overflow: "hidden" }}>
+                              <thead>
+                                <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
+                                  <th style={{ padding: "12px", textAlign: "left" }}>Product / Variety / Grade</th>
+                                  <th style={{ padding: "12px", textAlign: "right" }}>Qty (KG)</th>
+                                  <th style={{ padding: "12px", textAlign: "right" }}>Rate (₹)</th>
+                                  <th style={{ padding: "12px", textAlign: "right" }}>Allocated Amt (₹)</th>
+                                  <th style={{ padding: "12px", textAlign: "right" }}>Total Sale (₹)</th>
+                                  <th style={{ padding: "12px", textAlign: "left" }}>Invoice Ref</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {itemsToShow.map((it, idx) => {
+                                  const autoAmt = (Number(it.quantity) * Number(it.rate)) || 0;
+                                  const manualAmt = Number(it.allocatedAmount);
+                                  const finalAmt = !isNaN(manualAmt) && it.allocatedAmount !== "" ? manualAmt : autoAmt;
+                                  
+                                  return (
+                                    <tr key={idx} style={{ borderBottom: "1px solid #EBE9E1" }}>
+                                      <td style={{ padding: "12px", fontWeight: "800", color: COLORS.sidebar }}>{it.lineItemId || "Standard Produce"}</td>
+                                      <td style={{ padding: "12px", textAlign: "right", fontWeight: "700" }}>{it.quantity}</td>
+                                      <td style={{ padding: "12px", textAlign: "right", color: COLORS.primary, fontWeight: "700" }}>₹{it.rate}</td>
+                                      <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: "#C2410C", background: "#FFF7ED" }}>₹{finalAmt.toLocaleString()}</td>
+                                      <td style={{ padding: "12px", textAlign: "right", fontWeight: "900" }}>₹{finalAmt.toLocaleString()}</td>
+                                      <td style={{ padding: "12px", color: COLORS.muted, fontSize: "11px" }}>{it.buyerInvoiceNo || "UNLINKED"}</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                              <tfoot>
+                                <tr style={{ background: "#F1F5F9", fontWeight: "900" }}>
+                                  <td colSpan="3" style={{ padding: "12px", textAlign: "right" }}>GRAND TOTAL SUMMARY:</td>
+                                  <td style={{ padding: "12px", textAlign: "right", color: "#C2410C" }}>
+                                    ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
+                                  </td>
+                                  <td style={{ padding: "12px", textAlign: "right" }}>
+                                    ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
+                                  </td>
+                                  <td></td>
+                                </tr>
+                              </tfoot>
+                            </table>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
 
