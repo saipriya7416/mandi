@@ -1049,6 +1049,8 @@ export default function App() {
   const [isEditingBuyer, setIsEditingBuyer] = useState(false);
   const [editingBuyerId, setEditingBuyerId] = useState(null);
   const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Buyer', data: ... }
+  const [supplierSaveBtn, setSupplierSaveBtn] = useState({ label: "Save", color: null });
+  const [buyerSaveBtn, setBuyerSaveBtn] = useState({ label: "Save", color: null });
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [lotSearchQuery, setLotSearchQuery] = useState("");
@@ -1389,9 +1391,10 @@ Powered by Stacli mandi os`;
       }
       if (res.status === "ERROR")
         return alert("Error processing supplier: " + res.message);
-      alert(
-        `✅ Supplier successfully ${isEditingSupplier ? "updated" : "stored"} in the Database!`,
-      );
+      
+      setSupplierSaveBtn({ label: "✅ Successfully Saved", color: COLORS.success });
+      setTimeout(() => setSupplierSaveBtn({ label: "Save", color: null }), 3000);
+
       handleCancelAll("Supplier");
       fetchData();
     } catch (err) {
@@ -1968,9 +1971,10 @@ Powered by Stacli mandi os`;
       }
       if (res.status === "ERROR")
         return alert("Error processing buyer: " + res.message);
-      alert(
-        `✅ Buyer successfully ${isEditingBuyer ? "updated" : "stored"} in the Database!`,
-      );
+      
+      setBuyerSaveBtn({ label: "✅ Successfully Saved", color: COLORS.success });
+      setTimeout(() => setBuyerSaveBtn({ label: "Save", color: null }), 3000);
+
       handleCancelAll("Buyer");
       fetchData();
     } catch (err) {
@@ -4814,9 +4818,9 @@ Powered by Stacli mandi os`;
                         title: "Bank Details",
                         fields: [
                           { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
+                          { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
                           { label: "Bank Location", placeholder: "Bank City/Location", value: supplierForm.bankLocation, onChange: (e) => setSupplierForm({ ...supplierForm, bankLocation: e.target.value }) },
                           { label: "Bank Branch", placeholder: "Branch Name", value: supplierForm.bankBranch, onChange: (e) => setSupplierForm({ ...supplierForm, bankBranch: e.target.value }) },
-                          { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
                           { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
                           { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
                         ],
@@ -4824,7 +4828,17 @@ Powered by Stacli mandi os`;
                     ]}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterSupplier}>Save</Button>
+                    <Button 
+                      style={{ 
+                        background: supplierSaveBtn.color || COLORS.sidebar, 
+                        fontWeight: "800", 
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                        transition: "all 0.4s ease"
+                      }} 
+                      onClick={handleRegisterSupplier}
+                    >
+                      {supplierSaveBtn.label}
+                    </Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
                   </div>
                 </div>
@@ -4835,7 +4849,7 @@ Powered by Stacli mandi os`;
                   <FormGrid
                     sections={[
                       {
-                        title: "Customer Profile & Location",
+                        title: "Customer Profile",
                         fields: [
                           { label: "Customer ID", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.buyerId : `CUST-${buyers.length + 1}`, disabled: true },
                           { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
@@ -4858,9 +4872,9 @@ Powered by Stacli mandi os`;
                         title: "Bank Details",
                         fields: [
                           { label: "Bank Account No.", type: "number", placeholder: "For bank settlements", value: buyerForm.bankAccount, onChange: (e) => setBuyerForm({ ...buyerForm, bankAccount: e.target.value }) },
+                          { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerForm, ifsc: e.target.value }) },
                           { label: "Bank Location", placeholder: "Bank City/Location", value: buyerForm.bankLocation, onChange: (e) => setBuyerForm({ ...buyerForm, bankLocation: e.target.value }) },
                           { label: "Bank Branch", placeholder: "Branch Name", value: buyerForm.bankBranch, onChange: (e) => setBuyerForm({ ...buyerForm, bankBranch: e.target.value }) },
-                          { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerForm, ifsc: e.target.value }) },
                           { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceBalance, onChange: (e) => setBuyerForm({ ...buyerForm, advanceBalance: e.target.value }) },
                           { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
                         ],
@@ -4877,7 +4891,17 @@ Powered by Stacli mandi os`;
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
                     <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Supplier")}>← Previous</Button>
-                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterBuyer}>Save</Button>
+                    <Button 
+                      style={{ 
+                        background: buyerSaveBtn.color || COLORS.sidebar, 
+                        fontWeight: "800", 
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                        transition: "all 0.4s ease"
+                      }} 
+                      onClick={handleRegisterBuyer}
+                    >
+                      {buyerSaveBtn.label}
+                    </Button>
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
                   </div>
                 </div>
