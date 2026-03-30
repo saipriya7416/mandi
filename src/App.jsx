@@ -774,6 +774,122 @@ const TabHeader = ({ tabs, active, set }) => (
   </div>
 );
 
+// --- Smart Dropdown with "Others" Support Component ---
+function OthersDropdown({ 
+  label, 
+  value, 
+  onChange, 
+  options, 
+  placeholder, 
+  disabled, 
+  required, 
+  info,
+  style = {}
+}) {
+  const [isOther, setIsOther] = useState(value && !options.includes(value) && value !== "");
+
+  const handleSelectChange = (e) => {
+    if (e.target.value === "Others") {
+      setIsOther(true);
+      onChange({ target: { value: "" } }); // Clear value to allow manual entry
+    } else {
+      setIsOther(false);
+      onChange(e);
+    }
+  };
+
+  const handleTextChange = (e) => {
+    onChange(e);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, ...style }}>
+      <label
+        style={{
+          fontSize: "12px",
+          fontWeight: "700",
+          color: COLORS.muted,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <span>{label}{required ? " *" : ""}</span>
+        {info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{info}</span>}
+      </label>
+
+      {isOther ? (
+        <div style={{ display: "flex", gap: "6px" }}>
+          <input
+            type="text"
+            placeholder={placeholder || `Type ${label}...`}
+            value={value}
+            onChange={handleTextChange}
+            autoFocus
+            style={{
+              flex: 1,
+              padding: "12px 14px",
+              borderRadius: "8px",
+              border: "1.5px solid #D4A017",
+              background: "#FFFEF5",
+              color: COLORS.sidebar,
+              outline: "none",
+              fontSize: "13px",
+              fontWeight: "600",
+            }}
+          />
+          <button
+            onClick={() => {
+              setIsOther(false);
+              onChange({ target: { value: "" } });
+            }}
+            title="Back to list"
+            style={{
+              padding: "8px 10px",
+              borderRadius: "8px",
+              border: "1px solid #EBE9E1",
+              background: "#F8FAFC",
+              color: COLORS.muted,
+              cursor: "pointer",
+              fontSize: "16px",
+              lineHeight: 1,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      ) : (
+        <select
+          value={value}
+          onChange={handleSelectChange}
+          disabled={disabled}
+          style={{
+            padding: "12px 14px",
+            borderRadius: "8px",
+            border: "1px solid #EBE9E1",
+            background: disabled ? "#FDFBF4" : "#FFFFFF",
+            color: COLORS.sidebar,
+            outline: "none",
+            fontSize: "13px",
+            fontWeight: "600",
+          }}
+        >
+          <option value="" disabled>
+            Select {label}
+          </option>
+          {options.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+          <option value="Others" style={{ fontStyle: "italic", color: COLORS.primary }}>
+            + Others (Manual Entry)
+          </option>
+        </select>
+      )}
+    </div>
+  );
+}
+
 function FormGrid({ sections }) {
   const [othersMap, setOthersMap] = React.useState({});
 
@@ -833,84 +949,15 @@ function FormGrid({ sections }) {
                     {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
                   </label>
                   {f.type === "select" ? (
-                    isOther ? (
-                      <div style={{ display: "flex", gap: "6px" }}>
-                        <input
-                          type="text"
-                          placeholder={`Type ${f.label}...`}
-                          value={f.value === "Others" ? "" : f.value}
-                          onChange={f.onChange}
-                          autoFocus
-                          style={{
-                            flex: 1,
-                            padding: "12px 14px",
-                            borderRadius: "8px",
-                            border: "1.5px solid #D4A017",
-                            background: "#FFFEF5",
-                            color: COLORS.sidebar,
-                            outline: "none",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                          }}
-                        />
-                        <button
-                          onClick={() => {
-                            setOther(key, false);
-                            if (f.onChange) f.onChange({ target: { value: "" } });
-                          }}
-                          title="Back to list"
-                          style={{
-                            padding: "8px 10px",
-                            borderRadius: "8px",
-                            border: "1px solid #EBE9E1",
-                            background: "#F8FAFC",
-                            color: COLORS.muted,
-                            cursor: "pointer",
-                            fontSize: "16px",
-                            lineHeight: 1,
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <select
-                        value={f.value}
-                        defaultValue={
-                          f.value === undefined ? f.defaultValue : undefined
-                        }
-                        onChange={(e) => {
-                          if (e.target.value === "Others") {
-                            setOther(key, true);
-                            if (f.onChange) f.onChange({ target: { value: "Others" } });
-                          } else {
-                            if (f.onChange) f.onChange(e);
-                          }
-                        }}
-                        disabled={f.disabled}
-                        style={{
-                          padding: "12px 14px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          background: f.disabled ? "#FDFBF4" : "#FFFFFF",
-                          color: COLORS.sidebar,
-                          outline: "none",
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          appearance: "none",
-                        }}
-                      >
-                        <option value="" disabled>
-                          Select {f.label}
-                        </option>
-                        <option value="Others">Others</option>
-                        {f.options?.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </select>
-                    )
+                    <OthersDropdown
+                      label={f.label}
+                      value={f.value}
+                      options={f.options || []}
+                      onChange={f.onChange}
+                      disabled={f.disabled}
+                      required={f.required}
+                      info={f.info}
+                    />
                   ) : (
                     <input
                       type={f.type || "text"}
@@ -3829,8 +3876,8 @@ Powered by Stacli mandi os`;
           >
             <div style={{ position: "relative" }}>
               <img
-                src="https://i.ytimg.com/vi/KtVCkq9Evyc/mqdefault.jpg"
-                alt="JAMANGO"
+                src={user?.profileImage || "https://i.ytimg.com/vi/KtVCkq9Evyc/mqdefault.jpg"}
+                alt="STACLI"
                 style={{
                   width: "68px",
                   height: "68px",
@@ -4071,8 +4118,42 @@ Powered by Stacli mandi os`;
                   fontFamily: "'Playfair Display', serif",
                 }}
               >
-                {getGreeting()},{" "}
-                {user?.name?.split(" ")[0] || user?.username || "Admin"}
+                <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                  {user?.profileImage ? (
+                    <img 
+                      src={user.profileImage} 
+                      alt="Avatar" 
+                      style={{ 
+                        width: "60px", 
+                        height: "60px", 
+                        borderRadius: "50%", 
+                        objectFit: "cover", 
+                        border: `3px solid ${COLORS.accent}`,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                      }} 
+                    />
+                  ) : (
+                    <div style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                      background: COLORS.accent,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "white",
+                      fontSize: "24px",
+                      fontWeight: "900",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                    }}>
+                      {(user?.name || user?.username || "A")[0].toUpperCase()}
+                    </div>
+                  )}
+                  <span>
+                    {getGreeting()},{" "}
+                    {user?.name?.split(" ")[0] || user?.username || "Admin"}
+                  </span>
+                </div>
               </h1>
               <h2
                 style={{
@@ -4299,6 +4380,101 @@ Powered by Stacli mandi os`;
                     >
                       Account Details
                     </h3>
+                    
+                    {/* Profile Image Upload */}
+                    <div style={{ marginBottom: "32px", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+                      <div 
+                        style={{ 
+                          width: "120px", 
+                          height: "120px", 
+                          borderRadius: "50%", 
+                          background: "#F8FAFC", 
+                          border: "2px dashed #E2E8F0",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative",
+                          cursor: "pointer",
+                          overflow: "hidden",
+                          transition: "all 0.3s"
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.borderColor = COLORS.primary}
+                        onMouseOut={(e) => e.currentTarget.style.borderColor = "#E2E8F0"}
+                        onClick={() => document.getElementById('profile-image-upload').click()}
+                      >
+                        {user?.profileImage ? (
+                          <img 
+                            src={user.profileImage} 
+                            alt="Profile" 
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                          />
+                        ) : (
+                          <div style={{ textAlign: "center", color: COLORS.muted }}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                              <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                            <div style={{ fontSize: "10px", marginTop: "4px", fontWeight: "700" }}>UPLOAD</div>
+                          </div>
+                        )}
+                        <div style={{
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          background: "rgba(0,0,0,0.4)",
+                          color: "white",
+                          fontSize: "10px",
+                          fontWeight: "800",
+                          padding: "4px 0",
+                          textAlign: "center",
+                          opacity: 0,
+                          transition: "opacity 0.2s"
+                        }}
+                        id="avatar-overlay"
+                        >
+                          CHANGE
+                        </div>
+                      </div>
+                      <input 
+                        type="file" 
+                        id="profile-image-upload" 
+                        accept="image/*"
+                        style={{ display: "none" }} 
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          
+                          try {
+                            // Show local preview immediately
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setUser(prev => ({ ...prev, profileImage: reader.result }));
+                            };
+                            reader.readAsDataURL(file);
+
+                            // Upload to server
+                            const res = await MandiService.uploadFile(file, 'profile-image');
+                            if (res.status === "SUCCESS") {
+                              const imageUrl = res.data.fileUrl || res.data.url;
+                              setUser(prev => {
+                                const updatedUser = { ...prev, profileImage: imageUrl };
+                                localStorage.setItem('mandi_user', JSON.stringify(updatedUser));
+                                return updatedUser;
+                              });
+                              alert("✅ Profile image updated successfully!");
+                            }
+                          } catch (err) {
+                            console.error("Upload error:", err);
+                            alert("❌ Failed to upload image. Using local preview instead.");
+                          }
+                        }}
+                      />
+                      <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0, fontWeight: "600" }}>
+                        Click to upload profile photo (JPG/PNG)
+                      </p>
+                    </div>
+
                     <div
                       style={{
                         display: "flex",
@@ -5219,103 +5395,35 @@ Powered by Stacli mandi os`;
                             </div>
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Product *
-                            </label>
-                            <select
-                              value={item.productId}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "productId",
-                                  e.target.value,
-                                )
-                              }
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                              }}
-                            >
-                              <option value="" disabled>
-                                Select Product
-                              </option>
-                              {Object.keys(PRODUCT_DATA)
-                                .filter((k) => k !== "default")
-                                .map((p) => (
-                                  <option key={p} value={p}>
-                                    {p}
-                                  </option>
-                                ))}
-                            </select>
-                          </div>
+                          <OthersDropdown
+                            label="Product"
+                            required
+                            value={item.productId}
+                            options={Object.keys(PRODUCT_DATA).filter((k) => k !== "default")}
+                            onChange={(e) =>
+                              handleLineItemAction(
+                                "Update",
+                                idx,
+                                "productId",
+                                e.target.value,
+                              )
+                            }
+                          />
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Variety *
-                            </label>
-                            <select
-                              value={item.variety}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "variety",
-                                  e.target.value,
-                                )
-                              }
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                              }}
-                            >
-                              <option value="" disabled>
-                                Select Variety
-                              </option>
-                              {(
-                                PRODUCT_DATA[item.productId]?.varieties || []
-                              ).map((v) => (
-                                <option key={v} value={v}>
-                                  {v}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                          <OthersDropdown
+                            label="Variety"
+                            required
+                            value={item.variety}
+                            options={PRODUCT_DATA[item.productId]?.varieties || []}
+                            onChange={(e) =>
+                              handleLineItemAction(
+                                "Update",
+                                idx,
+                                "variety",
+                                e.target.value,
+                              )
+                            }
+                          />
 
                           <div
                             style={{
@@ -6131,17 +6239,11 @@ Powered by Stacli mandi os`;
                           gap: "8px",
                         }}
                       >
-                        <label
-                          style={{
-                            fontSize: "12px",
-                            fontWeight: "700",
-                            color: COLORS.muted,
-                          }}
-                        >
-                          Product / Variety / Grade *
-                        </label>
-                        <select
+                        <OthersDropdown
+                          label="Product / Variety / Grade"
+                          required
                           value={item.lineItemId}
+                          options={(lots.find((l) => l.lotId === allocationForm.lotId)?.lineItems || []).map((li) => `${li.productId} / ${li.variety} / ${li.grade}`)}
                           onChange={(e) =>
                             handleAllocationItemAction(
                               "Update",
@@ -6150,28 +6252,8 @@ Powered by Stacli mandi os`;
                               e.target.value,
                             )
                           }
-                          style={{
-                            padding: "12px 14px",
-                            borderRadius: "8px",
-                            border: "1px solid #EBE9E1",
-                            color: COLORS.sidebar,
-                            outline: "none",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          <option value="">Select Product...</option>
-                          {lots
-                            .find((l) => l.lotId === allocationForm.lotId)
-                            ?.lineItems?.map((li) => (
-                              <option
-                                key={li._id || li.id}
-                                value={`${li.productId} / ${li.variety} / ${li.grade}`}
-                              >
-                                {li.productId} / {li.variety} / {li.grade}
-                              </option>
-                            ))}
-                        </select>
+                          style={{ flex: "none" }}
+                        />
                       </div>
 
                       <div
@@ -7064,29 +7146,10 @@ Powered by Stacli mandi os`;
                           </div>
                         </div>
 
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "8px",
-                          }}
-                        >
-                          <label
-                            style={{
-                              fontSize: "11px",
-                              fontWeight: "700",
-                              color: COLORS.muted,
-                            }}
-                          >
-                            Item / Product Name{" "}
-                            <span
-                              style={{ fontSize: "9px", color: COLORS.primary }}
-                            >
-                              DB-LINKED
-                            </span>
-                          </label>
-                          <select
+                          <OthersDropdown
+                            label="Item / Product Name"
                             value={item.productName}
+                            options={(lots.find((l) => l.lotId === supplierSettlementForm.lotId)?.lineItems || []).map((li) => `${li.product || li.productId || ""} ${li.variety || ""}`.trim())}
                             onChange={(e) => {
                               const val = e.target.value;
                               const matchedLot = lots.find(
@@ -7120,35 +7183,9 @@ Powered by Stacli mandi os`;
                                 );
                               }
                             }}
-                            style={{
-                              padding: "10px",
-                              borderRadius: "8px",
-                              border: "1px solid #EBE9E1",
-                              color: COLORS.sidebar,
-                              outline: "none",
-                              fontSize: "13px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            <option value="">
-                              Select from Lot:{" "}
-                              {supplierSettlementForm.lotId || "..."}
-                            </option>
-                            {(
-                              lots.find(
-                                (l) => l.lotId === supplierSettlementForm.lotId,
-                              )?.lineItems || []
-                            ).map((li, liIdx) => {
-                              const name =
-                                `${li.product || li.productId || ""} ${li.variety || ""}`.trim();
-                              return (
-                                <option key={liIdx} value={name}>
-                                  {name}
-                                </option>
-                              );
-                            })}
-                          </select>
-                        </div>
+                            info="DB-LINKED"
+                            style={{ flex: "none" }}
+                          />
                         <div
                           style={{
                             display: "flex",

@@ -35,9 +35,9 @@ input {
   transition: 0.2s all;
 }
 
-/* ===== Remove number input spinners globally ===== */
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button {
+/* ===== Remove number input spinners globally (Chrome, Safari, Edge, Firefox) ===== */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
