@@ -259,3 +259,8 @@ table input {
     print-color-adjust: exact !important;
   }
 }
+
+/* ===== Dropdown List Background Improvement ===== */
+select option {
+  background-color: #F4F7FA;
+}

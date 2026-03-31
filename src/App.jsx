@@ -3599,6 +3599,20 @@ Powered by Stacli mandi os`;
     });
   };
 
+  const generateNextAllocationInvoiceNo = () => {
+    if (!allocations || allocations.length === 0) return "001";
+    let maxNum = 0;
+    allocations.forEach(a => {
+      const bInv = a.buyerInvoiceNo || a.invoiceNo || a.invoice_no || "";
+      const numMatch = bInv.match(/\d+$/);
+      if (numMatch) {
+        const num = parseInt(numMatch[0], 10);
+        if (num > maxNum) maxNum = num;
+      }
+    });
+    return String(maxNum + 1).padStart(3, "0");
+  };
+
   // --- HANDLE ALLOCATION ---
   const handleAllocate = async () => {
     if (!allocationForm.lotId) return alert(" Lot ID is required.");
@@ -3638,7 +3652,7 @@ Powered by Stacli mandi os`;
           rate: Number(item.saleRate),
           allocatedAmount: Number(item.allocatedAmount) || (Number(item.quantity) * Number(item.saleRate)),
           allocationDate: allocationForm.allocationDate,
-          buyerInvoiceNo: allocationForm.buyerInvoiceNo || "",
+          buyerInvoiceNo: allocationForm.buyerInvoiceNo || generateNextAllocationInvoiceNo(),
           notes: allocationForm.notes || "",
         };
         const res = await MandiService.allocateLot(payload);
@@ -3728,7 +3742,7 @@ Powered by Stacli mandi os`;
       lotId: record.lotId,
       buyerId: record.buyerId?._id || record.buyerId,
       allocationDate: record.allocationDate || getISTDate(),
-      buyerInvoiceNo: record.invoiceNo || "",
+      buyerInvoiceNo: record.buyerInvoiceNo || record.invoiceNo || "",
       notes: record.notes || "",
       items: [
         {
@@ -3760,7 +3774,7 @@ Powered by Stacli mandi os`;
       quantity: Number(item.quantity),
       rate: Number(item.saleRate),
       allocationDate: allocationForm.allocationDate,
-      buyerInvoiceNo: allocationForm.buyerInvoiceNo || "",
+      buyerInvoiceNo: allocationForm.buyerInvoiceNo || generateNextAllocationInvoiceNo(),
       notes: allocationForm.notes || "",
     };
 
@@ -6399,13 +6413,9 @@ Powered by Stacli mandi os`;
                         value: allocationForm.buyerId,
                         onChange: (e) => {
                           const selectedName = e.target.value;
-                          const matchedBuyer = buyers.find(b => b.name === selectedName);
                           setAllocationForm({
                             ...allocationForm,
                             buyerId: selectedName,
-                            buyerInvoiceNo: matchedBuyer
-                              ? (matchedBuyer.invoiceNo ? `CUST-${matchedBuyer.invoiceNo}` : `CUST-${buyers.indexOf(matchedBuyer) + 1}`)
-                              : "",
                           });
                         },
                       },
@@ -6420,11 +6430,11 @@ Powered by Stacli mandi os`;
                           }),
                       },
                       {
-                        label: "Customer Invoice No",
+                        label: "Invoice No",
                         type: "text",
-                        value: allocationForm.buyerInvoiceNo,
-                        disabled: !!allocationForm.buyerId,
-                        placeholder: allocationForm.buyerId ? "Auto-generated from Customer" : "Select a customer first",
+                        value: allocationForm.buyerInvoiceNo || generateNextAllocationInvoiceNo(),
+                        disabled: true,
+                        placeholder: "Auto-generated Invoice No",
                       },
                       {
                         label: "Notes",
