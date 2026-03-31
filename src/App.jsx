@@ -834,6 +834,108 @@ const getSelectPlaceholder = (fieldName) => {
   return `Select ${normalizedFieldName}`;
 };
 
+function SelectWithManualEntry({
+  label,
+  value,
+  onChange,
+  options,
+  disabled,
+  required,
+  info,
+  style = {},
+  hideLabel = false,
+}) {
+  const normalizedLabel = String(label || "Option").replace(/\*/g, "").trim();
+  const normalizedOptions = Array.isArray(options) ? options : [];
+  const manualSentinel = "__manual__";
+
+  const [isManual, setIsManual] = useState(false);
+
+  useEffect(() => {
+    // If the stored value is not in the dropdown list, automatically switch to manual mode
+    // so edits keep showing the saved value (even if it's not in the master list).
+    if (value && !normalizedOptions.includes(value)) setIsManual(true);
+    if (!value) setIsManual(false);
+  }, [value, normalizedOptions]);
+
+  const selectValue =
+    isManual ? manualSentinel : (value || "");
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, ...style }}>
+      {!hideLabel && (
+        <label
+          style={{
+            fontSize: "12px",
+            fontWeight: "700",
+            color: COLORS.muted,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <span>{label}{required ? " *" : ""}</span>
+          {info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{info}</span>}
+        </label>
+      )}
+
+      <select
+        value={selectValue}
+        onChange={(e) => {
+          if (e.target.value === manualSentinel) {
+            setIsManual(true);
+            if (typeof onChange === "function") onChange({ target: { value: "" } });
+            return;
+          }
+          setIsManual(false);
+          onChange?.(e);
+        }}
+        disabled={disabled}
+        style={{
+          padding: "12px 14px",
+          borderRadius: "8px",
+          border: "1.5px solid #EBE9E1",
+          background: disabled ? "#FDFBF4" : "#FFFFFF",
+          color: disabled ? COLORS.muted : COLORS.sidebar,
+          outline: "none",
+          fontSize: "13px",
+          fontWeight: "600",
+          cursor: "pointer",
+          appearance: "auto",
+        }}
+      >
+        {(!value || value === "") && !isManual && (
+          <option value="" disabled>{getSelectPlaceholder(normalizedLabel)}</option>
+        )}
+        {normalizedOptions.map((opt, i) => (
+          <option key={i} value={opt}>{opt}</option>
+        ))}
+        <option value={manualSentinel}>Manual entry...</option>
+      </select>
+
+      {isManual && (
+        <input
+          type="text"
+          value={value || ""}
+          onChange={onChange}
+          disabled={disabled}
+          placeholder={`Enter ${normalizedLabel}`}
+          style={{
+            width: "100%",
+            padding: "12px 14px",
+            borderRadius: "8px",
+            border: "1.5px solid #EBE9E1",
+            background: disabled ? "#FDFBF4" : "#FFFFFF",
+            color: disabled ? COLORS.muted : COLORS.sidebar,
+            outline: "none",
+            fontSize: "13px",
+            fontWeight: "600",
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 // --- Smart Dropdown with "Others" Support Component ---
 // --- Smart Datalist with Manual Entry Support ---
 // This version removes the overt "Others" option from the list but allows typing anything.
@@ -951,7 +1053,7 @@ function FormGrid({ sections }) {
                     {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
                   </label>
                   {f.type === "select" ? (
-                    <OthersDropdown
+                    <SelectWithManualEntry
                       label={f.label}
                       value={f.value}
                       options={f.options || []}
@@ -1317,6 +1419,7 @@ Powered by Stacli mandi os`;
     villageOrTownName: "",
     district: "",
     state: "",
+    product: "",
     idType: "",
     govIdNumber: "",
     bankAccount: "",
@@ -1336,6 +1439,7 @@ Powered by Stacli mandi os`;
     villageOrTownName: "",
     district: "",
     state: "",
+    product: "",
     govIdNumber: "",
     idType: "",
     bankAccount: "",
@@ -1381,6 +1485,7 @@ Powered by Stacli mandi os`;
       village: supplierForm.villageOrTownName,
       district: supplierForm.district,
       state: supplierForm.state,
+      product: supplierForm.product || "",
       idType: supplierForm.idType,
       govIdNumber: supplierForm.govIdNumber,
       aadhaar: supplierForm.idType === "Aadhaar" ? supplierForm.govIdNumber : "",
@@ -1424,6 +1529,7 @@ Powered by Stacli mandi os`;
         villageOrTownName: "",
         district: "",
         state: "",
+        product: "",
         idType: "",
         govIdNumber: "",
         bankAccount: "",
@@ -1446,6 +1552,7 @@ Powered by Stacli mandi os`;
         villageOrTownName: "",
         district: "",
         state: "",
+        product: "",
         idType: "",
         govIdNumber: "",
         creditLimit: "",
@@ -1643,6 +1750,7 @@ Powered by Stacli mandi os`;
         villageOrTownName: record.village || "",
         district: record.district || "",
         state: record.state || "",
+        product: record.product || "",
         idType: record.idType || (record.aadhaar ? "Aadhaar" : record.pan ? "PAN" : record.voterId ? "Voter ID" : ""),
         govIdNumber: record.govIdNumber || record.aadhaar || record.pan || record.voterId || "",
         bankAccount: record.bankAccount || "",
@@ -1665,6 +1773,7 @@ Powered by Stacli mandi os`;
         villageOrTownName: record.village || "",
         district: record.district || "",
         state: record.state || "",
+        product: record.product || "",
         idType: record.idType || "",
         govIdNumber: record.govIdNumber || "",
         creditLimit: record.creditLimit || "",
@@ -1973,6 +2082,7 @@ Powered by Stacli mandi os`;
       village: buyerForm.villageOrTownName,
       district: buyerForm.district,
       state: buyerForm.state,
+      product: buyerForm.product || "",
       idType: buyerForm.idType,
       govIdNumber: buyerForm.govIdNumber || "N/A",
       creditLimit: Number(buyerForm.creditLimit) || 0,
@@ -4826,9 +4936,10 @@ Powered by Stacli mandi os`;
                           { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
                           { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
-                          { label: `${supplierForm.villageOrTown} Name *`, placeholder: `Enter ${supplierForm.villageOrTown} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
+                          { label: `${supplierForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${supplierForm.villageOrTown || "Location"} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: (e) => setSupplierForm({ ...supplierForm, district: e.target.value }) },
                           { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
+                          { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: supplierForm.product, onChange: (e) => setSupplierForm({ ...supplierForm, product: e.target.value }) },
                         ],
                       },
                       {
@@ -4880,9 +4991,10 @@ Powered by Stacli mandi os`;
                           { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
                           { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
                           { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTown: e.target.value }) },
-                          { label: `${buyerForm.villageOrTown} Name *`, placeholder: `Enter ${buyerForm.villageOrTown} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
+                          { label: `${buyerForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${buyerForm.villageOrTown || "Location"} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
                           { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
                           { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
+                          { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: buyerForm.product, onChange: (e) => setBuyerForm({ ...buyerForm, product: e.target.value }) },
                         ],
                       },
                       {
