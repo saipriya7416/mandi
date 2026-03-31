@@ -1444,7 +1444,7 @@ export default function App() {
   const [editingSupplierId, setEditingSupplierId] = useState(null);
   const [isEditingBuyer, setIsEditingBuyer] = useState(false);
   const [editingBuyerId, setEditingBuyerId] = useState(null);
-  const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Buyer', data: ... }
+  const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Customer', data: ... }
   const [supplierSaveBtn, setSupplierSaveBtn] = useState({ label: "Save", color: null });
   const [buyerSaveBtn, setBuyerSaveBtn] = useState({ label: "Save", color: null });
   const [lotSaveBtn, setLotSaveBtn] = useState({ label: "Save", color: null });
@@ -1591,8 +1591,8 @@ export default function App() {
         { icon: ICON_LOCATION, text: b.address || "Location N/A" },
       ]}
       secondaryActions={[
-        { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: "primary" },
-        { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } },
+        { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Customer", data: b }), variant: "primary" },
+        { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Customer"); handleEditSelect("Customer", b); } },
       ]}
       onDelete={() => {
         const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
@@ -2505,8 +2505,14 @@ Powered by Stacli mandi os`;
     if (!buyerForm.name || !buyerForm.phone)
       return alert("Customer Name and phone are mandatory!");
 
+    // 1) Same Customer Name → Same Customer ID Auto Link
+    const existingSync = (buyers || []).find(s => s.name.toLowerCase() === buyerForm.name.toLowerCase());
+    const isEdit = isEditingBuyer || !!existingSync;
+    const targetId = isEditingBuyer ? editingBuyerId : (existingSync ? existingSync._id : null);
+    const targetCode = isEditingBuyer ? buyerForm.buyerId : (existingSync ? (existingSync.buyerId || existingSync.customerId) : `CUST-${(buyers || []).length + 1}`);
+
     const payload = {
-      buyerId: isEditingBuyer ? buyerForm.buyerId : `CUST-${buyers.length + 1}`,
+      buyerId: targetCode,
       name: buyerForm.name,
       phone: buyerForm.phone,
       address: buyerForm.address || "unknown",
@@ -2527,8 +2533,8 @@ Powered by Stacli mandi os`;
     };
     try {
       let res;
-      if (isEditingBuyer) {
-        res = await MandiService.updateBuyer(editingBuyerId, payload);
+      if (isEdit) {
+        res = await MandiService.updateBuyer(targetId, payload);
       } else {
         res = await MandiService.addBuyer(payload);
       }
@@ -2538,7 +2544,7 @@ Powered by Stacli mandi os`;
       setBuyerSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
       setTimeout(() => {
         setBuyerSaveBtn({ label: "Save", color: null });
-        handleCancelAll("Buyer");
+        handleCancelAll("Customer");
         fetchData();
       }, 2000);
     } catch (err) {
@@ -2548,15 +2554,15 @@ Powered by Stacli mandi os`;
 
   const handleCreateLot = async () => {
     if (!intakeForm.supplierId)
-      return alert("⚠️ Supplier selection is mandatory for traceability.");
+      return alert(" Supplier selection is mandatory for traceability.");
     if (!intakeForm.vehicleNumber)
-      return alert("⚠️ Vehicle / Lorry number is required.");
+      return alert(" Vehicle / Lorry number is required.");
     if (!intakeForm.origin)
-      return alert("⚠️ Origin / Source location is mandatory.");
+      return alert(" Origin / Source location is mandatory.");
     if (!intakeForm.entryDate)
-      return alert("⚠️ Date & Time of arrival is mandatory.");
+      return alert(" Date & Time of arrival is mandatory.");
     if (intakeForm.lineItems.some((i) => !i.product || !i.grossWeight))
-      return alert("⚠️ At least one Produce item with Weight is required.");
+      return alert(" At least one Produce item with Weight is required.");
 
     const payload = {
       supplier: intakeForm.supplierId,
@@ -2631,7 +2637,7 @@ Powered by Stacli mandi os`;
 
   const handleRecordInwardTransport = async () => {
     if (!inwardTransportForm.lotId || !inwardTransportForm.freightAmount)
-      return alert("⚠️ Lot and Amount are required");
+      return alert(" Lot and Amount are required");
     const res = await MandiService.recordExpense({
       amount: Number(inwardTransportForm.freightAmount),
       category: "Transport",
@@ -2640,7 +2646,7 @@ Powered by Stacli mandi os`;
       date: inwardTransportForm.departureTime || new Date().toISOString(),
     });
     if (res.status === "SUCCESS") {
-      alert("🚚 INWARD LOG COMMITTED: Data persisted to MongoDB.");
+      alert(" INWARD LOG COMMITTED: Data persisted to MongoDB.");
       fetchData();
     } else {
       alert(`❌ LOG FAILED: ${res.message || "Error"}`);
@@ -2649,7 +2655,7 @@ Powered by Stacli mandi os`;
 
   const handleRecordOutwardTransport = async () => {
     if (!outwardTransportForm.invoiceNo || !outwardTransportForm.freightAmount)
-      return alert("⚠️ Invoice and Amount are required");
+      return alert(" Invoice and Amount are required");
     const res = await MandiService.recordExpense({
       amount: Number(outwardTransportForm.freightAmount),
       category: "Transport",
@@ -2665,13 +2671,13 @@ Powered by Stacli mandi os`;
   };
 
   const handleCreateBuyerInvoice = async () => {
-    if (!buyerInvoiceForm.buyerId) return alert("⚠️ Buyer is required");
+    if (!buyerInvoiceForm.buyerId) return alert(" Buyer is required");
     if (
       buyerInvoiceForm.items.some(
         (i) => !i.productLabel || (!i.netWeight && !i.grossWeight),
       )
     )
-      return alert("⚠️ Product and Weight are required for all items");
+      return alert(" Product and Weight are required for all items");
 
     // Map frontend structure to expected backend schema
     const mappedItems = buyerInvoiceForm.items.map((i) => ({
@@ -2722,9 +2728,9 @@ Powered by Stacli mandi os`;
 
   const handleRecordBuyerPayment = async () => {
     if (!buyerPaymentForm.buyerId || !buyerPaymentForm.amountReceived)
-      return alert("⚠️ Buyer and Amount are required");
+      return alert(" Buyer and Amount are required");
     const payload = {
-      partyType: "Buyer",
+      partyType: "Customer",
       partyId: buyerPaymentForm.buyerId,
       amount: Number(buyerPaymentForm.amountReceived),
       date: buyerPaymentForm.paymentDate,
@@ -2736,7 +2742,7 @@ Powered by Stacli mandi os`;
     };
     const res = await MandiService.recordPayment(payload);
     if (res.status === "SUCCESS") {
-      alert("💰 PAYMENT RECORDED: Database updated.");
+      alert(" PAYMENT RECORDED: Database updated.");
       setBuyerPaymentForm({
         ...buyerPaymentForm,
         buyerId: "",
@@ -2753,7 +2759,7 @@ Powered by Stacli mandi os`;
 
   const handleRecordFarmerPayment = async () => {
     if (!farmerPaymentForm.farmerId || !farmerPaymentForm.amount)
-      return alert("⚠️ Farmer and Amount are required");
+      return alert(" Farmer and Amount are required");
     const payload = {
       partyType: "Supplier",
       partyId: farmerPaymentForm.farmerId,
@@ -2782,7 +2788,7 @@ Powered by Stacli mandi os`;
   };
 
   const handleCreateExpense = async () => {
-    if (!expenseForm.amount) return alert("⚠️ Amount is required");
+    if (!expenseForm.amount) return alert(" Amount is required");
     const res = await MandiService.recordExpense({
       amount: Number(expenseForm.amount),
       category: expenseForm.category,
@@ -2791,7 +2797,7 @@ Powered by Stacli mandi os`;
       date: new Date().toISOString(),
     });
     if (res.status === "SUCCESS") {
-      alert("💸 EXPENSE COMMITTED: Record saved to Database.");
+      alert(" EXPENSE COMMITTED: Record saved to Database.");
       setExpenseForm({ amount: "", lotId: "", memo: "", category: "Labour" });
       fetchData();
     } else {
@@ -2977,7 +2983,7 @@ Powered by Stacli mandi os`;
   });
 
   // --- LEDGER SYSTEM STATES ---
-  const [ledgerTab, setLedgerTab] = useState("Farmer"); // "Farmer" | "Buyer"
+  const [ledgerTab, setLedgerTab] = useState("Supplier"); // "Supplier" | "Customer"
   const [ledgerFilters, setLedgerFilters] = useState({
     entityId: "",
     startDate: "",
@@ -3009,7 +3015,7 @@ Powered by Stacli mandi os`;
   const [showCorrectionModal, setShowCorrectionModal] = useState(false);
 
   // --- PAYMENT & SETTLEMENT STATES ---
-  const [paymentTab, setPaymentTab] = useState("Buyer"); // "Farmer" | "Buyer"
+  const [paymentTab, setPaymentTab] = useState("Customer"); // "Supplier" | "Customer"
   const [farmerPaymentForm, setFarmerPaymentForm] = useState({
     farmerId: "",
     paymentDate: new Date().toISOString().slice(0, 10),
@@ -3105,7 +3111,7 @@ Powered by Stacli mandi os`;
     departureTime: "",
     arrivalTime: "",
     freightAmount: "",
-    paidBy: "Farmer",
+    paidBy: "Supplier",
     notes: "",
   });
   const [outwardTransportForm, setOutwardTransportForm] = useState({
@@ -3117,7 +3123,7 @@ Powered by Stacli mandi os`;
     dispatchTime: "",
     deliveryTime: "",
     freightAmount: "",
-    paidBy: "Buyer",
+    paidBy: "Customer",
     status: "In Transit",
     notes: "",
   });
@@ -3143,7 +3149,7 @@ Powered by Stacli mandi os`;
 
   const handleRegisterProduct = () => {
     if (!newProductForm.coreProduct || !newProductForm.variety) {
-      alert("⚠️ Core Product and Variety name are mandatory.");
+      alert(" Core Product and Variety name are mandatory.");
       return;
     }
 
@@ -3194,7 +3200,7 @@ Powered by Stacli mandi os`;
 
   const handleRegisterExpenseCategory = () => {
     if (!newExpenseForm.label) {
-      alert("⚠️ Please enter a label for the expense.");
+      alert(" Please enter a label for the expense.");
       return;
     }
 
@@ -3250,7 +3256,7 @@ Powered by Stacli mandi os`;
 
   const handleCreateStaff = () => {
     if (!newStaffForm.name || !newStaffForm.username) {
-      alert("⚠️ Please fill in all staff details.");
+      alert(" Please fill in all staff details.");
       return;
     }
 
@@ -3379,7 +3385,7 @@ Powered by Stacli mandi os`;
     setUploading(false);
 
     if (res.status === "SUCCESS") {
-      alert("⭐ ARCHIVED: File secured in Vault");
+      alert(" ARCHIVED: File secured in Vault");
       fetchData();
     } else {
       alert(`❌ VAULT ERROR: ${res.message}`);
@@ -3455,7 +3461,7 @@ Powered by Stacli mandi os`;
       setBuyerHistory(res.data);
       if (res.data.pendingBalance > 0) {
         alert(
-          `⚠️ ALERT: Buyer has a pending balance of ${formatCurrency(res.data.pendingBalance)}`,
+          ` ALERT: Buyer has a pending balance of ${formatCurrency(res.data.pendingBalance)}`,
         );
       }
     }
@@ -3573,23 +3579,23 @@ Powered by Stacli mandi os`;
 
   // --- HANDLE ALLOCATION ---
   const handleAllocate = async () => {
-    if (!allocationForm.lotId) return alert("⚠️ Lot ID is required.");
-    if (!allocationForm.buyerId) return alert("⚠️ Customer Name is required.");
+    if (!allocationForm.lotId) return alert(" Lot ID is required.");
+    if (!allocationForm.buyerId) return alert(" Customer Name is required.");
     if (!allocationForm.allocationDate)
-      return alert("⚠️ Allocation Date is mandatory.");
+      return alert(" Allocation Date is mandatory.");
     if (allocationForm.items.length === 0)
-      return alert("⚠️ Please add at least one product for allocation.");
+      return alert(" Please add at least one product for allocation.");
 
     // Validate entries
     for (const item of allocationForm.items) {
       if (!item.lineItemId)
-        return alert("⚠️ Product / Grade must be selected for all rows.");
+        return alert(" Product / Grade must be selected for all rows.");
       if (!item.quantity || Number(item.quantity) <= 0)
-        return alert("⚠️ Quantity must be greater than zero.");
+        return alert(" Quantity must be greater than zero.");
       if (Number(item.quantity) > Number(item.balanceLeft)) {
         if (
           !window.confirm(
-            `⚠️ EXCEED ALERT: Allocated quantity (${item.quantity} KG) exceeds balance left (${item.balanceLeft} KG). Proceed anyway?`,
+            ` EXCEED ALERT: Allocated quantity (${item.quantity} KG) exceeds balance left (${item.balanceLeft} KG). Proceed anyway?`,
           )
         )
           return;
@@ -5352,7 +5358,7 @@ Powered by Stacli mandi os`;
               <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1" }}>
                 <div style={{ display: "flex", gap: "20px" }}>
                   <div onClick={() => setActiveUserRoleTab("Supplier")} style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Supplier" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Supplier" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}>Supplier Registration</div>
-                  <div onClick={() => setActiveUserRoleTab("Buyer")} style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Buyer" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Buyer" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}>Customer Registration</div>
+                  <div onClick={() => setActiveUserRoleTab("Customer")} style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Customer" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Customer" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}>Customer Registration</div>
                   <div onClick={() => setActiveUserRoleTab("Registered Members")} style={{ padding: "10px 24px", cursor: "pointer", fontWeight: "700", background: activeUserRoleTab === "Registered Members" ? COLORS.sidebar : "#F3F1EA", color: activeUserRoleTab === "Registered Members" ? "#FFFFFF" : COLORS.muted, borderRadius: "8px", transition: "all 0.2s" }}>Registered Members</div>
                 </div>
               </div>
@@ -5411,7 +5417,7 @@ Powered by Stacli mandi os`;
                 </div>
               )}
 
-              {activeUserRoleTab === "Buyer" && (
+              {activeUserRoleTab === "Customer" && (
                 <div>
                   <FormGrid
                     sections={[
@@ -5470,7 +5476,7 @@ Powered by Stacli mandi os`;
                     >
                       {buyerSaveBtn.label}
                     </Button>
-                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Buyer")}>Cancel All</Button>
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Customer")}>Cancel All</Button>
                   </div>
                 </div>
               )}
@@ -5807,7 +5813,7 @@ Powered by Stacli mandi os`;
                   </div>
                 </Card>
                 <div style={{ display: "flex", gap: "16px", marginTop: "20px", paddingBottom: "8px" }}>
-                  <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800" }} onClick={() => setActiveUserRoleTab("Buyer")}>Previous</Button>
+                  <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800" }} onClick={() => setActiveUserRoleTab("Customer")}>Previous</Button>
                 </div>
                 </div>
               )}
@@ -6094,7 +6100,7 @@ Powered by Stacli mandi os`;
                     />
                   </div>
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "20px" }}>
                       {lots
                         .filter(l => {
                           const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
@@ -6899,9 +6905,9 @@ Powered by Stacli mandi os`;
                         .slice()
                         .reverse();
 
-                      // Group by Buyer Name
+                      // Group by Customer Name
                       const groups = filtered.reduce((acc, a) => {
-                        const name = a.buyerId?.name || a.buyerId || "Buyer";
+                        const name = a.buyerId?.name || a.buyerId || "Customer";
                         if (!acc[name]) acc[name] = [];
                         acc[name].push(a);
                         return acc;
@@ -9177,7 +9183,7 @@ Powered by Stacli mandi os`;
                         <option value="">{getSelectPlaceholder("Lot Reference")}</option>
                         {lots.map((l) => (
                           <option key={l._id || l.lotId} value={l.lotId}>
-                            {l.supplierId?.name || l.supplierId || "Farmer"} â€” {l.lotId}
+                            {l.supplierId?.name || l.supplierId || "Supplier"} â€” {l.lotId}
                           </option>
                         ))}
                       </select>
@@ -11118,7 +11124,7 @@ Powered by Stacli mandi os`;
                             }}
                           >
                             <option value="" disabled>
-                              {getSelectPlaceholder("Buyer")}
+                              {getSelectPlaceholder("Customer")}
                             </option>
                             {buyers.map((b) => (
                               <option key={b._id} value={b._id}>
@@ -11885,7 +11891,7 @@ Powered by Stacli mandi os`;
                             marginBottom: "8px",
                           }}
                         >
-                          Search Farmer Name
+                          Search Supplier Name
                         </label>
                         <select
                           value={selectedLedgerSupplier}
@@ -12584,7 +12590,7 @@ Powered by Stacli mandi os`;
                   alignItems: "flex-start",
                 }}
               >
-                {/* COLUMN 1: INWARD TRANSPORTATION (FARMER SIDE) */}
+                {/* COLUMN 1: INWARD TRANSPORTATION (SUPPLIER SIDE) */}
                 <div
                   style={{
                     display: transportTab === "Inward" ? "block" : "none",
@@ -13037,11 +13043,11 @@ Powered by Stacli mandi os`;
                             onClick={() =>
                               setInwardTransportForm({
                                 ...inwardTransportForm,
-                                paidBy: "Farmer",
+                                paidBy: "Supplier",
                               })
                             }
                             variant={
-                              inwardTransportForm.paidBy === "Farmer"
+                              inwardTransportForm.paidBy === "Supplier"
                                 ? "primary"
                                 : "outline"
                             }
@@ -13051,9 +13057,7 @@ Powered by Stacli mandi os`;
                               fontSize: "11px",
                               padding: 0,
                             }}
-                          >
-                            Farmer
-                          </Button>
+                          >Supplier</Button>
                         </div>
                       </div>
                     </div>
@@ -13105,7 +13109,7 @@ Powered by Stacli mandi os`;
                   </div>
                 </div>
 
-                {/* COLUMN 2: OUTWARD TRANSPORTATION (BUYER SIDE) */}
+                {/* COLUMN 2: OUTWARD TRANSPORTATION (CUSTOMER SIDE) */}
                 <div
                   style={{
                     display: transportTab === "Outward" ? "block" : "none",
@@ -13499,11 +13503,11 @@ Powered by Stacli mandi os`;
                             onClick={() =>
                               setOutwardTransportForm({
                                 ...outwardTransportForm,
-                                paidBy: "Buyer",
+                                paidBy: "Customer",
                               })
                             }
                             variant={
-                              outwardTransportForm.paidBy === "Buyer"
+                              outwardTransportForm.paidBy === "Customer"
                                 ? "primary"
                                 : "outline"
                             }
@@ -13513,9 +13517,7 @@ Powered by Stacli mandi os`;
                               fontSize: "11px",
                               padding: 0,
                             }}
-                          >
-                            Buyer
-                          </Button>
+                          >Customer</Button>
                           <Button
                             onClick={() =>
                               setOutwardTransportForm({
@@ -14034,7 +14036,7 @@ Powered by Stacli mandi os`;
                     },
                     {
                       name: "Mahesh Traders",
-                      role: "Buyer",
+                      role: "Customer",
                       status: "VERIFIED",
                     },
                     {
@@ -14044,7 +14046,7 @@ Powered by Stacli mandi os`;
                     },
                     {
                       name: "Prakash Wholesale",
-                      role: "Buyer",
+                      role: "Customer",
                       status: "VERIFIED",
                     },
                     {
@@ -14054,7 +14056,7 @@ Powered by Stacli mandi os`;
                     },
                     {
                       name: "Reliance Fresh Hub",
-                      role: "Buyer",
+                      role: "Customer",
                       status: "VERIFIED",
                     },
                     {
@@ -14074,7 +14076,7 @@ Powered by Stacli mandi os`;
                     },
                     {
                       name: "Harsha Wholesale",
-                      role: "Buyer",
+                      role: "Customer",
                       status: "VERIFIED",
                     },
                   ].map((user, i) => (
@@ -14539,7 +14541,7 @@ Powered by Stacli mandi os`;
                                 } else {
                                   let tableRows = '';
                                   if (rep.t === 'Buyer Credit Analysis') {
-                                    tableRows += '<tr><th>Invoice ID</th><th>Date</th><th>Buyer</th><th>Total</th><th>Received</th><th>Outstanding</th></tr>';
+                                    tableRows += '<tr><th>Invoice ID</th><th>Date</th><th>Customer</th><th>Total</th><th>Received</th><th>Outstanding</th></tr>';
                                     if (typeof buyerInvoices !== 'undefined' && (buyerInvoices || []).length > 0) {
                                       buyerInvoices.forEach(inv => {
                                         const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0])) || '-';
@@ -15043,7 +15045,7 @@ Powered by Stacli mandi os`;
                                   fontWeight: "900",
                                 }}
                               >
-                                â€¢ {g}
+                                • {g}
                               </span>
                             ))}
                           </div>
@@ -15673,7 +15675,7 @@ Powered by Stacli mandi os`;
                                   color: COLORS.muted,
                                 }}
                               >
-                                {u.id} â€¢{" "}
+                                {u.id} •{" "}
                                 <span
                                   style={{
                                     color:
@@ -16460,7 +16462,7 @@ Powered by Stacli mandi os`;
                                   color: COLORS.muted,
                                 }}
                               >
-                                By {log.user} â€¢ {log.timestamp}
+                                By {log.user} • {log.timestamp}
                               </div>
                             </div>
                           </div>
@@ -16716,7 +16718,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          ðŸ“± {farmer.phone} â€¢ ðŸ“ {farmer.village}
+                          Phone: {farmer.phone} • ðŸ“ {farmer.village}
                         </span>
                       </div>
                     ))}
@@ -16949,8 +16951,7 @@ Powered by Stacli mandi os`;
                           fontWeight: "600",
                           marginTop: "4px",
                         }}
-                      >
-                        Buyer <b>'Reliance Fresh'</b> holds pending ₹1,45,000
+                      >Customer<b>'Reliance Fresh'</b> holds pending ₹1,45,000
                         affecting the liquidation of this supplier's supply.
                         Escalate collection strategy.
                       </div>
@@ -16981,7 +16982,7 @@ Powered by Stacli mandi os`;
                         >
                           {[
                             "Date Range",
-                            "Buyer Name",
+                            "Customer Name",
                             "Product",
                             "Variety",
                             "Grade",
@@ -17078,7 +17079,7 @@ Powered by Stacli mandi os`;
                                     letterSpacing: "0.5px",
                                   }}
                                 >
-                                  BUYER IDENTITY
+                                  Customer Identity
                                 </th>
                                 <th
                                   style={{
@@ -17202,7 +17203,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    Alphonso â€¢ A Grade
+                                    Alphonso • A Grade
                                   </span>
                                 </td>
                                 <td
@@ -17232,7 +17233,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    9959012345 â€¢ Stall #102
+                                    9959012345 • Stall #102
                                   </span>
                                 </td>
                                 <td
@@ -17373,7 +17374,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    Yelakki â€¢ Premium
+                                    Yelakki • Premium
                                   </span>
                                 </td>
                                 <td
@@ -17403,7 +17404,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    9898989898 â€¢ Stall #45
+                                    9898989898 • Stall #45
                                   </span>
                                 </td>
                                 <td
@@ -17999,7 +18000,7 @@ Powered by Stacli mandi os`;
                                   marginBottom: "8px",
                                 }}
                               >
-                                ðŸ“±
+                                Phone:
                               </div>
                               <div
                                 style={{
@@ -18210,7 +18211,7 @@ Powered by Stacli mandi os`;
                 }}
               >
                 <Input placeholder="By Supplier Identity..." />
-                <Input placeholder="By Buyer Name..." />
+                <Input placeholder="By Customer Name..." />
                 <Input placeholder="By Core Product..." />
                 <Input type="date" label="By Transaction Date" />
                 <Input
@@ -18342,7 +18343,7 @@ Powered by Stacli mandi os`;
                               {doc.originalName}
                             </p>
                             <small style={{ color: COLORS.muted }}>
-                              {doc.docType} â€¢ {(doc.fileSize / 1024).toFixed(1)}{" "}
+                              {doc.docType} • {(doc.fileSize / 1024).toFixed(1)}{" "}
                               KB
                             </small>
                           </div>
@@ -18449,75 +18450,162 @@ Powered by Stacli mandi os`;
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
                 <div style={{ overflowX: "auto", border: "1px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
                   {viewingEntity.type === "LOT" ? (
-                    <div style={{ padding: "32px" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "10px" }}>
-                        {[
-                          { label: "Lot ID", value: viewingEntity.data.lotId },
-                          { label: "Supplier Name", value: viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || "N/A" },
-                          { label: "Supplier ID", value: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId)) || "N/A" },
-                          { label: "Date and Time", value: viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleString() : formatDate(viewingEntity.data.createdAt) },
-                          { label: "Product", value: viewingEntity.data.lineItems?.[0]?.productId || viewingEntity.data.lineItems?.[0]?.product || "N/A" },
-                          { label: "Variety", value: viewingEntity.data.lineItems?.[0]?.variety || "N/A" },
-                          { label: "Grade", value: viewingEntity.data.lineItems?.[0]?.grade || "N/A" },
-                          { label: "Weight", value: viewingEntity.data.lineItems?.[0]?.grossWeight || "0" },
-                          { label: "Weight Unit", value: viewingEntity.data.lineItems?.[0]?.weightUnit || "KG" },
-                          { label: "Inventory Status", value: viewingEntity.data.lineItems?.[0]?.status || "Pending" },
-                          { label: "Vehicle / Lorry Number", value: viewingEntity.data.vehicleNumber || "N/A" },
-                          { label: "Driver Name", value: viewingEntity.data.driverName || "N/A" },
-                          { label: "Origin / Source Location", value: viewingEntity.data.origin || "N/A" },
-                          { label: "Attached Bill Photo", value: viewingEntity.data.billAttachment, type: 'image' },
-                          { label: "Notes", value: viewingEntity.data.notes || "N/A" },
-                        ].map((field, idx) => (
-                          <div key={idx} style={{ display: "flex", padding: "12px 0", borderBottom: "1px solid #F1F5F9", alignItems: "flex-start" }}>
-                            <div style={{ width: "200px", fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>{field.label}</div>
-                            <div style={{ flex: 1, fontSize: "14px", fontWeight: "700", color: COLORS.sidebar }}>
-                              {field.type === 'image' ? (
-                                field.value ? (
-                                  <div style={{ position: "relative", maxWidth: "300px" }}>
-                                    <img 
-                                      src={field.value} 
-                                      alt="Bill" 
-                                      style={{ width: "100%", borderRadius: "8px", border: "1.5px solid #E2E8F0", cursor: "pointer" }}
-                                      onClick={() => setBillPhotoModal({
-                                        open: true,
-                                        imageUrl: field.value,
-                                        lotNo: viewingEntity.data.lotId || "N/A",
-                                        supplierName: viewingEntity.data.farmerName || "N/A",
-                                        supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A",
-                                        zoom: 1
-                                      })}
-                                    />
-                                    <div style={{ fontSize: "10px", marginTop: "4px", color: COLORS.primary, cursor: "pointer", fontWeight: "800" }} onClick={() => setBillPhotoModal({ open: true, imageUrl: field.value, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A", zoom: 1 })}>
-                                      Click to View Full Image
-                                    </div>
-                                  </div>
-                                ) : "No photo uploaded"
-                              ) : field.value || "N/A"}
-                            </div>
+                    <div style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "24px" }}>
+                      {/* Section 1: Basic Lot Info */}
+                      <div>
+                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 1: Basic Lot Info</h4>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Lot ID</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</div>
                           </div>
-                        ))}
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Date and Time</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleString() : formatDate(viewingEntity.data.createdAt)}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Inventory Status</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.status || "Pending"}</div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* If there are more than 1 items, show them as a supplementary table */}
+                      {/* Section 2: Supplier Info */}
+                      <div>
+                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 2: Supplier Info</h4>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Supplier Name</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || "N/A"}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Supplier ID</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{(typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId)) || "N/A"}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Origin / Source Location</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.origin || "N/A"}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 3: Produce Info */}
+                      <div>
+                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 3: Produce Info</h4>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Product</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.productId || viewingEntity.data.lineItems?.[0]?.product || "N/A"}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Variety</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.variety || "N/A"}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Grade</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grade || "N/A"}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 4: Weight & Transport */}
+                      <div>
+                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 4: Weight & Transport</h4>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Weight</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grossWeight || "0"}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Weight Unit</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.weightUnit || "KG"}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Vehicle / Lorry Number</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 5: Transport Proof & Remarks */}
+                      <div>
+                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 5: Transport Proof & Remarks</h4>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", alignItems: "start" }}>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Driver Name</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span>Attached Bill Photo</span>
+                              {viewingEntity.data.billAttachment && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setBillPhotoModal({
+                                      open: true,
+                                      imageUrl: viewingEntity.data.billAttachment,
+                                      lotNo: viewingEntity.data.lotId || "N/A",
+                                      supplierName: viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || "N/A",
+                                      supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId)) || "N/A",
+                                      zoom: 1
+                                    });
+                                  }}
+                                  style={{ background: "#FFFFFF", color: COLORS.sidebar, border: "1px solid #CBD5E1", padding: "4px 8px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", cursor: "pointer" }}
+                                >
+                                  View Bill Photo
+                                </button>
+                              )}
+                            </div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>
+                              {viewingEntity.data.billAttachment ? (
+                                <div style={{ position: "relative", width: "100px", height: "60px" }}>
+                                  <img 
+                                    src={viewingEntity.data.billAttachment} 
+                                    alt="Bill" 
+                                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px", border: "1px solid #E2E8F0", cursor: "pointer" }}
+                                    onClick={() => setBillPhotoModal({
+                                      open: true,
+                                      imageUrl: viewingEntity.data.billAttachment,
+                                      lotNo: viewingEntity.data.lotId || "N/A",
+                                      supplierName: viewingEntity.data.farmerName || "N/A",
+                                      supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A",
+                                      zoom: 1
+                                    })}
+                                  />
+                                </div>
+                              ) : (
+                                <span style={{ color: COLORS.muted, fontSize: "12px" }}>No bill photo available</span>
+                              )}
+                            </div>
+                          </div>
+                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
+                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Notes</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.notes || "N/A"}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Processing items if any */}
                       {viewingEntity.data.lineItems && viewingEntity.data.lineItems.length > 1 && (
-                        <div style={{ marginTop: "32px" }}>
-                          <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.muted, marginBottom: "16px", textTransform: "uppercase" }}>Additional Produce Items</h4>
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                        <div style={{ marginTop: "16px" }}>
+                          <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Additional Produce Items</h4>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", background: "#F8FAFC", borderRadius: "8px", display: "block", overflow: "hidden" }}>
                              <thead>
-                               <tr style={{ background: "#F1F5F9", color: COLORS.muted, textAlign: "left" }}>
-                                 <th style={{ padding: "10px" }}>Product</th>
-                                 <th style={{ padding: "10px" }}>Variety</th>
-                                 <th style={{ padding: "10px" }}>Weight</th>
-                                 <th style={{ padding: "10px" }}>Status</th>
+                               <tr style={{ background: "#E2E8F0", color: COLORS.sidebar, textAlign: "left" }}>
+                                 <th style={{ padding: "12px" }}>Product</th>
+                                 <th style={{ padding: "12px" }}>Variety</th>
+                                 <th style={{ padding: "12px" }}>Weight</th>
+                                 <th style={{ padding: "12px" }}>Status</th>
                                </tr>
                              </thead>
-                             <tbody>
+                             <tbody style={{ display: "table", width: "100%" }}>
                                {viewingEntity.data.lineItems.slice(1).map((it, i) => (
-                                 <tr key={i} style={{ borderBottom: "1px solid #F1F5F9" }}>
-                                   <td style={{ padding: "10px", fontWeight: "700" }}>{it.productId || it.product}</td>
-                                   <td style={{ padding: "10px" }}>{it.variety}</td>
-                                   <td style={{ padding: "10px" }}>{it.grossWeight} {it.weightUnit}</td>
-                                   <td style={{ padding: "10px" }}>{it.status}</td>
+                                 <tr key={i} style={{ borderBottom: "1px solid #EBE9E1" }}>
+                                   <td style={{ padding: "12px", fontWeight: "800" }}>{it.productId || it.product}</td>
+                                   <td style={{ padding: "12px", fontWeight: "700" }}>{it.variety}</td>
+                                   <td style={{ padding: "12px", fontWeight: "700" }}>{it.grossWeight} {it.weightUnit}</td>
+                                   <td style={{ padding: "12px", fontWeight: "700" }}>{it.status}</td>
                                  </tr>
                                ))}
                              </tbody>
