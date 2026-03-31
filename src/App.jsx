@@ -297,53 +297,54 @@ const PremiumActionCard = ({
     <div
       style={{
         background: "#fff",
-        borderRadius: "14px",
-        padding: "14px 16px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        border: "1.5px solid #E8E5DC",
+        borderRadius: "12px",
+        padding: "12px 14px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+        border: "1px solid #E8E5DC",
         display: "flex",
         flexDirection: "column",
-        gap: "10px",
-        transition: "all 0.22s ease",
+        gap: "8px",
+        transition: "all 0.2s ease",
         cursor: "default",
         minHeight: "unset",
+        width: "100%",
       }}
       onMouseOver={(e) => {
         e.currentTarget.style.transform = "translateY(-3px)";
-        e.currentTarget.style.boxShadow = "0 10px 28px rgba(0,0,0,0.10)";
+        e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.08)";
         e.currentTarget.style.borderColor = "#C8C5BC";
       }}
       onMouseOut={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.05)";
+        e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.04)";
         e.currentTarget.style.borderColor = "#E8E5DC";
       }}
     >
       {/* TOP ROW: Avatar + Name + ID + Badge */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
         <div style={{
-          width: "40px",
-          height: "40px",
-          minWidth: "40px",
+          width: "32px",
+          height: "32px",
+          minWidth: "32px",
           borderRadius: "50%",
           background: "linear-gradient(135deg, #3a4714, #6b7c20)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: "16px",
+          fontSize: "14px",
           fontWeight: "900",
           color: "#fff",
           fontFamily: "'Montserrat', sans-serif",
-          boxShadow: "0 2px 8px rgba(58,71,20,0.25)"
+          boxShadow: "0 2px 6px rgba(58,71,20,0.2)"
         }}>
           {initial}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
-            fontSize: "13px",
+            fontSize: "12px",
             fontWeight: "800",
             color: "#1a1a2e",
-            lineHeight: "1.3",
+            lineHeight: "1.2",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap"
@@ -351,7 +352,7 @@ const PremiumActionCard = ({
             {title}
           </div>
           {subtitle && (
-            <div style={{ fontSize: "11px", color: "#64748B", marginTop: "1px", fontWeight: "600" }}>
+            <div style={{ fontSize: "10px", color: "#64748B", marginTop: "2px", fontWeight: "600", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {subtitle}
             </div>
           )}
@@ -360,13 +361,13 @@ const PremiumActionCard = ({
           <span style={{
             background: status.bg,
             color: status.color,
-            padding: "3px 10px",
-            borderRadius: "20px",
-            fontSize: "10px",
-            fontWeight: "900",
+            padding: "2px 8px",
+            borderRadius: "12px",
+            fontSize: "9px",
+            fontWeight: "800",
             whiteSpace: "nowrap",
-            letterSpacing: "0.3px",
-            flexShrink: 0,
+            letterSpacing: "0.2px",
+            marginLeft: "auto"
           }}>
             {status.text}
           </span>
@@ -375,26 +376,27 @@ const PremiumActionCard = ({
 
       {/* MIDDLE: Phone */}
       {phoneDetail && (
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#334155" }}>
-          <span style={{ display: "flex", width: "14px", flexShrink: 0, color: "#64748B" }}>{phoneDetail.icon}</span>
-          <span style={{ fontSize: "12px", fontWeight: "700" }}>{phoneDetail.text}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#334155", marginTop: "2px" }}>
+          <span style={{ display: "flex", width: "13px", flexShrink: 0, color: "#64748B" }}>{phoneDetail.icon}</span>
+          <span style={{ fontSize: "11px", fontWeight: "700" }}>{phoneDetail.text}</span>
         </div>
       )}
 
       {children && (
         <div style={{
           background: "#f8fafc",
-          borderRadius: "8px",
-          padding: "10px 12px",
+          borderRadius: "6px",
+          padding: "8px 10px",
           border: "1px solid #E2E8F0",
-          fontSize: "12px"
+          fontSize: "11px",
+          marginTop: "2px"
         }}>
           {children}
         </div>
       )}
 
       {/* BOTTOM ROW: Action Buttons */}
-      <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "2px" }}>
+      <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "4px" }}>
         {secondaryActions.map((act, idx) => (
           <button
             key={idx}
@@ -402,17 +404,17 @@ const PremiumActionCard = ({
             title={act.label}
             style={{
               flex: 1,
-              padding: "7px 8px",
-              borderRadius: "8px",
+              padding: "6px 8px",
+              borderRadius: "6px",
               background: idx === 0 ? "#1e293b" : "#f1f5f9",
               color: idx === 0 ? "#ffffff" : "#334155",
               border: "none",
               fontWeight: "700",
-              fontSize: "11px",
+              fontSize: "10px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "5px",
+              gap: "4px",
               cursor: "pointer",
               transition: "all 0.18s ease",
               whiteSpace: "nowrap",
@@ -426,7 +428,7 @@ const PremiumActionCard = ({
               e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            <span style={{ display: "flex", width: "13px" }}>{act.icon}</span>
+            <span style={{ display: "flex", width: "12px" }}>{act.icon}</span>
             {act.label}
           </button>
         ))}
@@ -437,17 +439,17 @@ const PremiumActionCard = ({
             title={primaryAction.label}
             style={{
               flex: 1,
-              padding: "7px 8px",
-              borderRadius: "8px",
+              padding: "6px 8px",
+              borderRadius: "6px",
               background: "#FEF9C3",
               color: "#854d0e",
-              border: "1.5px solid #fde047",
+              border: "1px solid #fde047",
               fontWeight: "700",
-              fontSize: "11px",
+              fontSize: "10px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "5px",
+              gap: "4px",
               cursor: "pointer",
               transition: "all 0.18s ease",
               whiteSpace: "nowrap",
@@ -455,7 +457,7 @@ const PremiumActionCard = ({
             onMouseOver={(e) => { e.currentTarget.style.background = "#fef08a"; }}
             onMouseOut={(e) => { e.currentTarget.style.background = "#FEF9C3"; }}
           >
-            <span style={{ display: "flex", width: "13px" }}>{primaryAction.icon || ICON_USER}</span>
+            <span style={{ display: "flex", width: "12px" }}>{primaryAction.icon || ICON_USER}</span>
             {primaryAction.label}
           </button>
         )}
@@ -465,8 +467,8 @@ const PremiumActionCard = ({
             onClick={onDelete}
             title="Delete"
             style={{
-              padding: "7px 9px",
-              borderRadius: "8px",
+              padding: "6px 8px",
+              borderRadius: "6px",
               background: "#fef2f2",
               border: "1px solid #fecaca",
               color: "#dc2626",
@@ -480,7 +482,7 @@ const PremiumActionCard = ({
             onMouseOver={(e) => { e.currentTarget.style.background = "#fee2e2"; }}
             onMouseOut={(e) => { e.currentTarget.style.background = "#fef2f2"; }}
           >
-            <span style={{ display: "flex", width: "13px" }}>{ICON_TRASH}</span>
+            <span style={{ display: "flex", width: "12px" }}>{ICON_TRASH}</span>
           </button>
         )}
       </div>
@@ -5798,7 +5800,7 @@ Powered by Stacli mandi os`;
                           );
                         }
                         return (
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "20px" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
                             {activeTab === "Suppliers"
                               ? searchedData.map((s) => renderSupplierMemberCard(s))
                               : searchedData.map((b) => renderBuyerMemberCard(b))}
@@ -5835,7 +5837,7 @@ Powered by Stacli mandi os`;
                                   No profiles found for this product.
                                 </div>
                               ) : (
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: "12px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "12px" }}>
                                   {activeTab === "Suppliers"
                                     ? group.items.map((s) => renderSupplierMemberCard(s, `supplier-${group.product}`))
                                     : group.items.map((b) => renderBuyerMemberCard(b, `buyer-${group.product}`))}
@@ -6136,7 +6138,7 @@ Powered by Stacli mandi os`;
                     />
                   </div>
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "20px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
                       {lots
                         .filter(l => {
                           const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
@@ -6924,7 +6926,7 @@ Powered by Stacli mandi os`;
                 </div>
 
                 <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "16px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
                     {(() => {
                       const filtered = allocations
                         .filter(a => {
@@ -8595,7 +8597,7 @@ Powered by Stacli mandi os`;
                   </div>
 
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
                       {supplierBills
                         .filter(b => {
                           const supplierName = (b.supplierId?.name || b.supplierId || "").toLowerCase();
@@ -10354,7 +10356,7 @@ Powered by Stacli mandi os`;
                   </div>
 
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
                       {buyerInvoices
                         .filter(i => {
                           const customerName = (i.buyerId?.name || i.buyerId || "").toLowerCase();
