@@ -5399,18 +5399,8 @@ Powered by Stacli mandi os`;
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Gross Weight ({item.weightUnit}) *</label>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Weight ({item.weightUnit}) *</label>
                             <input type="number" value={item.grossWeight} onChange={(e) => handleLineItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                          </div>
-
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Deductions ({item.weightUnit})</label>
-                            <input type="number" value={item.deductions} onChange={(e) => handleLineItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
-                          </div>
-
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Net Weight ({item.weightUnit}) Auto</label>
-                            <input type="number" disabled value={(Number(item.grossWeight) - Number(item.deductions)) || 0} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -5421,34 +5411,21 @@ Powered by Stacli mandi os`;
                                     const nextUnit = e.target.value;
                                     const prevUnit = item.weightUnit;
                                     let newGross = Number(item.grossWeight) || 0;
-                                    let newDeductions = Number(item.deductions) || 0;
-                                    let newRate = Number(item.estimatedRate) || 0;
 
                                     if (prevUnit === "KGs" && nextUnit === "Tones") {
                                         newGross = newGross / 1000;
-                                        newDeductions = newDeductions / 1000;
-                                        newRate = newRate * 1000; // Rate per Tone is higher
                                     } else if (prevUnit === "Tones" && nextUnit === "KGs") {
                                         newGross = newGross * 1000;
-                                        newDeductions = newDeductions * 1000;
-                                        newRate = newRate / 1000; // Rate per KG is lower
                                     }
 
                                     handleLineItemAction("Update", idx, "weightUnit", nextUnit);
                                     handleLineItemAction("Update", idx, "grossWeight", newGross.toString());
-                                    handleLineItemAction("Update", idx, "deductions", newDeductions.toString());
-                                    handleLineItemAction("Update", idx, "estimatedRate", newRate.toString());
                                 }} 
                                 style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}
                             >
                                <option value="KGs">KGs (Kilograms)</option>
                                <option value="Tones">Tones (Metric Tons)</option>
                             </select>
-                          </div>
-
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (₹/{item.weightUnit === 'Tones' ? 'Tone' : 'KG'})</label>
-                            <input type="number" value={item.estimatedRate} onChange={(e) => handleLineItemAction("Update", idx, "estimatedRate", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -5485,7 +5462,7 @@ Powered by Stacli mandi os`;
                           ...lotCreationForm,
                           lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
                           vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
-                          lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending Auction" }]
+                          lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", weightUnit: "KGs", status: "Pending Auction" }]
                         });
                     }}>Reset Everything</Button>
                   </div>
