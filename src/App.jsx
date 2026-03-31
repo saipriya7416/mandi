@@ -5467,7 +5467,7 @@ Powered by Stacli mandi os`;
                           {groupedByProduct.map((group) => (
                             <div key={`${activeTab}-${group.product}`}>
                               <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.sidebar, marginBottom: "10px", letterSpacing: "0.3px" }}>
-                                {group.product}
+                                {`${group.product} Registered ${activeTab === "Suppliers" ? "Suppliers" : "Customers"}: ${group.items.length}`}
                               </div>
                               {group.items.length === 0 ? (
                                 <div style={{ fontSize: "12px", color: COLORS.muted, padding: "8px 4px" }}>
