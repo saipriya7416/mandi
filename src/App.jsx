@@ -18232,9 +18232,7 @@ Powered by Stacli mandi os`;
                   >
                     {viewingEntity.type} Profile
                   </h3>
-                  <p style={{ color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontSize: "12px", fontWeight: "600" }}>
-                    Comprehensive database record for {viewingEntity.data.name || viewingEntity.data.lotId || viewingEntity.data.billNumber || "Registered Record"}
-                  </p>
+
                 </div>
                 <button
                   onClick={() => setViewingEntity(null)}
