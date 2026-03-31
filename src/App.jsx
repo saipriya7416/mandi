@@ -1465,6 +1465,14 @@ export default function App() {
   const [invoiceSearchQuery, setInvoiceSearchQuery] = useState("");
   const [isEditingBuyerInvoice, setIsEditingBuyerInvoice] = useState(false);
   const [editingBuyerInvoiceId, setEditingBuyerInvoiceId] = useState(null);
+  const [billPhotoModal, setBillPhotoModal] = useState({
+    open: false,
+    imageUrl: "",
+    lotNo: "",
+    supplierName: "",
+    supplierId: "",
+    zoom: 1,
+  });
   const invoiceRef = useRef(null);
   const [lastGeneratedInvoice, setLastGeneratedInvoice] = useState(null);
   const billRef = useRef(null);
@@ -1492,6 +1500,27 @@ export default function App() {
     ];
     const allProducts = candidates.flatMap(parseProductList).filter(Boolean);
     return Array.from(new Set(allProducts));
+  };
+
+  const getSupplierIdValue = (record = {}) =>
+    record.supplierId ||
+    record.supplierCode ||
+    record.id ||
+    record._id ||
+    "";
+
+  const getCustomerIdValue = (record = {}) =>
+    record.buyerId ||
+    record.customerId ||
+    record.id ||
+    record._id ||
+    "";
+
+  const formatNameWithId = (name, id) => {
+    const n = String(name || "").trim();
+    const i = String(id || "").trim();
+    if (n && i) return `${n} - ${i}`;
+    return n || i || "N/A";
   };
 
   const getRegisteredProductOptions = (tabName) => {
@@ -1527,12 +1556,12 @@ export default function App() {
   const renderSupplierMemberCard = (s, keyPrefix = "supplier") => (
     <PremiumActionCard
       key={`${keyPrefix}-${s._id || s.id || s.name}`}
-      title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+      title={<SmartDataNode text={formatNameWithId(s.name, getSupplierIdValue(s))} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
       subtitle=""
       icon={ICON_USER}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
       details={[
-        { icon: ICON_USER, text: s.name },
+        { icon: ICON_USER, text: formatNameWithId(s.name, getSupplierIdValue(s)) },
         { icon: ICON_PHONE, text: s.phone || "N/A" },
         { icon: ICON_LOCATION, text: s.village || "Location N/A" },
       ]}
@@ -1552,12 +1581,12 @@ export default function App() {
   const renderBuyerMemberCard = (b, keyPrefix = "buyer") => (
     <PremiumActionCard
       key={`${keyPrefix}-${b._id || b.id || b.name}`}
-      title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
+      title={<SmartDataNode text={formatNameWithId(b.shopName || b.name, getCustomerIdValue(b))} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
       subtitle=""
       icon={ICON_SHOP}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
       details={[
-        { icon: ICON_USER, text: b.name },
+        { icon: ICON_USER, text: formatNameWithId(b.name, getCustomerIdValue(b)) },
         { icon: ICON_PHONE, text: b.phone || "N/A" },
         { icon: ICON_LOCATION, text: b.address || "Location N/A" },
       ]}
@@ -5342,7 +5371,7 @@ Powered by Stacli mandi os`;
                       {
                         title: "KYC Details",
                         fields: [
-                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN", "Voter ID"], value: supplierForm.idType, onChange: (e) => setSupplierForm({ ...supplierForm, idType: e.target.value }) },
+                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: supplierForm.idType, onChange: (e) => setSupplierForm({ ...supplierForm, idType: e.target.value }) },
                           { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: supplierForm.govIdNumber, onChange: (e) => setSupplierForm({ ...supplierForm, govIdNumber: e.target.value }) },
                         ],
                       },
@@ -5397,7 +5426,7 @@ Powered by Stacli mandi os`;
                       {
                         title: "KYC Details",
                         fields: [
-                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN", "Voter ID"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
+                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
                           { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
                         ],
                       },
@@ -5423,7 +5452,7 @@ Powered by Stacli mandi os`;
                     ]}
                   />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
-                    <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Supplier")}>â† Previous</Button>
+                    <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Supplier")}>Previous</Button>
                     <Button 
                       style={{ 
                         background: buyerSaveBtn.color || COLORS.sidebar, 
@@ -5772,7 +5801,7 @@ Powered by Stacli mandi os`;
                   </div>
                 </Card>
                 <div style={{ display: "flex", gap: "16px", marginTop: "20px", paddingBottom: "8px" }}>
-                  <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800" }} onClick={() => setActiveUserRoleTab("Buyer")}>â† Previous</Button>
+                  <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800" }} onClick={() => setActiveUserRoleTab("Buyer")}>Previous</Button>
                 </div>
                 </div>
               )}
@@ -5886,16 +5915,14 @@ Powered by Stacli mandi os`;
                           {
                             label: "Supplier Name *",
                             type: "dropdown",
-                            options: ["", ...suppliers.map((s) => s.name)],
+                            options: ["", ...suppliers.map((s) => formatNameWithId(s.name, getSupplierIdValue(s)))],
                             value: lotCreationForm.farmerId,
                             onChange: (e) => {
                               const val = e.target.value;
-                              const foundS = suppliers.find(
-                                (s) => s.name === val,
-                              );
+                              const foundS = suppliers.find((s) => formatNameWithId(s.name, getSupplierIdValue(s)) === val);
                               setLotCreationForm({
                                 ...lotCreationForm,
-                                farmerId: val,
+                                farmerId: foundS?.name || val,
                                 origin: foundS
                                   ? foundS.village || foundS.state || ""
                                   : lotCreationForm.origin,
@@ -6078,7 +6105,7 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={l._id || l.lotId}
-                              title={<SmartDataNode text={l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier")} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                              title={<SmartDataNode text={formatNameWithId((l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier")), (typeof l.supplierId === "object" ? l.supplierId?._id : l.supplierId))} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
                               subtitle=""
                               icon={ICON_TRUCK}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -6113,9 +6140,22 @@ Powered by Stacli mandi os`;
               {activeLotTab === "Produce Details" && (
                 <div style={{ animation: "fadeIn 0.4s ease-out" }}>
                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
-                    <div style={{ borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                         <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Produce Details</h3>
-                        <span style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot: {lotCreationForm.lotId} | Supplier: {lotCreationForm.farmerId || "N/A"}</span>
+                        {(() => {
+                          const selectedSupplier =
+                            suppliers.find((s) => s.name === lotCreationForm.farmerId) ||
+                            suppliers.find((s) => s._id === lotCreationForm.farmerId);
+                          const supplierName = selectedSupplier?.name || lotCreationForm.farmerId || "N/A";
+                          const supplierId = getSupplierIdValue(selectedSupplier) || "N/A";
+                          return (
+                            <div style={{ textAlign: "right", fontSize: "12px", fontWeight: "700", color: COLORS.muted, lineHeight: 1.6 }}>
+                              <div>LOT NO - {lotCreationForm.lotId || "N/A"}</div>
+                              <div>Supplier Name - {supplierName}</div>
+                              <div>Supplier ID - {supplierId}</div>
+                            </div>
+                          );
+                        })()}
                     </div>
                     
                     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -6124,7 +6164,7 @@ Powered by Stacli mandi os`;
                           
                           {idx > 0 && (
                             <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
-                              âŒ Remove
+                              Remove
                             </div>
                           )}
 
@@ -6194,7 +6234,7 @@ Powered by Stacli mandi os`;
 
                         </div>
                       ))}
-                      <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>+ Add Next Produce Item</Button>
+                      <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>Add Next Produce Item</Button>
                     </div>
                   </div>
               
@@ -6755,7 +6795,7 @@ Powered by Stacli mandi os`;
                       fontWeight: "800",
                     }}
                   >
-                    + Add Another Item
+                    Add Another Item
                   </Button>
                 </div>
               </div>
@@ -7658,7 +7698,7 @@ Powered by Stacli mandi os`;
                       }}
                       onClick={() => handleSupplierItemAction("Add")}
                     >
-                      + Add Next Sale Item
+                      Add Next Sale Item
                     </Button>
                   </div>
                   <div
@@ -7682,7 +7722,7 @@ Powered by Stacli mandi os`;
                         setActiveSupplierBillTab("Bill Header");
                       }}
                     >
-                      â† Previous
+                      Previous
                     </Button>
                     <Button
                       style={{
@@ -8091,7 +8131,7 @@ Powered by Stacli mandi os`;
                         setActiveSupplierBillTab("Produce Sold");
                       }}
                     >
-                      â† Previous
+                      Previous
                     </Button>
                     <Button
                       style={{
@@ -8580,7 +8620,7 @@ Powered by Stacli mandi os`;
                         setActiveSupplierBillTab("Expense Deductions");
                       }}
                     >
-                      â† Previous
+                      Previous
                     </Button>
                     <Button
                       style={{
@@ -9595,7 +9635,7 @@ Powered by Stacli mandi os`;
                       }}
                       onClick={() => handleBuyerInvoiceItemAction("Add")}
                     >
-                      + Add Next Invoice Item
+                      Add Next Invoice Item
                     </Button>
                   </div>
                   <div
@@ -9619,7 +9659,7 @@ Powered by Stacli mandi os`;
                         setActiveBuyerInvoiceTab("Invoice Header");
                       }}
                     >
-                      â† Previous
+                      Previous
                     </Button>
                     <Button
                       style={{
@@ -9887,7 +9927,7 @@ Powered by Stacli mandi os`;
                         setActiveBuyerInvoiceTab("Items Purchased");
                       }}
                     >
-                      â† Previous
+                      Previous
                     </Button>
                     <Button
                       style={{
@@ -10155,7 +10195,7 @@ Powered by Stacli mandi os`;
                         setActiveBuyerInvoiceTab("Additional Charges");
                       }}
                     >
-                      â† Previous
+                      Previous
                     </Button>
                     <Button
                       style={{
@@ -18441,11 +18481,41 @@ Powered by Stacli mandi os`;
                                 whiteSpace: key.toLowerCase() === "lineitems" ? "normal" : "nowrap"
                               }}
                             >
-                              {key === "billAttachment" && rawValue ? (
-                                <div onClick={() => window.open(rawValue, '_blank')} style={{ cursor: "pointer", display: "flex", flexDirection: "column", gap: "4px" }}>
-                                  <img src={rawValue} alt="Bill Clip" style={{ height: "40px", borderRadius: "4px", border: "1px solid #ddd" }} />
-                                  <span style={{ fontSize: "9px", color: COLORS.primary }}>Click for full view</span>
-                                </div>
+                              {key === "billAttachment" ? (
+                                rawValue ? (
+                                  <button
+                                    onClick={() =>
+                                      setBillPhotoModal({
+                                        open: true,
+                                        imageUrl: rawValue,
+                                        lotNo: viewingEntity.data.lotId || "N/A",
+                                        supplierName:
+                                          viewingEntity.data.farmerName ||
+                                          viewingEntity.data.supplierId?.name ||
+                                          "N/A",
+                                        supplierId:
+                                          (typeof viewingEntity.data.supplierId === "object"
+                                            ? viewingEntity.data.supplierId?._id
+                                            : viewingEntity.data.supplierId) || "N/A",
+                                        zoom: 1,
+                                      })
+                                    }
+                                    style={{
+                                      background: "#FFFFFF",
+                                      color: COLORS.sidebar,
+                                      border: "1px solid #CBD5E1",
+                                      borderRadius: "8px",
+                                      padding: "6px 10px",
+                                      fontSize: "11px",
+                                      fontWeight: "800",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    View Bill Photo
+                                  </button>
+                                ) : (
+                                  <span style={{ fontSize: "11px", color: COLORS.muted }}>No bill photo available</span>
+                                )
                               ) : key.toLowerCase() === "lineitems" && Array.isArray(rawValue) ? (
                                 <div style={{ minWidth: "450px", padding: "4px" }}>
                                   <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 4px", fontSize: "11px" }}>
@@ -18481,20 +18551,61 @@ Powered by Stacli mandi os`;
                 </div>
 
                 {/* BILL ATTACHMENT SECTION */}
-                {viewingEntity.type === "LOT" && viewingEntity.data.billAttachment && (
+                {viewingEntity.type === "LOT" && (
                   <div style={{ marginTop: "24px", padding: "20px", background: "#F1F5F9", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                       <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>📄 Attached Paper Bill / Photo</span>
-                       <button onClick={() => window.open(viewingEntity.data.billAttachment, '_blank')} style={{ background: COLORS.sidebar, color: "#fff", padding: "4px 12px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", border: "none" }}>Full View</button>
+                       <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>Attached Bill Photo</span>
+                       {viewingEntity.data.billAttachment ? (
+                         <button
+                           onClick={() =>
+                             setBillPhotoModal({
+                               open: true,
+                               imageUrl: viewingEntity.data.billAttachment,
+                               lotNo: viewingEntity.data.lotId || "N/A",
+                               supplierName:
+                                 viewingEntity.data.farmerName ||
+                                 viewingEntity.data.supplierId?.name ||
+                                 "N/A",
+                               supplierId:
+                                 (typeof viewingEntity.data.supplierId === "object"
+                                   ? viewingEntity.data.supplierId?._id
+                                   : viewingEntity.data.supplierId) || "N/A",
+                               zoom: 1,
+                             })
+                           }
+                           style={{ background: COLORS.sidebar, color: "#fff", padding: "4px 12px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", border: "none" }}
+                         >
+                           Open Attached Bill
+                         </button>
+                       ) : (
+                         <span style={{ fontSize: "11px", color: COLORS.muted }}>No bill photo available</span>
+                       )}
                     </div>
-                    <img 
-                       src={viewingEntity.data.billAttachment} 
-                       alt="Bill" 
-                       onClick={() => window.open(viewingEntity.data.billAttachment, '_blank')}
-                       style={{ width: "100%", maxHeight: "250px", objectFit: "contain", background: "#fff", borderRadius: "8px", cursor: "pointer", border: "1.5px solid #E2E8F0", transition: "transform 0.25s ease" }}
-                       onMouseOver={(e) => e.target.style.transform = "scale(1.02)"}
-                       onMouseOut={(e) => e.target.style.transform = "scale(1)"}
-                    />
+                    {viewingEntity.data.billAttachment ? (
+                      <img
+                        src={viewingEntity.data.billAttachment}
+                        alt="Bill"
+                        onClick={() =>
+                          setBillPhotoModal({
+                            open: true,
+                            imageUrl: viewingEntity.data.billAttachment,
+                            lotNo: viewingEntity.data.lotId || "N/A",
+                            supplierName:
+                              viewingEntity.data.farmerName ||
+                              viewingEntity.data.supplierId?.name ||
+                              "N/A",
+                            supplierId:
+                              (typeof viewingEntity.data.supplierId === "object"
+                                ? viewingEntity.data.supplierId?._id
+                                : viewingEntity.data.supplierId) || "N/A",
+                            zoom: 1,
+                          })
+                        }
+                        style={{ width: "100%", maxHeight: "250px", objectFit: "contain", background: "#fff", borderRadius: "8px", cursor: "pointer", border: "1.5px solid #E2E8F0", transition: "transform 0.25s ease" }}
+                      />
+                    ) : (
+                      <div style={{ fontSize: "12px", color: COLORS.muted, padding: "8px 0" }}>No bill photo available</div>
+                    )}
                   </div>
                 )}
 
@@ -18583,6 +18694,86 @@ Powered by Stacli mandi os`;
                 >
                   Close Profile
                 </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        {billPhotoModal.open && (
+          <div
+            onClick={() => setBillPhotoModal((prev) => ({ ...prev, open: false }))}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0,0,0,0.55)",
+              zIndex: 100000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                maxWidth: "980px",
+                maxHeight: "92vh",
+                background: "#FFFFFF",
+                borderRadius: "16px",
+                overflow: "hidden",
+                boxShadow: "0 24px 40px rgba(0,0,0,0.2)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderBottom: "1px solid #E2E8F0" }}>
+                <div style={{ fontWeight: "800", color: COLORS.sidebar, fontSize: "13px" }}>Attached Bill Preview</div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <button
+                    onClick={() => setBillPhotoModal((prev) => ({ ...prev, zoom: Math.max(0.6, Number(prev.zoom || 1) - 0.2) }))}
+                    style={{ border: "1px solid #CBD5E1", borderRadius: "6px", background: "#fff", padding: "4px 10px", cursor: "pointer", fontWeight: "800" }}
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={() => setBillPhotoModal((prev) => ({ ...prev, zoom: Math.min(3, Number(prev.zoom || 1) + 0.2) }))}
+                    style={{ border: "1px solid #CBD5E1", borderRadius: "6px", background: "#fff", padding: "4px 10px", cursor: "pointer", fontWeight: "800" }}
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() => setBillPhotoModal((prev) => ({ ...prev, open: false }))}
+                    style={{ border: "1px solid #CBD5E1", borderRadius: "6px", background: "#fff", padding: "4px 10px", cursor: "pointer", fontWeight: "800" }}
+                  >
+                    X
+                  </button>
+                </div>
+              </div>
+              <div style={{ flex: 1, overflow: "auto", background: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+                {billPhotoModal.imageUrl ? (
+                  <img
+                    src={billPhotoModal.imageUrl}
+                    alt="Bill"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                      transform: `scale(${billPhotoModal.zoom || 1})`,
+                      transformOrigin: "center center",
+                      transition: "transform 0.15s ease",
+                    }}
+                  />
+                ) : (
+                  <div style={{ color: COLORS.muted, fontSize: "13px", fontWeight: "700" }}>No bill photo available</div>
+                )}
+              </div>
+              <div style={{ padding: "10px 16px", borderTop: "1px solid #E2E8F0", fontSize: "12px", color: COLORS.sidebar, fontWeight: "700" }}>
+                <div>LOT NO - {billPhotoModal.lotNo || "N/A"}</div>
+                <div>Supplier Name - {billPhotoModal.supplierName || "N/A"}</div>
+                <div>Supplier ID - {billPhotoModal.supplierId || "N/A"}</div>
               </div>
             </div>
           </div>
