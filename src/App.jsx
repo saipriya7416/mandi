@@ -5306,7 +5306,7 @@ Powered by Stacli mandi os`;
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                       {lots
                         .filter(l => {
-                          const supplierName = (l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : l.farmerName) || "").toLowerCase();
+                          const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
                           const vehicleNo = (l.vehicleNumber || "").toLowerCase();
                           const query = (lotSearchQuery || "").toLowerCase();
                           return supplierName.includes(query) || vehicleNo.includes(query);
@@ -5321,7 +5321,7 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={l._id || l.lotId}
-                              title={<SmartDataNode text={l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : l.farmerName) || "Supplier"} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                              title={<SmartDataNode text={l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier")} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
                               subtitle=""
                               icon={ICON_TRUCK}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
