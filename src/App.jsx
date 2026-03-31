@@ -5202,7 +5202,7 @@ Powered by Stacli mandi os`;
                   >
                     <Button
                       style={{
-                        background: COLORS.sidebar,
+                        background: lotSaveBtn.color || COLORS.sidebar,
                         fontWeight: "800",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
                       }}
@@ -5215,10 +5215,17 @@ Powered by Stacli mandi os`;
                           alert("Please complete all Intake Details first!");
                           return;
                         }
-                        setActiveLotTab("Produce Details");
+                        setLotSaveBtn({
+                          label: "✅ Saved successfully",
+                          color: COLORS.success,
+                        });
+                        setTimeout(() => {
+                          setLotSaveBtn({ label: "Save", color: null });
+                          setActiveLotTab("Produce Details");
+                        }, 1000);
                       }}
                     >
-                      Save
+                      {lotSaveBtn.label}
                     </Button>
                     <Button
                       style={{
