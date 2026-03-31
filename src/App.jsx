@@ -135,7 +135,7 @@ const Input = ({
     <input
       type={type}
       placeholder={placeholder}
-      value={value}
+      {...(type !== 'file' ? { value } : {})}
       onChange={onChange}
       style={{
         width: "100%",
@@ -982,7 +982,7 @@ function FormGrid({ sections }) {
                       list={f.list}
                       placeholder={f.placeholder || ""}
                       disabled={f.disabled}
-                      value={f.value}
+                      {...(f.type !== "file" ? { value: f.value } : {})}
                       defaultValue={
                         f.value === undefined ? f.defaultValue : undefined
                       }
@@ -1728,7 +1728,7 @@ Powered by Stacli mandi os`;
           lotCreationForm.attachedBill,
           "INTAKE_BILL",
         );
-        fileUrl = uploadRes.url || "uploaded";
+        fileUrl = uploadRes.data?.url || uploadRes.url || "uploaded";
       } catch (err) {
         console.warn("Bill upload failed or API not configured", err);
       }
@@ -3785,7 +3785,7 @@ Powered by Stacli mandi os`;
                   onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                   style={{
                     width: "100%",
-                    padding: "18px 18px 18px 52px",
+                    padding: "18px 18px 18px 18px",
                     borderRadius: "14px",
                     border: "1.5px solid #eef2ee",
                     background: "#fff",
