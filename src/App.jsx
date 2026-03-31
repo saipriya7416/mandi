@@ -17670,7 +17670,7 @@ Powered by Stacli mandi os`;
                     <thead>
                       <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
                         {Object.entries(viewingEntity.data)
-                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName"].includes(key))
+                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId"].includes(key))
                           .map(([key]) => (
                             <th 
                               key={key} 
@@ -17685,7 +17685,7 @@ Powered by Stacli mandi os`;
                                 borderRight: "1px solid #EBE9E1"
                               }}
                             >
-                              {key.replace(/([A-Z])/g, " $1").trim()}
+                              {key === "farmerName" ? "Supplier Name" : key.replace(/([A-Z])/g, " $1").trim()}
                             </th>
                           ))}
                       </tr>
@@ -17693,7 +17693,7 @@ Powered by Stacli mandi os`;
                     <tbody>
                       <tr>
                         {Object.entries(viewingEntity.data)
-                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName"].includes(key))
+                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId"].includes(key))
                           .map(([key, rawValue]) => (
                             <td 
                               key={key} 
