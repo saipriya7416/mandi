@@ -827,6 +827,13 @@ const TabHeader = ({ tabs, active, set }) => (
   </div>
 );
 
+const getSelectPlaceholder = (fieldName) => {
+  const normalizedFieldName = String(fieldName || "Option")
+    .replace(/\*/g, "")
+    .trim();
+  return `Select ${normalizedFieldName}`;
+};
+
 // --- Smart Dropdown with "Others" Support Component ---
 // --- Smart Datalist with Manual Entry Support ---
 // This version removes the overt "Others" option from the list but allows typing anything.
@@ -865,7 +872,7 @@ function OthersDropdown({
         <input
           type="text"
           list={listId}
-          placeholder={placeholder || `Select ${label.replace(/\*/g, "").trim()}`}
+          placeholder={placeholder || getSelectPlaceholder(label)}
           value={value}
           onChange={onChange}
           disabled={disabled}
@@ -973,7 +980,7 @@ function FormGrid({ sections }) {
                       }}
                     >
                       {(!f.value || f.value === "") && (
-                        <option value="" disabled>Select {f.label.replace(/\*/g, "").trim()}</option>
+                        <option value="" disabled>{getSelectPlaceholder(f.label)}</option>
                       )}
                       {f.options && f.options.map((opt, i) => (
                         <option key={i} value={opt}>{opt}</option>
@@ -5377,7 +5384,7 @@ Powered by Stacli mandi os`;
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
                             <select value={item.productId} onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                               <option value="" disabled>Select Product</option>
+                              <option value="" disabled>{getSelectPlaceholder("Product")}</option>
                                {Object.keys(PRODUCT_DATA).filter(k => k !== "default").map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                           </div>
@@ -5385,7 +5392,7 @@ Powered by Stacli mandi os`;
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Variety *</label>
                             <select value={item.variety} onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                               <option value="" disabled>Select Variety</option>
+                              <option value="" disabled>{getSelectPlaceholder("Variety")}</option>
                                {(PRODUCT_DATA[item.productId]?.varieties || []).map(v => <option key={v} value={v}>{v}</option>)}
                             </select>
                           </div>
@@ -5393,7 +5400,7 @@ Powered by Stacli mandi os`;
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Grade</label>
                             <select value={item.grade} onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                               <option value="" disabled>Select Grade</option>
+                              <option value="" disabled>{getSelectPlaceholder("Grade")}</option>
                                <option value="A">A Grade</option>
                                <option value="B">B Grade</option>
                                <option value="C">C Grade</option>
@@ -5427,7 +5434,7 @@ Powered by Stacli mandi os`;
                                 }} 
                                 style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}
                             >
-                               <option value="" disabled>Select Weight Unit</option>
+                              <option value="" disabled>{getSelectPlaceholder("Weight Unit")}</option>
                                <option value="KGs">KGs (Kilograms)</option>
                                <option value="Tones">Tones (Metric Tons)</option>
                             </select>
@@ -6374,7 +6381,7 @@ Powered by Stacli mandi os`;
                           fontWeight: "600",
                         }}
                       >
-                        <option value="" disabled>Select Supplier Name</option>
+                        <option value="" disabled>{getSelectPlaceholder("Supplier Name")}</option>
                         {suppliers.map((s) => (
                           <option key={s._id} value={s.name}>
                             {s.name}
@@ -6489,7 +6496,7 @@ Powered by Stacli mandi os`;
                           cursor: "pointer"
                         }}
                       >
-                        <option value="" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Select Lot ID Reference</option>
+                        <option value="" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>{getSelectPlaceholder("Lot ID Reference")}</option>
                         {lots
                           .filter((l) => {
                             const matchedSupp = suppliers.find(
@@ -8291,7 +8298,7 @@ Powered by Stacli mandi os`;
                           cursor: "pointer"
                         }}
                       >
-                        <option value="" disabled style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Select Customer Name</option>
+                        <option value="" disabled style={{ background: "#e2e8f0", color: COLORS.sidebar }}>{getSelectPlaceholder("Customer Name")}</option>
                         {buyers.map((b) => (
                           <option key={b._id} value={b._id} style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
                             {b.name}
@@ -8373,7 +8380,7 @@ Powered by Stacli mandi os`;
                           fontWeight: "600",
                         }}
                       >
-                        <option value="">Select Lot Reference</option>
+                        <option value="">{getSelectPlaceholder("Lot Reference")}</option>
                         {lots.map((l) => (
                           <option key={l._id || l.lotId} value={l.lotId}>
                             {l.supplierId?.name || l.supplierId || "Farmer"} â€” {l.lotId}
@@ -8607,7 +8614,7 @@ Powered by Stacli mandi os`;
                             }}
                           >
                             <option value="">
-                              -- Choose available item from Lot --
+                              {getSelectPlaceholder("Available Item from Lot")}
                             </option>
                             {(() => {
                               const currentLot = lots.find(
@@ -9765,7 +9772,7 @@ Powered by Stacli mandi os`;
                           }}
                         >
                           <option value="" disabled>
-                            Choose Supplier
+                            {getSelectPlaceholder("Supplier")}
                           </option>
                           {suppliers.map((s) => (
                             <option key={s._id} value={s._id}>
@@ -10317,7 +10324,7 @@ Powered by Stacli mandi os`;
                             }}
                           >
                             <option value="" disabled>
-                              Choose Buyer
+                              {getSelectPlaceholder("Buyer")}
                             </option>
                             {buyers.map((b) => (
                               <option key={b._id} value={b._id}>
@@ -11101,7 +11108,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">Select Supplier Name</option>
+                          <option value="">{getSelectPlaceholder("Supplier Name")}</option>
                           {suppliers.map((s) => (
                             <option key={s._id} value={s._id}>
                               {s.name} ({s.village || "Local"})
@@ -11141,7 +11148,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">Select Lot ID Reference</option>
+                          <option value="">{getSelectPlaceholder("Lot ID Reference")}</option>
                           {Array.from(
                             new Set(
                               (supplierBills || []).map((b) => b && (b.lotId || b.lotCode)),
@@ -11452,7 +11459,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">Select Customer Name</option>
+                          <option value="">{getSelectPlaceholder("Customer Name")}</option>
                           {buyers.map((b) => (
                             <option key={b._id} value={b._id}>
                               {b.name} ({b.shopName || "Trader"})
@@ -11492,7 +11499,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">Select Invoice</option>
+                          <option value="">{getSelectPlaceholder("Invoice")}</option>
                           {Array.from(
                             new Set(
                               (buyerInvoices || []).map((inv) => inv && (inv.invoiceNumber || inv.invoiceNo)),
@@ -11865,7 +11872,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          <option value="">Select Lot ID Reference</option>
+                          <option value="">{getSelectPlaceholder("Lot ID Reference")}</option>
                           <option>LOT-X122 (Alphonso)</option>
                           <option>LOT-Y45 (Banana)</option>
                         </select>
@@ -12386,7 +12393,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          <option value="">Select Invoice</option>
+                          <option value="">{getSelectPlaceholder("Invoice")}</option>
                           <option>INV-2026-X12</option>
                           <option>INV-2026-X45</option>
                         </select>
@@ -12781,7 +12788,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          <option value="" disabled>Select Delivery Status</option>
+                          <option value="" disabled>{getSelectPlaceholder("Delivery Status")}</option>
                           <option>Pending</option>
                           <option>In Transit</option>
                           <option>Delivered</option>
@@ -14104,7 +14111,7 @@ Powered by Stacli mandi os`;
                               fontWeight: "600",
                             }}
                           >
-                            <option value="" disabled>Select Default Grade</option>
+                            <option value="" disabled>{getSelectPlaceholder("Default Grade")}</option>
                             <option>A-Grade</option>
                             <option>B-Grade</option>
                             <option>C-Grade</option>
@@ -14141,7 +14148,7 @@ Powered by Stacli mandi os`;
                               fontWeight: "600",
                             }}
                           >
-                            <option value="" disabled>Select Standard Unit</option>
+                            <option value="" disabled>{getSelectPlaceholder("Standard Unit")}</option>
                             <option>KG</option>
                             <option>Crate</option>
                             <option>Box</option>
@@ -14310,7 +14317,7 @@ Powered by Stacli mandi os`;
                               border: "1px solid #e2e8f0",
                             }}
                           >
-                            <option value="" disabled>Select Calculation Type</option>
+                            <option value="" disabled>{getSelectPlaceholder("Calculation Type")}</option>
                             <option>Percentage (%)</option>
                             <option>Fixed Amount (₹)</option>
                           </select>
@@ -14561,7 +14568,7 @@ Powered by Stacli mandi os`;
                             border: "1px solid #e2e8f0",
                           }}
                         >
-                          <option value="" disabled>Select Financial Year Cycle</option>
+                          <option value="" disabled>{getSelectPlaceholder("Financial Year Cycle")}</option>
                           <option>Aprilâ€“March (India)</option>
                           <option>Januaryâ€“December</option>
                         </select>
@@ -14779,7 +14786,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          <option value="" disabled>Select System Role</option>
+                          <option value="" disabled>{getSelectPlaceholder("System Role")}</option>
                           <option>Accountant</option>
                           <option>Operations Staff</option>
                           <option>Viewer (Read-Only)</option>
@@ -16200,7 +16207,7 @@ Powered by Stacli mandi os`;
                                 background: "#f8fafc",
                               }}
                             >
-                               <option value="" disabled>Select {f}</option>
+                              <option value="" disabled>{getSelectPlaceholder(f)}</option>
                             </select>
                           ))}
                         </div>
