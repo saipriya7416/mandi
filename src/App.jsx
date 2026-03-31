@@ -877,8 +877,10 @@ function ModernMultiSelectField({
 }) {
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [draftSelected, setDraftSelected] = useState([]);
   const selectedValues = parseMultiValue(value);
   const normalizedSelected = selectedValues.map((v) => v.toLowerCase());
+  const normalizedDraft = draftSelected.map((v) => v.toLowerCase());
   const normalizedOptions = (options || []).map((opt) => String(opt || "").trim()).filter(Boolean);
   const filteredOptions = normalizedOptions.filter((opt) =>
     opt.toLowerCase().includes(searchText.toLowerCase()),
@@ -886,21 +888,46 @@ function ModernMultiSelectField({
   const canAddManual =
     searchText.trim() &&
     !normalizedOptions.some((o) => o.toLowerCase() === searchText.trim().toLowerCase()) &&
-    !normalizedSelected.includes(searchText.trim().toLowerCase());
+    !normalizedDraft.includes(searchText.trim().toLowerCase());
+
+  useEffect(() => {
+    if (open) setDraftSelected(selectedValues);
+  }, [open, value]);
 
   const emitSelection = (nextValues) => {
     onChange?.({ target: { value: nextValues.join(" / ") } });
   };
 
-  const toggleValue = (nextValue) => {
-    const exists = normalizedSelected.includes(String(nextValue).toLowerCase());
-    if (exists) {
-      emitSelection(
-        selectedValues.filter((v) => v.toLowerCase() !== String(nextValue).toLowerCase()),
-      );
-      return;
+  const closeDropdown = () => {
+    setOpen(false);
+    setSearchText("");
+    if (document?.activeElement && typeof document.activeElement.blur === "function") {
+      document.activeElement.blur();
     }
-    emitSelection([...selectedValues, nextValue]);
+  };
+
+  const applySelection = () => {
+    emitSelection(draftSelected);
+    closeDropdown();
+  };
+
+  const cancelSelection = () => {
+    setDraftSelected(selectedValues);
+    closeDropdown();
+  };
+
+  const toggleValue = (nextValue) => {
+    const exists = normalizedDraft.includes(String(nextValue).toLowerCase());
+    const nextDraft = exists
+      ? draftSelected.filter((v) => v.toLowerCase() !== String(nextValue).toLowerCase())
+      : [...draftSelected, nextValue];
+    setDraftSelected(nextDraft);
+
+    // Fast single selection closes immediately.
+    if (!exists && selectedValues.length === 0 && nextDraft.length === 1 && !searchText.trim()) {
+      emitSelection(nextDraft);
+      closeDropdown();
+    }
   };
 
   return (
@@ -946,7 +973,11 @@ function ModernMultiSelectField({
               <span>{chip}</span>
               <button
                 type="button"
-                onClick={() => toggleValue(chip)}
+                onClick={() =>
+                  emitSelection(
+                    selectedValues.filter((v) => v.toLowerCase() !== chip.toLowerCase()),
+                  )
+                }
                 style={{ border: "none", background: "transparent", cursor: "pointer", color: "#64748B", fontWeight: "900" }}
               >
                 ✕
@@ -975,6 +1006,16 @@ function ModernMultiSelectField({
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && canAddManual) {
+                const manualValue = searchText.trim();
+                const nextDraft = [...draftSelected, manualValue];
+                emitSelection(nextDraft);
+                closeDropdown();
+              } else if (e.key === "Escape") {
+                cancelSelection();
+              }
+            }}
             placeholder={getModernMultiSelectPlaceholder(label)}
             style={{
               width: "100%",
@@ -988,7 +1029,7 @@ function ModernMultiSelectField({
           />
           <div style={{ maxHeight: "190px", overflowY: "auto" }}>
             {filteredOptions.map((opt) => {
-              const checked = normalizedSelected.includes(opt.toLowerCase());
+              const checked = normalizedDraft.includes(opt.toLowerCase());
               return (
                 <label key={opt} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 4px", cursor: "pointer" }}>
                   <input type="checkbox" checked={checked} onChange={() => toggleValue(opt)} />
@@ -1000,8 +1041,10 @@ function ModernMultiSelectField({
               <button
                 type="button"
                 onClick={() => {
-                  toggleValue(searchText.trim());
-                  setSearchText("");
+                  const manualValue = searchText.trim();
+                  const nextDraft = [...draftSelected, manualValue];
+                  emitSelection(nextDraft);
+                  closeDropdown();
                 }}
                 style={{
                   width: "100%",
@@ -1019,6 +1062,40 @@ function ModernMultiSelectField({
                 Add "{searchText.trim()}"
               </button>
             )}
+          </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "10px", paddingTop: "8px", borderTop: "1px solid #D7DEE6" }}>
+            <button
+              type="button"
+              onClick={cancelSelection}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "8px",
+                border: "1px solid #CBD5E1",
+                background: "#FFFFFF",
+                color: "#334155",
+                fontSize: "12px",
+                fontWeight: "700",
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={applySelection}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "8px",
+                border: "1px solid #D4A017",
+                background: "#D4A017",
+                color: "#FFFFFF",
+                fontSize: "12px",
+                fontWeight: "800",
+                cursor: "pointer",
+              }}
+            >
+              Apply
+            </button>
           </div>
         </div>
       )}
