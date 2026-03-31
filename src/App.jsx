@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import "./index.css";
@@ -1741,9 +1741,9 @@ Powered by Stacli mandi os`;
     const payload = {
       lotId: lotCreationForm.lotId,
       entryDate: lotCreationForm.dateTime,
-      supplierId: matchedSupplier
-        ? matchedSupplier._id
-        : lotCreationForm.farmerId,
+      supplierId: matchedSupplier ? matchedSupplier._id : lotCreationForm.farmerId,
+      farmerName: matchedSupplier ? matchedSupplier.name : lotCreationForm.farmerId,
+      phone: matchedSupplier ? matchedSupplier.phone : "+917416372496", // Default phone if not found
       vehicleNumber: lotCreationForm.vehicleNumber,
       driverName: lotCreationForm.driverName,
       origin: lotCreationForm.origin,
@@ -4254,7 +4254,7 @@ Powered by Stacli mandi os`;
                   border: `1px solid ${COLORS.primary}20`,
                 }}
               >
-                ðŸ“…{" "}
+                🗓️{" "}
                 {new Date().toLocaleDateString("en-IN", {
                   weekday: "long",
                   day: "numeric",
@@ -4287,6 +4287,7 @@ Powered by Stacli mandi os`;
             </div>
           </div>
         </header>
+
 
         {/* --- MODULE DISPATCHER --- */}
         <div style={{ animation: "fadeIn 0.6s ease-out" }}>
@@ -5305,7 +5306,7 @@ Powered by Stacli mandi os`;
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
                       {lots
                         .filter(l => {
-                          const supplierName = (l.supplierId?.name || l.farmerName || "").toLowerCase();
+                          const supplierName = (l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : l.farmerName) || "").toLowerCase();
                           const vehicleNo = (l.vehicleNumber || "").toLowerCase();
                           const query = (lotSearchQuery || "").toLowerCase();
                           return supplierName.includes(query) || vehicleNo.includes(query);
@@ -5320,7 +5321,7 @@ Powered by Stacli mandi os`;
                           return (
                             <PremiumActionCard
                               key={l._id || l.lotId}
-                              title={<SmartDataNode text={l.supplierId?.name || l.farmerName || "Supplier"} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                              title={<SmartDataNode text={l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : l.farmerName) || "Supplier"} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
                               subtitle=""
                               icon={ICON_TRUCK}
                               status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -17661,24 +17662,6 @@ Powered by Stacli mandi os`;
                   </h3>
 
                 </div>
-                <button
-                  onClick={() => setViewingEntity(null)}
-                  style={{
-                    background: "rgba(255,255,255,0.1)",
-                    border: "none",
-                    color: "#FFFFFF",
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "50%",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "20px",
-                  }}
-                >
-                  Ã—
-                </button>
               </div>
 
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
@@ -17710,7 +17693,7 @@ Powered by Stacli mandi os`;
                     <tbody>
                       <tr>
                         {Object.entries(viewingEntity.data)
-                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName"].includes(key))
+                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "billAttachment"].includes(key))
                           .map(([key, rawValue]) => (
                             <td 
                               key={key} 
@@ -17723,24 +17706,28 @@ Powered by Stacli mandi os`;
                               }}
                             >
                               {key.toLowerCase() === "lineitems" && Array.isArray(rawValue) ? (
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", minWidth: "300px" }}>
-                                  {rawValue.map((item, i) => (
-                                    <div key={i} style={{ 
-                                      background: "#F8FAFC", 
-                                      border: "1.5px solid #E2E8F0", 
-                                      padding: "8px 12px", 
-                                      borderRadius: "10px",
-                                      fontSize: "11px"
-                                    }}>
-                                      <div style={{ color: COLORS.sidebar, fontWeight: "900", marginBottom: "2px" }}>
-                                        {item.productId || item.product || "N/A"} â€” {item.variety || "Standard"}
-                                      </div>
-                                      <div style={{ color: COLORS.muted, fontSize: "10px" }}>
-                                        {item.grossWeight || 0} {item.weightUnit || "KG"} @ <span style={{ color: COLORS.primary, fontWeight: "800" }}>â‚¹{item.estimatedRate || item.rate || 0}</span>
-                                      </div>
-                                    </div>
-                                  ))}
-                                  {rawValue.length === 0 && <span style={{ color: COLORS.muted, fontSize: "11px" }}>No items</span>}
+                                <div style={{ minWidth: "450px", padding: "4px" }}>
+                                  <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 4px", fontSize: "11px" }}>
+                                    <thead>
+                                      <tr style={{ color: COLORS.muted, textAlign: "left", fontSize: "10px" }}>
+                                        <th style={{ padding: "4px 8px" }}>Product</th>
+                                        <th style={{ padding: "4px 8px" }}>Variety</th>
+                                        <th style={{ padding: "4px 8px", textAlign: "right" }}>Quantity</th>
+                                        <th style={{ padding: "4px 8px", textAlign: "right" }}>Est. Rate</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {rawValue.map((item, i) => (
+                                        <tr key={i} style={{ background: "#FDFBF4", border: "1px solid #EBE9E1" }}>
+                                          <td style={{ padding: "8px", borderRadius: "8px 0 0 8px", fontWeight: "900", color: COLORS.sidebar, border: "1px solid #EBE9E1", borderRight: "none" }}>{item.productId || item.product || "N/A"}</td>
+                                          <td style={{ padding: "8px", fontWeight: "700", color: COLORS.muted, borderTop: "1px solid #EBE9E1", borderBottom: "1px solid #EBE9E1" }}>{item.variety || "-"}</td>
+                                          <td style={{ padding: "8px", textAlign: "right", fontWeight: "800", color: COLORS.sidebar, borderTop: "1px solid #EBE9E1", borderBottom: "1px solid #EBE9E1" }}>{item.grossWeight || 0} {item.weightUnit || "KG"}</td>
+                                          <td style={{ padding: "8px", textAlign: "right", borderRadius: "0 8px 8px 0", fontWeight: "900", color: COLORS.primary, border: "1px solid #EBE9E1", borderLeft: "none" }}>₹{item.estimatedRate || item.rate || 0}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                  {rawValue.length === 0 && <span style={{ color: COLORS.muted, fontSize: "11px", padding: "8px" }}>No items recorded</span>}
                                 </div>
                               ) : typeof rawValue === 'object' && rawValue !== null 
                                 ? JSON.stringify(rawValue) 
@@ -17753,6 +17740,24 @@ Powered by Stacli mandi os`;
                     </tbody>
                   </table>
                 </div>
+
+                {/* BILL ATTACHMENT SECTION */}
+                {viewingEntity.type === "LOT" && viewingEntity.data.billAttachment && (
+                  <div style={{ marginTop: "24px", padding: "20px", background: "#F1F5F9", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                       <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>ðŸ“„ Attached Paper Bill / Photo</span>
+                       <button onClick={() => window.open(viewingEntity.data.billAttachment, '_blank')} style={{ background: COLORS.sidebar, color: "#fff", padding: "4px 12px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", border: "none" }}>Full View</button>
+                    </div>
+                    <img 
+                       src={viewingEntity.data.billAttachment} 
+                       alt="Bill" 
+                       onClick={() => window.open(viewingEntity.data.billAttachment, '_blank')}
+                       style={{ width: "100%", maxHeight: "250px", objectFit: "contain", background: "#fff", borderRadius: "8px", cursor: "pointer", border: "1.5px solid #E2E8F0", transition: "transform 0.25s ease" }}
+                       onMouseOver={(e) => e.target.style.transform = "scale(1.02)"}
+                       onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+                    />
+                  </div>
+                )}
 
                 {/* SPECIAL TABLE FOR GROUPED ALLOCATIONS OR LOT TRACEABILITY */}
                 {(() => {
