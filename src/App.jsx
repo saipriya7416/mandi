@@ -1051,6 +1051,7 @@ export default function App() {
   const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Buyer', data: ... }
   const [supplierSaveBtn, setSupplierSaveBtn] = useState({ label: "Save", color: null });
   const [buyerSaveBtn, setBuyerSaveBtn] = useState({ label: "Save", color: null });
+  const [lotSaveBtn, setLotSaveBtn] = useState({ label: "Save", color: null });
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [lotSearchQuery, setLotSearchQuery] = useState("");
@@ -1764,9 +1765,8 @@ Powered by Stacli mandi os`;
       if (res.status === "ERROR")
         return alert("Intake registration error: " + res.message);
 
-      alert(
-        `✅ LOT CREATED: ${lotCreationForm.lotId} permanently stored in Database!`,
-      );
+      setLotSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
+      setTimeout(() => setLotSaveBtn({ label: "Save", color: null }), 3000);
 
       const nextCounter = lotCounter + 1;
       setLotCounter(nextCounter);
@@ -5114,7 +5114,7 @@ Powered by Stacli mandi os`;
                           },
                           {
                             label: "Supplier Name *",
-                            type: "select",
+                            type: "dropdown",
                             options: ["", ...suppliers.map((s) => s.name)],
                             value: lotCreationForm.farmerId,
                             onChange: (e) => {
@@ -5198,9 +5198,10 @@ Powered by Stacli mandi os`;
                   >
                     <Button
                       style={{
-                        background: COLORS.sidebar,
+                        background: lotSaveBtn.color || COLORS.sidebar,
                         fontWeight: "800",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                        transition: "all 0.3s ease",
                       }}
                       onClick={() => {
                         if (
@@ -5211,32 +5212,14 @@ Powered by Stacli mandi os`;
                           alert("Please complete all Intake Details first!");
                           return;
                         }
-                        setActiveLotTab("Produce Details");
+                        
+                        setLotSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
+                        setTimeout(() => setLotSaveBtn({ label: "Save", color: null }), 3000);
+                        
+                        setTimeout(() => setActiveLotTab("Produce Details"), 800);
                       }}
                     >
-                      Save
-                    </Button>
-                    <Button
-                      style={{
-                        background: COLORS.sidebar,
-                        color: "#fff",
-                        border: "none",
-                        fontWeight: "900",
-                        boxShadow: `0 4px 12px ${COLORS.sidebar}30`,
-                      }}
-                      onClick={() => {
-                        if (
-                          !lotCreationForm.farmerId ||
-                          !lotCreationForm.vehicleNumber ||
-                          !lotCreationForm.origin
-                        ) {
-                          alert("Please complete all Intake Details first!");
-                          return;
-                        }
-                        setActiveLotTab("Produce Details");
-                      }}
-                    >
-                      Next →
+                      {lotSaveBtn.label}
                     </Button>
                     <Button
                       style={{
@@ -5492,35 +5475,67 @@ Powered by Stacli mandi os`;
                             </div>
                           </div>
 
-                          <OthersDropdown
-                            label="Product"
-                            required
-                            value={item.productId}
-                            options={Object.keys(PRODUCT_DATA).filter((k) => k !== "default")}
-                            onChange={(e) =>
-                              handleLineItemAction(
-                                "Update",
-                                idx,
-                                "productId",
-                                e.target.value,
-                              )
-                            }
-                          />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
+                            <select
+                              value={item.productId}
+                              onChange={(e) =>
+                                handleLineItemAction(
+                                  "Update",
+                                  idx,
+                                  "productId",
+                                  e.target.value,
+                                )
+                              }
+                              style={{
+                                padding: "12px 14px",
+                                borderRadius: "8px",
+                                border: "1.5px solid #EBE9E1",
+                                backgroundColor: "#FFFFFF",
+                                color: COLORS.sidebar,
+                                outline: "none",
+                                fontSize: "13px",
+                                fontWeight: "600",
+                                cursor: "pointer",
+                                appearance: "auto"
+                              }}
+                            >
+                              {["", ...Array.from(new Set([...DB.Fruits, ...DB.Vegetables])).sort()].map(p => (
+                                <option key={p} value={p}>{p || "Select Product..."}</option>
+                              ))}
+                            </select>
+                          </div>
 
-                          <OthersDropdown
-                            label="Variety"
-                            required
-                            value={item.variety}
-                            options={PRODUCT_DATA[item.productId]?.varieties || []}
-                            onChange={(e) =>
-                              handleLineItemAction(
-                                "Update",
-                                idx,
-                                "variety",
-                                e.target.value,
-                              )
-                            }
-                          />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Variety *</label>
+                            <select
+                              value={item.variety}
+                              onChange={(e) =>
+                                handleLineItemAction(
+                                  "Update",
+                                  idx,
+                                  "variety",
+                                  e.target.value,
+                                )
+                              }
+                              style={{
+                                padding: "12px 14px",
+                                borderRadius: "8px",
+                                border: "1.5px solid #EBE9E1",
+                                backgroundColor: "#FFFFFF",
+                                color: COLORS.sidebar,
+                                outline: "none",
+                                fontSize: "13px",
+                                fontWeight: "600",
+                                cursor: "pointer",
+                                appearance: "auto"
+                              }}
+                            >
+                              {["", ...(getProductData(item.productId).varieties || [])].map(v => (
+                                <option key={v} value={v}>{v || "Select Variety..."}</option>
+                              ))}
+                            </select>
+                          </div>
 
                           <div
                             style={{
@@ -5551,20 +5566,21 @@ Powered by Stacli mandi os`;
                               style={{
                                 padding: "12px 14px",
                                 borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
+                                border: "1.5px solid #EBE9E1",
                                 backgroundColor: "#FFFFFF",
                                 color: COLORS.sidebar,
                                 outline: "none",
                                 fontSize: "13px",
                                 fontWeight: "600",
-                                cursor: "pointer"
+                                cursor: "pointer",
+                                appearance: "auto"
                               }}
                             >
-                              <option value="A" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>A Grade</option>
-                              <option value="B" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>B Grade</option>
-                              <option value="C" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>C Grade</option>
-                              <option value="Export" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Export</option>
-                              <option value="Local" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Local</option>
+                              <option value="A">A Grade</option>
+                              <option value="B">B Grade</option>
+                              <option value="C">C Grade</option>
+                              <option value="Export">Export</option>
+                              <option value="Local">Local</option>
                             </select>
                           </div>
 
@@ -5992,43 +6008,20 @@ Powered by Stacli mandi os`;
                   <div
                     style={{ display: "flex", gap: "16px", marginTop: "32px" }}
                   >
+
                     <Button
                       style={{
-                        background: "#EBE9E1",
-                        color: COLORS.sidebar,
+                        background: lotSaveBtn.color || COLORS.sidebar,
                         fontWeight: "800",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                        border: "none",
-                      }}
-                      onClick={() => setActiveLotTab("LOT Creation")}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      style={{
-                        background: COLORS.sidebar,
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                        transition: "all 0.3s ease",
                       }}
                       onClick={handleRegisterLot}
                     >
-                      Save
+                      {lotSaveBtn.label}
                     </Button>
 
-                    {isAdmin && (
-                      <Button
-                        style={{
-                          background: "#FCFAEF",
-                          color: "#9EB343",
-                          border: "1.5px solid #E3E5DD",
-                          fontWeight: "800",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                        }}
-                        onClick={() => alert("Edit Mode enabled for Admin")}
-                      >
-                        Edit
-                      </Button>
-                    )}
+
 
                     <Button
                       style={{
@@ -6162,7 +6155,7 @@ Powered by Stacli mandi os`;
                       },
                       {
                         label: "Customer Name *",
-                        type: "select",
+                        type: "dropdown",
                         options: ["", ...buyers.map((b) => b.name)],
                         value: allocationForm.buyerId,
                         onChange: (e) => {
@@ -6330,19 +6323,10 @@ Powered by Stacli mandi os`;
                           DELETE
                         </div>
                       </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                        }}
-                      >
-                        <OthersDropdown
-                          label="Product / Variety / Grade"
-                          required
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product / Variety / Grade *</label>
+                        <select
                           value={item.lineItemId}
-                          options={(lots.find((l) => l.lotId === allocationForm.lotId)?.lineItems || []).map((li) => `${li.productId} / ${li.variety} / ${li.grade}`)}
                           onChange={(e) =>
                             handleAllocationItemAction(
                               "Update",
@@ -6351,8 +6335,24 @@ Powered by Stacli mandi os`;
                               e.target.value,
                             )
                           }
-                          style={{ flex: "none" }}
-                        />
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: "8px",
+                            border: "1.5px solid #EBE9E1",
+                            backgroundColor: "#FFFFFF",
+                            color: COLORS.sidebar,
+                            outline: "none",
+                            fontSize: "13px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            appearance: "auto",
+                          }}
+                        >
+                          {["", ...(lots.find((l) => (l.lotId || l._id) === allocationForm.lotId)?.lineItems || [])].map((li) => {
+                            const val = typeof li === 'string' ? li : `${li.productId} / ${li.variety} / ${li.grade}`;
+                            return <option key={val} value={val}>{val || "Select produce..."}</option>;
+                          })}
+                        </select>
                       </div>
 
                       <div
@@ -18297,7 +18297,9 @@ Powered by Stacli mandi os`;
                             >
                               {typeof rawValue === 'object' && rawValue !== null 
                                 ? JSON.stringify(rawValue) 
-                                : String(rawValue || "N/A")}
+                                : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
+                                  ? rawValue.split('T')[0] 
+                                  : String(rawValue || "N/A")}
                             </td>
                           ))}
                       </tr>
