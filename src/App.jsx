@@ -17695,7 +17695,6 @@ Powered by Stacli mandi os`;
                                         <th style={{ padding: "4px 8px" }}>Product</th>
                                         <th style={{ padding: "4px 8px" }}>Variety</th>
                                         <th style={{ padding: "4px 8px", textAlign: "right" }}>Quantity</th>
-                                        <th style={{ padding: "4px 8px", textAlign: "right" }}>Est. Rate</th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -17703,8 +17702,7 @@ Powered by Stacli mandi os`;
                                         <tr key={i} style={{ background: "#FDFBF4", border: "1px solid #EBE9E1" }}>
                                           <td style={{ padding: "8px", borderRadius: "8px 0 0 8px", fontWeight: "900", color: COLORS.sidebar, border: "1px solid #EBE9E1", borderRight: "none" }}>{item.productId || item.product || "N/A"}</td>
                                           <td style={{ padding: "8px", fontWeight: "700", color: COLORS.muted, borderTop: "1px solid #EBE9E1", borderBottom: "1px solid #EBE9E1" }}>{item.variety || "-"}</td>
-                                          <td style={{ padding: "8px", textAlign: "right", fontWeight: "800", color: COLORS.sidebar, borderTop: "1px solid #EBE9E1", borderBottom: "1px solid #EBE9E1" }}>{item.grossWeight || 0} {item.weightUnit || "KG"}</td>
-                                          <td style={{ padding: "8px", textAlign: "right", borderRadius: "0 8px 8px 0", fontWeight: "900", color: COLORS.primary, border: "1px solid #EBE9E1", borderLeft: "none" }}>₹{item.estimatedRate || item.rate || 0}</td>
+                                          <td style={{ padding: "8px", textAlign: "right", borderRadius: "0 8px 8px 0", fontWeight: "800", color: COLORS.sidebar, border: "1px solid #EBE9E1", borderLeft: "none" }}>{item.grossWeight || 0} {item.weightUnit || "KG"}</td>
                                         </tr>
                                       ))}
                                     </tbody>
