@@ -865,7 +865,7 @@ function OthersDropdown({
         <input
           type="text"
           list={listId}
-          placeholder={placeholder || "Type or Select..."}
+          placeholder={placeholder || `Select ${label.replace(/\*/g, "").trim()}`}
           value={value}
           onChange={onChange}
           disabled={disabled}
@@ -972,6 +972,9 @@ function FormGrid({ sections }) {
                         appearance: "auto",
                       }}
                     >
+                      {(!f.value || f.value === "") && (
+                        <option value="" disabled>Select {f.label.replace(/\*/g, "").trim()}</option>
+                      )}
                       {f.options && f.options.map((opt, i) => (
                         <option key={i} value={opt}>{opt}</option>
                       ))}
@@ -5755,7 +5758,7 @@ Powered by Stacli mandi os`;
                         >
                           {["", ...(lots.find((l) => (l.lotId || l._id) === allocationForm.lotId)?.lineItems || [])].map((li) => {
                             const val = typeof li === 'string' ? li : `${li.productId} / ${li.variety} / ${li.grade}`;
-                            return <option key={val} value={val}>{val || "Select produce..."}</option>;
+                            return <option key={val} value={val}>{val || "Select Produce"}</option>;
                           })}
                         </select>
                       </div>
@@ -6369,9 +6372,7 @@ Powered by Stacli mandi os`;
                           fontWeight: "600",
                         }}
                       >
-                        <option value="" disabled>
-                          Select Supplier
-                        </option>
+                        <option value="" disabled>Select Farmer</option>
                         {suppliers.map((s) => (
                           <option key={s._id} value={s.name}>
                             {s.name}
@@ -6486,9 +6487,7 @@ Powered by Stacli mandi os`;
                           cursor: "pointer"
                         }}
                       >
-                        <option value="" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
-                          -- Auto-filled from Supplier --
-                        </option>
+                        <option value="" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Select Lot ID</option>
                         {lots
                           .filter((l) => {
                             const matchedSupp = suppliers.find(
@@ -8290,9 +8289,7 @@ Powered by Stacli mandi os`;
                           cursor: "pointer"
                         }}
                       >
-                        <option value="" disabled style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
-                          Select Customer
-                        </option>
+                        <option value="" disabled style={{ background: "#e2e8f0", color: COLORS.sidebar }}>Select Customer</option>
                         {buyers.map((b) => (
                           <option key={b._id} value={b._id} style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
                             {b.name}
@@ -11102,7 +11099,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">--- All Suppliers ---</option>
+                          <option value="">Select Farmer</option>
                           {suppliers.map((s) => (
                             <option key={s._id} value={s._id}>
                               {s.name} ({s.village || "Local"})
@@ -11142,7 +11139,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">--- Select Lot ID ---</option>
+                          <option value="">Select Lot ID</option>
                           {Array.from(
                             new Set(
                               (supplierBills || []).map((b) => b && (b.lotId || b.lotCode)),
@@ -11453,7 +11450,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">--- All Customers ---</option>
+                          <option value="">Select Customer</option>
                           {buyers.map((b) => (
                             <option key={b._id} value={b._id}>
                               {b.name} ({b.shopName || "Trader"})
@@ -11493,7 +11490,7 @@ Powered by Stacli mandi os`;
                             background: "#fff",
                           }}
                         >
-                          <option value="">--- Select Invoice ---</option>
+                          <option value="">Select Invoice</option>
                           {Array.from(
                             new Set(
                               (buyerInvoices || []).map((inv) => inv && (inv.invoiceNumber || inv.invoiceNo)),
@@ -11866,7 +11863,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          <option value="">-- Linked Lot --</option>
+                          <option value="">Select Lot ID</option>
                           <option>LOT-X122 (Alphonso)</option>
                           <option>LOT-Y45 (Banana)</option>
                         </select>
@@ -12387,7 +12384,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          <option value="">-- Linked Invoice --</option>
+                          <option value="">Select Invoice</option>
                           <option>INV-2026-X12</option>
                           <option>INV-2026-X45</option>
                         </select>
