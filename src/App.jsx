@@ -834,6 +834,198 @@ const getSelectPlaceholder = (fieldName) => {
   return `Select ${normalizedFieldName}`;
 };
 
+const shouldUseMultiSelectForField = (label) => {
+  const normalized = String(label || "").replace(/\*/g, "").trim().toLowerCase();
+  return [
+    "product",
+    "products",
+    "variety",
+    "id type",
+    "payment terms",
+    "payment term",
+    "grade",
+    "kgs",
+    "kg",
+  ].some((keyword) => normalized.includes(keyword));
+};
+
+const getModernMultiSelectPlaceholder = (label) => {
+  const normalized = String(label || "").replace(/\*/g, "").trim().toLowerCase();
+  if (normalized.includes("payment term")) return "Select Payment Term";
+  if (normalized.includes("id type")) return "Select ID Type";
+  if (normalized.includes("variety")) return "Select Variety";
+  if (normalized.includes("grade")) return "Select Grade";
+  if (normalized.includes("kg") || normalized.includes("kgs") || normalized.includes("weight unit")) return "Select KG";
+  if (normalized.includes("product")) return "Select Product";
+  return getSelectPlaceholder(label);
+};
+
+const parseMultiValue = (value) => {
+  if (Array.isArray(value)) return value.map((v) => String(v || "").trim()).filter(Boolean);
+  return String(value || "")
+    .split(/\s*\/\s*|,/)
+    .map((v) => v.trim())
+    .filter(Boolean);
+};
+
+function ModernMultiSelectField({
+  label,
+  value,
+  onChange,
+  options = [],
+  disabled,
+}) {
+  const [open, setOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const selectedValues = parseMultiValue(value);
+  const normalizedSelected = selectedValues.map((v) => v.toLowerCase());
+  const normalizedOptions = (options || []).map((opt) => String(opt || "").trim()).filter(Boolean);
+  const filteredOptions = normalizedOptions.filter((opt) =>
+    opt.toLowerCase().includes(searchText.toLowerCase()),
+  );
+  const canAddManual =
+    searchText.trim() &&
+    !normalizedOptions.some((o) => o.toLowerCase() === searchText.trim().toLowerCase()) &&
+    !normalizedSelected.includes(searchText.trim().toLowerCase());
+
+  const emitSelection = (nextValues) => {
+    onChange?.({ target: { value: nextValues.join(" / ") } });
+  };
+
+  const toggleValue = (nextValue) => {
+    const exists = normalizedSelected.includes(String(nextValue).toLowerCase());
+    if (exists) {
+      emitSelection(
+        selectedValues.filter((v) => v.toLowerCase() !== String(nextValue).toLowerCase()),
+      );
+      return;
+    }
+    emitSelection([...selectedValues, nextValue]);
+  };
+
+  return (
+    <div style={{ position: "relative", width: "100%" }}>
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen((prev) => !prev)}
+        disabled={disabled}
+        style={{
+          width: "100%",
+          minHeight: "44px",
+          padding: "10px 12px",
+          borderRadius: "8px",
+          border: "1.5px solid #EBE9E1",
+          background: disabled ? "#FDFBF4" : "#FFFFFF",
+          color: disabled ? COLORS.muted : COLORS.sidebar,
+          fontSize: "13px",
+          fontWeight: "600",
+          textAlign: "left",
+          cursor: disabled ? "not-allowed" : "pointer",
+        }}
+      >
+        {selectedValues.length ? selectedValues.join(" / ") : getModernMultiSelectPlaceholder(label)}
+      </button>
+
+      {selectedValues.length > 0 && (
+        <div style={{ display: "flex", gap: "8px", overflowX: "auto", marginTop: "8px", paddingBottom: "2px" }}>
+          {selectedValues.map((chip) => (
+            <div
+              key={chip}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "4px 8px",
+                borderRadius: "8px",
+                border: "1px solid #CBD5E1",
+                background: "#FFFFFF",
+                fontSize: "12px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span>{chip}</span>
+              <button
+                type="button"
+                onClick={() => toggleValue(chip)}
+                style={{ border: "none", background: "transparent", cursor: "pointer", color: "#64748B", fontWeight: "900" }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {open && !disabled && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 6px)",
+            left: 0,
+            right: 0,
+            zIndex: 25,
+            background: "#EEF1F4",
+            border: "1px solid #D7DEE6",
+            borderRadius: "10px",
+            padding: "10px",
+            boxShadow: "0 10px 20px rgba(15, 23, 42, 0.12)",
+          }}
+        >
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder={getModernMultiSelectPlaceholder(label)}
+            style={{
+              width: "100%",
+              padding: "8px 10px",
+              borderRadius: "8px",
+              border: "1px solid #CBD5E1",
+              outline: "none",
+              fontSize: "13px",
+              marginBottom: "8px",
+            }}
+          />
+          <div style={{ maxHeight: "190px", overflowY: "auto" }}>
+            {filteredOptions.map((opt) => {
+              const checked = normalizedSelected.includes(opt.toLowerCase());
+              return (
+                <label key={opt} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 4px", cursor: "pointer" }}>
+                  <input type="checkbox" checked={checked} onChange={() => toggleValue(opt)} />
+                  <span style={{ fontSize: "13px", fontWeight: "600" }}>{opt}</span>
+                </label>
+              );
+            })}
+            {canAddManual && (
+              <button
+                type="button"
+                onClick={() => {
+                  toggleValue(searchText.trim());
+                  setSearchText("");
+                }}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  marginTop: "6px",
+                  padding: "8px 10px",
+                  borderRadius: "8px",
+                  border: "1px dashed #94A3B8",
+                  background: "#FFFFFF",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                }}
+              >
+                Add "{searchText.trim()}"
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SelectWithManualEntry({
   label,
   value,
@@ -1040,6 +1232,10 @@ function FormGrid({ sections }) {
                   key={j}
                   style={{ display: "flex", flexDirection: "column", gap: "8px" }}
                 >
+                  {(() => {
+                    const useModernMultiSelect = shouldUseMultiSelectForField(f.label);
+                    return (
+                      <>
                   <label
                     style={{
                       fontSize: "12px",
@@ -1052,7 +1248,15 @@ function FormGrid({ sections }) {
                     <span>{f.label}</span>
                     {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
                   </label>
-                  {f.type === "select" ? (
+                  {useModernMultiSelect ? (
+                    <ModernMultiSelectField
+                      label={f.label}
+                      value={f.value}
+                      options={f.options || []}
+                      onChange={f.onChange}
+                      disabled={f.disabled}
+                    />
+                  ) : f.type === "select" ? (
                     <SelectWithManualEntry
                       label={f.label}
                       value={f.value}
@@ -1111,6 +1315,9 @@ function FormGrid({ sections }) {
                       }}
                     />
                   )}
+                      </>
+                    );
+                  })()}
                 </div>
               );
             })}
