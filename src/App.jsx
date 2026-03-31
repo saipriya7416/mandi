@@ -1766,7 +1766,10 @@ Powered by Stacli mandi os`;
         return alert("Intake registration error: " + res.message);
 
       setLotSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
-      setTimeout(() => setLotSaveBtn({ label: "Save", color: null }), 3000);
+      setTimeout(() => {
+        setLotSaveBtn({ label: "Save", color: null });
+        window.location.reload();
+      }, 2000);
 
       const nextCounter = lotCounter + 1;
       setLotCounter(nextCounter);
@@ -2040,6 +2043,7 @@ Powered by Stacli mandi os`;
         ],
       });
       fetchData();
+      window.location.reload();
     } else {
       alert(`❌ FAILED: ${res.message || "Error"}`);
     }
@@ -5198,10 +5202,9 @@ Powered by Stacli mandi os`;
                   >
                     <Button
                       style={{
-                        background: lotSaveBtn.color || COLORS.sidebar,
+                        background: COLORS.sidebar,
                         fontWeight: "800",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                        transition: "all 0.3s ease",
                       }}
                       onClick={() => {
                         if (
@@ -5212,12 +5215,10 @@ Powered by Stacli mandi os`;
                           alert("Please complete all Intake Details first!");
                           return;
                         }
-                        
-                        setLotSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
-                        setTimeout(() => setLotSaveBtn({ label: "Save", color: null }), 3000);
+                        setActiveLotTab("Produce Details");
                       }}
                     >
-                      {lotSaveBtn.label}
+                      Save
                     </Button>
                     <Button
                       style={{
@@ -5360,705 +5361,162 @@ Powered by Stacli mandi os`;
 
               {activeLotTab === "Produce Details" && (
                 <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-                  <div
-                    style={{
-                      background: "#FFFFFF",
-                      padding: "32px",
-                      borderRadius: "12px",
-                      border: "1px solid #EBE9E1",
-                    }}
-                  >
-                    <div
-                      style={{
-                        borderBottom: "1px solid #EBE9E1",
-                        paddingBottom: "16px",
-                        marginBottom: "24px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <h3
-                        style={{
-                          fontSize: "20px",
-                          fontWeight: "900",
-                          color: COLORS.sidebar,
-                          margin: 0,
-                        }}
-                      >
-                        Produce Details
-                      </h3>
-                      <span
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: "700",
-                          color: COLORS.muted,
-                        }}
-                      >
-                        Lot: {lotCreationForm.lotId} | Supplier:{" "}
-                        {lotCreationForm.farmerId || "N/A"}
-                      </span>
+                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                    <div style={{ borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Produce Details</h3>
+                        <span style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Lot: {lotCreationForm.lotId} | Supplier: {lotCreationForm.farmerId || "N/A"}</span>
                     </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "24px",
-                      }}
-                    >
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                       {lotCreationForm.lineItems.map((item, idx) => (
-                        <div
-                          key={item.id}
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns:
-                              "repeat(auto-fit, minmax(220px, 1fr))",
-                            gap: "24px",
-                            padding: "24px",
-                            background: "#FDFBF4",
-                            borderRadius: "8px",
-                            border: "1px solid #EBE9E1",
-                            position: "relative",
-                          }}
-                        >
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: "124px",
-                              left: "24px",
-                              display: "none",
-                            }}
-                          >
-                            {/* Keep the original check for logic if needed, but UI-wise we want it always visible */}
-                          </div>
-                          <div
-                            style={{
-                              position: "absolute",
-                              bottom: "12px",
-                              right: "12px",
-                              display: "flex",
-                              gap: "8px",
-                            }}
-                          >
-                            <div
-                              style={{
-                                background: "#F1F7FF",
-                                color: "#1D4ED8",
-                                padding: "4px 10px",
-                                borderRadius: "6px",
-                                fontSize: "10px",
-                                fontWeight: "900",
-                                border: "1px solid #DBEAFE",
-                              }}
-                            >
-                              MODIFY
+                        <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", padding: "24px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
+                          
+                          {idx > 0 && (
+                            <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
+                              ❌ Remove
                             </div>
-                            <div
-                              style={{
-                                background: "#FFF1F2",
-                                color: "#E11D48",
-                                padding: "4px 10px",
-                                borderRadius: "6px",
-                                fontSize: "10px",
-                                fontWeight: "900",
-                                border: "1px solid #FFE4E6",
-                                cursor: "pointer",
-                              }}
-                              onClick={() =>
-                                handleLineItemAction("Remove", idx)
-                              }
-                            >
-                              DELETE
-                            </div>
-                          </div>
+                          )}
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
-                            <select
-                              value={item.productId}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "productId",
-                                  e.target.value,
-                                )
-                              }
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1.5px solid #EBE9E1",
-                                backgroundColor: "#FFFFFF",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                                cursor: "pointer",
-                                appearance: "auto"
-                              }}
-                            >
-                              {["", ...Array.from(new Set([...DB.Fruits, ...DB.Vegetables])).sort()].map(p => (
-                                <option key={p} value={p}>{p || "Select Product..."}</option>
-                              ))}
+                            <select value={item.productId} onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                               <option value="" disabled>Select Product</option>
+                               {Object.keys(PRODUCT_DATA).filter(k => k !== "default").map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Variety *</label>
-                            <select
-                              value={item.variety}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "variety",
-                                  e.target.value,
-                                )
-                              }
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1.5px solid #EBE9E1",
-                                backgroundColor: "#FFFFFF",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                                cursor: "pointer",
-                                appearance: "auto"
-                              }}
-                            >
-                              {["", ...(getProductData(item.productId).varieties || [])].map(v => (
-                                <option key={v} value={v}>{v || "Select Variety..."}</option>
-                              ))}
+                            <select value={item.variety} onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                               <option value="" disabled>Select Variety</option>
+                               {(PRODUCT_DATA[item.productId]?.varieties || []).map(v => <option key={v} value={v}>{v}</option>)}
                             </select>
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Grade
-                            </label>
-                            <select
-                              value={item.grade}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "grade",
-                                  e.target.value,
-                                )
-                              }
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1.5px solid #EBE9E1",
-                                backgroundColor: "#FFFFFF",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                                cursor: "pointer",
-                                appearance: "auto"
-                              }}
-                            >
-                              <option value="A">A Grade</option>
-                              <option value="B">B Grade</option>
-                              <option value="C">C Grade</option>
-                              <option value="Export">Export</option>
-                              <option value="Local">Local</option>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Grade</label>
+                            <select value={item.grade} onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
+                               <option value="A">A Grade</option>
+                               <option value="B">B Grade</option>
+                               <option value="C">C Grade</option>
+                               <option value="Export">Export</option>
+                               <option value="Local">Local</option>
                             </select>
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Gross Weight ({item.weightUnit}) *
-                            </label>
-                            <input
-                              type="number"
-                              value={item.grossWeight}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "grossWeight",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="0"
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                              }}
-                            />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Gross Weight ({item.weightUnit}) *</label>
+                            <input type="number" value={item.grossWeight} onChange={(e) => handleLineItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Deductions ({item.weightUnit})
-                            </label>
-                            <input
-                              type="number"
-                              value={item.deductions}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "deductions",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="0"
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                              }}
-                            />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Deductions ({item.weightUnit})</label>
+                            <input type="number" value={item.deductions} onChange={(e) => handleLineItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Net Weight ({item.weightUnit}) Auto
-                            </label>
-                            <input
-                              type="number"
-                              disabled
-                              value={
-                                Number(item.grossWeight) -
-                                  Number(item.deductions) || 0
-                              }
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                background: "#F1F5F9",
-                                color: COLORS.muted,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                              }}
-                            />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Net Weight ({item.weightUnit}) Auto</label>
+                            <input type="number" disabled value={(Number(item.grossWeight) - Number(item.deductions)) || 0} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Weight Unit (KGs/Tones)
-                            </label>
-                            <select
-                              value={item.weightUnit}
-                              onChange={(e) => {
-                                const nextUnit = e.target.value;
-                                const prevUnit = item.weightUnit;
-                                let newGross = Number(item.grossWeight) || 0;
-                                let newDeductions =
-                                  Number(item.deductions) || 0;
-                                let newRate = Number(item.estimatedRate) || 0;
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Weight Unit (KGs/Tones)</label>
+                            <select 
+                                value={item.weightUnit} 
+                                onChange={(e) => {
+                                    const nextUnit = e.target.value;
+                                    const prevUnit = item.weightUnit;
+                                    let newGross = Number(item.grossWeight) || 0;
+                                    let newDeductions = Number(item.deductions) || 0;
+                                    let newRate = Number(item.estimatedRate) || 0;
 
-                                if (
-                                  prevUnit === "KGs" &&
-                                  nextUnit === "Tones"
-                                ) {
-                                  newGross = newGross / 1000;
-                                  newDeductions = newDeductions / 1000;
-                                  newRate = newRate * 1000; // Rate per Tone is higher
-                                } else if (
-                                  prevUnit === "Tones" &&
-                                  nextUnit === "KGs"
-                                ) {
-                                  newGross = newGross * 1000;
-                                  newDeductions = newDeductions * 1000;
-                                  newRate = newRate / 1000; // Rate per KG is lower
-                                }
+                                    if (prevUnit === "KGs" && nextUnit === "Tones") {
+                                        newGross = newGross / 1000;
+                                        newDeductions = newDeductions / 1000;
+                                        newRate = newRate * 1000; // Rate per Tone is higher
+                                    } else if (prevUnit === "Tones" && nextUnit === "KGs") {
+                                        newGross = newGross * 1000;
+                                        newDeductions = newDeductions * 1000;
+                                        newRate = newRate / 1000; // Rate per KG is lower
+                                    }
 
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "weightUnit",
-                                  nextUnit,
-                                );
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "grossWeight",
-                                  newGross.toString(),
-                                );
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "deductions",
-                                  newDeductions.toString(),
-                                );
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "estimatedRate",
-                                  newRate.toString(),
-                                );
-                              }}
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                              }}
+                                    handleLineItemAction("Update", idx, "weightUnit", nextUnit);
+                                    handleLineItemAction("Update", idx, "grossWeight", newGross.toString());
+                                    handleLineItemAction("Update", idx, "deductions", newDeductions.toString());
+                                    handleLineItemAction("Update", idx, "estimatedRate", newRate.toString());
+                                }} 
+                                style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}
                             >
-                              <option value="KGs">KGs (Kilograms)</option>
-                              <option value="Tones">Tones (Metric Tons)</option>
+                               <option value="KGs">KGs (Kilograms)</option>
+                               <option value="Tones">Tones (Metric Tons)</option>
                             </select>
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Est. Rate (₹/
-                              {item.weightUnit === "Tones" ? "Tone" : "KG"})
-                            </label>
-                            <input
-                              type="number"
-                              value={item.estimatedRate}
-                              onChange={(e) =>
-                                handleLineItemAction(
-                                  "Update",
-                                  idx,
-                                  "estimatedRate",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="0"
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                color: COLORS.sidebar,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "600",
-                              }}
-                            />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Est. Rate (₹/{item.weightUnit === 'Tones' ? 'Tone' : 'KG'})</label>
+                            <input type="number" value={item.estimatedRate} onChange={(e) => handleLineItemAction("Update", idx, "estimatedRate", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Est. Gross (₹)
-                            </label>
-                            <input
-                              type="text"
-                              disabled
-                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0))}
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                background: "#F1F5F9",
-                                color: COLORS.muted,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "800",
-                              }}
-                            />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Inventory Status (Auto)</label>
+                             <input type="text" disabled value={item.status || "Pending"} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              THOTRASI (6%)
-                            </label>
-                            <input
-                              type="text"
-                              disabled
-                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0) * 0.06)}
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                background: "#FFF1F2",
-                                color: "#E11D48",
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "800",
-                              }}
-                            />
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Grading (4%)
-                            </label>
-                            <input
-                              type="text"
-                              disabled
-                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0) * 0.04)}
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                background: "#FFF7ED",
-                                color: "#EA580C",
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "800",
-                              }}
-                            />
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Final Bill (₹)
-                            </label>
-                            <input
-                              type="text"
-                              disabled
-                              value={formatCurrency(Number(item.grossWeight || 0) * Number(item.estimatedRate || 0) * 0.90)}
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #84CC16",
-                                background: "#ECFCCB",
-                                color: "#3F6212",
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "900",
-                              }}
-                            />
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "8px",
-                            }}
-                          >
-                            <label
-                              style={{
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.muted,
-                              }}
-                            >
-                              Inventory Status (Auto)
-                            </label>
-                            <input
-                              type="text"
-                              disabled
-                              value={item.status || "Pending"}
-                              style={{
-                                padding: "12px 14px",
-                                borderRadius: "8px",
-                                border: "1px solid #EBE9E1",
-                                background: "#F1F5F9",
-                                color: COLORS.muted,
-                                outline: "none",
-                                fontSize: "13px",
-                                fontWeight: "800",
-                              }}
-                            />
-                          </div>
                         </div>
                       ))}
-                      <Button
-                        style={{
-                          alignSelf: "flex-start",
-                          background: "#FFFFFF",
-                          color: COLORS.accent,
-                          border: `1.5px solid ${COLORS.accent}`,
-                          fontWeight: "800",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                        }}
-                        onClick={() => handleLineItemAction("Add")}
-                      >
-                        + Add Next Produce Item
-                      </Button>
+                      <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>+ Add Next Produce Item</Button>
                     </div>
                   </div>
+              
+                  <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
+                    <Button style={{ background: COLORS.sidebar, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }} onClick={handleRegisterLot}>Finish & Save</Button>
+                    
+                    {isAdmin && (
+                      <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Edit Mode enabled for Admin")}>Edit</Button>
+                    )}
 
-                  <div
-                    style={{ display: "flex", gap: "16px", marginTop: "32px" }}
-                  >
-
-                    <Button
-                      style={{
-                        background: lotSaveBtn.color || COLORS.sidebar,
-                        fontWeight: "800",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                        transition: "all 0.3s ease",
-                      }}
-                      onClick={handleRegisterLot}
-                    >
-                      {lotSaveBtn.label}
-                    </Button>
-
-
-
-                    <Button
-                      style={{
-                        background: "#F1F5F9",
-                        color: "#CC0000",
-                        border: "none",
-                        fontWeight: "900",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                      }}
-                      onClick={() => {
+                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => {
                         setActiveLotTab("LOT Creation");
                         setLotCreationForm({
                           ...lotCreationForm,
-                          lotId: generateLotId(lotCounter),
-                          vehicleNumber: "",
-                          driverName: "",
-                          origin: "",
-                          attachedBill: null,
-                          notes: "",
-                          lineItems: [
-                            {
-                              id: Date.now(),
-                              productId: "",
-                              variety: "",
-                              grade: "A",
-                              grossWeight: "",
-                              deductions: "",
-                              weightUnit: "KGs",
-                              estimatedRate: "",
-                              status: "Pending Auction",
-                            },
-                          ],
+                          lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+                          vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
+                          lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", deductions: "", weightUnit: "KGs", estimatedRate: "", status: "Pending Auction" }]
                         });
-                      }}
-                    >
-                      Clear All
-                    </Button>
+                    }}>Reset Everything</Button>
                   </div>
 
+                  {/* Recently Created Lots (Vault Style) - Bottom of Produce Details */}
+                  <div style={{ marginTop: "48px" }}>
+                      <h4 className="font-display" style={{ color: COLORS.sidebar, marginBottom: "16px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "1px", fontSize: "14px" }}>Recently Created Lots</h4>
+                      <div style={{ maxHeight: "400px", overflowY: "auto", padding: "8px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                        <div style={{ display: "grid", gap: "12px" }}>
+                           {lots.slice().reverse().slice(0, 5).map(l => {
+                              const grossSale = (l.lineItems || []).reduce((sum, item) => sum + (Number(item.grossWeight) * Number(item.estimatedRate)), 0);
+                              return (
+                              <div key={l._id || l.lotId} style={{ padding: "16px", background: "#fff", border: "1px solid #EBE9E1", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+                                 <div style={{ flex: 1 }}>
+                                    <b style={{ color: COLORS.sidebar, fontSize: "15px" }}>{l.lotId} — {l.supplierId?.name || l.supplierId || "Farmer"}</b>
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: COLORS.muted, fontWeight: "600" }}>🚛 {l.vehicleNumber} | 📍 {l.origin} | 📅 {new Date(l.entryDate || l.createdAt).toLocaleDateString()}</p>
+                                    <div style={{ display: "flex", gap: "12px", marginTop: "4px" }}>
+                                        <span style={{ fontSize: "11px", color: COLORS.accent, fontWeight: "900" }}>Gross Sale: {formatCurrency(grossSale)}</span>
+                                        <span style={{ fontSize: "11px", color: COLORS.sidebar, fontWeight: "800" }}>Weight: {((l.lineItems || []).reduce((sw, i) => sw + (i.weightUnit === 'Tones' ? Number(i.grossWeight)*1000 : Number(i.grossWeight)), 0) / 1000).toFixed(2)} Tones</span>
+                                    </div>
+                                 </div>
+                                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                    <div style={{ textAlign: "right", marginRight: "16px" }}>
+                                       <span style={{ fontSize: "10px", background: "#F1F5F9", color: COLORS.secondary, padding: "4px 10px", borderRadius: "8px", fontWeight: "850" }}>{l.lineItems?.length || 0} Items</span>
+                                    </div>
+                                    <button onClick={() => handleEditLot(l)} style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "8px", borderRadius: "8px", cursor: "pointer", color: COLORS.sidebar }} title="Modify">📝</button>
+                                    <button onClick={() => handleDeleteLot(l._id)} style={{ background: "#FFF1F2", border: "1px solid #FECDD3", padding: "8px", borderRadius: "8px", cursor: "pointer", color: "#E11D48" }} title="Delete">🗑️</button>
+                                 </div>
+                              </div>
+                              );
+                           })}
+                           {lots.length === 0 && <p style={{ textAlign: "center", color: COLORS.muted, padding: "20px" }}>No lots registered yet.</p>}
+                        </div>
+                      </div>
+                  </div>
                 </div>
               )}
             </div>
