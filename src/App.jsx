@@ -5215,8 +5215,6 @@ Powered by Stacli mandi os`;
                         
                         setLotSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
                         setTimeout(() => setLotSaveBtn({ label: "Save", color: null }), 3000);
-                        
-                        setTimeout(() => setActiveLotTab("Produce Details"), 800);
                       }}
                     >
                       {lotSaveBtn.label}
