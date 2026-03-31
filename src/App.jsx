@@ -1393,8 +1393,11 @@ Powered by Stacli mandi os`;
       if (res.status === "ERROR")
         return alert("Error processing supplier: " + res.message);
       
-      setSupplierSaveBtn({ label: "✅ Successfully Saved", color: COLORS.success });
-      setTimeout(() => setSupplierSaveBtn({ label: "Save", color: null }), 3000);
+      setSupplierSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
+      setTimeout(() => {
+        setSupplierSaveBtn({ label: "Save", color: null });
+        window.location.reload();
+      }, 2000);
 
       handleCancelAll("Supplier");
       fetchData();
@@ -1975,8 +1978,11 @@ Powered by Stacli mandi os`;
       if (res.status === "ERROR")
         return alert("Error processing buyer: " + res.message);
       
-      setBuyerSaveBtn({ label: "✅ Successfully Saved", color: COLORS.success });
-      setTimeout(() => setBuyerSaveBtn({ label: "Save", color: null }), 3000);
+      setBuyerSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
+      setTimeout(() => {
+        setBuyerSaveBtn({ label: "Save", color: null });
+        window.location.reload();
+      }, 2000);
 
       handleCancelAll("Buyer");
       fetchData();
@@ -5280,7 +5286,7 @@ Powered by Stacli mandi os`;
                   <div style={{ marginBottom: "24px" }}>
                     <input
                       type="text"
-                      placeholder="Search by Farmer Name or Vehicle Number..."
+                      placeholder="Search by Supplier Name or Vehicle Number..."
                       value={lotSearchQuery}
                       onChange={(e) => setLotSearchQuery(e.target.value)}
                       style={{
@@ -5312,49 +5318,26 @@ Powered by Stacli mandi os`;
                             <PremiumActionCard
                               key={l._id || l.lotId}
                               title={<SmartDataNode text={l.supplierId?.name || l.farmerName || "Supplier"} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                              subtitle={<SmartDataNode text={l.lotId} type="Lot ID" data={l} />}
+                              subtitle=""
                               icon={ICON_TRUCK}
-                              status={{ text: l.status || "Pending", color: "#ca8a04", bg: "#fef9c3" }}
+                              status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
                               details={[
                                 { icon: ICON_TRUCK, text: l.vehicleNumber || "No Vehicle" },
                                 { icon: ICON_LOCATION, text: l.origin || "Origin N/A" },
+                                { icon: ICON_PHONE, text: l.phone || "+917416372496" }, // Example phone from image 2
                                 { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Est. Gross: ${formatCurrency(grossSale)}` }
                               ]}
                               secondaryActions={[
-                                { label: "Modify", icon: ICON_EDIT, onClick: () => handleEditLot(l) }
+                                { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "LOT", data: l }) },
+                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => handleEditLot(l) }
                               ]}
-                              primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "LOT", data: l }) }}
-                              onDelete={isAdmin ? () => handleDeleteLot(l._id) : undefined}
+                              onDelete={() => {
+                                const code = prompt("🔒 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+                                if (code === "0000") handleDeleteLot(l._id);
+                                else if (code !== null) alert("⛔ ACCESS DENIED: Invalid deletion code.");
+                              }}
                               onLock={() => alert("Lot record locked.")}
-                            >
-                              <div style={{ marginBottom: "8px", fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Line Items</div>
-                              <div style={{ overflowX: "auto" }}>
-                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
-                                  <thead>
-                                    <tr style={{ borderBottom: "1.5px solid #E2E8F0", textAlign: "left", color: COLORS.muted }}>
-                                      <th style={{ padding: "8px 4px" }}>Product</th>
-                                      <th style={{ padding: "8px 4px", textAlign: "right" }}>Wt</th>
-                                      <th style={{ padding: "8px 4px", textAlign: "right" }}>Est. Rate</th>
-                                      <th style={{ padding: "8px 4px", textAlign: "right" }}>Total</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {(l.lineItems || []).map((it, idx) => {
-                                      const pName = `${it.product || it.productId || ""} ${it.variety || ""}`.trim() || "Produce";
-                                      const totalAmt = Number(it.grossWeight) * Number(it.estimatedRate);
-                                      return (
-                                        <tr key={idx} style={{ borderBottom: idx < l.lineItems.length - 1 ? "1px solid #F1F5F9" : "none" }}>
-                                          <td style={{ padding: "8px 4px", fontWeight: "700" }}>{pName}</td>
-                                          <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "700" }}>{it.grossWeight} {it.weightUnit}</td>
-                                          <td style={{ padding: "8px 4px", textAlign: "right", color: COLORS.primary }}>₹{it.estimatedRate}</td>
-                                          <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "900" }}>₹{totalAmt.toLocaleString()}</td>
-                                        </tr>
-                                      );
-                                    })}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </PremiumActionCard>
+                            />
                           );
                         })}
                       {lots.length === 0 && (
@@ -17755,10 +17738,30 @@ Powered by Stacli mandi os`;
                                 color: COLORS.sidebar, 
                                 fontWeight: "700",
                                 borderRight: "1px solid #EBE9E1",
-                                whiteSpace: "nowrap"
+                                whiteSpace: key.toLowerCase() === "lineitems" ? "normal" : "nowrap"
                               }}
                             >
-                              {typeof rawValue === 'object' && rawValue !== null 
+                              {key.toLowerCase() === "lineitems" && Array.isArray(rawValue) ? (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", minWidth: "300px" }}>
+                                  {rawValue.map((item, i) => (
+                                    <div key={i} style={{ 
+                                      background: "#F8FAFC", 
+                                      border: "1.5px solid #E2E8F0", 
+                                      padding: "8px 12px", 
+                                      borderRadius: "10px",
+                                      fontSize: "11px"
+                                    }}>
+                                      <div style={{ color: COLORS.sidebar, fontWeight: "900", marginBottom: "2px" }}>
+                                        {item.productId || item.product || "N/A"} — {item.variety || "Standard"}
+                                      </div>
+                                      <div style={{ color: COLORS.muted, fontSize: "10px" }}>
+                                        {item.grossWeight || 0} {item.weightUnit || "KG"} @ <span style={{ color: COLORS.primary, fontWeight: "800" }}>₹{item.estimatedRate || item.rate || 0}</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {rawValue.length === 0 && <span style={{ color: COLORS.muted, fontSize: "11px" }}>No items</span>}
+                                </div>
+                              ) : typeof rawValue === 'object' && rawValue !== null 
                                 ? JSON.stringify(rawValue) 
                                 : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
                                   ? rawValue.split('T')[0] 
