@@ -1166,6 +1166,15 @@ export default function App() {
   const [lotSaveBtn, setLotSaveBtn] = useState({ label: "Save", color: null });
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
+  const [memberProductFilters, setMemberProductFilters] = useState({
+    Suppliers: [],
+    Customers: [],
+  });
+  const [memberProductSearch, setMemberProductSearch] = useState({
+    Suppliers: "",
+    Customers: "",
+  });
+  const [isMemberProductDropdownOpen, setIsMemberProductDropdownOpen] = useState(false);
   const [lotSearchQuery, setLotSearchQuery] = useState("");
   const [allocationSearchQuery, setAllocationSearchQuery] = useState("");
   const [billSearchQuery, setBillSearchQuery] = useState("");
@@ -1176,6 +1185,110 @@ export default function App() {
   const [lastGeneratedInvoice, setLastGeneratedInvoice] = useState(null);
   const billRef = useRef(null);
   const [lastGeneratedBill, setLastGeneratedBill] = useState(null);
+
+  const normalizeProductName = (value) =>
+    String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+
+  const parseProductList = (value) => {
+    if (Array.isArray(value)) {
+      return value.map((v) => String(v || "").trim()).filter(Boolean);
+    }
+    return String(value || "")
+      .split(/[,/|]+/)
+      .map((v) => v.trim())
+      .filter(Boolean);
+  };
+
+  const getProfileProducts = (record) => {
+    const candidates = [
+      record?.product,
+      record?.products,
+      record?.productName,
+      record?.coreProduct,
+    ];
+    const allProducts = candidates.flatMap(parseProductList).filter(Boolean);
+    return Array.from(new Set(allProducts));
+  };
+
+  const getRegisteredProductOptions = (tabName) => {
+    const source = tabName === "Suppliers" ? suppliers : buyers;
+    const options = source.flatMap((profile) => getProfileProducts(profile));
+    return Array.from(new Set(options))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+  };
+
+  const addMemberProductFilter = (tabName, rawProduct) => {
+    const nextProduct = String(rawProduct || "").trim();
+    if (!nextProduct) return;
+    setMemberProductFilters((prev) => {
+      const exists = (prev[tabName] || []).some(
+        (p) => normalizeProductName(p) === normalizeProductName(nextProduct),
+      );
+      if (exists) return prev;
+      return { ...prev, [tabName]: [...(prev[tabName] || []), nextProduct] };
+    });
+  };
+
+  const removeMemberProductFilter = (tabName, productToRemove) => {
+    setMemberProductFilters((prev) => ({
+      ...prev,
+      [tabName]: (prev[tabName] || []).filter(
+        (p) =>
+          normalizeProductName(p) !== normalizeProductName(productToRemove),
+      ),
+    }));
+  };
+
+  const renderSupplierMemberCard = (s, keyPrefix = "supplier") => (
+    <PremiumActionCard
+      key={`${keyPrefix}-${s._id || s.id || s.name}`}
+      title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+      subtitle=""
+      icon={ICON_USER}
+      status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
+      details={[
+        { icon: ICON_USER, text: s.name },
+        { icon: ICON_PHONE, text: s.phone || "N/A" },
+        { icon: ICON_LOCATION, text: s.village || "Location N/A" },
+      ]}
+      secondaryActions={[
+        { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Supplier", data: s }), variant: "primary" },
+        { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } },
+      ]}
+      onDelete={() => {
+        const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+        if (code === "0000") handleDeleteSupplier(s._id);
+        else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
+      }}
+      onLock={() => alert("Profile locked for security.")}
+    />
+  );
+
+  const renderBuyerMemberCard = (b, keyPrefix = "buyer") => (
+    <PremiumActionCard
+      key={`${keyPrefix}-${b._id || b.id || b.name}`}
+      title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
+      subtitle=""
+      icon={ICON_SHOP}
+      status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
+      details={[
+        { icon: ICON_USER, text: b.name },
+        { icon: ICON_PHONE, text: b.phone || "N/A" },
+        { icon: ICON_LOCATION, text: b.address || "Location N/A" },
+      ]}
+      secondaryActions={[
+        { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: "primary" },
+        { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } },
+      ]}
+      onDelete={() => {
+        const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+        if (code === "0000") handleDeleteBuyer(b._id);
+        else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
+      }}
+      onLock={() => alert("Stall locked.")}
+    />
+  );
 
   const handleSaveInvoicePDF = async () => {
     if (!invoiceRef.current) return;
@@ -5046,94 +5159,332 @@ Powered by Stacli mandi os`;
               {activeUserRoleTab === "Registered Members" && (
                 <div>
                   <Card>
-                  <div style={{ marginBottom: "24px" }}>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        type="text"
-                        placeholder="Search by name/mobile number"
-                        value={memberSearchQuery}
-                        onChange={(e) => setMemberSearchQuery(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "16px 20px 16px 16px",
-                          borderRadius: "16px",
-                          border: "1.5px solid #E2E8F0",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                          color: COLORS.sidebar,
-                          outline: "none",
-                          background: "#F8FAFC",
-                          transition: "all 0.2s",
-                        }}
-                      />
-                    </div>
-                  </div>
+                  {(() => {
+                    const activeTab = activeRegisteredTab;
+                    const selectedProducts = memberProductFilters[activeTab] || [];
+                    const activeProductSearch = memberProductSearch[activeTab] || "";
+                    const productOptions = getRegisteredProductOptions(activeTab);
+                    const filteredProductOptions = productOptions.filter((opt) =>
+                      opt.toLowerCase().includes(activeProductSearch.toLowerCase()),
+                    );
+                    const exactTypedMatchExists = productOptions.some(
+                      (opt) =>
+                        normalizeProductName(opt) ===
+                        normalizeProductName(activeProductSearch),
+                    );
+                    const canAddManualProduct =
+                      activeProductSearch.trim() &&
+                      !exactTypedMatchExists &&
+                      !selectedProducts.some(
+                        (p) =>
+                          normalizeProductName(p) ===
+                          normalizeProductName(activeProductSearch),
+                      );
+
+                    const sourceData = activeTab === "Suppliers" ? suppliers : buyers;
+                    const query = memberSearchQuery.trim().toLowerCase();
+                    const searchedData = sourceData.filter((record) => {
+                      const productText = getProfileProducts(record).join(" ").toLowerCase();
+                      if (!query) return true;
+                      if (activeTab === "Suppliers") {
+                        return (
+                          String(record.name || "").toLowerCase().includes(query) ||
+                          String(record.phone || "").includes(query) ||
+                          productText.includes(query)
+                        );
+                      }
+                      return (
+                        String(record.name || "").toLowerCase().includes(query) ||
+                        String(record.shopName || "").toLowerCase().includes(query) ||
+                        String(record.phone || "").includes(query) ||
+                        productText.includes(query)
+                      );
+                    });
+
+                    const groupedByProduct = selectedProducts.map((selectedProduct) => {
+                      const matchingProfiles = searchedData.filter((record) => {
+                        const products = getProfileProducts(record).map(normalizeProductName);
+                        return products.includes(normalizeProductName(selectedProduct));
+                      });
+                      return { product: selectedProduct, items: matchingProfiles };
+                    });
+
+                    const hasAnyFilters = selectedProducts.length > 0;
+
+                    return (
+                      <>
+                        <div style={{ marginBottom: "24px", display: "flex", gap: "12px", alignItems: "stretch" }}>
+                          <div style={{ position: "relative", flex: 1 }}>
+                            <input
+                              type="text"
+                              placeholder="Search by Name / Mobile Number / Product"
+                              value={memberSearchQuery}
+                              onChange={(e) => setMemberSearchQuery(e.target.value)}
+                              style={{
+                                width: "100%",
+                                padding: "16px 20px 16px 16px",
+                                borderRadius: "16px",
+                                border: "1.5px solid #E2E8F0",
+                                fontSize: "14px",
+                                fontWeight: "600",
+                                color: COLORS.sidebar,
+                                outline: "none",
+                                background: "#F8FAFC",
+                                transition: "all 0.2s",
+                              }}
+                            />
+                          </div>
+                          <div style={{ position: "relative", minWidth: "280px" }}>
+                            <button
+                              onClick={() => setIsMemberProductDropdownOpen((prev) => !prev)}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                minHeight: "52px",
+                                padding: "0 14px",
+                                borderRadius: "12px",
+                                border: "1.5px solid #E2E8F0",
+                                background: "#F8FAFC",
+                                color: COLORS.sidebar,
+                                fontSize: "13px",
+                                fontWeight: "700",
+                                textAlign: "left",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Select Product
+                            </button>
+
+                            {isMemberProductDropdownOpen && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "calc(100% + 8px)",
+                                  left: 0,
+                                  right: 0,
+                                  zIndex: 20,
+                                  background: "#EEF1F4",
+                                  border: "1px solid #D7DEE6",
+                                  borderRadius: "12px",
+                                  boxShadow: "0 10px 24px rgba(15, 23, 42, 0.12)",
+                                  padding: "12px",
+                                }}
+                              >
+                                <input
+                                  type="text"
+                                  value={activeProductSearch}
+                                  onChange={(e) =>
+                                    setMemberProductSearch((prev) => ({
+                                      ...prev,
+                                      [activeTab]: e.target.value,
+                                    }))
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" && canAddManualProduct) {
+                                      addMemberProductFilter(activeTab, activeProductSearch);
+                                    }
+                                  }}
+                                  placeholder={getSelectPlaceholder("Product")}
+                                  style={{
+                                    width: "100%",
+                                    padding: "10px 12px",
+                                    borderRadius: "8px",
+                                    border: "1px solid #CBD5E1",
+                                    marginBottom: "10px",
+                                    outline: "none",
+                                    fontSize: "13px",
+                                  }}
+                                />
+                                <div style={{ maxHeight: "220px", overflowY: "auto", paddingRight: "4px" }}>
+                                  {filteredProductOptions.map((opt) => {
+                                    const checked = selectedProducts.some(
+                                      (p) => normalizeProductName(p) === normalizeProductName(opt),
+                                    );
+                                    return (
+                                      <label key={opt} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 6px", borderRadius: "6px", cursor: "pointer" }}>
+                                        <input
+                                          type="checkbox"
+                                          checked={checked}
+                                          onChange={(e) => {
+                                            if (e.target.checked) addMemberProductFilter(activeTab, opt);
+                                            else removeMemberProductFilter(activeTab, opt);
+                                          }}
+                                        />
+                                        <span style={{ fontSize: "13px", fontWeight: "600", color: COLORS.sidebar }}>{opt}</span>
+                                      </label>
+                                    );
+                                  })}
+                                  {canAddManualProduct && (
+                                    <button
+                                      onClick={() => addMemberProductFilter(activeTab, activeProductSearch)}
+                                      style={{
+                                        width: "100%",
+                                        textAlign: "left",
+                                        marginTop: "6px",
+                                        padding: "8px 10px",
+                                        borderRadius: "8px",
+                                        border: "1px dashed #94A3B8",
+                                        background: "#FFFFFF",
+                                        cursor: "pointer",
+                                        fontSize: "13px",
+                                        fontWeight: "700",
+                                        color: COLORS.sidebar,
+                                      }}
+                                    >
+                                      Add manual product: "{activeProductSearch.trim()}"
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "14px", overflowX: "auto", paddingBottom: "2px" }}>
+                          {selectedProducts.map((product) => (
+                            <div
+                              key={product}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                padding: "6px 10px",
+                                borderRadius: "10px",
+                                border: "1px solid #CBD5E1",
+                                background: "#FFFFFF",
+                                fontSize: "12px",
+                                fontWeight: "700",
+                                color: COLORS.sidebar,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <span>{product}</span>
+                              <button
+                                onClick={() => removeMemberProductFilter(activeTab, product)}
+                                style={{
+                                  border: "none",
+                                  background: "transparent",
+                                  color: "#64748B",
+                                  cursor: "pointer",
+                                  fontWeight: "900",
+                                  lineHeight: 1,
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          {(selectedProducts.length > 0 || memberSearchQuery.trim()) && (
+                            <button
+                              onClick={() => {
+                                setMemberProductFilters((prev) => ({ ...prev, [activeTab]: [] }));
+                                setMemberProductSearch((prev) => ({ ...prev, [activeTab]: "" }));
+                                setMemberSearchQuery("");
+                              }}
+                              style={{
+                                padding: "6px 12px",
+                                borderRadius: "10px",
+                                border: "1px solid #E2E8F0",
+                                background: "#FFFFFF",
+                                cursor: "pointer",
+                                fontSize: "12px",
+                                fontWeight: "700",
+                                color: "#334155",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              Clear All Filters
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
                   <div style={{ display: "flex", gap: "12px", marginBottom: "32px", borderBottom: "1px solid #EBE9E1", paddingBottom: "16px" }}>
                     <div onClick={() => setActiveRegisteredTab("Suppliers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Suppliers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Suppliers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Suppliers ({suppliers.length})</div>
                     <div onClick={() => setActiveRegisteredTab("Customers")} style={{ padding: "8px 20px", cursor: "pointer", fontWeight: "800", fontSize: "13px", background: activeRegisteredTab === "Customers" ? COLORS.sidebar : "transparent", color: activeRegisteredTab === "Customers" ? "#FFFFFF" : COLORS.muted, borderRadius: "24px", transition: "all 0.2s" }}>Registered Customers ({buyers.length})</div>
                   </div>
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "20px" }}>
-                      {activeRegisteredTab === "Suppliers" ? (
-                        suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).length === 0 ? (
-                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No matching suppliers found.</p>
-                        ) : (
-                          suppliers.filter(s => s.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || s.phone?.includes(memberSearchQuery)).map((s) => (
-                            <PremiumActionCard
-                              key={s._id}
-                              title={<SmartDataNode text={s.name} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                              subtitle=""
-                              icon={ICON_USER}
-                              status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
-                              details={[
-                                { icon: ICON_USER, text: s.name },
-                                { icon: ICON_PHONE, text: s.phone || "N/A" },
-                                { icon: ICON_LOCATION, text: s.village || "Location N/A" }
-                              ]}
-                              secondaryActions={[
-                                { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Supplier", data: s }), variant: 'primary' },
-                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } }
-                              ]}
-                              onDelete={() => {
-                                const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
-                                if (code === "0000") handleDeleteSupplier(s._id);
-                                else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
-                              }}
-                              onLock={() => alert("Profile locked for security.")}
-                            />
-                          ))
-                        )
-                      ) : (
-                        buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).length === 0 ? (
-                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No matching customers found.</p>
-                        ) : (
-                          buyers.filter(b => b.name?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.shopName?.toLowerCase().includes(memberSearchQuery.toLowerCase()) || b.phone?.includes(memberSearchQuery)).map((b) => (
-                            <PremiumActionCard
-                              key={b._id}
-                              title={<SmartDataNode text={b.shopName || b.name} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
-                              subtitle=""
-                              icon={ICON_SHOP}
-                              status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
-                              details={[
-                                { icon: ICON_USER, text: b.name },
-                                { icon: ICON_PHONE, text: b.phone || "N/A" },
-                                { icon: ICON_LOCATION, text: b.address || "Location N/A" }
-                              ]}
-                              secondaryActions={[
-                                { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Buyer", data: b }), variant: 'primary' },
-                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Buyer"); handleEditSelect("Buyer", b); } }
-                              ]}
-                              onDelete={() => {
-                                const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
-                                if (code === "0000") handleDeleteBuyer(b._id);
-                                else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
-                              }}
-                              onLock={() => alert("Stall locked.")}
-                            />
-                          ))
-                        )
-                      )}
-                    </div>
+                    {(() => {
+                      const activeTab = activeRegisteredTab;
+                      const selectedProducts = memberProductFilters[activeTab] || [];
+                      const sourceData = activeTab === "Suppliers" ? suppliers : buyers;
+                      const query = memberSearchQuery.trim().toLowerCase();
+                      const searchedData = sourceData.filter((record) => {
+                        const productText = getProfileProducts(record).join(" ").toLowerCase();
+                        if (!query) return true;
+                        if (activeTab === "Suppliers") {
+                          return (
+                            String(record.name || "").toLowerCase().includes(query) ||
+                            String(record.phone || "").includes(query) ||
+                            productText.includes(query)
+                          );
+                        }
+                        return (
+                          String(record.name || "").toLowerCase().includes(query) ||
+                          String(record.shopName || "").toLowerCase().includes(query) ||
+                          String(record.phone || "").includes(query) ||
+                          productText.includes(query)
+                        );
+                      });
+
+                      if (selectedProducts.length === 0) {
+                        if (searchedData.length === 0) {
+                          return (
+                            <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>
+                              {activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found."}
+                            </p>
+                          );
+                        }
+                        return (
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "20px" }}>
+                            {activeTab === "Suppliers"
+                              ? searchedData.map((s) => renderSupplierMemberCard(s))
+                              : searchedData.map((b) => renderBuyerMemberCard(b))}
+                          </div>
+                        );
+                      }
+
+                      const groupedByProduct = selectedProducts.map((selectedProduct) => {
+                        const matches = searchedData.filter((record) => {
+                          const products = getProfileProducts(record).map(normalizeProductName);
+                          return products.includes(normalizeProductName(selectedProduct));
+                        });
+                        return { product: selectedProduct, items: matches };
+                      });
+
+                      const hasAtLeastOneMatch = groupedByProduct.some((g) => g.items.length > 0);
+                      if (!hasAtLeastOneMatch) {
+                        return (
+                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>
+                            {activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found."}
+                          </p>
+                        );
+                      }
+
+                      return (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                          {groupedByProduct.map((group) => (
+                            <div key={`${activeTab}-${group.product}`}>
+                              <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.sidebar, marginBottom: "10px", letterSpacing: "0.3px" }}>
+                                {group.product}
+                              </div>
+                              {group.items.length === 0 ? (
+                                <div style={{ fontSize: "12px", color: COLORS.muted, padding: "8px 4px" }}>
+                                  No profiles found for this product.
+                                </div>
+                              ) : (
+                                <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingBottom: "6px" }}>
+                                  {activeTab === "Suppliers"
+                                    ? group.items.map((s) => renderSupplierMemberCard(s, `supplier-${group.product}`))
+                                    : group.items.map((b) => renderBuyerMemberCard(b, `buyer-${group.product}`))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </Card>
                 <div style={{ display: "flex", gap: "16px", marginTop: "20px", paddingBottom: "8px" }}>
