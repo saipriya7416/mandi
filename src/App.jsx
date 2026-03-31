@@ -289,86 +289,103 @@ const PremiumActionCard = ({
   onLock,
   children,
 }) => {
-  const initial = typeof title === 'object' && title.props?.text ? title.props.text.charAt(0) : (String(title).charAt(0) || "?");
-  
+  const rawText = typeof title === 'object' && title.props?.text ? title.props.text : String(title || "?");
+  const initial = rawText.charAt(0).toUpperCase() || "?";
+  const phoneDetail = details.find(d => d.icon === ICON_PHONE);
+
   return (
-    <div style={{
-      background: "#fcfaf4",
-      borderRadius: "24px",
-      padding: "24px",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-      border: "1.5px solid #EBE9E1",
-      position: "relative",
-      display: "flex",
-      flexDirection: "column",
-      gap: "20px",
-      transition: "all 0.3s ease",
-      cursor: "default",
-      minHeight: "340px"
-    }}
-    onMouseOver={(e) => {
-      e.currentTarget.style.transform = "translateY(-4px)";
-      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.08)";
-    }}
-    onMouseOut={(e) => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.04)";
-    }}
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: "14px",
+        padding: "14px 16px",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+        border: "1.5px solid #E8E5DC",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+        transition: "all 0.22s ease",
+        cursor: "default",
+        minHeight: "unset",
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.transform = "translateY(-3px)";
+        e.currentTarget.style.boxShadow = "0 10px 28px rgba(0,0,0,0.10)";
+        e.currentTarget.style.borderColor = "#C8C5BC";
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.05)";
+        e.currentTarget.style.borderColor = "#E8E5DC";
+      }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div style={{ 
-          width: "64px", 
-          height: "64px", 
-          borderRadius: "50%", 
-          background: "#F3EFE0", 
-          display: "flex", 
-          alignItems: "center", 
+      {/* TOP ROW: Avatar + Name + ID + Badge */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{
+          width: "40px",
+          height: "40px",
+          minWidth: "40px",
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #3a4714, #6b7c20)",
+          display: "flex",
+          alignItems: "center",
           justifyContent: "center",
-          fontSize: "24px",
-          fontWeight: "800",
-          color: "#D4A017",
-          fontFamily: "'Montserrat', sans-serif"
+          fontSize: "16px",
+          fontWeight: "900",
+          color: "#fff",
+          fontFamily: "'Montserrat', sans-serif",
+          boxShadow: "0 2px 8px rgba(58,71,20,0.25)"
         }}>
           {initial}
         </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: "13px",
+            fontWeight: "800",
+            color: "#1a1a2e",
+            lineHeight: "1.3",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"
+          }}>
+            {title}
+          </div>
+          {subtitle && (
+            <div style={{ fontSize: "11px", color: "#64748B", marginTop: "1px", fontWeight: "600" }}>
+              {subtitle}
+            </div>
+          )}
+        </div>
         {status && (
-          <span style={{ 
-            background: status.bg, 
-            color: status.color, 
-            padding: "6px 16px", 
-            borderRadius: "24px", 
-            fontSize: "12px", 
+          <span style={{
+            background: status.bg,
+            color: status.color,
+            padding: "3px 10px",
+            borderRadius: "20px",
+            fontSize: "10px",
             fontWeight: "900",
-            letterSpacing: "0.5px"
+            whiteSpace: "nowrap",
+            letterSpacing: "0.3px",
+            flexShrink: 0,
           }}>
             {status.text}
           </span>
         )}
       </div>
 
-      <div>
-        <h3 style={{ 
-          margin: 0, 
-          fontSize: "22px", 
-          fontWeight: "700", 
-          color: "#1a1a2e", 
-          fontFamily: "'Montserrat', sans-serif",
-          letterSpacing: "-0.3px" 
-        }}>{title}</h3>
-        
-        {details.filter(d => d.icon === ICON_PHONE).map((d, idx) => (
-          <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center", color: "#166534" }}>
-            <span style={{ display: "flex", width: "16px" }}>{d.icon}</span>
-            <span style={{ fontSize: "13px", fontWeight: "700" }}>{d.text}</span>
-          </div>
-        ))}
-      </div>
+      {/* MIDDLE: Phone */}
+      {phoneDetail && (
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#334155" }}>
+          <span style={{ display: "flex", width: "14px", flexShrink: 0, color: "#64748B" }}>{phoneDetail.icon}</span>
+          <span style={{ fontSize: "12px", fontWeight: "700" }}>{phoneDetail.text}</span>
+        </div>
+      )}
 
       {children && (
-        <div style={{ 
-          background: "#f8fafc", 
-          borderRadius: "12px", 
-          padding: "16px",
+        <div style={{
+          background: "#f8fafc",
+          borderRadius: "8px",
+          padding: "10px 12px",
           border: "1px solid #E2E8F0",
           fontSize: "12px"
         }}>
@@ -376,91 +393,96 @@ const PremiumActionCard = ({
         </div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: secondaryActions.length > 1 ? "1fr 1fr" : "1fr", gap: "10px" }}>
-          {secondaryActions.map((act, idx) => (
-            <button 
-              key={idx}
-              onClick={act.onClick}
-              style={{
-                padding: "14px",
-                borderRadius: "12px",
-                background: idx === 0 ? "#1e293b" : "#f1f5f9",
-                color: idx === 0 ? "#ffffff" : "#1e293b",
-                border: "none",
-                fontWeight: "800",
-                fontSize: "13px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                cursor: "pointer",
-                transition: "all 0.2s"
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.opacity = "0.9";
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.opacity = "1";
-              }}
-            >
-              {act.icon} {act.label}
-            </button>
-          ))}
-        </div>
-
-        {primaryAction && (
-          <button 
-            onClick={primaryAction.onClick}
+      {/* BOTTOM ROW: Action Buttons */}
+      <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "2px" }}>
+        {secondaryActions.map((act, idx) => (
+          <button
+            key={idx}
+            onClick={act.onClick}
+            title={act.label}
             style={{
-              width: "100%",
-              padding: "14px",
-              borderRadius: "24px",
-              background: "#FEF9C3",
-              color: "#854d0e",
-              border: "1.5px solid #fde047",
-              fontWeight: "850",
-              fontSize: "14px",
+              flex: 1,
+              padding: "7px 8px",
+              borderRadius: "8px",
+              background: idx === 0 ? "#1e293b" : "#f1f5f9",
+              color: idx === 0 ? "#ffffff" : "#334155",
+              border: "none",
+              fontWeight: "700",
+              fontSize: "11px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "10px",
+              gap: "5px",
               cursor: "pointer",
-              transition: "all 0.2s"
+              transition: "all 0.18s ease",
+              whiteSpace: "nowrap",
             }}
-            onMouseOver={(e) => e.currentTarget.style.background = "#fef08a"}
-            onMouseOut={(e) => e.currentTarget.style.background = "#FEF9C3"}
+            onMouseOver={(e) => {
+              e.currentTarget.style.opacity = "0.85";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
           >
-            {primaryAction.icon || ICON_USER} {primaryAction.label}
+            <span style={{ display: "flex", width: "13px" }}>{act.icon}</span>
+            {act.label}
+          </button>
+        ))}
+
+        {primaryAction && (
+          <button
+            onClick={primaryAction.onClick}
+            title={primaryAction.label}
+            style={{
+              flex: 1,
+              padding: "7px 8px",
+              borderRadius: "8px",
+              background: "#FEF9C3",
+              color: "#854d0e",
+              border: "1.5px solid #fde047",
+              fontWeight: "700",
+              fontSize: "11px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "5px",
+              cursor: "pointer",
+              transition: "all 0.18s ease",
+              whiteSpace: "nowrap",
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = "#fef08a"; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = "#FEF9C3"; }}
+          >
+            <span style={{ display: "flex", width: "13px" }}>{primaryAction.icon || ICON_USER}</span>
+            {primaryAction.label}
           </button>
         )}
-      </div>
 
-      <div style={{ 
-        marginTop: "12px", 
-        borderTop: "1.5px solid #EBE9E1", 
-        paddingTop: "12px",
-        display: "flex",
-        justifyContent: "flex-end"
-      }}>
-        <button 
-          onClick={onDelete}
-          style={{ 
-            background: "none", 
-            border: "none", 
-            color: COLORS.muted, 
-            fontSize: "12px", 
-            fontWeight: "750", 
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px"
-          }}
-        >
-          {ICON_TRASH} Delete Account
-        </button>
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            title="Delete"
+            style={{
+              padding: "7px 9px",
+              borderRadius: "8px",
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+              color: "#dc2626",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              transition: "all 0.18s ease",
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = "#fee2e2"; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = "#fef2f2"; }}
+          >
+            <span style={{ display: "flex", width: "13px" }}>{ICON_TRASH}</span>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -5799,7 +5821,7 @@ Powered by Stacli mandi os`;
                                   No profiles found for this product.
                                 </div>
                               ) : (
-                                <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingBottom: "6px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: "12px" }}>
                                   {activeTab === "Suppliers"
                                     ? group.items.map((s) => renderSupplierMemberCard(s, `supplier-${group.product}`))
                                     : group.items.map((b) => renderBuyerMemberCard(b, `buyer-${group.product}`))}
@@ -6100,7 +6122,7 @@ Powered by Stacli mandi os`;
                     />
                   </div>
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "20px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "20px" }}>
                       {lots
                         .filter(l => {
                           const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
@@ -6892,7 +6914,7 @@ Powered by Stacli mandi os`;
                 </div>
 
                 <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "16px" }}>
                     {(() => {
                       const filtered = allocations
                         .filter(a => {
@@ -8563,7 +8585,7 @@ Powered by Stacli mandi os`;
                   </div>
 
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "16px" }}>
                       {supplierBills
                         .filter(b => {
                           const supplierName = (b.supplierId?.name || b.supplierId || "").toLowerCase();
@@ -10322,7 +10344,7 @@ Powered by Stacli mandi os`;
                   </div>
 
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "16px" }}>
                       {buyerInvoices
                         .filter(i => {
                           const customerName = (i.buyerId?.name || i.buyerId || "").toLowerCase();

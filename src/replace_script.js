@@ -1,23 +1,14 @@
 const fs = require('fs');
-let content = fs.readFileSync('c:/Users/sailo/Desktop/mandi-frontend/src/App.jsx', 'utf-8');
+let c = fs.readFileSync('c:/Users/sailo/Desktop/mandi-frontend/src/App.jsx', 'utf-8');
 
-// Replacement for corrupted icon lines
-content = content.replace(/ðŸ“±/g, 'Phone:');
-content = content.replace(/â€¢/g, '•');
-content = content.replace(/ðŸ“ /g, 'Village:');
+// Update all large grid containers for PremiumActionCard to compact sizing
+// Replace 340px grids (allocations, supplier bills, buyer invoices)
+c = c.split('minmax(340px, 1fr)').join('minmax(240px, 1fr)');
 
-// Replacement for Save labels starting with ?
-content = content.replace(/label: "\? Saved successfully"/g, 'label: "✅ Saved successfully"');
-content = content.replace(/"\? Settings saved successfully."/g, '"✅ Settings saved successfully."');
+// Also fix gap from 24px to 16px in those containers
+// Find and replace the specific pattern used in bill/invoice/allocation sections
+c = c.split('minmax(240px, 1fr))\", gap: "24px"').join('minmax(240px, 1fr))\", gap: "16px"');
 
-// Mass rename leftover Buyer/Farmer strings with spaces/quotes
-content = content.replace(/Farmer Info/ig, 'Supplier Info');
-content = content.replace(/Buyer Info/ig, 'Customer Info');
-content = content.replace(/Farmer Identity/ig, 'Supplier Identity');
-content = content.replace(/Buyer Identity/ig, 'Customer Identity');
-
-// Final compact grid check
-content = content.replace(/minmax\(290px, 1fr\)/g, 'minmax(270px, 1fr)');
-
-fs.writeFileSync('c:/Users/sailo/Desktop/mandi-frontend/src/App.jsx', content, 'utf-8');
-console.log('Final clean DONE');
+fs.writeFileSync('c:/Users/sailo/Desktop/mandi-frontend/src/App.jsx', c, 'utf-8');
+console.log('All grids updated. 340px grids remaining:', (c.match(/minmax\(340px/g) || []).length);
+console.log('240px grids now:', (c.match(/minmax\(240px/g) || []).length);
