@@ -1904,8 +1904,14 @@ Powered by Stacli mandi os`;
     if (!supplierForm.name || !supplierForm.phone)
       return alert("Name and phone are mandatory!");
       
+    // 1) Same Supplier Name → Same Supplier ID Auto Link
+    const existingSync = suppliers.find(s => s.name.toLowerCase() === supplierForm.name.toLowerCase());
+    const isEdit = isEditingSupplier || !!existingSync;
+    const targetId = isEditingSupplier ? editingSupplierId : (existingSync ? existingSync._id : null);
+    const targetCode = isEditingSupplier ? supplierForm.supplierId : (existingSync ? (existingSync.supplierId || existingSync.supplierCode) : `SUPP-${suppliers.length + 1}`);
+
     const payload = {
-      supplierId: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`,
+      supplierId: targetCode,
       name: supplierForm.name,
       phone: supplierForm.phone,
       village: supplierForm.villageOrTownName,
@@ -1926,8 +1932,8 @@ Powered by Stacli mandi os`;
     };
     try {
       let res;
-      if (isEditingSupplier) {
-        res = await MandiService.updateSupplier(editingSupplierId, payload);
+      if (isEdit) {
+        res = await MandiService.updateSupplier(targetId, payload);
       } else {
         res = await MandiService.addSupplier(payload);
       }
@@ -5906,6 +5912,7 @@ Powered by Stacli mandi os`;
                             label: "Date & Time *",
                             type: "datetime-local",
                             value: lotCreationForm.dateTime,
+                            disabled: !!lotCreationForm.id,
                             onChange: (e) =>
                               setLotCreationForm({
                                 ...lotCreationForm,
@@ -6087,7 +6094,7 @@ Powered by Stacli mandi os`;
                     />
                   </div>
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "24px" }}>
                       {lots
                         .filter(l => {
                           const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
@@ -18436,178 +18443,140 @@ Powered by Stacli mandi os`;
                   >
                     {viewingEntity.type} Profile
                   </h3>
-
                 </div>
               </div>
 
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
                 <div style={{ overflowX: "auto", border: "1px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                    <thead>
-                      <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
-                        {Object.entries(viewingEntity.data)
-                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate"].includes(key))
-                          .map(([key]) => (
-                            <th 
-                              key={key} 
-                              style={{ 
-                                padding: "12px 16px", 
-                                textAlign: "left", 
-                                color: COLORS.muted, 
-                                fontWeight: "900", 
-                                textTransform: "uppercase",
-                                fontSize: "11px",
-                                whiteSpace: "nowrap",
-                                borderRight: "1px solid #EBE9E1"
-                              }}
-                            >
-                              {key === "farmerName" ? "Supplier Name" : key.replace(/([A-Z])/g, " $1").trim()}
-                            </th>
-                          ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        {Object.entries(viewingEntity.data)
-                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate"].includes(key))
-                          .map(([key, rawValue]) => (
-                            <td 
-                              key={key} 
-                              style={{ 
-                                padding: "16px", 
-                                color: COLORS.sidebar, 
-                                fontWeight: "700",
-                                borderRight: "1px solid #EBE9E1",
-                                whiteSpace: key.toLowerCase() === "lineitems" ? "normal" : "nowrap"
-                              }}
-                            >
-                              {key === "billAttachment" ? (
-                                rawValue ? (
-                                  <button
-                                    onClick={() =>
-                                      setBillPhotoModal({
+                  {viewingEntity.type === "LOT" ? (
+                    <div style={{ padding: "32px" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "10px" }}>
+                        {[
+                          { label: "Lot ID", value: viewingEntity.data.lotId },
+                          { label: "Supplier Name", value: viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || "N/A" },
+                          { label: "Supplier ID", value: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId)) || "N/A" },
+                          { label: "Date and Time", value: viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleString() : formatDate(viewingEntity.data.createdAt) },
+                          { label: "Product", value: viewingEntity.data.lineItems?.[0]?.productId || viewingEntity.data.lineItems?.[0]?.product || "N/A" },
+                          { label: "Variety", value: viewingEntity.data.lineItems?.[0]?.variety || "N/A" },
+                          { label: "Grade", value: viewingEntity.data.lineItems?.[0]?.grade || "N/A" },
+                          { label: "Weight", value: viewingEntity.data.lineItems?.[0]?.grossWeight || "0" },
+                          { label: "Weight Unit", value: viewingEntity.data.lineItems?.[0]?.weightUnit || "KG" },
+                          { label: "Inventory Status", value: viewingEntity.data.lineItems?.[0]?.status || "Pending" },
+                          { label: "Vehicle / Lorry Number", value: viewingEntity.data.vehicleNumber || "N/A" },
+                          { label: "Driver Name", value: viewingEntity.data.driverName || "N/A" },
+                          { label: "Origin / Source Location", value: viewingEntity.data.origin || "N/A" },
+                          { label: "Attached Bill Photo", value: viewingEntity.data.billAttachment, type: 'image' },
+                          { label: "Notes", value: viewingEntity.data.notes || "N/A" },
+                        ].map((field, idx) => (
+                          <div key={idx} style={{ display: "flex", padding: "12px 0", borderBottom: "1px solid #F1F5F9", alignItems: "flex-start" }}>
+                            <div style={{ width: "200px", fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>{field.label}</div>
+                            <div style={{ flex: 1, fontSize: "14px", fontWeight: "700", color: COLORS.sidebar }}>
+                              {field.type === 'image' ? (
+                                field.value ? (
+                                  <div style={{ position: "relative", maxWidth: "300px" }}>
+                                    <img 
+                                      src={field.value} 
+                                      alt="Bill" 
+                                      style={{ width: "100%", borderRadius: "8px", border: "1.5px solid #E2E8F0", cursor: "pointer" }}
+                                      onClick={() => setBillPhotoModal({
                                         open: true,
-                                        imageUrl: rawValue,
+                                        imageUrl: field.value,
                                         lotNo: viewingEntity.data.lotId || "N/A",
-                                        supplierName:
-                                          viewingEntity.data.farmerName ||
-                                          viewingEntity.data.supplierId?.name ||
-                                          "N/A",
-                                        supplierId:
-                                          (typeof viewingEntity.data.supplierId === "object"
-                                            ? viewingEntity.data.supplierId?._id
-                                            : viewingEntity.data.supplierId) || "N/A",
-                                        zoom: 1,
-                                      })
-                                    }
-                                    style={{
-                                      background: "#FFFFFF",
-                                      color: COLORS.sidebar,
-                                      border: "1px solid #CBD5E1",
-                                      borderRadius: "8px",
-                                      padding: "6px 10px",
-                                      fontSize: "11px",
-                                      fontWeight: "800",
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    View Bill Photo
-                                  </button>
-                                ) : (
-                                  <span style={{ fontSize: "11px", color: COLORS.muted }}>No bill photo available</span>
-                                )
-                              ) : key.toLowerCase() === "lineitems" && Array.isArray(rawValue) ? (
-                                <div style={{ minWidth: "450px", padding: "4px" }}>
-                                  <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 4px", fontSize: "11px" }}>
-                                    <thead>
-                                      <tr style={{ color: COLORS.muted, textAlign: "left", fontSize: "10px" }}>
-                                        <th style={{ padding: "4px 8px" }}>Product</th>
-                                        <th style={{ padding: "4px 8px" }}>Variety</th>
-                                        <th style={{ padding: "4px 8px", textAlign: "right" }}>Quantity</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {rawValue.map((item, i) => (
-                                        <tr key={i} style={{ background: "#FDFBF4", border: "1px solid #EBE9E1" }}>
-                                          <td style={{ padding: "8px", borderRadius: "8px 0 0 8px", fontWeight: "900", color: COLORS.sidebar, border: "1px solid #EBE9E1", borderRight: "none" }}>{item.productId || item.product || "N/A"}</td>
-                                          <td style={{ padding: "8px", fontWeight: "700", color: COLORS.muted, borderTop: "1px solid #EBE9E1", borderBottom: "1px solid #EBE9E1" }}>{item.variety || "-"}</td>
-                                          <td style={{ padding: "8px", textAlign: "right", borderRadius: "0 8px 8px 0", fontWeight: "800", color: COLORS.sidebar, border: "1px solid #EBE9E1", borderLeft: "none" }}>{item.grossWeight || 0} {item.weightUnit || "KG"}</td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                  {rawValue.length === 0 && <span style={{ color: COLORS.muted, fontSize: "11px", padding: "8px" }}>No items recorded</span>}
-                                </div>
-                              ) : typeof rawValue === 'object' && rawValue !== null 
-                                ? JSON.stringify(rawValue) 
-                                : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
-                                  ? rawValue.split('T')[0] 
-                                  : String(rawValue || "N/A")}
-                            </td>
-                          ))}
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                                        supplierName: viewingEntity.data.farmerName || "N/A",
+                                        supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A",
+                                        zoom: 1
+                                      })}
+                                    />
+                                    <div style={{ fontSize: "10px", marginTop: "4px", color: COLORS.primary, cursor: "pointer", fontWeight: "800" }} onClick={() => setBillPhotoModal({ open: true, imageUrl: field.value, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A", zoom: 1 })}>
+                                      Click to View Full Image
+                                    </div>
+                                  </div>
+                                ) : "No photo uploaded"
+                              ) : field.value || "N/A"}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
 
-                {/* BILL ATTACHMENT SECTION */}
-                {viewingEntity.type === "LOT" && (
-                  <div style={{ marginTop: "24px", padding: "20px", background: "#F1F5F9", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                       <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>Attached Bill Photo</span>
-                       {viewingEntity.data.billAttachment ? (
-                         <button
-                           onClick={() =>
-                             setBillPhotoModal({
-                               open: true,
-                               imageUrl: viewingEntity.data.billAttachment,
-                               lotNo: viewingEntity.data.lotId || "N/A",
-                               supplierName:
-                                 viewingEntity.data.farmerName ||
-                                 viewingEntity.data.supplierId?.name ||
-                                 "N/A",
-                               supplierId:
-                                 (typeof viewingEntity.data.supplierId === "object"
-                                   ? viewingEntity.data.supplierId?._id
-                                   : viewingEntity.data.supplierId) || "N/A",
-                               zoom: 1,
-                             })
-                           }
-                           style={{ background: COLORS.sidebar, color: "#fff", padding: "4px 12px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", border: "none" }}
-                         >
-                           Open Attached Bill
-                         </button>
-                       ) : (
-                         <span style={{ fontSize: "11px", color: COLORS.muted }}>No bill photo available</span>
-                       )}
+                      {/* If there are more than 1 items, show them as a supplementary table */}
+                      {viewingEntity.data.lineItems && viewingEntity.data.lineItems.length > 1 && (
+                        <div style={{ marginTop: "32px" }}>
+                          <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.muted, marginBottom: "16px", textTransform: "uppercase" }}>Additional Produce Items</h4>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                             <thead>
+                               <tr style={{ background: "#F1F5F9", color: COLORS.muted, textAlign: "left" }}>
+                                 <th style={{ padding: "10px" }}>Product</th>
+                                 <th style={{ padding: "10px" }}>Variety</th>
+                                 <th style={{ padding: "10px" }}>Weight</th>
+                                 <th style={{ padding: "10px" }}>Status</th>
+                               </tr>
+                             </thead>
+                             <tbody>
+                               {viewingEntity.data.lineItems.slice(1).map((it, i) => (
+                                 <tr key={i} style={{ borderBottom: "1px solid #F1F5F9" }}>
+                                   <td style={{ padding: "10px", fontWeight: "700" }}>{it.productId || it.product}</td>
+                                   <td style={{ padding: "10px" }}>{it.variety}</td>
+                                   <td style={{ padding: "10px" }}>{it.grossWeight} {it.weightUnit}</td>
+                                   <td style={{ padding: "10px" }}>{it.status}</td>
+                                 </tr>
+                               ))}
+                             </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
-                    {viewingEntity.data.billAttachment ? (
-                      <img
-                        src={viewingEntity.data.billAttachment}
-                        alt="Bill"
-                        onClick={() =>
-                          setBillPhotoModal({
-                            open: true,
-                            imageUrl: viewingEntity.data.billAttachment,
-                            lotNo: viewingEntity.data.lotId || "N/A",
-                            supplierName:
-                              viewingEntity.data.farmerName ||
-                              viewingEntity.data.supplierId?.name ||
-                              "N/A",
-                            supplierId:
-                              (typeof viewingEntity.data.supplierId === "object"
-                                ? viewingEntity.data.supplierId?._id
-                                : viewingEntity.data.supplierId) || "N/A",
-                            zoom: 1,
-                          })
-                        }
-                        style={{ width: "100%", maxHeight: "250px", objectFit: "contain", background: "#fff", borderRadius: "8px", cursor: "pointer", border: "1.5px solid #E2E8F0", transition: "transform 0.25s ease" }}
-                      />
-                    ) : (
-                      <div style={{ fontSize: "12px", color: COLORS.muted, padding: "8px 0" }}>No bill photo available</div>
-                    )}
-                  </div>
-                )}
+                  ) : (
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                      <thead>
+                        <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
+                          {Object.entries(viewingEntity.data)
+                            .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment"].includes(key))
+                            .map(([key]) => (
+                              <th 
+                                key={key} 
+                                style={{ 
+                                  padding: "12px 16px", 
+                                  textAlign: "left", 
+                                  color: COLORS.muted, 
+                                  fontWeight: "900", 
+                                  textTransform: "uppercase",
+                                  fontSize: "11px",
+                                  whiteSpace: "nowrap",
+                                  borderRight: "1px solid #EBE9E1"
+                                }}
+                              >
+                                {key === "farmerName" ? "Supplier Name" : key.replace(/([A-Z])/g, " $1").trim()}
+                              </th>
+                            ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          {Object.entries(viewingEntity.data)
+                            .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment"].includes(key))
+                            .map(([key, rawValue]) => (
+                              <td 
+                                key={key} 
+                                style={{ 
+                                  padding: "16px", 
+                                  color: COLORS.sidebar, 
+                                  fontWeight: "700",
+                                  borderRight: "1px solid #EBE9E1",
+                                  whiteSpace: "nowrap"
+                                }}
+                              >
+                                {typeof rawValue === 'object' && rawValue !== null 
+                                  ? JSON.stringify(rawValue) 
+                                  : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
+                                    ? rawValue.split('T')[0] 
+                                    : String(rawValue || "N/A")}
+                              </td>
+                            ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  )}
+                </div>
 
                 {/* SPECIAL TABLE FOR GROUPED ALLOCATIONS OR LOT TRACEABILITY */}
                 {(() => {
