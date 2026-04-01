@@ -879,6 +879,11 @@ const shouldUseMultiSelectForField = (label) => {
     "item purchased",
     "additional charges",
     "other charges label",
+    "select product",
+    "item/product name",
+    "item name",
+    "other deductions",
+    "charges",
   ].some((keyword) => normalized.includes(keyword));
 };
 
@@ -910,235 +915,204 @@ function ModernMultiSelectField({
   hideLabel = false,
 }) {
   const [open, setOpen] = useState(false);
+  const [internalValues, setInternalValues] = useState([]);
   const [searchText, setSearchText] = useState("");
   const dropdownRef = useRef(null);
-  const selectedValues = parseMultiValue(value);
-  const normalizedOptions = (options || []).map((opt) => String(opt || "").trim()).filter(Boolean);
-  
-  const filteredOptions = normalizedOptions.filter((opt) =>
-    opt.toLowerCase().includes(searchText.toLowerCase()) && 
-    !selectedValues.map(v => v.toLowerCase()).includes(opt.toLowerCase())
+
+  useEffect(() => {
+    setInternalValues(parseMultiValue(value));
+  }, [value]);
+
+  const normalizedOptions = [...new Set((options || []).map(o => String(o || "").trim()).filter(Boolean))];
+  const filteredOptions = normalizedOptions.filter(o => 
+    o.toLowerCase().includes(searchText.toLowerCase())
   );
+
+  const toggleValue = (val) => {
+    if (internalValues.includes(val)) {
+      setInternalValues(internalValues.filter(v => v !== val));
+    } else {
+      setInternalValues([...internalValues, val]);
+    }
+  };
+
+  const handleApply = () => {
+    onChange?.({ target: { value: internalValues.join(" / ") } });
+    setOpen(false);
+    setSearchText("");
+  };
+
+  const handleManualAdd = () => {
+    if (searchText.trim()) {
+      const trimmed = searchText.trim();
+      if (!internalValues.includes(trimmed)) {
+        setInternalValues([...internalValues, trimmed]);
+      }
+      setSearchText("");
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setOpen(false);
-        setSearchText("");
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleAddValue = (val) => {
-    if (!val) return;
-    const current = selectedValues.map(v => v.toLowerCase());
-    if (!current.includes(val.toLowerCase())) {
-       const next = [...selectedValues, val];
-       onChange?.({ target: { value: next.join(" / ") } });
-    }
-  };
-
-  const removeValue = (val) => {
-    const next = selectedValues.filter(v => v.toLowerCase() !== val.toLowerCase());
-    onChange?.({ target: { value: next.join(" / ") } });
-  };
-
   return (
     <div ref={dropdownRef} style={{ position: "relative", width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
-      {!hideLabel && <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>{label}</label>}
+      {!hideLabel && (
+        <label style={{ fontSize: "12px", fontWeight: "750", color: "#64748B", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{label}</span>
+          {internalValues.length > 0 && (
+            <span style={{ fontSize: "10px", background: "#E2E8F0", padding: "2px 8px", borderRadius: "10px", color: COLORS.sidebar, fontWeight: "800" }}>
+              {internalValues.length} Selected
+            </span>
+          )}
+        </label>
+      )}
       
       <div 
-        onClick={() => !disabled && setOpen(true)}
+        onClick={() => !disabled && setOpen(!open)}
         style={{
-          minHeight: "44px",
-          padding: "8px 12px",
-          borderRadius: "8px",
-          border: "1.5px solid #EBE9E1",
-          background: disabled ? "#FDFBF4" : "#FFFFFF",
+          minHeight: "48px",
+          padding: "8px 16px",
+          borderRadius: "12px",
+          border: "1.5px solid #2d2d2d",
+          background: "#1a1a1a",
+          color: "#ffffff",
           display: "flex",
-          flexWrap: "wrap",
           alignItems: "center",
-          gap: "8px",
-          cursor: disabled ? "not-allowed" : "text",
-          transition: "all 0.2s ease-in-out",
-          borderColor: open ? COLORS.primary : "#EBE9E1",
-          boxShadow: open ? `0 0 0 1px ${COLORS.primary}20` : "none"
+          gap: "10px",
+          cursor: disabled ? "not-allowed" : "pointer",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          boxShadow: open ? "0 0 0 2px rgba(255,255,255,0.15)" : "none",
+          opacity: disabled ? 0.6 : 1
         }}
       >
-        {selectedValues.map((val) => (
-          <div key={val} style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            gap: "5px", 
-            padding: "4px 10px", 
-            background: "#F1F5F9", 
-            borderRadius: "6px", 
-            fontSize: "12px", 
-            fontWeight: "800", 
-            color: COLORS.sidebar,
-            border: "1px solid #E2E8F0",
-            animation: "fadeIn 0.2s ease-out"
-          }}>
-            {val}
-            {!disabled && (
-              <span 
-                onClick={(e) => { e.stopPropagation(); removeValue(val); }}
-                style={{ cursor: "pointer", color: "#64748B", fontSize: "14px", fontWeight: "900", transition: "color 0.2s" }}
-                onMouseEnter={(e) => e.target.style.color = COLORS.danger}
-                onMouseLeave={(e) => e.target.style.color = "#64748B"}
-              >×</span>
-            )}
-          </div>
-        ))}
-        
-        <input 
-          type="text"
-          value={searchText}
-          onChange={(e) => {
-            setSearchText(e.target.value);
-            if (!open) setOpen(true);
-          }}
-          onFocus={() => !disabled && setOpen(true)}
-          placeholder={selectedValues.length === 0 ? (getModernMultiSelectPlaceholder(label) || "Select Variety") : ""}
-          disabled={disabled}
-          autoComplete="off"
-          style={{
-            border: "none",
-            outline: "none",
-            background: "transparent",
-            fontSize: "13px",
-            fontWeight: "650",
-            color: COLORS.sidebar,
-            flex: 1,
-            minWidth: "100px",
-            padding: "4px 0"
-          }}
-          onKeyDown={(e) => {
-             if (e.key === "Enter" && searchText.trim()) {
-                e.preventDefault();
-                handleAddValue(searchText.trim());
-                setSearchText("");
-             } else if (e.key === "Backspace" && !searchText && selectedValues.length > 0) {
-                removeValue(selectedValues[selectedValues.length - 1]);
-             } else if (e.key === "Escape") {
-                setOpen(false);
-             }
-          }}
-        />
-
-        {!disabled && (
-          <div 
-            onClick={(e) => {
-              e.stopPropagation();
-              if (searchText.trim()) {
-                 handleAddValue(searchText.trim());
-                 setSearchText("");
-              } else {
-                 setOpen(!open);
-              }
-            }}
-            style={{ 
-              marginLeft: "auto",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px"
-            }}
-          >
-            <span style={{ color: "#64748B", fontSize: "14px", cursor: "pointer", opacity: 0.7 }}>▼</span>
-            <div 
-              style={{ 
-                cursor: "pointer",
-                color: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "18px",
-                fontWeight: "900",
-                width: "24px",
-                height: "24px",
-                background: COLORS.primary,
-                borderRadius: "50%",
-                transition: "all 0.2s ease-in-out",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
-            >
-              +
+        <div style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "13.5px", fontWeight: "600" }}>
+          {internalValues.length > 0 ? (
+            <div style={{ display: "flex", gap: "6px", overflow: "hidden" }}>
+               {internalValues.slice(0, 2).map(v => (
+                 <span key={v} style={{ background: "#333", padding: "2px 8px", borderRadius: "6px", fontSize: "11px", border: "1px solid #444" }}>{v}</span>
+               ))}
+               {internalValues.length > 2 && <span style={{ color: "#888", fontSize: "11px" }}>+{internalValues.length - 2} more</span>}
             </div>
-          </div>
-        )}
+          ) : (
+            <span style={{ color: "#666" }}>Select {label}...</span>
+          )}
+        </div>
+        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>▼</span>
       </div>
 
-      {open && !disabled && (
+      {open && (
         <div style={{
           position: "absolute",
-          top: "calc(100% + 5px)",
+          top: "calc(100% + 8px)",
           left: 0,
           right: 0,
           zIndex: 1000,
-          background: "#FFFFFF",
-          border: "1px solid #D7DEE6",
-          borderRadius: "10px",
-          maxHeight: "220px",
-          overflowY: "auto",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-          padding: "5px",
-          animation: "fadeIn 0.2s ease-out"
+          background: "#1a1a1a",
+          border: "1px solid #2d2d2d",
+          borderRadius: "14px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          padding: "14px",
+          minWidth: "300px",
+          animation: "slideUp 0.2s ease-out"
         }}>
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((opt) => (
-              <div
-                key={opt}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddValue(opt);
-                  setSearchText("");
+          <div style={{ display: "flex", gap: "10px", marginBottom: "14px" }}>
+            <div style={{ position: "relative", flex: 1 }}>
+              <input 
+                autoFocus
+                placeholder="Search or type new..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchText ? handleManualAdd() : handleApply();
+                  }
                 }}
                 style={{
-                  padding: "10px 12px",
+                  width: "100%",
+                  background: "#262626",
+                  border: "1px solid #333",
+                  borderRadius: "10px",
+                  padding: "10px 14px",
+                  color: "#fff",
                   fontSize: "13px",
-                  fontWeight: "700",
-                  color: COLORS.sidebar,
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center"
+                  outline: "none",
+                  transition: "border-color 0.2s"
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = `${COLORS.primary}10`; e.currentTarget.style.color = COLORS.primary; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.sidebar; }}
-              >
-                <span>{opt}</span>
-                <span style={{ fontSize: "11px", fontWeight: "800", opacity: 0.5 }}>Select</span>
-              </div>
-            ))
-          ) : (
-            searchText ? (
-              <div 
-                onClick={() => { handleAddValue(searchText.trim()); setSearchText(""); }}
-                style={{ 
-                  padding: "12px", 
-                  fontSize: "13px", 
-                  color: COLORS.primary, 
-                  fontWeight: "900", 
-                  cursor: "pointer",
-                  textAlign: "center",
-                  background: `${COLORS.primary}05`,
-                  borderRadius: "8px"
-                }}
-              >
-                + Add "{searchText}" manually
-              </div>
+              />
+            </div>
+            {searchText && !normalizedOptions.some(o => o.toLowerCase() === searchText.toLowerCase()) && (
+              <button 
+                onClick={handleManualAdd}
+                style={{ background: COLORS.primary, color: "#fff", border: "none", borderRadius: "10px", padding: "0 12px", fontSize: "12px", fontWeight: "800", cursor: "pointer" }}
+              >Add</button>
+            )}
+            <button 
+              onClick={handleApply}
+              style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "10px", padding: "0 18px", fontSize: "12px", fontWeight: "900", cursor: "pointer", transition: "opacity 0.2s" }}
+              onMouseEnter={e => e.currentTarget.style.opacity = 0.9}
+              onMouseLeave={e => e.currentTarget.style.opacity = 1}
+            >Apply</button>
+          </div>
+
+          <div style={{ maxHeight: "250px", overflowY: "auto", paddingRight: "4px" }} className="custom-scrollbar">
+            {filteredOptions.length > 0 || searchText ? (
+              <>
+                {filteredOptions.map(opt => {
+                  const isSelected = internalValues.includes(opt);
+                  return (
+                    <div 
+                      key={opt}
+                      onClick={() => toggleValue(opt)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "10px 12px",
+                        borderRadius: "10px",
+                        cursor: "pointer",
+                        background: isSelected ? "rgba(34, 197, 94, 0.1)" : "transparent",
+                        transition: "all 0.2s",
+                        marginBottom: "2px"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = isSelected ? "rgba(34, 197, 94, 0.15)" : "#262626"}
+                      onMouseLeave={e => e.currentTarget.style.background = isSelected ? "rgba(34, 197, 94, 0.1)" : "transparent"}
+                    >
+                      <div style={{
+                        width: "20px",
+                        height: "20px",
+                        border: isSelected ? "none" : "2px solid #444",
+                        background: isSelected ? "#22c55e" : "transparent",
+                        borderRadius: "6px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontSize: "12px",
+                        fontWeight: "900",
+                        transition: "all 0.2s"
+                      }}>
+                        {isSelected && "✓"}
+                      </div>
+                      <span style={{ fontSize: "13.5px", fontWeight: isSelected ? "700" : "500", color: isSelected ? "#fff" : "#ccc" }}>{opt}</span>
+                    </div>
+                  );
+                })}
+              </>
             ) : (
-              <div style={{ padding: "20px 12px", fontSize: "12px", color: "#64748B", textAlign: "center", fontWeight: "600" }}>
-                All available options are selected
+              <div style={{ padding: "30px 10px", textAlign: "center", color: "#666", fontSize: "12px" }}>
+                No options available.
               </div>
-            )
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -6531,22 +6505,16 @@ Powered by Stacli mandi os`;
                           )}
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
-                            <input 
-                              list={`product-list-${idx}`}
-                              value={item.productId} 
-                              onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} 
-                              placeholder={getSelectPlaceholder("Product")}
-                              style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: "#FFFFFF" }} 
-                            />
-                            <datalist id={`product-list-${idx}`}>
-                               {(() => {
+                            <ModernMultiSelectField
+                              label="Product"
+                              value={item.productId}
+                              options={(() => {
                                  const selectedSupplier = suppliers.find(s => s._id === lotCreationForm.farmerId || s.name === lotCreationForm.farmerId);
                                  const supplierProducts = getProfileProducts(selectedSupplier);
-                                 const productOptions = supplierProducts.length > 0 ? supplierProducts : Object.keys(PRODUCT_DATA).filter(k => k !== "default");
-                                 return productOptions.map(p => <option key={p} value={p}>{p}</option>);
-                               })()}
-                            </datalist>
+                                 return supplierProducts.length > 0 ? supplierProducts : Object.keys(PRODUCT_DATA).filter(k => k !== "default");
+                              })()}
+                              onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)}
+                            />
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
