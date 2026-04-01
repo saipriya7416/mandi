@@ -6999,7 +6999,7 @@ Powered by Stacli mandi os`;
                     
                     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                       {lotCreationForm.lineItems.map((item, idx) => (
-                        <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative", alignItems: "flex-end", flexWrap: "nowrap", overflowX: "auto" }}>
+                        <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", paddingRight: "32px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative", alignItems: "flex-end", flexWrap: "wrap" }}>
                           
                           {idx > 0 && (
                             <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
@@ -19480,24 +19480,6 @@ Powered by Stacli mandi os`;
                 {viewingEntity.type === "LOT" ? (
                   <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
                      
-                     {/* Header Info - Clean Table-like Stats */}
-                     <div style={{ background: "#fcfcfc", padding: "16px 20px", borderRadius: "12px", border: "1.5px solid #EBE9E1" }}>
-                         {/* Labels Row */}
-                         <div style={{ display: "flex", borderBottom: "1px solid #EBE9E1", paddingBottom: "10px", marginBottom: "10px" }}>
-                             <div style={{ flex: 1, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>LOT ID</div>
-                             <div style={{ flex: 1.5, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>SUPPLIER NAME & ID</div>
-                             <div style={{ flex: 1, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>VEHICLE NUMBER</div>
-                             <div style={{ flex: 1, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>TOTAL ITEMS</div>
-                         </div>
-                         {/* Values Row */}
-                         <div style={{ display: "flex" }}>
-                             <div style={{ flex: 1, fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, letterSpacing: "0.5px" }}>{viewingEntity.data.lotId || "N/A"}</div>
-                             <div style={{ flex: 1.5, fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</div>
-                             <div style={{ flex: 1, fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</div>
-                             <div style={{ flex: 1, fontSize: "14px", fontWeight: "900", color: COLORS.primary }}>{viewingEntity.data.lineItems?.length || 0} ITEMS</div>
-                         </div>
-                     </div>
-
                      {/* Unified Produce Table */}
                      <div style={{ background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1", overflow: "hidden" }}>
                        <div style={{ padding: "16px 20px", background: "#fcfcfc", borderBottom: "1.5px solid #EBE9E1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -19511,31 +19493,36 @@ Powered by Stacli mandi os`;
                        </div>
                        
                        <div style={{ overflowX: "auto" }}>
-                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", whiteSpace: "nowrap" }}>
                            <thead>
                              <tr style={{ textAlign: "left", background: "#f8fafc", borderBottom: "1.5px solid #EBE9E1" }}>
                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>S.No</th>
+                               <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>LOT ID</th>
+                               <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>SUPPLIER NAME & ID</th>
+                               <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>VEHICLE NUMBER</th>
+                               <th style={{ padding: "12px", textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>TOTAL ITEMS</th>
                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Product Name</th>
                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Variety</th>
                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Grade</th>
                                <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Wt (KG)</th>
-                               <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Rate (\u20B9)</th>
-                               <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Amount (\u20B9)</th>
                                <th style={{ padding: "12px", textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>Status</th>
                              </tr>
                            </thead>
                            <tbody>
                              {(viewingEntity.data.lineItems || []).map((it, idx) => {
-                               const estAmt = Number(it.grossWeight || 0) * Number(it.estimatedRate || 0);
                                return (
                                  <tr key={idx} style={{ borderBottom: "1px solid #F1F5F9", background: idx % 2 === 0 ? "transparent" : "#fff" }}>
                                    <td style={{ padding: "12px", color: COLORS.muted, fontWeight: "700" }}>{idx + 1}</td>
+                                   <td style={{ padding: "12px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</td>
+                                   <td style={{ padding: "12px", fontWeight: "800", color: COLORS.sidebar }}>
+                                     {viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}
+                                   </td>
+                                   <td style={{ padding: "12px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</td>
+                                   <td style={{ padding: "12px", textAlign: "center", fontWeight: "900", color: COLORS.primary }}>{viewingEntity.data.lineItems?.length || 0}</td>
                                    <td style={{ padding: "12px", fontWeight: "900", color: COLORS.sidebar }}>{it.productId || it.product}</td>
                                    <td style={{ padding: "12px", fontWeight: "800", color: COLORS.primary }}>{it.variety || "Standard"}</td>
                                    <td style={{ padding: "12px", fontWeight: "800", color: "#1e293b" }}>{it.grade}</td>
                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "900", color: COLORS.sidebar }}>{it.grossWeight}</td>
-                                   <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: COLORS.muted }}>{it.estimatedRate || 0}</td>
-                                   <td style={{ padding: "12px", textAlign: "right", fontWeight: "900", color: "#166534" }}>{estAmt.toLocaleString()}</td>
                                    <td style={{ padding: "12px", textAlign: "center" }}>
                                      <span style={{ 
                                        padding: "4px 10px", 
@@ -19555,13 +19542,9 @@ Powered by Stacli mandi os`;
                            </tbody>
                            <tfoot>
                              <tr style={{ background: "#FDFBF4", borderTop: "1.5px solid #EBE9E1" }}>
-                                <td colSpan="4" style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.muted, fontSize: "11px" }}>GRAND TOTALS:</td>
+                                <td colSpan="8" style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.muted, fontSize: "11px" }}>GRAND TOTALS:</td>
                                 <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.sidebar }}>
                                    {(viewingEntity.data.lineItems || []).reduce((acc, it) => acc + Number(it.grossWeight || 0), 0).toLocaleString()} KG
-                                </td>
-                                <td></td>
-                                <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: "#166534" }}>
-                                   \u20B9{(viewingEntity.data.lineItems || []).reduce((acc, it) => acc + (Number(it.grossWeight || 0) * Number(it.estimatedRate || 0)), 0).toLocaleString()}
                                 </td>
                                 <td></td>
                              </tr>
