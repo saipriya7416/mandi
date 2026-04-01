@@ -1132,6 +1132,267 @@ function ModernMultiSelectField({
   );
 }
 
+function PartyModernMultiSelectField({
+  label,
+  value,
+  onChange,
+  options = [],
+  disabled,
+  hideLabel = false,
+}) {
+  const [open, setOpen] = useState(false);
+  const [internalValues, setInternalValues] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    setInternalValues(parseMultiValue(value));
+  }, [value]);
+
+  const normalizedOptions = [...new Set((options || []).map(o => String(o || "").trim()).filter(Boolean))];
+  const filteredOptions = normalizedOptions.filter(o => 
+    o.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const toggleValue = (val) => {
+    let next;
+    if (internalValues.includes(val)) {
+      next = internalValues.filter(v => v !== val);
+    } else {
+      next = [...internalValues, val];
+    }
+    setInternalValues(next);
+    onChange?.({ target: { value: next.join(" / ") } });
+  };
+
+  const handleApply = () => {
+    setOpen(false);
+    setSearchText("");
+  };
+
+  const handleManualAdd = () => {
+    if (searchText.trim()) {
+      const trimmed = searchText.trim();
+      if (!internalValues.includes(trimmed)) {
+        const next = [...internalValues, trimmed];
+        setInternalValues(next);
+        onChange?.({ target: { value: next.join(" / ") } });
+      }
+      setSearchText("");
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={dropdownRef} style={{ position: "relative", width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
+      {!hideLabel && (
+        <label style={{ fontSize: "12px", fontWeight: "750", color: "#64748B", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{label}</span>
+          {internalValues.length > 0 && (
+            <span style={{ fontSize: "10px", background: "#E2E8F0", padding: "2px 8px", borderRadius: "10px", color: COLORS.sidebar, fontWeight: "800" }}>
+              {internalValues.length} Selected
+            </span>
+          )}
+        </label>
+      )}
+      
+      <div 
+        onClick={() => !disabled && setOpen(!open)}
+        style={{
+          minHeight: "48px",
+          padding: "8px 16px",
+          borderRadius: "12px",
+          border: "1.5px solid #EBE9E1",
+          background: "#FFFFFF",
+          color: COLORS.sidebar,
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          cursor: disabled ? "not-allowed" : "pointer",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          boxShadow: open ? "0 0 0 2px rgba(0,0,0,0.05)" : "none",
+          opacity: disabled ? 0.6 : 1
+        }}
+      >
+        <div style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "14px", fontWeight: "600", color: COLORS.sidebar }}>
+          {internalValues.length > 0 ? (
+            <span>{internalValues.join(" / ")}</span>
+          ) : (
+            <span style={{ color: "#666" }}>Select {label}...</span>
+          )}
+        </div>
+        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>▼</span>
+      </div>
+
+      {internalValues.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
+          {internalValues.map(v => (
+            <div key={v} style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#F8FAFC",
+              border: "1px solid #E2E8F0",
+              borderRadius: "8px",
+              padding: "4px 10px",
+              fontSize: "12px",
+              fontWeight: "600",
+              color: COLORS.sidebar
+            }}>
+              {v}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const next = internalValues.filter(x => x !== v);
+                  setInternalValues(next);
+                  onChange?.({ target: { value: next.join(" / ") } });
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#94A3B8",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  fontSize: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                  marginLeft: "4px"
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = "#FF3B30"}
+                onMouseLeave={e => e.currentTarget.style.color = "#94A3B8"}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {open && (
+        <div style={{
+          position: "absolute",
+          top: hideLabel ? "60px" : "80px",
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          background: "#1E293B",
+          border: "1px solid #334155",
+          borderRadius: "12px",
+          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
+          padding: "12px",
+          minWidth: "300px",
+          animation: "slideUp 0.2s ease-out"
+        }}>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
+            <div style={{ position: "relative", flex: 1 }}>
+              <input 
+                autoFocus
+                placeholder="Search or add custom..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchText ? handleManualAdd() : handleApply();
+                  }
+                }}
+                style={{
+                  width: "100%",
+                  background: "#0F172A",
+                  border: "1px solid #475569",
+                  borderRadius: "8px",
+                  padding: "10px 12px",
+                  color: "#F8FAFC",
+                  fontSize: "13px",
+                  outline: "none",
+                }}
+                onFocus={e => e.currentTarget.style.borderColor = "#60A5FA"}
+                onBlur={e => e.currentTarget.style.borderColor = "#475569"}
+              />
+            </div>
+            {searchText && !normalizedOptions.some(o => o.toLowerCase() === searchText.toLowerCase()) && (
+              <button 
+                onClick={handleManualAdd}
+                style={{ background: "#3B82F6", color: "#fff", border: "none", borderRadius: "8px", padding: "0 14px", fontSize: "12px", fontWeight: "700", cursor: "pointer", transition: "0.2s" }}
+                onMouseEnter={e => e.currentTarget.style.background = "#2563EB"}
+                onMouseLeave={e => e.currentTarget.style.background = "#3B82F6"}
+              >Add</button>
+            )}
+          </div>
+
+          <div style={{ maxHeight: "220px", overflowY: "auto", paddingRight: "4px" }} className="custom-scrollbar">
+            {filteredOptions.length > 0 || searchText ? (
+              <>
+                {filteredOptions.map(opt => {
+                  const isSelected = internalValues.includes(opt);
+                  return (
+                    <div 
+                      key={opt}
+                      onClick={() => toggleValue(opt)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "10px 12px",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        background: isSelected ? "rgba(59, 130, 246, 0.2)" : "transparent",
+                        border: "1px solid transparent",
+                        borderColor: isSelected ? "rgba(59, 130, 246, 0.3)" : "transparent",
+                        transition: "all 0.2s ease",
+                        marginBottom: "4px"
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = isSelected ? "rgba(59, 130, 246, 0.25)" : "rgba(255, 255, 255, 0.05)";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = isSelected ? "rgba(59, 130, 246, 0.2)" : "transparent";
+                      }}
+                    >
+                      <div style={{
+                        width: "18px",
+                        height: "18px",
+                        border: isSelected ? "none" : "2px solid #64748B",
+                        background: isSelected ? "#3B82F6" : "transparent",
+                        borderRadius: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        transition: "all 0.2s"
+                       }}>
+                         {isSelected && "✓"}
+                       </div>
+                       <span style={{ fontSize: "13.5px", fontWeight: isSelected ? "700" : "500", color: isSelected ? "#F8FAFC" : "#CBD5E1" }}>{opt}</span>
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <div style={{ padding: "20px", textAlign: "center", color: "#64748B", fontSize: "12px" }}>
+                No matches found.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SelectWithManualEntry({
   label,
   value,
@@ -1363,7 +1624,7 @@ function OthersDropdown({
   );
 }
 
-function FormGrid({ sections }) {
+function FormGrid({ sections, isParty = false }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       {sections.map((sec, i) => (
@@ -1419,14 +1680,25 @@ function FormGrid({ sections }) {
                     {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
                   </label>
                   {useModernMultiSelect ? (
-                    <ModernMultiSelectField
-                      label={f.label}
-                      value={f.value}
-                      options={f.options || []}
-                      onChange={f.onChange}
-                      disabled={f.disabled}
-                      hideLabel={true}
-                    />
+                    isParty ? (
+                      <PartyModernMultiSelectField
+                        label={f.label}
+                        value={f.value}
+                        options={f.options || []}
+                        onChange={f.onChange}
+                        disabled={f.disabled}
+                        hideLabel={true}
+                      />
+                    ) : (
+                      <ModernMultiSelectField
+                        label={f.label}
+                        value={f.value}
+                        options={f.options || []}
+                        onChange={f.onChange}
+                        disabled={f.disabled}
+                        hideLabel={true}
+                      />
+                    )
                   ) : f.type === "select" ? (
                     <SelectWithManualEntry
                       label={f.label}
@@ -5081,20 +5353,22 @@ Powered by Stacli mandi os`;
               </h2>
             </div>
             <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-              <Button style={{
-                background: "#000000",
-                color: "#FFFFFF",
-                fontWeight: "800",
-                borderRadius: "24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "10px 20px",
-                border: "none",
-                cursor: "pointer"
-              }} onClick={() => window.location.reload()}>
-                <RefreshCw size={16} /> Refresh
-              </Button>
+              {activeSection !== "User Role" && (
+                <Button style={{
+                  background: "#000000",
+                  color: "#FFFFFF",
+                  fontWeight: "800",
+                  borderRadius: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 20px",
+                  border: "none",
+                  cursor: "pointer"
+                }} onClick={() => window.location.reload()}>
+                  <RefreshCw size={16} /> Refresh
+                </Button>
+              )}
               <div
                 style={{
                   background: "rgba(16, 185, 129, 0.1)",
@@ -5660,7 +5934,7 @@ Powered by Stacli mandi os`;
 
               {activeUserRoleTab === "Supplier" && (
                 <div>
-                  <FormGrid sections={getSupplierProfileSections()} />
+                  <FormGrid sections={getSupplierProfileSections()} isParty={true} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button 
                       style={{ 
@@ -5680,7 +5954,7 @@ Powered by Stacli mandi os`;
 
               {activeUserRoleTab === "Customer" && (
                 <div>
-                  <FormGrid sections={getCustomerProfileSections()} />
+                  <FormGrid sections={getCustomerProfileSections()} isParty={true} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
                     <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Supplier")}>Previous</Button>
                     <Button 
@@ -5827,8 +6101,9 @@ Powered by Stacli mandi os`;
                             )}
                           </div>
                           <div style={{ minWidth: "280px" }}>
-                            <ModernMultiSelectField
+                            <PartyModernMultiSelectField
                               label="Select Product"
+                              hideLabel={true}
                               value={selectedProducts.join(" / ")}
                               options={productOptions}
                               onChange={(e) => {
@@ -5840,39 +6115,6 @@ Powered by Stacli mandi os`;
                         </div>
 
                         <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "14px", overflowX: "auto", paddingBottom: "2px" }}>
-                          {selectedProducts.map((product) => (
-                            <div
-                              key={product}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                padding: "6px 10px",
-                                borderRadius: "10px",
-                                border: "1px solid #CBD5E1",
-                                background: "#FFFFFF",
-                                fontSize: "12px",
-                                fontWeight: "700",
-                                color: COLORS.sidebar,
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <span>{product}</span>
-                              <button
-                                onClick={() => removeMemberProductFilter(activeTab, product)}
-                                style={{
-                                  border: "none",
-                                  background: "transparent",
-                                  color: "#64748B",
-                                  cursor: "pointer",
-                                  fontWeight: "900",
-                                  lineHeight: 1,
-                                }}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ))}
                           {(selectedProducts.length > 0 || memberSearchQuery.trim()) && (
                             <button
                               onClick={() => {
