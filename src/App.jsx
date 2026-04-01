@@ -6842,35 +6842,7 @@ Powered by Stacli mandi os`;
                               setLots(updatedLots);
                             }
                           }}
-                        >
-                          <div style={{ display: "flex", gap: "24px", flexWrap: "nowrap", overflowX: "auto", alignItems: "flex-start", marginTop: "16px", paddingBottom: "8px", scrollbarWidth: "thin" }}>
-                             <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, paddingRight: "8px" }}>
-                                <span style={{ fontSize: "10px", fontWeight: "bold", color: COLORS.muted, textTransform: "uppercase" }}>Vehicle</span>
-                                <span style={{ fontSize: "12px", fontWeight: "normal", color: COLORS.sidebar, marginTop: "4px", whiteSpace: "nowrap" }}>{l.vehicleNumber || "N/A"}</span>
-                             </div>
-                             <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, paddingRight: "8px" }}>
-                                <span style={{ fontSize: "10px", fontWeight: "bold", color: COLORS.muted, textTransform: "uppercase" }}>Driver</span>
-                                <span style={{ fontSize: "12px", fontWeight: "normal", color: COLORS.sidebar, marginTop: "4px", whiteSpace: "nowrap" }}>{l.driverName || "N/A"}</span>
-                             </div>
-                             <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, paddingRight: "8px" }}>
-                                <span style={{ fontSize: "10px", fontWeight: "bold", color: COLORS.muted, textTransform: "uppercase" }}>Origin</span>
-                                <span style={{ fontSize: "12px", fontWeight: "normal", color: COLORS.sidebar, marginTop: "4px", whiteSpace: "nowrap" }}>{l.origin || "N/A"}</span>
-                             </div>
-                             <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, paddingRight: "8px" }}>
-                                <span style={{ fontSize: "10px", fontWeight: "bold", color: COLORS.muted, textTransform: "uppercase" }}>Products</span>
-                                <span style={{ fontSize: "12px", fontWeight: "normal", color: COLORS.sidebar, marginTop: "4px", whiteSpace: "nowrap" }}>
-                                  {(l.lineItems || []).map(li => li.productId || li.product).join(", ") || "N/A"}
-                                </span>
-                             </div>
-                             <div style={{ marginLeft: "auto", textAlign: "right", display: "flex", flexDirection: "column", flexShrink: 0, alignItems: "flex-end" }}>
-                                <span style={{ fontSize: "10px", fontWeight: "bold", color: COLORS.muted, textTransform: "uppercase" }}>Total Qty</span>
-                                <span style={{ fontSize: "12px", fontWeight: "normal", color: COLORS.primary, marginTop: "4px" }}>
-                                  {(l.lineItems || []).reduce((acc, li) => acc + Number(li.grossWeight || 0), 0).toLocaleString()}
-                                </span>
-                                <span style={{ fontSize: "10px", fontWeight: "normal", color: COLORS.muted, textTransform: "lowercase", marginTop: "2px" }}>kg</span>
-                             </div>
-                          </div>
-                        </PremiumActionCard>
+                        />
                       );
                     })}
                   </div>
@@ -19448,16 +19420,7 @@ Powered by Stacli mandi os`;
                                );
                              })}
                            </tbody>
-                           <tfoot>
-                             <tr style={{ background: "#FDFBF4", borderTop: "1.5px solid #EBE9E1" }}>
-                                <td colSpan="8" style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.muted, fontSize: "11px" }}>GRAND TOTALS:</td>
-                                <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.sidebar }}>
-                                   {(viewingEntity.data.lineItems || []).reduce((acc, it) => acc + Number(it.grossWeight || 0), 0).toLocaleString()} KG
-                                </td>
-                                <td></td>
-                                <td></td>
-                             </tr>
-                           </tfoot>
+
                          </table>
                        </div>
                      </div>
