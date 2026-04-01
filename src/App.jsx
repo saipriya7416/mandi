@@ -2611,12 +2611,13 @@ Powered by Stacli mandi os`;
         const currentLotId = allocationForm.lotId;
         const matchedLot = lots.find((l) => l.lotId === currentLotId);
         if (matchedLot) {
-          const lotItem = matchedLot.lineItems?.find(
-            (it) => `${it.productId} / ${it.variety} / ${it.grade}` === value,
-          );
+          const lotItem = (matchedLot.lineItems || []).find((it) => {
+            const parts = [it.productId || it.product, it.variety, it.grade].filter(Boolean);
+            return parts.join(" / ") === value;
+          });
           if (lotItem) {
             const available =
-              Number(lotItem.grossWeight) - Number(lotItem.deductions) || 0;
+              Number(lotItem.grossWeight) - Number(lotItem.deductions || 0) || 0;
             const alreadyAllocated = (allocations || [])
               .filter(
                 (a) =>
@@ -6883,9 +6884,10 @@ Powered by Stacli mandi os`;
                           options={(() => {
                             const currentLot = lots.find(l => l.lotId === allocationForm.lotId);
                             if (!currentLot) return [];
-                            return currentLot.lineItems.map(li => 
-                              `${li.product || ""} ${li.variety || ""} ${li.grade || ""}`.trim()
-                            );
+                            return (currentLot.lineItems || []).map(li => {
+                              const parts = [li.productId || li.product, li.variety, li.grade].filter(Boolean);
+                              return parts.join(" / ");
+                            });
                           })()}
                           onChange={(e) =>
                             handleAllocationItemAction(
