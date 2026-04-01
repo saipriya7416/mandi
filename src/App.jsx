@@ -907,6 +907,7 @@ function ModernMultiSelectField({
   onChange,
   options = [],
   disabled,
+  hideLabel = false,
 }) {
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -946,7 +947,7 @@ function ModernMultiSelectField({
 
   return (
     <div ref={dropdownRef} style={{ position: "relative", width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
-      <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>{label}</label>
+      {!hideLabel && <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>{label}</label>}
       
       <div 
         onClick={() => !disabled && setOpen(true)}
@@ -1437,6 +1438,7 @@ function FormGrid({ sections }) {
                       options={f.options || []}
                       onChange={f.onChange}
                       disabled={f.disabled}
+                      hideLabel={true}
                     />
                   ) : f.type === "select" ? (
                     <SelectWithManualEntry
@@ -6907,6 +6909,7 @@ Powered by Stacli mandi os`;
                         <ModernMultiSelectField
                           label="Product / Variety / Grade *"
                           value={item.lineItemId}
+                          hideLabel={true}
                           options={(() => {
                             const currentLot = lots.find(l => l.lotId === allocationForm.lotId);
                             if (!currentLot) return [];
@@ -9829,6 +9832,7 @@ Powered by Stacli mandi os`;
                           <ModernMultiSelectField
                             label="Available Item from Lot"
                             value={item.productInfo}
+                            hideLabel={true}
                             options={(() => {
                               const currentLot = lots.find(l => l.lotId === buyerInvoiceForm.lotReference);
                               if (!currentLot) return [];
