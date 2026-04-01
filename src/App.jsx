@@ -910,266 +910,234 @@ function ModernMultiSelectField({
 }) {
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [draftSelected, setDraftSelected] = useState([]);
+  const dropdownRef = useRef(null);
   const selectedValues = parseMultiValue(value);
-  const normalizedSelected = selectedValues.map((v) => v.toLowerCase());
-  const normalizedDraft = draftSelected.map((v) => v.toLowerCase());
   const normalizedOptions = (options || []).map((opt) => String(opt || "").trim()).filter(Boolean);
+  
   const filteredOptions = normalizedOptions.filter((opt) =>
-    opt.toLowerCase().includes(searchText.toLowerCase()),
+    opt.toLowerCase().includes(searchText.toLowerCase()) && 
+    !selectedValues.map(v => v.toLowerCase()).includes(opt.toLowerCase())
   );
-  const canAddManual =
-    searchText.trim() &&
-    !normalizedOptions.some((o) => o.toLowerCase() === searchText.trim().toLowerCase()) &&
-    !normalizedDraft.includes(searchText.trim().toLowerCase());
 
   useEffect(() => {
-    if (open) setDraftSelected(selectedValues);
-  }, [open, value]);
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+        setSearchText("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const emitSelection = (nextValues) => {
-    onChange?.({ target: { value: nextValues.join(" / ") } });
-  };
-
-  const closeDropdown = () => {
-    setOpen(false);
-    setSearchText("");
-    if (document?.activeElement && typeof document.activeElement.blur === "function") {
-      document.activeElement.blur();
+  const handleAddValue = (val) => {
+    if (!val) return;
+    const current = selectedValues.map(v => v.toLowerCase());
+    if (!current.includes(val.toLowerCase())) {
+       const next = [...selectedValues, val];
+       onChange?.({ target: { value: next.join(" / ") } });
     }
   };
 
-  const applySelection = () => {
-    emitSelection(draftSelected);
-    closeDropdown();
-  };
-
-  const cancelSelection = () => {
-    setDraftSelected(selectedValues);
-    closeDropdown();
-  };
-
-  const toggleValue = (nextValue) => {
-    const exists = normalizedDraft.includes(String(nextValue).toLowerCase());
-    const nextDraft = exists
-      ? draftSelected.filter((v) => v.toLowerCase() !== String(nextValue).toLowerCase())
-      : [...draftSelected, nextValue];
-    setDraftSelected(nextDraft);
-
-    // Fast single selection closes immediately.
-    if (!exists && selectedValues.length === 0 && nextDraft.length === 1 && !searchText.trim()) {
-      emitSelection(nextDraft);
-      closeDropdown();
-    }
+  const removeValue = (val) => {
+    const next = selectedValues.filter(v => v.toLowerCase() !== val.toLowerCase());
+    onChange?.({ target: { value: next.join(" / ") } });
   };
 
   return (
-    <div style={{ position: "relative", width: "100%" }}>
-      <button
-        type="button"
-        onClick={() => !disabled && setOpen((prev) => !prev)}
-        disabled={disabled}
+    <div ref={dropdownRef} style={{ position: "relative", width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
+      <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>{label}</label>
+      
+      <div 
+        onClick={() => !disabled && setOpen(true)}
         style={{
-          width: "100%",
           minHeight: "44px",
-          padding: "10px 14px",
+          padding: "8px 12px",
           borderRadius: "8px",
           border: "1.5px solid #EBE9E1",
           background: disabled ? "#FDFBF4" : "#FFFFFF",
-          color: disabled ? COLORS.muted : COLORS.sidebar,
-          fontSize: "13px",
-          fontWeight: "650",
-          textAlign: "left",
-          cursor: disabled ? "not-allowed" : "pointer",
           display: "flex",
-          justifyContent: "space-between",
+          flexWrap: "wrap",
           alignItems: "center",
-          transition: "all 0.2s"
+          gap: "8px",
+          cursor: disabled ? "not-allowed" : "text",
+          transition: "all 0.2s ease-in-out",
+          borderColor: open ? COLORS.primary : "#EBE9E1",
+          boxShadow: open ? `0 0 0 1px ${COLORS.primary}20` : "none"
         }}
       >
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
-          {selectedValues.length ? selectedValues.join(" / ") : getModernMultiSelectPlaceholder(label)}
-        </span>
-        {selectedValues.length > 0 && !disabled && (
-          <span style={{
-            marginLeft: "8px",
-            background: COLORS.primary,
-            color: "#FFFFFF",
-            width: "18px",
-            height: "18px",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "14px",
-            fontWeight: "900",
-            flexShrink: 0,
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-          }}>+</span>
-        )}
-      </button>
-
-      {selectedValues.length > 0 && (
-        <div style={{ display: "flex", gap: "8px", overflowX: "auto", marginTop: "8px", paddingBottom: "2px" }}>
-          {selectedValues.map((chip) => (
-            <div
-              key={chip}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "4px 8px",
-                borderRadius: "8px",
-                border: "1px solid #CBD5E1",
-                background: "#FFFFFF",
-                fontSize: "12px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span>{chip}</span>
-              <button
-                type="button"
-                onClick={() =>
-                  emitSelection(
-                    selectedValues.filter((v) => v.toLowerCase() !== chip.toLowerCase()),
-                  )
-                }
-                style={{ border: "none", background: "transparent", cursor: "pointer", color: "#64748B", fontWeight: "900" }}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {open && !disabled && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            left: 0,
-            right: 0,
-            zIndex: 25,
-            background: "#EEF1F4",
-            border: "1px solid #D7DEE6",
-            borderRadius: "10px",
-            padding: "10px",
-            boxShadow: "0 10px 20px rgba(15, 23, 42, 0.12)",
-          }}
-        >
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && canAddManual) {
-                const manualValue = searchText.trim();
-                const nextDraft = [...draftSelected, manualValue];
-                emitSelection(nextDraft);
-                closeDropdown();
-              } else if (e.key === "Escape") {
-                cancelSelection();
-              }
-            }}
-            placeholder={getModernMultiSelectPlaceholder(label)}
-            style={{
-              width: "100%",
-              padding: "8px 10px",
-              borderRadius: "8px",
-              border: "1px solid #CBD5E1",
-              outline: "none",
-              fontSize: "13px",
-              marginBottom: "8px",
-            }}
-          />
-          <div style={{ maxHeight: "190px", overflowY: "auto" }}>
-            {filteredOptions.map((opt) => {
-              const checked = normalizedDraft.includes(opt.toLowerCase());
-              return (
-                <div
-                  key={opt}
-                  onClick={() => toggleValue(opt)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "8px",
-                    padding: "8px 10px",
-                    cursor: "pointer",
-                    borderRadius: "6px",
-                    background: checked ? `${COLORS.primary}15` : "transparent",
-                    transition: "all 0.2s",
-                    marginBottom: "2px"
-                  }}
-                  onMouseOver={(e) => !checked && (e.currentTarget.style.background = "rgba(255,255,255,0.5)")}
-                  onMouseOut={(e) => !checked && (e.currentTarget.style.background = "transparent")}
-                >
-                  <span style={{ fontSize: "13px", fontWeight: "700", color: checked ? COLORS.sidebar : COLORS.muted }}>{opt}</span>
-                  {checked && <span style={{ color: COLORS.primary, fontWeight: "900", fontSize: "14px" }}>✓</span>}
-                </div>
-              );
-            })}
-            {canAddManual && (
-              <button
-                type="button"
-                onClick={() => {
-                  const manualValue = searchText.trim();
-                  const nextDraft = [...draftSelected, manualValue];
-                  emitSelection(nextDraft);
-                  closeDropdown();
-                }}
-                style={{
-                  width: "100%",
-                  textAlign: "left",
-                  marginTop: "6px",
-                  padding: "8px 10px",
-                  borderRadius: "8px",
-                  border: "1px dashed #94A3B8",
-                  background: "#FFFFFF",
-                  cursor: "pointer",
-                  fontSize: "13px",
-                  fontWeight: "700",
-                }}
-              >
-                Add "{searchText.trim()}"
-              </button>
+        {selectedValues.map((val) => (
+          <div key={val} style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "5px", 
+            padding: "4px 10px", 
+            background: "#F1F5F9", 
+            borderRadius: "6px", 
+            fontSize: "12px", 
+            fontWeight: "800", 
+            color: COLORS.sidebar,
+            border: "1px solid #E2E8F0",
+            animation: "fadeIn 0.2s ease-out"
+          }}>
+            {val}
+            {!disabled && (
+              <span 
+                onClick={(e) => { e.stopPropagation(); removeValue(val); }}
+                style={{ cursor: "pointer", color: "#64748B", fontSize: "14px", fontWeight: "900", transition: "color 0.2s" }}
+                onMouseEnter={(e) => e.target.style.color = COLORS.danger}
+                onMouseLeave={(e) => e.target.style.color = "#64748B"}
+              >×</span>
             )}
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "10px", paddingTop: "8px", borderTop: "1px solid #D7DEE6" }}>
-            <button
-              type="button"
-              onClick={cancelSelection}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "8px",
-                border: "1px solid #CBD5E1",
-                background: "#FFFFFF",
-                color: "#334155",
-                fontSize: "12px",
-                fontWeight: "700",
+        ))}
+        
+        <input 
+          type="text"
+          value={searchText}
+          onChange={(e) => {
+            setSearchText(e.target.value);
+            if (!open) setOpen(true);
+          }}
+          onFocus={() => !disabled && setOpen(true)}
+          placeholder={selectedValues.length === 0 ? (getModernMultiSelectPlaceholder(label) || "Select Variety") : ""}
+          disabled={disabled}
+          autoComplete="off"
+          style={{
+            border: "none",
+            outline: "none",
+            background: "transparent",
+            fontSize: "13px",
+            fontWeight: "650",
+            color: COLORS.sidebar,
+            flex: 1,
+            minWidth: "100px",
+            padding: "4px 0"
+          }}
+          onKeyDown={(e) => {
+             if (e.key === "Enter" && searchText.trim()) {
+                e.preventDefault();
+                handleAddValue(searchText.trim());
+                setSearchText("");
+             } else if (e.key === "Backspace" && !searchText && selectedValues.length > 0) {
+                removeValue(selectedValues[selectedValues.length - 1]);
+             } else if (e.key === "Escape") {
+                setOpen(false);
+             }
+          }}
+        />
+
+        {!disabled && (
+          <div 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (searchText.trim()) {
+                 handleAddValue(searchText.trim());
+                 setSearchText("");
+              } else {
+                 setOpen(!open);
+              }
+            }}
+            style={{ 
+              marginLeft: "auto",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px"
+            }}
+          >
+            <span style={{ color: "#64748B", fontSize: "14px", cursor: "pointer", opacity: 0.7 }}>▼</span>
+            <div 
+              style={{ 
                 cursor: "pointer",
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={applySelection}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "8px",
-                border: "1px solid #D4A017",
-                background: "#D4A017",
                 color: "#FFFFFF",
-                fontSize: "12px",
-                fontWeight: "800",
-                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "18px",
+                fontWeight: "900",
+                width: "24px",
+                height: "24px",
+                background: COLORS.primary,
+                borderRadius: "50%",
+                transition: "all 0.2s ease-in-out",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
             >
-              Apply
-            </button>
+              +
+            </div>
           </div>
+        )}
+      </div>
+
+      {open && !disabled && (
+        <div style={{
+          position: "absolute",
+          top: "calc(100% + 5px)",
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          background: "#FFFFFF",
+          border: "1px solid #D7DEE6",
+          borderRadius: "10px",
+          maxHeight: "220px",
+          overflowY: "auto",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+          padding: "5px",
+          animation: "fadeIn 0.2s ease-out"
+        }}>
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((opt) => (
+              <div
+                key={opt}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddValue(opt);
+                  setSearchText("");
+                }}
+                style={{
+                  padding: "10px 12px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  color: COLORS.sidebar,
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = `${COLORS.primary}10`; e.currentTarget.style.color = COLORS.primary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.sidebar; }}
+              >
+                <span>{opt}</span>
+                <span style={{ fontSize: "11px", fontWeight: "800", opacity: 0.5 }}>Select</span>
+              </div>
+            ))
+          ) : (
+            searchText ? (
+              <div 
+                onClick={() => { handleAddValue(searchText.trim()); setSearchText(""); }}
+                style={{ 
+                  padding: "12px", 
+                  fontSize: "13px", 
+                  color: COLORS.primary, 
+                  fontWeight: "900", 
+                  cursor: "pointer",
+                  textAlign: "center",
+                  background: `${COLORS.primary}05`,
+                  borderRadius: "8px"
+                }}
+              >
+                + Add "{searchText}" manually
+              </div>
+            ) : (
+              <div style={{ padding: "20px 12px", fontSize: "12px", color: "#64748B", textAlign: "center", fontWeight: "600" }}>
+                All available options are selected
+              </div>
+            )
+          )}
         </div>
       )}
     </div>
@@ -1293,10 +1261,26 @@ function OthersDropdown({
   style = {},
   hideLabel = false
 }) {
-  const listId = `list-${label.replace(/\s+/g, '-').toLowerCase()}-${Math.random().toString(36).substr(2, 5)}`;
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(o => 
+    String(o || "").toLowerCase().includes(String(value || "").toLowerCase())
+  );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, ...style }}>
+    <div ref={dropdownRef} style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, ...style, position: "relative" }}>
       {!hideLabel && (
         <label
           style={{
@@ -1315,10 +1299,14 @@ function OthersDropdown({
       <div style={{ position: "relative" }}>
         <input
           type="text"
-          list={listId}
+          autoComplete="off"
           placeholder={placeholder || getSelectPlaceholder(label)}
-          value={value}
-          onChange={onChange}
+          value={value || ""}
+          onFocus={() => setIsOpen(true)}
+          onChange={(e) => {
+            onChange(e);
+            setIsOpen(true);
+          }}
           disabled={disabled}
           style={{
             width: "100%",
@@ -1333,11 +1321,55 @@ function OthersDropdown({
             ...style
           }}
         />
-        <datalist id={listId}>
-          {options.map((o) => (
-            <option key={o} value={o} />
-          ))}
-        </datalist>
+        
+        {isOpen && !disabled && filteredOptions.length > 0 && (
+          <ul style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            maxHeight: "200px",
+            overflowY: "auto",
+            backgroundColor: "#1a1a1a", // Medium black
+            borderRadius: "12px",
+            marginTop: "6px",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
+            listStyle: "none",
+            padding: "6px",
+            border: "1px solid #333333"
+          }}>
+            {filteredOptions.map((o) => (
+              <li
+                key={o}
+                onClick={() => {
+                  onChange({ target: { value: o } });
+                  setIsOpen(false);
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "#d4a017";
+                  e.target.style.color = "#1e240b";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "transparent";
+                  e.target.style.color = "#FFFFFF";
+                }}
+                style={{
+                  padding: "10px 14px",
+                  cursor: "pointer",
+                  borderRadius: "8px",
+                  color: "#FFFFFF",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                  marginBottom: "2px"
+                }}
+              >
+                {o}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
@@ -1678,7 +1710,7 @@ export default function App() {
           </span>
         )}
       </div>}
-      subtitle={s.createdAt ? `Registered on: ${new Date(s.createdAt).toLocaleDateString('en-GB')}` : ""}
+      subtitle=""
       icon={ICON_USER}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
       details={[
@@ -1714,7 +1746,7 @@ export default function App() {
           </span>
         )}
       </div>}
-      subtitle={b.createdAt ? `Registered on: ${new Date(b.createdAt).toLocaleDateString('en-GB')}` : ""}
+      subtitle=""
       icon={ICON_SHOP}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
       details={[
@@ -5939,7 +5971,7 @@ Powered by Stacli mandi os`;
                         }
                         return (
                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))", gap: "20px" }}>
                               {activeTab === "Suppliers"
                                 ? searchedData.map((s) => renderSupplierMemberCard(s))
                                 : searchedData.map((b) => renderBuyerMemberCard(b))}
@@ -5983,7 +6015,7 @@ Powered by Stacli mandi os`;
                                   No profiles found for this product.
                                 </div>
                               ) : (
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "12px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))", gap: "12px" }}>
                                   {activeTab === "Suppliers"
                                     ? group.items.map((s) => renderSupplierMemberCard(s, `supplier-${group.product}`))
                                     : group.items.map((b) => renderBuyerMemberCard(b, `buyer-${group.product}`))}
@@ -6437,7 +6469,7 @@ Powered by Stacli mandi os`;
                               return (
                                 <PremiumActionCard
                                   key={l._id || l.lotId}
-                                  title={<SmartDataNode text={formatNameWithId((l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier")), (typeof l.supplierId === "object" ? l.supplierId?._id : l.supplierId))} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                                  title={<SmartDataNode text={(l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier"))} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
                                   subtitle=""
                                   icon={ICON_TRUCK}
                                   status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -18828,11 +18860,11 @@ Powered by Stacli mandi os`;
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
                           <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
                             <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Supplier Name</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || "N/A"}</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</div>
                           </div>
                           <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
                             <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Supplier ID</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{stripIdPrefix((typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId))) || "N/A"}</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{(() => { const rawId = typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId); const str = String(rawId || ""); const numPart = str.includes('-') ? str.split('-').pop() : str; return numPart ? Number(numPart).toString() : "N/A"; })()}</div>
                           </div>
                           <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
                             <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Origin / Source Location</div>
