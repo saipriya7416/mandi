@@ -209,7 +209,7 @@ const SmartDataNode = ({ text, type, data = {}, onAdd, onView }) => {
         </head>
         <body>
           <div class="card">
-            <h1 style="color: #1a1a2e;">📄 ${type} Record: ${text}</h1>
+            <h1 style="color: #1a1a2e;">ðŸ“„ ${type} Record: ${text}</h1>
             ${Object.entries(data)
               .filter(([k]) => k !== "_id" && k !== "password" && k !== "__v")
               .map(([k, v]) => `
@@ -269,7 +269,7 @@ const SmartDataNode = ({ text, type, data = {}, onAdd, onView }) => {
             }}
             style={{ padding: '10px 14px', borderRadius: '8px', border: 'none', background: '#D4A017', color: '#fff', fontWeight: '800', fontSize: '12px', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: '8px', alignItems: 'center' }}
           >
-            📂 View details
+            ðŸ“‚ View details
           </button>
         </div>
       )}
@@ -1009,7 +1009,7 @@ function ModernMultiSelectField({
                      style={{ cursor: "pointer", color: "#64748B", fontSize: "16px", fontWeight: "900", transition: "all 0.2s", opacity: 0.7 }}
                      onMouseEnter={(e) => { e.currentTarget.style.color = "#FF3B30"; e.currentTarget.style.transform = "scale(1.2)"; }}
                      onMouseLeave={(e) => { e.currentTarget.style.color = "#64748B"; e.currentTarget.style.transform = "scale(1)"; }}
-                   >×</span>
+                   >Ã—</span>
                  </span>
                ))}
                {internalValues.length > 3 && <span style={{ color: "#888", fontSize: "11px", alignSelf: "center" }}>+{internalValues.length - 3} more</span>}
@@ -1018,7 +1018,7 @@ function ModernMultiSelectField({
             <span style={{ color: "#666" }}>Select {label}...</span>
           )}
         </div>
-        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>▼</span>
+        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>â–¼</span>
       </div>
 
       {open && (
@@ -1065,15 +1065,9 @@ function ModernMultiSelectField({
             {searchText && !normalizedOptions.some(o => o.toLowerCase() === searchText.toLowerCase()) && (
               <button 
                 onClick={handleManualAdd}
-                style={{ background: "rgba(255,255,255,0.2)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", padding: "0 12px", fontSize: "12px", fontWeight: "800", cursor: "pointer" }}
+                style={{ background: "rgba(255, 255, 255, 0.2)", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.2)", borderRadius: "10px", padding: "8px 16px", fontSize: "12px", fontWeight: "800", cursor: "pointer" }}
               >Add</button>
             )}
-            <button 
-              onClick={handleApply}
-              style={{ background: COLORS.primary, color: "#fff", border: "none", borderRadius: "10px", padding: "0 18px", fontSize: "12px", fontWeight: "900", cursor: "pointer", transition: "opacity 0.2s" }}
-              onMouseEnter={e => e.currentTarget.style.opacity = 0.9}
-              onMouseLeave={e => e.currentTarget.style.opacity = 1}
-            >Apply</button>
           </div>
 
           <div style={{ maxHeight: "250px", overflowY: "auto", paddingRight: "4px" }} className="custom-scrollbar">
@@ -1113,7 +1107,7 @@ function ModernMultiSelectField({
                         fontWeight: "900",
                         transition: "all 0.2s"
                       }}>
-                        {isSelected && "✓"}
+                        {isSelected && "âœ“"}
                       </div>
                       <span style={{ fontSize: "13.5px", fontWeight: isSelected ? "800" : "500", color: "#ffffff" }}>{opt}</span>
                     </div>
@@ -1125,6 +1119,27 @@ function ModernMultiSelectField({
                 No options available.
               </div>
             )}
+          </div>
+          
+          <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px", display: "flex", justifyContent: "center" }}>
+            <button 
+              onClick={handleApply}
+              style={{ 
+                width: "100%",
+                background: COLORS.primary, 
+                color: "#fff", 
+                border: "none", 
+                borderRadius: "10px", 
+                padding: "10px", 
+                fontSize: "13px", 
+                fontWeight: "900", 
+                cursor: "pointer", 
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = 0.9}
+              onMouseLeave={e => e.currentTarget.style.opacity = 1}
+            >Apply</button>
           </div>
         </div>
       )}
@@ -1230,7 +1245,7 @@ function PartyModernMultiSelectField({
             <span style={{ color: "#666" }}>{label?.toLowerCase().startsWith("select") ? label : `Select ${label}...`}</span>
           )}
         </div>
-        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>▼</span>
+        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>â–¼</span>
       </div>
 
       {internalValues.length > 0 && (
@@ -1272,7 +1287,7 @@ function PartyModernMultiSelectField({
                 onMouseEnter={e => e.currentTarget.style.color = "#FF3B30"}
                 onMouseLeave={e => e.currentTarget.style.color = "#94A3B8"}
               >
-                ×
+                Ã—
               </button>
             </div>
           ))}
@@ -1374,7 +1389,7 @@ function PartyModernMultiSelectField({
                         fontWeight: "bold",
                         transition: "all 0.2s"
                        }}>
-                         {isSelected && "✓"}
+                         {isSelected && "âœ“"}
                        </div>
                        <span style={{ fontSize: "13.5px", fontWeight: isSelected ? "700" : "500", color: isSelected ? "#F8FAFC" : "#CBD5E1" }}>{opt}</span>
                     </div>
@@ -1386,6 +1401,34 @@ function PartyModernMultiSelectField({
                 No matches found.
               </div>
             )}
+          </div>
+
+          <div style={{ marginTop: "12px", borderTop: "1px solid #334155", paddingTop: "12px", display: "flex" }}>
+            <button 
+              id="party-multiselect-apply"
+              onClick={handleApply}
+              style={{ 
+                width: "100%",
+                background: "#3B82F6", 
+                color: "#fff", 
+                border: "none", 
+                borderRadius: "8px", 
+                padding: "10px", 
+                fontSize: "13px", 
+                fontWeight: "800", 
+                cursor: "pointer", 
+                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)"
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "#2563EB";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "#3B82F6";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >Apply</button>
           </div>
         </div>
       )}
@@ -1845,8 +1888,11 @@ export default function App() {
   const [editingBuyerId, setEditingBuyerId] = useState(null);
   const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Customer', data: ... }
   const [supplierSaveBtn, setSupplierSaveBtn] = useState({ label: "Save", color: null });
+  const [supplierClearBtn, setSupplierClearBtn] = useState({ label: "Cancel All", color: "#CC0000" });
   const [buyerSaveBtn, setBuyerSaveBtn] = useState({ label: "Save", color: null });
+  const [buyerClearBtn, setBuyerClearBtn] = useState({ label: "Cancel All", color: "#CC0000" });
   const [lotSaveBtn, setLotSaveBtn] = useState({ label: "Save", color: null });
+  const [lotClearBtn, setLotClearBtn] = useState({ label: "Clear", color: "#CC0000" });
   const [allocationSaveBtn, setAllocationSaveBtn] = useState({ label: "Save", color: null });
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
   const [memberDateFilter, setMemberDateFilter] = useState("All");
@@ -2007,9 +2053,9 @@ export default function App() {
         { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Supplier"); handleEditSelect("Supplier", s); } },
       ]}
       onDelete={() => {
-        const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+        const code = prompt("ðŸ” SECURITY CHECK: Enter Master Deletion Code to remove this record:");
         if (code === "0000") handleDeleteSupplier(s._id);
-        else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
+        else if (code !== null) alert("ðŸš« ACCESS DENIED: Invalid deletion code.");
       }}
     />
   );
@@ -2043,9 +2089,9 @@ export default function App() {
         { label: "Edit Details", icon: ICON_EDIT, onClick: () => { setActiveUserRoleTab("Customer"); handleEditSelect("Customer", b); } },
       ]}
       onDelete={() => {
-        const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+        const code = prompt("ðŸ” SECURITY CHECK: Enter Master Deletion Code to remove this record:");
         if (code === "0000") handleDeleteBuyer(b._id);
-        else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
+        else if (code !== null) alert("ðŸš« ACCESS DENIED: Invalid deletion code.");
       }}
     />
   );
@@ -2142,7 +2188,7 @@ export default function App() {
   const handleSendBuyerWhatsApp = (b) => {
     const buyer = buyers.find(s => s._id === (b.buyerId?._id || b.buyerId) || s.name === (b.buyerId?.name || b.buyerName || b.buyerId)) || b.buyerId || b;
     const phone = buyer?.phone || b.buyerPhone || b.customerPhone || b.phone || "";
-    if (!phone) return alert("âŒ No phone number found for this customer.");
+    if (!phone) return alert("Ã¢ÂÅ’ No phone number found for this customer.");
 
     const items = b.items || [];
     const totalQty = (items || []).reduce((s, i) => s + (Number(i.grossWeight || 0) - (Number(i.deductions || 0))), 0);
@@ -2157,15 +2203,15 @@ export default function App() {
 
     const itemsTxt = items.map((it, idx) => {
         const wt = Math.max(0, (Number(it.grossWeight) || 0) - (Number(it.deductions) || 0));
-        return `  ${idx+1}. ${it.productInfo || "Product"} - ${wt.toFixed(2)}kg @ ₹${it.rate}/kg`;
+        return `  ${idx+1}. ${it.productInfo || "Product"} - ${wt.toFixed(2)}kg @ â‚¹${it.rate}/kg`;
     }).join('\n');
 
     const chargesList = [];
-    if (Number(ch.transport)) chargesList.push(`  Transport: ₹${ch.transport}`);
-    if (Number(ch.commission)) chargesList.push(`  Commission: ₹${ch.commission}`);
-    if (Number(ch.handling)) chargesList.push(`  Handling: ₹${ch.handling}`);
-    if (Number(ch.otherAmount)) chargesList.push(`  Other: ₹${ch.otherAmount}`);
-    const chargesTxt = chargesList.length > 0 ? `\n➕ Additional Charges:\n${chargesList.join('\n')}` : "";
+    if (Number(ch.transport)) chargesList.push(`  Transport: â‚¹${ch.transport}`);
+    if (Number(ch.commission)) chargesList.push(`  Commission: â‚¹${ch.commission}`);
+    if (Number(ch.handling)) chargesList.push(`  Handling: â‚¹${ch.handling}`);
+    if (Number(ch.otherAmount)) chargesList.push(`  Other: â‚¹${ch.otherAmount}`);
+    const chargesTxt = chargesList.length > 0 ? `\nâž• Additional Charges:\n${chargesList.join('\n')}` : "";
 
     const msg = `Hello Customer
     
@@ -2196,7 +2242,7 @@ Powered by Stacli mandi os`;
   const handleSendSupplierWhatsApp = (b) => {
     const supplier = suppliers.find(s => s._id === b.supplierId?._id || s._id === b.supplierId || s.name === b.supplierName || s.name === b.supplierId) || b.supplierId || b;
     const phone = supplier?.phone || b.supplierPhone || b.farmerPhone || b.phone || "";
-    if (!phone) return alert("âŒ No phone number found for this supplier.");
+    if (!phone) return alert("Ã¢ÂÅ’ No phone number found for this supplier.");
 
     const totalGross = (b.items || []).reduce((s, i) => s + (Number(i.quantity || 0) * Number(i.rate || 0)), 0);
     const totalQty = (b.items || []).reduce((s, i) => s + Number(i.quantity || 0), 0);
@@ -2209,17 +2255,17 @@ Powered by Stacli mandi os`;
     const balancePayable = netSale - advance;
 
     const itemsTxt = (b.items || []).map((it, idx) => {
-        return `  ${idx+1}. ${it.productName || "Product"} - ${it.quantity}kg @ ₹${it.rate}/kg`;
+        return `  ${idx+1}. ${it.productName || "Product"} - ${it.quantity}kg @ â‚¹${it.rate}/kg`;
     }).join('\n');
 
     const expensesList = [];
-    if (Number(ex.transport)) expensesList.push(`  Transport: ₹${ex.transport}`);
-    if (Number(ex.commission)) expensesList.push(`  Commission: ₹${ex.commission}`);
-    if (Number(ex.labour)) expensesList.push(`  Labour: ₹${ex.labour}`);
-    if (Number(ex.weighing)) expensesList.push(`  Weighing: ₹${ex.weighing}`);
-    if (Number(ex.packing)) expensesList.push(`  Packing: ₹${ex.packing}`);
-    if (Number(ex.miscAmount)) expensesList.push(`  Misc: ₹${ex.miscAmount}`);
-    const expensesTxt = expensesList.length > 0 ? `\nðŸ“‰ Deductions:\n${expensesList.join('\n')}` : "";
+    if (Number(ex.transport)) expensesList.push(`  Transport: â‚¹${ex.transport}`);
+    if (Number(ex.commission)) expensesList.push(`  Commission: â‚¹${ex.commission}`);
+    if (Number(ex.labour)) expensesList.push(`  Labour: â‚¹${ex.labour}`);
+    if (Number(ex.weighing)) expensesList.push(`  Weighing: â‚¹${ex.weighing}`);
+    if (Number(ex.packing)) expensesList.push(`  Packing: â‚¹${ex.packing}`);
+    if (Number(ex.miscAmount)) expensesList.push(`  Misc: â‚¹${ex.miscAmount}`);
+    const expensesTxt = expensesList.length > 0 ? `\nÃ°Å¸â€œâ€° Deductions:\n${expensesList.join('\n')}` : "";
 
     const msg1 = `Hello Supplier
     
@@ -2430,7 +2476,7 @@ Powered by Stacli mandi os`;
     if (!supplierForm.name || !supplierForm.phone)
       return alert("Name and phone are mandatory!");
       
-    // 1) Same Supplier Name → Same Supplier ID Auto Link
+    // 1) Same Supplier Name â†’ Same Supplier ID Auto Link
     const existingSync = suppliers.find(s => s.name.toLowerCase() === supplierForm.name.toLowerCase());
     const isEdit = isEditingSupplier || !!existingSync;
     const targetId = isEditingSupplier ? editingSupplierId : (existingSync ? existingSync._id : null);
@@ -2466,7 +2512,7 @@ Powered by Stacli mandi os`;
       if (res.status === "ERROR")
         return alert("Error processing supplier: " + res.message);
       
-      setSupplierSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
+      setSupplierSaveBtn({ label: "âœ… Saved successfully", color: COLORS.success });
       setTimeout(() => {
         setSupplierSaveBtn({ label: "Save", color: null });
         handleCancelAll("Supplier");
@@ -2479,6 +2525,8 @@ Powered by Stacli mandi os`;
 
   const handleCancelAll = (type) => {
     if (type === "Supplier") {
+      setSupplierClearBtn({ label: "Cleared âŒ", color: "red" });
+      setTimeout(() => setSupplierClearBtn({ label: "Cancel All", color: "#CC0000" }), 2000);
       setSupplierForm({
         supplierId: "",
         name: "",
@@ -2500,6 +2548,8 @@ Powered by Stacli mandi os`;
       setIsEditingSupplier(false);
       setEditingSupplierId(null);
     } else {
+      setBuyerClearBtn({ label: "Cleared âŒ", color: "red" });
+      setTimeout(() => setBuyerClearBtn({ label: "Cancel All", color: "#CC0000" }), 2000);
       setBuyerForm({
         buyerId: "",
         name: "",
@@ -2752,17 +2802,17 @@ Powered by Stacli mandi os`;
   const handleDeleteSupplier = async (id) => {
     if (
       !window.confirm(
-        "🗑️ Are you sure you want to PERMANENTLY delete this supplier?",
+        "ðŸ—‘ï¸ Are you sure you want to PERMANENTLY delete this supplier?",
       )
     )
       return;
     try {
       const res = await MandiService.deleteSupplier(id);
       if (res.status === "SUCCESS") {
-        alert("✅ Supplier deleted successfully!");
+        alert("âœ… Supplier deleted successfully!");
         fetchData();
       } else {
-        alert("❌ Error deleting: " + res.message);
+        alert("âŒ Error deleting: " + res.message);
       }
     } catch (err) {
       alert("Delete failed.");
@@ -2772,17 +2822,17 @@ Powered by Stacli mandi os`;
   const handleDeleteBuyer = async (id) => {
     if (
       !window.confirm(
-        "🗑️ Are you sure you want to PERMANENTLY delete this customer?",
+        "ðŸ—‘ï¸ Are you sure you want to PERMANENTLY delete this customer?",
       )
     )
       return;
     try {
       const res = await MandiService.deleteBuyer(id);
       if (res.status === "SUCCESS") {
-        alert("✅ Customer deleted successfully!");
+        alert("âœ… Customer deleted successfully!");
         fetchData();
       } else {
-        alert("❌ Error deleting: " + res.message);
+        alert("âŒ Error deleting: " + res.message);
       }
     } catch (err) {
       alert("Delete failed.");
@@ -2853,7 +2903,7 @@ Powered by Stacli mandi os`;
       if (res.status === "ERROR")
         return alert("Intake registration error: " + res.message);
 
-      setLotSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
+      setLotSaveBtn({ label: "âœ… Saved successfully", color: COLORS.success });
       setTimeout(() => {
         setLotSaveBtn({ label: "Save", color: null });
         fetchData();
@@ -2899,17 +2949,17 @@ Powered by Stacli mandi os`;
   const handleDeleteLot = async (id) => {
     if (
       !window.confirm(
-        "🗑️ Are you sure you want to PERMANENTLY delete this Lot record?",
+        "ðŸ—‘ï¸ Are you sure you want to PERMANENTLY delete this Lot record?",
       )
     )
       return;
     try {
       const res = await MandiService.deleteLot(id);
       if (res.status === "SUCCESS") {
-        alert("✅ Lot deleted successfully!");
+        alert("âœ… Lot deleted successfully!");
         fetchData();
       } else {
-        alert("❌ Error deleting: " + res.message);
+        alert("âŒ Error deleting: " + res.message);
       }
     } catch (err) {
       alert("Delete failed.");
@@ -3042,7 +3092,7 @@ Powered by Stacli mandi os`;
     if (!buyerForm.name || !buyerForm.phone)
       return alert("Customer Name and phone are mandatory!");
 
-    // 1) Same Customer Name → Same Customer ID Auto Link
+    // 1) Same Customer Name â†’ Same Customer ID Auto Link
     const existingSync = (buyers || []).find(s => s.name.toLowerCase() === buyerForm.name.toLowerCase());
     const isEdit = isEditingBuyer || !!existingSync;
     const targetId = isEditingBuyer ? editingBuyerId : (existingSync ? existingSync._id : null);
@@ -3079,7 +3129,7 @@ Powered by Stacli mandi os`;
       if (res.status === "ERROR")
         return alert("Error processing buyer: " + res.message);
       
-      setBuyerSaveBtn({ label: "✅ Saved successfully", color: COLORS.success });
+      setBuyerSaveBtn({ label: "âœ… Saved successfully", color: COLORS.success });
       setTimeout(() => {
         setBuyerSaveBtn({ label: "Save", color: null });
         handleCancelAll("Customer");
@@ -3126,7 +3176,7 @@ Powered by Stacli mandi os`;
         suppliers.find((s) => s._id === intakeForm.supplierId)?.name ||
         "Supplier";
       alert(
-        `✅ LOT CREATED: Lot ${res.data.lotId} for ${sName} successfully committed to Database.`,
+        `âœ… LOT CREATED: Lot ${res.data.lotId} for ${sName} successfully committed to Database.`,
       );
       setIntakeForm({
         supplierId: "",
@@ -3150,7 +3200,7 @@ Powered by Stacli mandi os`;
       fetchData();
       window.location.reload();
     } else {
-      alert(`❌ FAILED: ${res.message || "Error"}`);
+      alert(`âŒ FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -3162,13 +3212,13 @@ Powered by Stacli mandi os`;
   });
 
   const handleSavePurchaseOrder = async () => {
-    alert("📋 ORDER RECORDED: Requirement logged and synced to Database.");
+    alert("ðŸ“‹ ORDER RECORDED: Requirement logged and synced to Database.");
     // This could also be wired to a specific PO service if available
     fetchData();
   };
 
   const handleVerifyKYC = async () => {
-    alert("🛡️ KYC AUDIT COMPLETE: Identity verified and stored in Vault.");
+    alert("ðŸ›¡ï¸ KYC AUDIT COMPLETE: Identity verified and stored in Vault.");
     // MandiService.verifyCompliance(...)
     fetchData();
   };
@@ -3187,7 +3237,7 @@ Powered by Stacli mandi os`;
       alert(" INWARD LOG COMMITTED: Data persisted to MongoDB.");
       fetchData();
     } else {
-      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
+      alert(`âŒ LOG FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -3201,10 +3251,10 @@ Powered by Stacli mandi os`;
       date: outwardTransportForm.dispatchTime || new Date().toISOString(),
     });
     if (res.status === "SUCCESS") {
-      alert("✅ OUTWARD DISPATCH LOGGED: Data persisted to MongoDB.");
+      alert("âœ… OUTWARD DISPATCH LOGGED: Data persisted to MongoDB.");
       fetchData();
     } else {
-      alert(`❌ LOG FAILED: ${res.message || "Error"}`);
+      alert(`âŒ LOG FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -3260,7 +3310,7 @@ Powered by Stacli mandi os`;
       });
       fetchData();
     } else {
-      alert(`❌ INVOICE FAILED: ${res.message || "Database Error"}`);
+      alert(`âŒ INVOICE FAILED: ${res.message || "Database Error"}`);
     }
   };
 
@@ -3291,7 +3341,7 @@ Powered by Stacli mandi os`;
       });
       fetchData();
     } else {
-      alert(`❌ PAYMENT FAILED: ${res.message || "Error"}`);
+      alert(`âŒ PAYMENT FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -3310,7 +3360,7 @@ Powered by Stacli mandi os`;
     };
     const res = await MandiService.recordPayment(payload);
     if (res.status === "SUCCESS") {
-      alert("✅ DISBURSEMENT AUTHORIZED: Payout logged to Database.");
+      alert("âœ… DISBURSEMENT AUTHORIZED: Payout logged to Database.");
       setFarmerPaymentForm({
         ...farmerPaymentForm,
         farmerId: "",
@@ -3321,7 +3371,7 @@ Powered by Stacli mandi os`;
       });
       fetchData();
     } else {
-      alert(`❌ DISBURSEMENT FAILED: ${res.message || "Error"}`);
+      alert(`âŒ DISBURSEMENT FAILED: ${res.message || "Error"}`);
     }
   };
 
@@ -3339,7 +3389,7 @@ Powered by Stacli mandi os`;
       setExpenseForm({ amount: "", lotId: "", memo: "", category: "Labour" });
       fetchData();
     } else {
-      alert(`❌ EXPENSE FAILED: ${res.message || "Error"}`);
+      alert(`âŒ EXPENSE FAILED: ${res.message || "Error"}`);
     }
   };
   const [intakeForm, setIntakeForm] = useState({
@@ -3707,7 +3757,7 @@ Powered by Stacli mandi os`;
       }
       setMasterProducts(updatedProducts);
       alert(
-        `✅ Variety '${newProductForm.variety}' added to ${newProductForm.coreProduct}!`,
+        `âœ… Variety '${newProductForm.variety}' added to ${newProductForm.coreProduct}!`,
       );
     } else {
       const newProduct = {
@@ -3718,7 +3768,7 @@ Powered by Stacli mandi os`;
       };
       setMasterProducts([...masterProducts, newProduct]);
       alert(
-        `✅ Core Product '${newProductForm.coreProduct}' registered in catalog!`,
+        `âœ… Core Product '${newProductForm.coreProduct}' registered in catalog!`,
       );
     }
 
@@ -3757,7 +3807,7 @@ Powered by Stacli mandi os`;
       defaultValue: 0,
     });
     alert(
-      `✅ Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`,
+      `âœ… Expense Category '${newExpense.name}' created! This will now appear in New Bill dropdowns.`,
     );
   };
 
@@ -3813,7 +3863,7 @@ Powered by Stacli mandi os`;
       role: "Accountant",
       expiry: "",
     });
-    alert("✅ Staff Identity Created Successfully! User added to Directory.");
+    alert("âœ… Staff Identity Created Successfully! User added to Directory.");
   };
 
   const [securityAuditLogs, setSecurityAuditLogs] = useState([]);
@@ -3904,8 +3954,7 @@ Powered by Stacli mandi os`;
     setMemberSearchQuery("");
     setMemberProductFilters({ Suppliers: [], Customers: [] });
     setMemberProductSearch({ Suppliers: "", Customers: "" });
-    setActiveUserRoleTab("Supplier");
-    setActiveRegisteredTab("Suppliers");
+    // Tab states are preserved to keep user on current page
     await fetchData();
     setTimeout(() => setIsRefreshing(false), 800);
   };
@@ -3938,7 +3987,7 @@ Powered by Stacli mandi os`;
         },
       ],
     });
-    setActiveLotTab("LOT Creation");
+    // Tab states are preserved to keep user on current page
     setLotSaveBtn({ label: "Save", color: null });
     await fetchData();
     setTimeout(() => setIsRefreshing(false), 800);
@@ -3961,7 +4010,7 @@ Powered by Stacli mandi os`;
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024)
-      return alert("❌ CLIP REACHED: Max size 10MB");
+      return alert("âŒ CLIP REACHED: Max size 10MB");
 
     setUploading(true);
     const res = await MandiService.uploadFile(
@@ -3976,7 +4025,7 @@ Powered by Stacli mandi os`;
       alert(" ARCHIVED: File secured in Vault");
       fetchData();
     } else {
-      alert(`❌ VAULT ERROR: ${res.message}`);
+      alert(`âŒ VAULT ERROR: ${res.message}`);
     }
   };
 
@@ -4019,7 +4068,7 @@ Powered by Stacli mandi os`;
       setLoggedIn(true);
       setUser(res.data.user);
     } else {
-      alert(`❌ LOGIN FAILED: ${res?.message || "Invalid Credentials"}`);
+      alert(`âŒ LOGIN FAILED: ${res?.message || "Invalid Credentials"}`);
     }
   };
 
@@ -4227,7 +4276,7 @@ Powered by Stacli mandi os`;
 
       if (successCount > 0) {
         alert(
-          `✅ ${successCount} Allocation(s) processed and stored in Database!`,
+          `âœ… ${successCount} Allocation(s) processed and stored in Database!`,
         );
         setAllocationForm({
           lotId: "",
@@ -4249,28 +4298,28 @@ Powered by Stacli mandi os`;
         fetchData();
       } else {
         alert(
-          "❌ ALLOCATION STORAGE FAILED: Could not sync records with database.",
+          "âŒ ALLOCATION STORAGE FAILED: Could not sync records with database.",
         );
       }
     } catch (err) {
-      alert(`❌ SYSTEM ERROR: ${err.message}`);
+      alert(`âŒ SYSTEM ERROR: ${err.message}`);
     }
   };
 
   const handleDeleteAllocation = async (id) => {
     if (
       !window.confirm(
-        "ðŸ—‘ï¸ Are you sure you want to PERMANENTLY delete this allocation record?",
+        "Ã°Å¸â€”â€˜Ã¯Â¸  Are you sure you want to PERMANENTLY delete this allocation record?",
       )
     )
       return;
     try {
       const res = await MandiService.deleteAllocation(id);
       if (res.status === "SUCCESS") {
-        alert("✅ Allocation deleted successfully!");
+        alert("âœ… Allocation deleted successfully!");
         fetchData();
       } else {
-        alert("âŒ Error deleting: " + res.message);
+        alert("Ã¢ Å’ Error deleting: " + res.message);
       }
     } catch (err) {
       alert("Delete failed.");
@@ -4329,7 +4378,7 @@ Powered by Stacli mandi os`;
     const item = allocationForm.items[idx];
     if (!item._id)
       return alert(
-        "âš ï¸ This item is not yet saved to the database. Use 'Record All' instead.",
+        "Ã¢Å¡Â Ã¯Â¸  This item is not yet saved to the database. Use 'Record All' instead.",
       );
 
     const matchedLot = lots.find((l) => l.lotId === allocationForm.lotId);
@@ -4349,11 +4398,11 @@ Powered by Stacli mandi os`;
       // Actually backend usually has an update endpoint.
       // For now, we simulate the 'Access to DB' feel.
       alert(
-        `✅ ALLOCATION SYNCED: Item [${item.lineItemId}] updated in Database!`,
+        `âœ… ALLOCATION SYNCED: Item [${item.lineItemId}] updated in Database!`,
       );
       fetchData();
     } catch (err) {
-      alert(`âŒ SYNC FAILED: ${err.message}`);
+      alert(`Ã¢ Å’ SYNC FAILED: ${err.message}`);
     }
   };
 
@@ -4410,10 +4459,10 @@ Powered by Stacli mandi os`;
 
   const handleCreateFarmerBill = async () => {
     const targetFarmerId = farmerBillForm.farmerId;
-    if (!targetFarmerId) return alert("âš ï¸ Please select a supplier first.");
+    if (!targetFarmerId) return alert("Ã¢Å¡Â Ã¯Â¸  Please select a supplier first.");
     if (settlementData.length === 0)
       return alert(
-        "âš ï¸ No sale entries added to this bill. Please ensure items are present.",
+        "Ã¢Å¡Â Ã¯Â¸  No sale entries added to this bill. Please ensure items are present.",
       );
 
     const gross = settlementData.reduce(
@@ -4467,7 +4516,7 @@ Powered by Stacli mandi os`;
       await fetchData();
       handleFarmerSelectionForSettlement(targetFarmerId);
       alert(
-        "ðŸ”’ BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.",
+        "Ã°Å¸â€â€™ BILL FINALIZED & SENT TO LEDGER: Record successfully stored in Database.",
       );
 
       if (confirm("Bill stored. Clear form for next settlement?")) {
@@ -4491,7 +4540,7 @@ Powered by Stacli mandi os`;
       }
     } else {
       alert(
-        `âŒ STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`,
+        `Ã¢ Å’ STORAGE FAILED: ${res.message || "Database synchronization error. Please check backend logs."}`,
       );
     }
   };
@@ -4499,7 +4548,7 @@ Powered by Stacli mandi os`;
   const handleVoidBill = async (id) => {
     if (user?.role !== "Owner / Admin") {
       alert(
-        "🛡️ SECURITY: Only the Owner / Admin is authorized to void finalized bills.",
+        "ðŸ›¡ï¸  SECURITY: Only the Owner / Admin is authorized to void finalized bills.",
       );
       return;
     }
@@ -4509,7 +4558,7 @@ Powered by Stacli mandi os`;
     if (!reason) return;
     const res = await MandiService.voidFarmerSettlementBill(id, reason);
     if (res.status === "SUCCESS") {
-      alert("ðŸš« Settlement Voided. Entires reversed.");
+      alert("Ã°Å¸Å¡Â« Settlement Voided. Entires reversed.");
       setIsBillLocked(false);
       setFarmerBillForm({ ...farmerBillForm, farmerId: "" });
       fetchData();
@@ -4604,7 +4653,7 @@ Powered by Stacli mandi os`;
           color: "#fff",
         }}
       >
-        <h1>âš¡ Syncing Matrix...</h1>
+        <h1>Ã¢Å¡Â¡ Syncing Matrix...</h1>
       </div>
     );
 
@@ -4651,8 +4700,8 @@ Powered by Stacli mandi os`;
                   <tr style={{ background: "#f8fafc", color: COLORS.muted }}>
                     <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "left" }}>Product</th>
                     <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Qty (KG)</th>
-                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Rate (₹)</th>
-                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Amount (₹)</th>
+                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Rate (â‚¹)</th>
+                    <th style={{ padding: "12px", borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Amount (â‚¹)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -4672,9 +4721,9 @@ Powered by Stacli mandi os`;
               </table>
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "40px", paddingTop: "24px", borderTop: "1px solid #f1f5f9" }}>
-                <a href={window.location.origin} style={{ color: COLORS.muted, textDecoration: "none" }}>â† Back to Dashboard</a>
+                <a href={window.location.origin} style={{ color: COLORS.muted, textDecoration: "none" }}>Ã¢â€   Back to Dashboard</a>
                 <div style={{ display: "flex", gap: "12px" }}>
-                  <Button variant="outline" onClick={() => window.print()}>ðŸ–¨ï¸ Print</Button>
+                  <Button variant="outline" onClick={() => window.print()}>Ã°Å¸â€“Â¨Ã¯Â¸  Print</Button>
                   <Button onClick={() => {
                     const cName = invoiceData.buyerName || buyers.find(b=>b._id===invoiceData.buyerId)?.name || "Customer";
                     const bName = "STACLI Trading";
@@ -4994,7 +5043,7 @@ Powered by Stacli mandi os`;
                 opacity: 0.9,
               }}
             >
-              Restricted Access Â· Authorized Personnel Only
+              Restricted Access Ã‚Â· Authorized Personnel Only
             </p>
             <div style={{ marginTop: "24px" }}>
               <a
@@ -5073,7 +5122,7 @@ Powered by Stacli mandi os`;
               cursor: "pointer",
             }}
           >
-            {sidebarOpen ? "âœ•" : "â‰¡"}
+            {sidebarOpen ? "Ã¢Å“â€¢" : "Ã¢â€°Â¡"}
           </button>
         </div>
       )}
@@ -5325,7 +5374,7 @@ Powered by Stacli mandi os`;
           scrollBehavior: "smooth",
         }}
       >
-        <header
+                <header
           style={{
             marginBottom: "60px",
             display: "flex",
@@ -5354,32 +5403,34 @@ Powered by Stacli mandi os`;
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
                   {user?.profileImage ? (
-                    <img 
-                      src={user.profileImage} 
-                      alt="Avatar" 
-                      style={{ 
-                        width: "60px", 
-                        height: "60px", 
-                        borderRadius: "50%", 
-                        objectFit: "cover", 
+                    <img
+                      src={user.profileImage}
+                      alt="Avatar"
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
                         border: `3px solid ${COLORS.accent}`,
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-                      }} 
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      }}
                     />
                   ) : (
-                    <div style={{
-                      width: "60px",
-                      height: "60px",
-                      borderRadius: "50%",
-                      background: COLORS.accent,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
-                      fontSize: "24px",
-                      fontWeight: "900",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-                    }}>
+                    <div
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        background: COLORS.accent,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontSize: "24px",
+                        fontWeight: "900",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      }}
+                    >
                       {(user?.name || user?.username || "A")[0].toUpperCase()}
                     </div>
                   )}
@@ -5399,7 +5450,7 @@ Powered by Stacli mandi os`;
                   fontFamily: "'Playfair Display', serif",
                 }}
               >
-                {ALL_MENU.find(m => m.id === activeSection)?.label || activeSection}
+                {ALL_MENU.find((m) => m.id === activeSection)?.label || activeSection}
               </h2>
             </div>
             <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
@@ -5448,19 +5499,18 @@ Powered by Stacli mandi os`;
                   fontSize: "14px",
                 }}
               >
-                <RefreshCw size={18} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
-                <span>{isRefreshing ? "Syncing..." : "Refresh"}</span>
-              </button>
-            </div>         >
-                <RefreshCw size={18} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
+                <RefreshCw
+                  size={18}
+                  style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }}
+                />
                 <span>{isRefreshing ? "Syncing..." : "Refresh"}</span>
               </button>
             </div>
           </div>
         </header>
 
-
-        {/* --- MODULE DISPATCHER --- */}
+        
+{/* --- MODULE DISPATCHER --- */}
         <div style={{ animation: "fadeIn 0.6s ease-out" }}>
           {/* Global Location Datalists */}
           <datalist id="indian-states">
@@ -5708,11 +5758,11 @@ Powered by Stacli mandi os`;
                                 localStorage.setItem('mandi_user', JSON.stringify(updatedUser));
                                 return updatedUser;
                               });
-                              alert("✅ Profile image updated successfully!");
+                              alert("âœ… Profile image updated successfully!");
                             }
                           } catch (err) {
                             console.error("Upload error:", err);
-                            alert("âŒ Failed to upload image. Using local preview instead.");
+                            alert("Ã¢ Å’ Failed to upload image. Using local preview instead.");
                           }
                         }}
                       />
@@ -5938,7 +5988,7 @@ Powered by Stacli mandi os`;
                   }}
                 >
                   <Button
-                    onClick={() => alert("✅ Settings saved successfully.")}
+                    onClick={() => alert("âœ… Settings saved successfully.")}
                     style={{
                       padding: "16px 32px",
                       borderRadius: "10px",
@@ -5991,7 +6041,7 @@ Powered by Stacli mandi os`;
                     >
                       {supplierSaveBtn.label}
                     </Button>
-                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>Cancel All</Button>
+                    <Button style={{ background: "#F1F5F9", color: supplierClearBtn.color, border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Supplier")}>{supplierClearBtn.label}</Button>
                   </div>
                 </div>
               )}
@@ -6012,7 +6062,7 @@ Powered by Stacli mandi os`;
                     >
                       {buyerSaveBtn.label}
                     </Button>
-                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Customer")}>Cancel All</Button>
+                    <Button style={{ background: "#F1F5F9", color: buyerClearBtn.color, border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleCancelAll("Customer")}>{buyerClearBtn.label}</Button>
                   </div>
                 </div>
               )}
@@ -6133,7 +6183,7 @@ Powered by Stacli mandi os`;
                               <option value="Today">Today</option>
                               <option value="7 Days">7 Days</option>
                               <option value="15 Days">15 Days</option>
-                              <option value="30 Days">30 Days / One Month</option>
+                              <option value="30 Days / One Month">30 Days / One Month</option>
                               <option value="Custom Date">Custom Date</option>
                             </select>
                             {memberDateFilter === "Custom Date" && (
@@ -6552,7 +6602,7 @@ Powered by Stacli mandi os`;
                           handleRegisterSupplier();
                         }
                         setLotSaveBtn({
-                          label: "✅ Saved successfully",
+                          label: "âœ… Saved successfully",
                           color: COLORS.success,
                         });
                         setTimeout(() => {
@@ -6566,12 +6616,14 @@ Powered by Stacli mandi os`;
                     <Button
                       style={{
                         background: "#F1F5F9",
-                        color: "#CC0000",
+                        color: lotClearBtn.color || "#CC0000",
                         border: "none",
                         fontWeight: "900",
                         boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
                       }}
-                      onClick={() =>
+                      onClick={() => {
+                        setLotClearBtn({ label: "Cleared âŒ", color: "red" });
+                        setTimeout(() => setLotClearBtn({ label: "Clear", color: "#CC0000" }), 2000);
                         setLotCreationForm({
                           ...lotCreationForm,
                           lotId: generateLotId(lotCounter),
@@ -6593,10 +6645,10 @@ Powered by Stacli mandi os`;
                               status: "Pending Auction",
                             },
                           ],
-                        })
-                      }
+                        });
+                      }}
                     >
-                      Clear
+                      {lotClearBtn.label}
                     </Button>
                   </div>
                 </div>
@@ -6786,15 +6838,15 @@ Powered by Stacli mandi os`;
                                   <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted, whiteSpace: "nowrap" }}>{l.entryDate ? new Date(l.entryDate).toLocaleDateString("en-IN", { day: '2-digit', month: '2-digit', year: 'numeric' }) : "N/A"}</td>
                                   <td style={{ padding: "14px 16px", fontWeight: "800", color: COLORS.sidebar }}>{l.farmerName || selectedSupplier?.name || "N/A"}</td>
                                   <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{supplierIdDisp}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "600", color: COLORS.sidebar }}>{selectedSupplier?.phone || "—"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.sidebar }}>{l.vehicleNumber || "—"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.primary }}>{l.origin || "—"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar }}>{li.productId || "—"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.variety || "—"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "600", color: COLORS.sidebar }}>{selectedSupplier?.phone || "â€”"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.sidebar }}>{l.vehicleNumber || "â€”"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.primary }}>{l.origin || "â€”"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar }}>{li.productId || "â€”"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.variety || "â€”"}</td>
                                   <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.grade || "A"}</td>
                                   <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar, textAlign: "right" }}>{Number(li.grossWeight).toLocaleString()}</td>
                                   <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.weightUnit}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: "#166534", textAlign: "right" }}>₹{estAmount.toLocaleString()}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: "#166534", textAlign: "right" }}>â‚¹{estAmount.toLocaleString()}</td>
                                   <td style={{ padding: "14px 16px", textAlign: "center" }}>
                                     <span style={{ padding: "4px 10px", borderRadius: "12px", background: li.status === "Pending Auction" ? "#FEF9C3" : "#DCFCE7", color: li.status === "Pending Auction" ? "#854D0E" : "#166534", fontSize: "11px", fontWeight: "800" }}>
                                       {li.status || "Pending"}
@@ -6978,15 +7030,16 @@ Powered by Stacli mandi os`;
                     </Button>
                     
 
-                    <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => {
-                        setActiveLotTab("LOT Creation");
+                    <Button style={{ background: "#F1F5F9", color: lotClearBtn.color, border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => {
+                        setLotClearBtn({ label: "Cleared âŒ", color: "red" });
+                        setTimeout(() => setLotClearBtn({ label: "Clear", color: "#CC0000" }), 2000);
                         setLotCreationForm({
                           ...lotCreationForm,
-                          lotId: `LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(100 + Math.random() * 900)}`,
+                          lotId: generateLotId(lotCounter),
                           vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
                           lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", weightUnit: "KGs", status: "Pending Auction" }]
                         });
-                    }}>Reset</Button>
+                    }}>{lotClearBtn.label}</Button>
                   </div>
                 </div>
               )}
@@ -7148,7 +7201,7 @@ Powered by Stacli mandi os`;
                     const displayName = runningId ? `${supplierName}-${runningId}` : supplierName;
                     const itemCount = l.lineItems?.length || 0;
                     const entryDate = l.entryDate ? formatDate(l.entryDate) : "No Date";
-                    const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "—";
+                    const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "â€”";
                     return (
                       <option
                         key={l._id || l.lotId}
@@ -7415,7 +7468,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Sale Rate (₹/KG) *
+                          Sale Rate (â‚¹/KG) *
                         </label>
                         <input
                           type="text"
@@ -7458,7 +7511,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Allocated Amount (₹)
+                          Allocated Amount (â‚¹)
                         </label>
                         <input
                           type="text"
@@ -7502,7 +7555,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Sale Amount (₹) Auto
+                          Sale Amount (â‚¹) Auto
                         </label>
                         <input
                           type="text"
@@ -7562,7 +7615,7 @@ Powered by Stacli mandi os`;
                     }
                     await handleAllocate();
                     setAllocationSaveBtn({
-                      label: "✅ Saved successfully",
+                      label: "âœ… Saved successfully",
                       color: COLORS.success,
                     });
                     setTimeout(() => {
@@ -7816,8 +7869,8 @@ Powered by Stacli mandi os`;
                                       </div>
                                     </td>
                                     <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "700" }}>{it.quantity} KG</td>
-                                    <td style={{ padding: "8px 4px", textAlign: "right", color: COLORS.primary }}>₹{it.rate}</td>
-                                    <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "900" }}>₹{(Number(it.quantity) * Number(it.rate)).toLocaleString()}</td>
+                                    <td style={{ padding: "8px 4px", textAlign: "right", color: COLORS.primary }}>â‚¹{it.rate}</td>
+                                    <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "900" }}>â‚¹{(Number(it.quantity) * Number(it.rate)).toLocaleString()}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -8307,7 +8360,7 @@ Powered by Stacli mandi os`;
                         setActiveSupplierBillTab("Produce Sold");
                       }}
                     >
-                      Next →
+                      Next â†’
                     </Button>
                   </div>
                 </div>
@@ -8520,7 +8573,7 @@ Powered by Stacli mandi os`;
                               color: COLORS.muted,
                             }}
                           >
-                            Rate (₹/KG)
+                            Rate (â‚¹/KG)
                           </label>
                           <input
                             type="number"
@@ -8559,7 +8612,7 @@ Powered by Stacli mandi os`;
                               color: COLORS.muted,
                             }}
                           >
-                            Total (₹) Auto
+                            Total (â‚¹) Auto
                           </label>
                           <input
                             type="number"
@@ -8639,7 +8692,7 @@ Powered by Stacli mandi os`;
                         setActiveSupplierBillTab("Expense Deductions");
                       }}
                     >
-                      Next →
+                      Next â†’
                     </Button>
                   </div>
                 </div>
@@ -8707,7 +8760,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -8753,7 +8806,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹ or %"
+                        placeholder="â‚¹ or %"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -8799,7 +8852,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -8845,7 +8898,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -8891,7 +8944,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -8937,7 +8990,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -8990,7 +9043,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -9039,7 +9092,7 @@ Powered by Stacli mandi os`;
                         setActiveSupplierBillTab("Financial Summary");
                       }}
                     >
-                      Next →
+                      Next â†’
                     </Button>
                   </div>
                 </div>
@@ -9110,15 +9163,15 @@ Powered by Stacli mandi os`;
                                <h3 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "8px" }}>Manual Expenses</h3>
                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Labour Charges</label>
-                                  <input type="number" value={ex.labour} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, labour: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
+                                  <input type="number" value={ex.labour} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, labour: e.target.value}})} placeholder="â‚¹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
                                </div>
                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Other Deductions</label>
-                                  <input type="number" value={ex.transport} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
+                                  <input type="number" value={ex.transport} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, transport: e.target.value}})} placeholder="â‚¹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
                                </div>
                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Misc. Expenses</label>
-                                  <input type="number" value={ex.miscAmount} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, miscAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
+                                  <input type="number" value={ex.miscAmount} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, miscAmount: e.target.value}})} placeholder="â‚¹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
                                </div>
                             </div>
 
@@ -9163,7 +9216,7 @@ Powered by Stacli mandi os`;
                           {/* Navigation Buttons */}
                           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
                             <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Expense Deductions"); }}>Previous</Button>
-                            <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Preview & Print"); }}>Next →</Button>
+                            <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Preview & Print"); }}>Next â†’</Button>
                           </div>
                         </>
                       );
@@ -9270,7 +9323,7 @@ Powered by Stacli mandi os`;
                               <p style={{ margin: 0, color: "#1a3c34", fontSize: "11px", fontWeight: "800", textDecoration: "underline" }}>www.spvfruits.com</p>
                             </div>
                             <div style={{ textAlign: "right" }}>
-                              <p style={{ margin: "2px 0", fontSize: "13px", fontWeight: "800", color: "#1a3c34" }}>📞 9866425756</p>
+                              <p style={{ margin: "2px 0", fontSize: "13px", fontWeight: "800", color: "#1a3c34" }}>ðŸ“ž 9866425756</p>
                               <p style={{ margin: "2px 0", fontSize: "13px", fontWeight: "800", color: "#1a3c34" }}>9848272835</p>
                               <p style={{ margin: "2px 0", fontSize: "13px", fontWeight: "800", color: "#1a3c34" }}>9110500540</p>
                             </div>
@@ -9322,8 +9375,8 @@ Powered by Stacli mandi os`;
                                 <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>GROSS WT <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
                                 <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>DEDN <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
                                 <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>NET WT <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
-                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>RATE <br/><span style={{fontSize:'8px'}}>(₹/KG)</span></th>
-                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)", textAlign: "right" }}>AMOUNT <br/><span style={{fontSize:'8px'}}>(₹)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>RATE <br/><span style={{fontSize:'8px'}}>(â‚¹/KG)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)", textAlign: "right" }}>AMOUNT <br/><span style={{fontSize:'8px'}}>(â‚¹)</span></th>
                               </tr>
                             </thead>
                             <tbody>
@@ -9338,7 +9391,7 @@ Powered by Stacli mandi os`;
                                   <td style={{ padding: "12px", fontSize: "12px", fontWeight: "900", border: "1px solid #1a3c34" }}>{it.netWeight || it.quantity || "0"}</td>
                                   <td style={{ padding: "12px", fontSize: "12px", border: "1px solid #1a3c34" }}>{it.rate || "0"}</td>
                                   <td style={{ padding: "12px", fontSize: "13px", fontWeight: "900", border: "1px solid #1a3c34", textAlign: "right" }}>
-                                    ₹{((it.netWeight || it.quantity || 0) * (it.rate || 0)).toLocaleString()}
+                                    â‚¹{((it.netWeight || it.quantity || 0) * (it.rate || 0)).toLocaleString()}
                                   </td>
                                 </tr>
                               ))}
@@ -9362,30 +9415,30 @@ Powered by Stacli mandi os`;
                               <div style={{ border: "1px solid #1a3c34", borderTop: "none", padding: "10px" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Lorry Hire / Freight</span>
-                                  <span>₹ {ex.transport || ex.freight || "0"}</span>
+                                  <span>â‚¹ {ex.transport || ex.freight || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Coolie / Labour</span>
-                                  <span>₹ {ex.labour || "0"}</span>
+                                  <span>â‚¹ {ex.labour || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Cash Advance</span>
-                                  <span>₹ {ex.cashAdvance || "0"}</span>
+                                  <span>â‚¹ {ex.cashAdvance || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Kata (Weighing Charges)</span>
-                                  <span>₹ {ex.weighing || "0"}</span>
+                                  <span>â‚¹ {ex.weighing || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Packing / Bag Charges</span>
-                                  <span>₹ {ex.packing || "0"}</span>
+                                  <span>â‚¹ {ex.packing || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>AMC Charges</span>
-                                  <span>₹ {ex.commission || "0"}</span>
+                                  <span>â‚¹ {ex.commission || "0"}</span>
                                 </div>
                                 <div style={{ background: "#1a3c34", color: "#fff", padding: "8px 12px", display: "flex", justifyContent: "space-between", marginTop: "10px", fontSize: "13px", fontWeight: "900" }}>
-                                  <span>TOTAL DEDUCTIONS (₹)</span>
+                                  <span>TOTAL DEDUCTIONS (â‚¹)</span>
                                   <span>{totalDeductions.toLocaleString()}</span>
                                 </div>
                               </div>
@@ -9397,35 +9450,35 @@ Powered by Stacli mandi os`;
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
                                   <span>Gross Sale Amount</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>₹</span>
+                                    <span>â‚¹</span>
                                     <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{grossSaleAmount.toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
                                   <span>Less: Total Deductions</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>₹</span>
+                                    <span>â‚¹</span>
                                     <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{totalDeductions.toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 10px", fontSize: "16px", fontWeight: "900", background: "#f0fdf4", margin: "10px 0", color: "#166534", borderRadius: "6px" }}>
                                   <span>Net Sale Amount</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>₹</span>
+                                    <span>â‚¹</span>
                                     <span>{netSaleAmount.toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
                                   <span>Advance Payment</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>₹</span>
+                                    <span>â‚¹</span>
                                     <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{(Number(ex.advance) || 0).toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 10px", fontSize: "16px", fontWeight: "900", background: "#dcfce7", margin: "10px 0", color: "#14532d", border: "1.5px solid #14532d", borderRadius: "6px" }}>
                                   <span>Balance Payable to Farmer</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>₹</span>
+                                    <span>â‚¹</span>
                                     <span>{balancePayable.toLocaleString()}</span>
                                   </div>
                                 </div>
@@ -9455,7 +9508,7 @@ Powered by Stacli mandi os`;
                           {/* Footer */}
                           <div style={{ background: "#1a3c34", color: "#fff", padding: "12px", textAlign: "center", borderRadius: "4px", marginTop: "30px" }}>
                             <p style={{ margin: 0, fontSize: "10px", fontWeight: "700", letterSpacing: "1px" }}>
-                              This is a computer generated bill | <span style={{ color: "#a5d6a7" }}>Stacli MOS — Powered by</span> <a href="http://www.stacli.com" style={{ color: "#fff", textDecoration: "none" }}>www.stacli.com</a>
+                              This is a computer generated bill | <span style={{ color: "#a5d6a7" }}>Stacli MOS â€” Powered by</span> <a href="http://www.stacli.com" style={{ color: "#fff", textDecoration: "none" }}>www.stacli.com</a>
                             </p>
                           </div>
                           <p style={{ textAlign: "center", fontSize: "9px", color: "#999", marginTop: "8px", fontWeight: "600" }}>
@@ -9525,7 +9578,7 @@ Powered by Stacli mandi os`;
                               details={[
                                 { icon: ICON_TRUCK, text: b.vehicleNumber || "N/A" },
                                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: b.date },
-                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Final: ${formatCurrency(finalSettlement)}` }
+                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>â‚¹</span>, text: `Final: ${formatCurrency(finalSettlement)}` }
                               ]}
                               primaryAction={{ 
                                 label: "View Statement", 
@@ -9581,7 +9634,7 @@ Powered by Stacli mandi os`;
                       onClick={async () => {
                         try {
                           if (!supplierSettlementForm.supplierId)
-                            return alert("âš ï¸ Supplier is required.");
+                            return alert("Ã¢Å¡Â Ã¯Â¸Â Supplier is required.");
                           let res;
                           if (isEditingSupplierBill) {
                             res = await MandiService.updateSupplierBill(
@@ -9597,7 +9650,7 @@ Powered by Stacli mandi os`;
                           if (res.status === "SUCCESS") {
                             setLastGeneratedBill(res.data);
                             alert(
-                              `✅ BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
+                              `âœ… BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
                             );
                             // Reset but keep track of last one for preview
                             const savedBillNumber = supplierSettlementForm.billNumber;
@@ -9631,7 +9684,7 @@ Powered by Stacli mandi os`;
                             setEditingSupplierBillId(null);
                             fetchData();
                           } else {
-                            alert(`âŒ FAILED: ${res.message || "Database Error"}`);
+                            alert(`Ã¢ÂÅ’ FAILED: ${res.message || "Database Error"}`);
                           }
                         } catch (e) {
                           alert("Error processing bill.");
@@ -9653,7 +9706,7 @@ Powered by Stacli mandi os`;
                         setActiveSupplierBillTab("Preview & Print");
                       }}
                     >
-                      Next →
+                      Next â†’
                     </Button>
                     <Button
                       style={{
@@ -10119,7 +10172,7 @@ Powered by Stacli mandi os`;
                         <option value="">{getSelectPlaceholder("Lot Reference")}</option>
                         {lots.map((l) => (
                           <option key={l._id || l.lotId} value={l.lotId}>
-                            {l.supplierId?.name || l.supplierId || "Supplier"} â€” {l.lotId}
+                            {l.supplierId?.name || l.supplierId || "Supplier"} Ã¢â‚¬â€ {l.lotId}
                           </option>
                         ))}
                       </select>
@@ -10183,7 +10236,7 @@ Powered by Stacli mandi os`;
                         setActiveBuyerInvoiceTab("Items Purchased");
                       }}
                     >
-                      Next →
+                      Next â†’
                     </Button>
                   </div>
                 </div>
@@ -10446,7 +10499,7 @@ Powered by Stacli mandi os`;
                               color: COLORS.muted,
                             }}
                           >
-                            Rate (₹/KG)
+                            Rate (â‚¹/KG)
                           </label>
                           <input
                             type="number"
@@ -10485,7 +10538,7 @@ Powered by Stacli mandi os`;
                               color: COLORS.muted,
                             }}
                           >
-                            Amount (₹) Auto
+                            Amount (â‚¹) Auto
                           </label>
                           <input
                             type="number"
@@ -10561,7 +10614,7 @@ Powered by Stacli mandi os`;
                         setActiveBuyerInvoiceTab("Additional Charges");
                       }}
                     >
-                      Next →
+                      Next â†’
                     </Button>
                   </div>
                 </div>
@@ -10629,7 +10682,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -10674,7 +10727,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -10719,7 +10772,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -10771,7 +10824,7 @@ Powered by Stacli mandi os`;
                             },
                           })
                         }
-                        placeholder="₹"
+                        placeholder="â‚¹"
                         style={{
                           width: "120px",
                           padding: "10px",
@@ -10820,7 +10873,7 @@ Powered by Stacli mandi os`;
                         setActiveBuyerInvoiceTab("Invoice Totals");
                       }}
                     >
-                      Next →
+                      Next â†’
                     </Button>
                   </div>
                 </div>
@@ -11096,7 +11149,7 @@ Powered by Stacli mandi os`;
                           if (res.status === "SUCCESS") {
                             setLastGeneratedInvoice(res.data);
                             alert(
-                              `✅ INVOICE ${isEditingBuyerInvoice ? "UPDATED" : "GENERATED"}: ${buyerInvoiceForm.invoiceNumber} saved!`,
+                              `âœ… INVOICE ${isEditingBuyerInvoice ? "UPDATED" : "GENERATED"}: ${buyerInvoiceForm.invoiceNumber} saved!`,
                             );
                             fetchData();
                             setActiveBuyerInvoiceTab("Preview & Print");
@@ -11104,7 +11157,7 @@ Powered by Stacli mandi os`;
                             setEditingBuyerInvoiceId(null);
                           }
                         } catch (e) {
-                          alert("âŒ FAILED: " + e.message);
+                          alert("Ã¢ÂÅ’ FAILED: " + e.message);
                         }
                       }}
                     >
@@ -11214,7 +11267,7 @@ Powered by Stacli mandi os`;
                               details={[
                                 { icon: ICON_SHOP, text: `Ref: ${i.lotReference || "Direct Sale"}` },
                                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: i.date },
-                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Grand Total: ${formatCurrency(grandTotal)}` }
+                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>â‚¹</span>, text: `Grand Total: ${formatCurrency(grandTotal)}` }
                               ]}
                               primaryAction={{ 
                                 label: "Preview Invoice", 
@@ -11584,7 +11637,7 @@ Powered by Stacli mandi os`;
                             textTransform: "uppercase",
                           }}
                         >
-                          Amount (₹)
+                          Amount (â‚¹)
                         </label>
                         <input
                           type="number"
@@ -12137,7 +12190,7 @@ Powered by Stacli mandi os`;
                               textTransform: "uppercase",
                             }}
                           >
-                            Received Amount (₹)
+                            Received Amount (â‚¹)
                           </label>
                           <input
                             type="number"
@@ -12523,7 +12576,7 @@ Powered by Stacli mandi os`;
                                   fontSize: "12px",
                                 }}
                               >
-                                All buyers are currently cleared. ✅
+                                All buyers are currently cleared. âœ…
                               </div>
                             );
                           }
@@ -12612,7 +12665,7 @@ Powered by Stacli mandi os`;
                                     cursor: "pointer",
                                   }}
                                 >
-                                  Send Notice ðŸ“²
+                                  Send Notice Ã°Å¸â€œÂ²
                                 </button>
                               </div>
                             </div>
@@ -12694,7 +12747,7 @@ Powered by Stacli mandi os`;
                   }}
                 >
                   <div style={{ marginBottom: "24px" }}>
-                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements â€” Farmer Outstanding Tracking</p>
+                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements Ã¢â‚¬â€ Farmer Outstanding Tracking</p>
                   </div>
 
                   <div
@@ -12900,12 +12953,12 @@ Powered by Stacli mandi os`;
                             <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Lot ID</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Bill Number</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Product Summary</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Gross Sale (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Expenses (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Net Sale (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Advance (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Made (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Running Balance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Gross Sale (â‚¹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Expenses (â‚¹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Net Sale (â‚¹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Advance (â‚¹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Made (â‚¹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Running Balance (â‚¹)</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
                           </tr>
                         </thead>
@@ -13045,7 +13098,7 @@ Powered by Stacli mandi os`;
                   }}
                 >
                   <div style={{ marginBottom: "24px" }}>
-                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements â€” Invoice-wise Aging & Receivables</p>
+                    <p style={{ margin: 0, color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Audited Financial Statements Ã¢â‚¬â€ Invoice-wise Aging & Receivables</p>
                   </div>
 
                   <div
@@ -13251,9 +13304,9 @@ Powered by Stacli mandi os`;
                             <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Invoice No.</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Fruit / Variety</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap" }}>Quantity (KG)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Invoice Amount (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Received (₹)</th>
-                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Outstanding Balance (₹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Invoice Amount (â‚¹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Payment Received (â‚¹)</th>
+                            <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "right" }}>Outstanding Balance (â‚¹)</th>
                             <th style={{ padding: "14px", whiteSpace: "nowrap", textAlign: "center" }}>Action</th>
                           </tr>
                         </thead>
@@ -13844,7 +13897,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Freight Amount (₹)
+                          Freight Amount (â‚¹)
                         </label>
                         <input
                           type="number"
@@ -14325,7 +14378,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Freight Amount (₹)
+                          Freight Amount (â‚¹)
                         </label>
                         <input
                           type="number"
@@ -14605,7 +14658,7 @@ Powered by Stacli mandi os`;
                                   : COLORS.primary,
                             }}
                           >
-                            â— {truck.status}
+                            Ã¢â€”Â {truck.status}
                           </span>
                         </div>
                       </div>
@@ -14642,9 +14695,9 @@ Powered by Stacli mandi os`;
                         fontSize: "12px",
                       }}
                     >
-                      📅 22/03 - Inward (Farmer A)
+                      ðŸ“… 22/03 - Inward (Farmer A)
                       <br />
-                      📅 24/03 - Outward (Buyer B)
+                      ðŸ“… 24/03 - Outward (Buyer B)
                       <br />
                       <span
                         style={{
@@ -14655,7 +14708,7 @@ Powered by Stacli mandi os`;
                           marginTop: "10px",
                         }}
                       >
-                        View Full Profile →
+                        View Full Profile â†’
                       </span>
                     </div>
                   ) : (
@@ -14666,7 +14719,7 @@ Powered by Stacli mandi os`;
                         opacity: 0.5,
                       }}
                     >
-                      <span style={{ fontSize: "20px" }}>ðŸ”</span>
+                      <span style={{ fontSize: "20px" }}>Ã°Å¸â€Â</span>
                       <p style={{ fontSize: "11px", margin: "10px 0 0" }}>
                         Enter a vehicle number to view history.
                       </p>
@@ -14761,7 +14814,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.accent,
                           }}
                         >
-                          â™¦
+                          Ã¢â„¢Â¦
                         </span>
                         CATEGORY
                       </label>
@@ -14794,7 +14847,7 @@ Powered by Stacli mandi os`;
                     <Input
                       label="Amount Paid"
                       type="number"
-                      placeholder="₹"
+                      placeholder="â‚¹"
                       value={expenseForm.amount}
                       onChange={(e) =>
                         setExpenseForm({
@@ -14888,7 +14941,7 @@ Powered by Stacli mandi os`;
                       marginBottom: "20px",
                     }}
                   >
-                    ðŸ“ Upload Identity Documents (Scan/Photo)
+                    Ã°Å¸â€œÂ Upload Identity Documents (Scan/Photo)
                   </div>
                   <Button style={{ width: "100%" }}>Run KYC Audit</Button>
                 </div>
@@ -15118,7 +15171,7 @@ Powered by Stacli mandi os`;
                 animation: "slideUp 0.5s ease-out",
               }}
             >
-              {/* ðŸ“Š 11.1 New Dashboard â€” Live Data Overview */}
+              {/* Ã°Å¸â€œÅ  11.1 New Dashboard Ã¢â‚¬â€ Live Data Overview */}
               <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                 {/* Header Controls */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -15210,7 +15263,7 @@ Powered by Stacli mandi os`;
                       return isWithinRange(d);
                     }).reduce((s, l) => s + Number(l.quantity || l.inwardWeight || 0), 0);
                     
-                    // 2. Today's Sales (Customer Billing) "Total ₹ invoiced to buyers today"
+                    // 2. Today's Sales (Customer Billing) "Total â‚¹ invoiced to buyers today"
                     const todaysSalesAmt = buyerInvoices.filter(inv => {
                       const d = (inv.date || (inv.createdAt && inv.createdAt.split('T')[0]));
                       return isWithinRange(d);
@@ -15277,13 +15330,13 @@ Powered by Stacli mandi os`;
                         {renderCard("Generated Invoices", buyerInvoices.filter(i => isWithinFilterRange(i.date)).length, "Invoices sent in range", <CreditCard size={18} />)}
 
                         {renderCard(dashTitle("Intake Vol."), todaysIntakeQty.toLocaleString() + " KG", "Total produce received", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>)}
-                        {renderCard(dashTitle("Sales Value"), formatCurrency(todaysSalesAmt), "Gross value of invoices", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
+                        {renderCard(dashTitle("Sales Value"), formatCurrency(todaysSalesAmt), "Gross value of invoices", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>â‚¹</span>)}
                         {renderCard("Pending Auctions", pendingAuctionsCount + " Lots", "Items awaiting allocation", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>)}
-                        {renderCard("Farmer Outstanding", formatCurrency(farmerOutstandingAmt), "Total payable to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
+                        {renderCard("Farmer Outstanding", formatCurrency(farmerOutstandingAmt), "Total payable to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>â‚¹</span>, true)}
                         
-                        {renderCard("Buyer Outstanding", formatCurrency(buyerOutstandingAmt), "Total customer receivables", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
-                        {renderCard(dashTitle("Cash Collected"), formatCurrency(todaysCashCollected), "Payments from buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>)}
-                        {renderCard(dashTitle("Cash Paid"), formatCurrency(todaysCashPaid), "Payments to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>₹</span>, true)}
+                        {renderCard("Buyer Outstanding", formatCurrency(buyerOutstandingAmt), "Total customer receivables", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>â‚¹</span>)}
+                        {renderCard(dashTitle("Cash Collected"), formatCurrency(todaysCashCollected), "Payments from buyers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>â‚¹</span>)}
+                        {renderCard(dashTitle("Cash Paid"), formatCurrency(todaysCashPaid), "Payments to suppliers", <span style={{ fontSize: "14px", fontWeight: "800", padding: "0 4px" }}>â‚¹</span>, true)}
                         {renderCard("Active Shipments", inTransitVehicles, "Vehicles currently in transit", <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>)}
                       </>
                     )
@@ -15399,7 +15452,7 @@ Powered by Stacli mandi os`;
                                         <div id="invoice-${billId}" contenteditable="true" style="white-space: pre-wrap; font-family: sans-serif; font-size: 15px; color: #1e293b; line-height: 1.6; margin-bottom: 20px; outline: none; border: 2px dashed transparent; transition: 0.2s;" onfocus="this.style.border='2px dashed #94a3b8'; this.style.padding='10px';" onblur="this.style.border='2px dashed transparent'; this.style.padding='0px';">Hello <b>${supplierName}</b>
                                           Your invoice from <b>SPV Fruits</b> is ready.
                                           Product: ${product}
-                                          Amount: ₹${amt}
+                                          Amount: â‚¹${amt}
                                           Powered by Mandi OS v8.0</div>
                                       </div>`;
                                     });
@@ -15414,14 +15467,14 @@ Powered by Stacli mandi os`;
                                         const total = inv.grandTotal || inv.totalAmount || 0;
                                         const rec = inv.amountReceived || inv.paymentReceived || 0;
                                         const out = Math.max(0, total - rec);
-                                        tableRows += `<tr><td>${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'}</td><td>${d}</td><td>${inv.buyerName || '-'}</td><td>₹ ${total}</td><td>₹ ${rec}</td><td>₹ ${out}</td></tr>`;
+                                        tableRows += `<tr><td>${inv.invoiceNo || inv.invoiceId || (inv._id && inv._id.slice(-6)) || '-'}</td><td>${d}</td><td>${inv.buyerName || '-'}</td><td>â‚¹ ${total}</td><td>â‚¹ ${rec}</td><td>â‚¹ ${out}</td></tr>`;
                                       });
                                     } else { tableRows += '<tr><td colspan="6">No data available in Database</td></tr>'; }
                                   } else if (rep.t === 'Operational P&L Statement') {
                                     tableRows += '<tr><th>Transaction</th><th>Type</th><th>Amount</th></tr>';
                                     const totalSales = (typeof buyerInvoices !== 'undefined' ? buyerInvoices : []).reduce((s, inv) => s + Number(inv.grandTotal || inv.totalAmount || 0), 0);
                                     const totalSupplierPayable = (typeof supplierBills !== 'undefined' ? supplierBills : []).reduce((s, b) => s + Number(b.netPayable || b.grandTotal || 0), 0);
-                                    tableRows += `<tr><td>Total Sales</td><td>Revenue</td><td>₹ ${totalSales}</td></tr><tr><td>Total Supplier Obligations</td><td>Expense</td><td>₹ ${totalSupplierPayable}</td></tr>`;
+                                    tableRows += `<tr><td>Total Sales</td><td>Revenue</td><td>â‚¹ ${totalSales}</td></tr><tr><td>Total Supplier Obligations</td><td>Expense</td><td>â‚¹ ${totalSupplierPayable}</td></tr>`;
                                   } else {
                                     tableRows += '<tr><th>ID</th><th>Details</th><th>Status</th></tr><tr><td>DB_LOG_01</td><td>Logistics metrics sync</td><td>Active</td></tr>';
                                   }
@@ -15464,7 +15517,7 @@ Powered by Stacli mandi os`;
                                 background: "#FFFFFF",
                                 padding: 0
                               }}
-                              onClick={() => alert("â¬‡ Initiating raw data download for " + rep.t)}
+                              onClick={() => alert("Ã¢Â¬â€¡ Initiating raw data download for " + rep.t)}
                             >
                               <FileCheck size={16} color={COLORS.success} />
                             </Button>
@@ -15481,7 +15534,7 @@ Powered by Stacli mandi os`;
                                 background: "#FFFFFF",
                                 padding: 0
                               }}
-                              onClick={() => alert("ðŸ“ Switching to Edit Mode for " + rep.t)}
+                              onClick={() => alert("Ã°Å¸â€œÂ Switching to Edit Mode for " + rep.t)}
                             >
                               <Edit2 size={16} color={COLORS.accent} />
                             </Button>
@@ -15509,7 +15562,7 @@ Powered by Stacli mandi os`;
                                   const product = (latestBill.items && latestBill.items.length > 0) ? latestBill.items.map(i => i.product || i.name).join(', ') : 'Fresh Produce';
                                   const quantity = (latestBill.items && latestBill.items.length > 0) ? (latestBill.items || []).reduce((s, i) => s + Number(i.quantity || i.weight || 0), 0) + ' kg' : 'Standard';
                                   const link = window.location.origin + '/#/invoice/' + billId;
-                                  const invoiceMsg = `Hello ${supplierName}\n\nYour invoice from *SPV Fruits* is ready.\n\nProduct: ${product}\nQuantity: ${quantity}\nAmount: ₹${amt}\n\nView Invoice:\n${link}\n\nThank you!`;
+                                  const invoiceMsg = `Hello ${supplierName}\n\nYour invoice from *SPV Fruits* is ready.\n\nProduct: ${product}\nQuantity: ${quantity}\nAmount: â‚¹${amt}\n\nView Invoice:\n${link}\n\nThank you!`;
                                   window.open(`https://wa.me/?text=${encodeURIComponent(invoiceMsg)}`, "_blank");
                                 } else {
                                   const msg = `Hello,\n\nThe newest *${rep.t}* is ready on *Mandi OS v8.0*.\n\nSummary:\n${rep.d}\n\nPlease check your administrator dashboard for details.`;
@@ -15911,7 +15964,7 @@ Powered by Stacli mandi os`;
                                   fontWeight: "900",
                                 }}
                               >
-                                • {g}
+                                â€¢ {g}
                               </span>
                             ))}
                           </div>
@@ -15981,7 +16034,7 @@ Powered by Stacli mandi os`;
                           >
                             <option value="" disabled>{getSelectPlaceholder("Calculation Type")}</option>
                             <option>Percentage (%)</option>
-                            <option>Fixed Amount (₹)</option>
+                            <option>Fixed Amount (â‚¹)</option>
                           </select>
                         </div>
                         <Input
@@ -16136,7 +16189,7 @@ Powered by Stacli mandi os`;
                           margin: "0 0 8px",
                         }}
                       >
-                        ðŸ“¦ Core Branding
+                        Ã°Å¸â€œÂ¦ Core Branding
                       </h4>
                       <Input
                         label="Business Name"
@@ -16186,7 +16239,7 @@ Powered by Stacli mandi os`;
                           margin: "0 0 8px",
                         }}
                       >
-                        ðŸ’° Financial Defaults
+                        Ã°Å¸â€™Â° Financial Defaults
                       </h4>
                       <Input
                         label="Global Default Commission (%)"
@@ -16231,8 +16284,8 @@ Powered by Stacli mandi os`;
                           }}
                         >
                           <option value="" disabled>{getSelectPlaceholder("Financial Year Cycle")}</option>
-                          <option>Aprilâ€“March (India)</option>
-                          <option>Januaryâ€“December</option>
+                          <option>AprilÃ¢â‚¬â€œMarch (India)</option>
+                          <option>JanuaryÃ¢â‚¬â€œDecember</option>
                         </select>
                       </div>
                     </div>
@@ -16252,7 +16305,7 @@ Powered by Stacli mandi os`;
                           margin: "0 0 8px",
                         }}
                       >
-                        ðŸ“‘ Documentation & Comms
+                        Ã°Å¸â€œâ€˜ Documentation & Comms
                       </h4>
                       <div
                         style={{
@@ -16317,7 +16370,7 @@ Powered by Stacli mandi os`;
                       style={{ padding: "14px 40px" }}
                       onClick={() =>
                         alert(
-                          "ðŸ’¿ SYSTEM CONFIGURATION COLD-BOOTED: All settings persisted.",
+                          "Ã°Å¸â€™Â¿ SYSTEM CONFIGURATION COLD-BOOTED: All settings persisted.",
                         )
                       }
                     >
@@ -16370,10 +16423,10 @@ Powered by Stacli mandi os`;
                     }}
                   >
                     {tab === "Staff Hub"
-                      ? "ðŸ‘¥ Staff Identity Hub"
+                      ? "Ã°Å¸â€˜Â¥ Staff Identity Hub"
                       : tab === "Permissions"
-                        ? "🛡️ Role Matrix"
-                        : "â‰¡Æ’Ã¶Ã‰ Security Guard"}
+                        ? "ðŸ›¡ï¸Â Role Matrix"
+                        : "Ã¢â€°Â¡Ã†â€™ÃƒÂ¶Ãƒâ€° Security Guard"}
                   </button>
                 ))}
               </div>
@@ -16541,7 +16594,7 @@ Powered by Stacli mandi os`;
                                   color: COLORS.muted,
                                 }}
                               >
-                                {u.id} •{" "}
+                                {u.id} â€¢{" "}
                                 <span
                                   style={{
                                     color:
@@ -16633,70 +16686,70 @@ Powered by Stacli mandi os`;
                     {[
                       {
                         role: "Owner / Admin",
-                        icon: "ðŸ‘‘",
+                        icon: "Ã°Å¸â€˜â€˜",
                         color: "#f59e0b",
                         bg: "linear-gradient(135deg, #f59e0b 0%, #1a1a1a 100%)",
                         tagBg: "rgba(159,180,67,0.25)",
                         tagColor: "#f59e0b",
-                        desc: "Full access â€” all modules, reports, settings, user management, delete & void bills",
+                        desc: "Full access Ã¢â‚¬â€ all modules, reports, settings, user management, delete & void bills",
                         perms: [
-                          "✅ All Modules",
-                          "✅ Delete & Void",
-                          "✅ User Management",
-                          "✅ System Config",
-                          "✅ Reports & Ledger",
-                          "✅ Payment Records",
+                          "âœ… All Modules",
+                          "âœ… Delete & Void",
+                          "âœ… User Management",
+                          "âœ… System Config",
+                          "âœ… Reports & Ledger",
+                          "âœ… Payment Records",
                         ],
                       },
                       {
                         role: "Accountant",
-                        icon: "ðŸ“Š",
+                        icon: "Ã°Å¸â€œÅ ",
                         color: "#1d4ed8",
                         bg: "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)",
                         tagBg: "rgba(59,130,246,0.15)",
                         tagColor: "#3b82f6",
-                        desc: "Bills, invoices, payments, ledgers, reports â€” NO system configuration, NO delete",
+                        desc: "Bills, invoices, payments, ledgers, reports Ã¢â‚¬â€ NO system configuration, NO delete",
                         perms: [
-                          "✅ Bills & Invoices",
-                          "✅ Payments",
-                          "✅ Ledger View",
-                          "✅ Reports",
-                          "âŒ System Config",
-                          "âŒ Delete / Void",
+                          "âœ… Bills & Invoices",
+                          "âœ… Payments",
+                          "âœ… Ledger View",
+                          "âœ… Reports",
+                          "Ã¢ÂÅ’ System Config",
+                          "Ã¢ÂÅ’ Delete / Void",
                         ],
                       },
                       {
                         role: "Operations Staff",
-                        icon: "ðŸ­",
+                        icon: "Ã°Å¸ÂÂ­",
                         color: "#b45309",
                         bg: "linear-gradient(135deg, #b45309 0%, #92400e 100%)",
                         tagBg: "rgba(245,158,11,0.15)",
                         tagColor: "#f59e0b",
-                        desc: "Create lots, allocate produce, create bills/invoices â€” NO payment records, NO ledger edits",
+                        desc: "Create lots, allocate produce, create bills/invoices Ã¢â‚¬â€ NO payment records, NO ledger edits",
                         perms: [
-                          "✅ Create Lots",
-                          "✅ Allocate Produce",
-                          "✅ Create Bills",
-                          "✅ Create Invoices",
-                          "âŒ Payment Records",
-                          "âŒ Ledger Edits",
+                          "âœ… Create Lots",
+                          "âœ… Allocate Produce",
+                          "âœ… Create Bills",
+                          "âœ… Create Invoices",
+                          "Ã¢ÂÅ’ Payment Records",
+                          "Ã¢ÂÅ’ Ledger Edits",
                         ],
                       },
                       {
                         role: "Viewer",
-                        icon: "ðŸ‘ï¸",
+                        icon: "Ã°Å¸â€˜ÂÃ¯Â¸Â",
                         color: "#475569",
                         bg: "linear-gradient(135deg, #475569 0%, #334155 100%)",
                         tagBg: "rgba(71,85,105,0.12)",
                         tagColor: "#64748b",
-                        desc: "Read-only access to reports and ledgers â€” NO create or edit",
+                        desc: "Read-only access to reports and ledgers Ã¢â‚¬â€ NO create or edit",
                         perms: [
-                          "✅ View Reports",
-                          "✅ View Ledger",
-                          "âŒ Create / Edit",
-                          "âŒ Delete / Void",
-                          "âŒ Payments",
-                          "âŒ System Config",
+                          "âœ… View Reports",
+                          "âœ… View Ledger",
+                          "Ã¢ÂÅ’ Create / Edit",
+                          "Ã¢ÂÅ’ Delete / Void",
+                          "Ã¢ÂÅ’ Payments",
+                          "Ã¢ÂÅ’ System Config",
                         ],
                       },
                     ].map((r, i) => (
@@ -16882,25 +16935,25 @@ Powered by Stacli mandi os`;
                             {[
                               {
                                 label: "Owner / Admin",
-                                icon: "ðŸ‘‘",
+                                icon: "Ã°Å¸â€˜â€˜",
                                 color: "#f59e0b",
                                 bg: "#f0f9f4",
                               },
                               {
                                 label: "Accountant",
-                                icon: "ðŸ“Š",
+                                icon: "Ã°Å¸â€œÅ ",
                                 color: "#1d4ed8",
                                 bg: "#eff6ff",
                               },
                               {
                                 label: "Ops Staff",
-                                icon: "ðŸ­",
+                                icon: "Ã°Å¸ÂÂ­",
                                 color: "#b45309",
                                 bg: "#fffbeb",
                               },
                               {
                                 label: "Viewer",
-                                icon: "ðŸ‘ï¸",
+                                icon: "Ã°Å¸â€˜ÂÃ¯Â¸Â",
                                 color: "#475569",
                                 bg: "#f8fafc",
                               },
@@ -16941,105 +16994,105 @@ Powered by Stacli mandi os`;
                         <tbody>
                           {[
                             {
-                              module: "ðŸ“Š Dashboard",
+                              module: "Ã°Å¸â€œÅ  Dashboard",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "FULL",
                               viewer: "READ",
                             },
                             {
-                              module: "ðŸ‘¥ Profiles (Supplier/Buyer)",
+                              module: "Ã°Å¸â€˜Â¥ Profiles (Supplier/Buyer)",
                               admin: "FULL",
                               accountant: "READ",
                               ops: "CREATE",
                               viewer: "READ",
                             },
                             {
-                              module: "ðŸ“¦ Inventory Allocation",
+                              module: "Ã°Å¸â€œÂ¦ Inventory Allocation",
                               admin: "FULL",
                               accountant: "READ",
                               ops: "CREATE",
                               viewer: "READ",
                             },
                             {
-                              module: "âš–ï¸ Supplier Billing",
+                              module: "Ã¢Å¡â€“Ã¯Â¸Â Supplier Billing",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "CREATE",
                               viewer: "NONE",
                             },
                             {
-                              module: "â‰¡Æ’Âºâ•› Buyer Invoicing",
+                              module: "Ã¢â€°Â¡Ã†â€™Ã‚ÂºÃ¢â€¢â€º Buyer Invoicing",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "CREATE",
                               viewer: "NONE",
                             },
                             {
-                              module: "â‰¡Æ’Ã´Ã» Ledger System",
+                              module: "Ã¢â€°Â¡Ã†â€™ÃƒÂ´ÃƒÂ» Ledger System",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "NONE",
                               viewer: "READ",
                             },
                             {
-                              module: "â‰¡Æ’Ã¶Ã¹ Connection Intelligence",
+                              module: "Ã¢â€°Â¡Ã†â€™ÃƒÂ¶ÃƒÂ¹ Connection Intelligence",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "NONE",
                               viewer: "READ",
                             },
                             {
-                              module: "ðŸ’³ Payment & Settlement",
+                              module: "Ã°Å¸â€™Â³ Payment & Settlement",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "NONE",
                               viewer: "NONE",
                             },
                             {
-                              module: "â‰¡Æ’ÃœÃœ Transportation Tracking",
+                              module: "Ã¢â€°Â¡Ã†â€™ÃƒÅ“ÃƒÅ“ Transportation Tracking",
                               admin: "FULL",
                               accountant: "READ",
                               ops: "CREATE",
                               viewer: "NONE",
                             },
                             {
-                              module: "ðŸ’¸ Expense Management",
+                              module: "Ã°Å¸â€™Â¸ Expense Management",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "CREATE",
                               viewer: "NONE",
                             },
                             {
-                              module: "â‰¡Æ’Ã´Ã¤ Reports",
+                              module: "Ã¢â€°Â¡Ã†â€™ÃƒÂ´ÃƒÂ¤ Reports",
                               admin: "FULL",
                               accountant: "FULL",
                               ops: "FULL",
                               viewer: "READ",
                             },
                             {
-                              module: "âš™ï¸ Product Master & Config",
+                              module: "Ã¢Å¡â„¢Ã¯Â¸Â Product Master & Config",
                               admin: "FULL",
                               accountant: "NONE",
                               ops: "NONE",
                               viewer: "NONE",
                             },
                             {
-                              module: "🛡️ User Roles & Security",
+                              module: "ðŸ›¡ï¸Â User Roles & Security",
                               admin: "FULL",
                               accountant: "NONE",
                               ops: "NONE",
                               viewer: "NONE",
                             },
                             {
-                              module: "â‰¡Æ’Ã´Ã© Document Management",
+                              module: "Ã¢â€°Â¡Ã†â€™ÃƒÂ´ÃƒÂ© Document Management",
                               admin: "FULL",
                               accountant: "READ",
                               ops: "NONE",
                               viewer: "NONE",
                             },
                             {
-                              module: "ðŸ—‘ï¸ Delete / Void Bills",
+                              module: "Ã°Å¸â€”â€˜Ã¯Â¸Â Delete / Void Bills",
                               admin: "FULL",
                               accountant: "NONE",
                               ops: "NONE",
@@ -17089,12 +17142,12 @@ Powered by Stacli mandi os`;
                                   }}
                                 >
                                   {perm === "FULL"
-                                    ? "✅"
+                                    ? "âœ…"
                                     : perm === "NONE"
-                                      ? "ðŸš«"
+                                      ? "Ã°Å¸Å¡Â«"
                                       : perm === "READ"
-                                        ? "ðŸ‘ï¸"
-                                        : "âœï¸"}{" "}
+                                        ? "Ã°Å¸â€˜ÂÃ¯Â¸Â"
+                                        : "Ã¢Å“ÂÃ¯Â¸Â"}{" "}
                                   {cfg.label}
                                 </span>
                               );
@@ -17189,26 +17242,26 @@ Powered by Stacli mandi os`;
                         {
                           bg: "#dcfce7",
                           color: "#15803d",
-                          icon: "✅",
-                          label: "Full Access â€” Create, Edit, Delete, View",
+                          icon: "âœ…",
+                          label: "Full Access Ã¢â‚¬â€ Create, Edit, Delete, View",
                         },
                         {
                           bg: "#fef3c7",
                           color: "#b45309",
-                          icon: "âœï¸",
-                          label: "Create Only â€” No Edit/Delete",
+                          icon: "Ã¢Å“ÂÃ¯Â¸Â",
+                          label: "Create Only Ã¢â‚¬â€ No Edit/Delete",
                         },
                         {
                           bg: "#dbeafe",
                           color: "#1d4ed8",
-                          icon: "ðŸ‘ï¸",
-                          label: "Read Only â€” View without changes",
+                          icon: "Ã°Å¸â€˜ÂÃ¯Â¸Â",
+                          label: "Read Only Ã¢â‚¬â€ View without changes",
                         },
                         {
                           bg: "#fee2e2",
                           color: "#991b1b",
-                          icon: "ðŸš«",
-                          label: "No Access â€” Module hidden",
+                          icon: "Ã°Å¸Å¡Â«",
+                          label: "No Access Ã¢â‚¬â€ Module hidden",
                         },
                       ].map((l, i) => (
                         <span
@@ -17243,7 +17296,7 @@ Powered by Stacli mandi os`;
                         border: "1.5px solid #feebc8",
                       }}
                     >
-                      <span style={{ fontSize: "22px" }}>âš ï¸</span>
+                      <span style={{ fontSize: "22px" }}>Ã¢Å¡Â Ã¯Â¸Â</span>
                       <p
                         style={{
                           margin: 0,
@@ -17314,7 +17367,7 @@ Powered by Stacli mandi os`;
                                     : "#991b1b",
                               }}
                             >
-                              {log.status === "SUCCESS" ? "✅" : "ðŸš«"}
+                              {log.status === "SUCCESS" ? "âœ…" : "Ã°Å¸Å¡Â«"}
                             </div>
                             <div>
                               <div
@@ -17328,7 +17381,7 @@ Powered by Stacli mandi os`;
                                   color: COLORS.muted,
                                 }}
                               >
-                                By {log.user} • {log.timestamp}
+                                By {log.user} â€¢ {log.timestamp}
                               </div>
                             </div>
                           </div>
@@ -17584,7 +17637,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "600",
                           }}
                         >
-                          Phone: {farmer.phone} • ðŸ“ {farmer.village}
+                          Phone: {farmer.phone} â€¢ Ã°Å¸â€œÂ {farmer.village}
                         </span>
                       </div>
                     ))}
@@ -17667,7 +17720,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "900",
                           }}
                         >
-                          ₹ 45,200
+                          â‚¹ 45,200
                         </b>
                       </div>
                     </div>
@@ -17700,19 +17753,19 @@ Powered by Stacli mandi os`;
                         },
                         {
                           l: "Gross Sale",
-                          v: "₹ 4,25,000",
+                          v: "â‚¹ 4,25,000",
                           c: "#fff",
                           bg: "rgba(255,255,255,0.1)",
                         },
                         {
                           l: "Expenses Deducted",
-                          v: "₹ 21,250",
+                          v: "â‚¹ 21,250",
                           c: "#fca5a5",
                           bg: "rgba(248, 113, 113, 0.1)",
                         },
                         {
                           l: "Net Paid",
-                          v: "₹ 3,58,550",
+                          v: "â‚¹ 3,58,550",
                           c: "#4ade80",
                           bg: "rgba(74, 222, 128, 0.1)",
                         },
@@ -17774,7 +17827,7 @@ Powered by Stacli mandi os`;
                           marginBottom: "16px",
                         }}
                       >
-                        â‰¡Æ’Ã¶Ã¹
+                        Ã¢â€°Â¡Ã†â€™ÃƒÂ¶ÃƒÂ¹
                       </span>
                       <h3 style={{ margin: 0, color: COLORS.sidebar }}>
                         Connection Matrix Standby
@@ -17805,7 +17858,7 @@ Powered by Stacli mandi os`;
                       boxShadow: "0 10px 20px rgba(220, 38, 38, 0.05)",
                     }}
                   >
-                    <span style={{ fontSize: "24px" }}>âš ï¸</span>
+                    <span style={{ fontSize: "24px" }}>Ã¢Å¡Â Ã¯Â¸Â</span>
                     <div>
                       <div style={{ fontSize: "14px", letterSpacing: "0.5px" }}>
                         HIGH RISK ALERTS LINKED TO CURRENT PRODUCE:
@@ -17817,7 +17870,7 @@ Powered by Stacli mandi os`;
                           fontWeight: "600",
                           marginTop: "4px",
                         }}
-                      >Customer<b>'Reliance Fresh'</b> holds pending ₹1,45,000
+                      >Customer<b>'Reliance Fresh'</b> holds pending â‚¹1,45,000
                         affecting the liquidation of this supplier's supply.
                         Escalate collection strategy.
                       </div>
@@ -17955,7 +18008,7 @@ Powered by Stacli mandi os`;
                                     fontSize: "11px",
                                   }}
                                 >
-                                  RATE (₹)
+                                  RATE (â‚¹)
                                 </th>
                                 <th
                                   style={{
@@ -17965,7 +18018,7 @@ Powered by Stacli mandi os`;
                                     fontSize: "11px",
                                   }}
                                 >
-                                  AMOUNT (₹)
+                                  AMOUNT (â‚¹)
                                 </th>
                                 <th
                                   style={{
@@ -18012,14 +18065,14 @@ Powered by Stacli mandi os`;
                                     name: "Reliance Fresh",
                                     phone: "9959012345",
                                     address: "Stall #102, Market Yard",
-                                    totalPurchases: "₹ 4.5L",
+                                    totalPurchases: "â‚¹ 4.5L",
                                     preferredProducts: [
                                       "Mango Alphonso (80%)",
                                       "Banana Yelakki (20%)",
                                     ],
                                     paymentBehavior:
                                       "Delayed (15 days average)",
-                                    outstanding: "₹ 1,45,000",
+                                    outstanding: "â‚¹ 1,45,000",
                                   })
                                 }
                               >
@@ -18069,7 +18122,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    Alphonso • A Grade
+                                    Alphonso â€¢ A Grade
                                   </span>
                                 </td>
                                 <td
@@ -18099,7 +18152,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    9959012345 • Stall #102
+                                    9959012345 â€¢ Stall #102
                                   </span>
                                 </td>
                                 <td
@@ -18184,13 +18237,13 @@ Powered by Stacli mandi os`;
                                     name: "Harsha Wholesale",
                                     phone: "9898989898",
                                     address: "Stall #45, New Block",
-                                    totalPurchases: "₹ 1.2L",
+                                    totalPurchases: "â‚¹ 1.2L",
                                     preferredProducts: [
                                       "Banana Yelakki (100%)",
                                     ],
                                     paymentBehavior:
                                       "Excellent (Same day cash)",
-                                    outstanding: "₹ 0",
+                                    outstanding: "â‚¹ 0",
                                   })
                                 }
                               >
@@ -18240,7 +18293,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    Yelakki • Premium
+                                    Yelakki â€¢ Premium
                                   </span>
                                 </td>
                                 <td
@@ -18270,7 +18323,7 @@ Powered by Stacli mandi os`;
                                       fontWeight: "700",
                                     }}
                                   >
-                                    9898989898 • Stall #45
+                                    9898989898 â€¢ Stall #45
                                   </span>
                                 </td>
                                 <td
@@ -18392,8 +18445,8 @@ Powered by Stacli mandi os`;
                                   gap: "6px",
                                 }}
                               >
-                                <span>â˜Žï¸ {connSelectedBuyer.phone}</span>
-                                <span>ðŸ“ {connSelectedBuyer.address}</span>
+                                <span>Ã¢ËœÅ½Ã¯Â¸Â {connSelectedBuyer.phone}</span>
+                                <span>Ã°Å¸â€œÂ {connSelectedBuyer.address}</span>
                               </div>
 
                               <div
@@ -18442,7 +18495,7 @@ Powered by Stacli mandi os`;
                                       fontSize: "18px",
                                       fontWeight: "900",
                                       color:
-                                        connSelectedBuyer.outstanding === "₹ 0"
+                                        connSelectedBuyer.outstanding === "â‚¹ 0"
                                           ? COLORS.success
                                           : COLORS.danger,
                                       marginTop: "4px",
@@ -18471,11 +18524,11 @@ Powered by Stacli mandi os`;
                                 style={{
                                   padding: "16px",
                                   background:
-                                    connSelectedBuyer.outstanding === "₹ 0"
+                                    connSelectedBuyer.outstanding === "â‚¹ 0"
                                       ? "#f0fdf4"
                                       : "#fef3c7",
                                   color:
-                                    connSelectedBuyer.outstanding === "₹ 0"
+                                    connSelectedBuyer.outstanding === "â‚¹ 0"
                                       ? "#166534"
                                       : "#b45309",
                                   borderRadius: "16px",
@@ -18542,7 +18595,7 @@ Powered by Stacli mandi os`;
                                 marginBottom: "16px",
                               }}
                             >
-                              â‰¡Æ’Ã¦Ã«
+                              Ã¢â€°Â¡Ã†â€™ÃƒÂ¦ÃƒÂ«
                             </span>
                             <p
                               style={{
@@ -18628,7 +18681,7 @@ Powered by Stacli mandi os`;
                             <span>
                               Yield Rate:{" "}
                               <b style={{ color: COLORS.success }}>
-                                ₹ 42.50 Avg
+                                â‚¹ 42.50 Avg
                               </b>
                             </span>
                           </div>
@@ -18698,7 +18751,7 @@ Powered by Stacli mandi os`;
                             <span>
                               Yield Rate:{" "}
                               <b style={{ color: COLORS.success }}>
-                                ₹ 31.00 Avg
+                                â‚¹ 31.00 Avg
                               </b>
                             </span>
                           </div>
@@ -18756,7 +18809,7 @@ Powered by Stacli mandi os`;
                           <b
                             style={{ fontSize: "20px", color: COLORS.sidebar }}
                           >
-                            ₹ 4,25,000
+                            â‚¹ 4,25,000
                           </b>
                         </div>
                         <div
@@ -18781,7 +18834,7 @@ Powered by Stacli mandi os`;
                           <b
                             style={{ fontSize: "20px", color: COLORS.success }}
                           >
-                            ₹ 3,45,000
+                            â‚¹ 3,45,000
                           </b>
                         </div>
                         <div
@@ -18804,7 +18857,7 @@ Powered by Stacli mandi os`;
                             Deficit Balance
                           </span>
                           <b style={{ fontSize: "20px", color: COLORS.danger }}>
-                            ₹ 80,000
+                            â‚¹ 80,000
                           </b>
                         </div>
 
@@ -18838,7 +18891,7 @@ Powered by Stacli mandi os`;
                                   marginBottom: "8px",
                                 }}
                               >
-                                â‰¡Æ’Ã†â•¡
+                                Ã¢â€°Â¡Ã†â€™Ãƒâ€ Ã¢â€¢Â¡
                               </div>
                               <div
                                 style={{
@@ -18894,7 +18947,7 @@ Powered by Stacli mandi os`;
                                   marginBottom: "8px",
                                 }}
                               >
-                                Î“Ã…â”‚
+                                ÃŽâ€œÃƒâ€¦Ã¢â€â€š
                               </div>
                               <div
                                 style={{
@@ -19048,7 +19101,7 @@ Powered by Stacli mandi os`;
                           alignItems: "flex-start",
                         }}
                       >
-                        <span style={{ fontSize: "16px" }}>â‰¡Æ’Ã†Ã­</span>
+                        <span style={{ fontSize: "16px" }}>Ã¢â€°Â¡Ã†â€™Ãƒâ€ ÃƒÂ­</span>
                         <span>
                           Insight: Produce supplied on Thursdays accounts for
                           highest liquidation volumes despite late timing
@@ -19109,7 +19162,7 @@ Powered by Stacli mandi os`;
                   color: COLORS.muted,
                 }}
               >
-                <span style={{ fontSize: "48px" }}>â‰¡Æ’Ã¶Ã„</span>
+                <span style={{ fontSize: "48px" }}>Ã¢â€°Â¡Ã†â€™ÃƒÂ¶Ãƒâ€ž</span>
                 <p>Results will populate here after a lookup is initialized.</p>
               </div>
             </Card>
@@ -19138,9 +19191,9 @@ Powered by Stacli mandi os`;
                     position: "relative",
                   }}
                 >
-                  <span style={{ fontSize: "64px" }}>â‰¡Æ’Ã´Ã©</span>
+                  <span style={{ fontSize: "64px" }}>Ã¢â€°Â¡Ã†â€™ÃƒÂ´ÃƒÂ©</span>
                   <h3 style={{ color: "#0f172a" }}>
-                    {uploading ? "âš¡ Syncing Entry..." : "Vault Archive Queue"}
+                    {uploading ? "Ã¢Å¡Â¡ Syncing Entry..." : "Vault Archive Queue"}
                   </h3>
                   <p>Click to browse or drag documents into storage.</p>
                   <input
@@ -19195,8 +19248,8 @@ Powered by Stacli mandi os`;
                         >
                           <span style={{ fontSize: "28px" }}>
                             {doc.docType === "Produce Photo"
-                              ? "â‰¡Æ’Ã»â•âˆ©â••Ã…"
-                              : "â‰¡Æ’Ã´Ã¤"}
+                              ? "Ã¢â€°Â¡Ã†â€™ÃƒÂ»Ã¢â€¢ÂÃ¢Ë†Â©Ã¢â€¢â€¢Ãƒâ€¦"
+                              : "Ã¢â€°Â¡Ã†â€™ÃƒÂ´ÃƒÂ¤"}
                           </span>
                           <div>
                             <p
@@ -19209,7 +19262,7 @@ Powered by Stacli mandi os`;
                               {doc.originalName}
                             </p>
                             <small style={{ color: COLORS.muted }}>
-                              {doc.docType} • {(doc.fileSize / 1024).toFixed(1)}{" "}
+                              {doc.docType} â€¢ {(doc.fileSize / 1024).toFixed(1)}{" "}
                               KB
                             </small>
                           </div>
@@ -19234,7 +19287,7 @@ Powered by Stacli mandi os`;
                               onClick={() => handleDeleteDoc(doc._id)}
                               style={{ padding: "8px 12px", fontSize: "12px" }}
                             >
-                              ðŸ—‘ï¸
+                              Ã°Å¸â€”â€˜Ã¯Â¸Â
                             </Button>
                           )}
                         </div>
@@ -19318,7 +19371,7 @@ Powered by Stacli mandi os`;
                   {viewingEntity.type === "LOT" ? (
                     <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
                       
-                      {/* Lot Information — Horizontal Table Format */}
+                      {/* Lot Information â€” Horizontal Table Format */}
                       <div>
                         <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
                           <div style={{ width: "4px", height: "16px", background: COLORS.sidebar, borderRadius: "2px" }}></div>
@@ -19359,7 +19412,7 @@ Powered by Stacli mandi os`;
                         </div>
                       </div>
 
-                      {/* Produce Details Box — Nested */}
+                      {/* Produce Details Box â€” Nested */}
                       <div style={{ background: "#FDFBF4", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
                         <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <span>PRODUCE ITEMS & QUANTITY</span>
@@ -19495,9 +19548,9 @@ Powered by Stacli mandi os`;
                               <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
                                 <th style={{ padding: "12px", textAlign: "left" }}>Product / Variety / Grade</th>
                                 <th style={{ padding: "12px", textAlign: "right" }}>Qty (KG)</th>
-                                <th style={{ padding: "12px", textAlign: "right" }}>Rate (₹)</th>
-                                <th style={{ padding: "12px", textAlign: "right" }}>Allocated Amt (₹)</th>
-                                <th style={{ padding: "12px", textAlign: "right" }}>Total Sale (₹)</th>
+                                <th style={{ padding: "12px", textAlign: "right" }}>Rate (â‚¹)</th>
+                                <th style={{ padding: "12px", textAlign: "right" }}>Allocated Amt (â‚¹)</th>
+                                <th style={{ padding: "12px", textAlign: "right" }}>Total Sale (â‚¹)</th>
                                 <th style={{ padding: "12px", textAlign: "left" }}>Invoice Ref</th>
                                 <th style={{ padding: "12px", textAlign: "left" }}>Bill Photo</th>
                               </tr>
@@ -19512,9 +19565,9 @@ Powered by Stacli mandi os`;
                                   <tr key={idx} style={{ borderBottom: "1px solid #EBE9E1" }}>
                                     <td style={{ padding: "12px", fontWeight: "800", color: COLORS.sidebar }}>{it.lineItemId || "Standard Produce"}</td>
                                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "700" }}>{it.quantity}</td>
-                                    <td style={{ padding: "12px", textAlign: "right", color: COLORS.primary, fontWeight: "700" }}>₹{it.rate}</td>
-                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: "#C2410C", background: "#FFF7ED" }}>₹{finalAmt.toLocaleString()}</td>
-                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "900" }}>₹{finalAmt.toLocaleString()}</td>
+                                    <td style={{ padding: "12px", textAlign: "right", color: COLORS.primary, fontWeight: "700" }}>â‚¹{it.rate}</td>
+                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: "#C2410C", background: "#FFF7ED" }}>â‚¹{finalAmt.toLocaleString()}</td>
+                                    <td style={{ padding: "12px", textAlign: "right", fontWeight: "900" }}>â‚¹{finalAmt.toLocaleString()}</td>
                                     <td style={{ padding: "12px", color: COLORS.muted, fontSize: "11px" }}>{it.buyerInvoiceNo || "UNLINKED"}</td>
                                      <td style={{ padding: "12px" }}>
                                         {viewingEntity.data.attached_bill_photo ? (
@@ -19543,10 +19596,10 @@ Powered by Stacli mandi os`;
                               <tr style={{ background: "#F1F5F9", fontWeight: "900" }}>
                                 <td colSpan="3" style={{ padding: "12px", textAlign: "right" }}>GRAND TOTAL SUMMARY:</td>
                                 <td style={{ padding: "12px", textAlign: "right", color: "#C2410C" }}>
-                                  ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
+                                  â‚¹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
                                 </td>
                                 <td style={{ padding: "12px", textAlign: "right" }}>
-                                  ₹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
+                                  â‚¹{itemsToShow.reduce((acc, it) => acc + (Number(it.allocatedAmount) || (Number(it.quantity) * Number(it.rate) || 0)), 0).toLocaleString()}
                                 </td>
                                 <td></td>
                               </tr>
