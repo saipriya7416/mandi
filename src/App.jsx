@@ -2419,7 +2419,7 @@ Powered by Stacli mandi os`;
         id: Date.now(),
         productId: "",
         variety: "",
-        grade: "A",
+        grade: "",
         grossWeight: "",
         deductions: "",
         weightUnit: "KGs",
@@ -3028,7 +3028,7 @@ Powered by Stacli mandi os`;
         id: Date.now(),
         productId: "",
         variety: "",
-        grade: "A",
+        grade: "",
         grossWeight: "",
         deductions: "",
         weightUnit: "KGs",
@@ -6720,7 +6720,7 @@ Powered by Stacli mandi os`;
                               id: Date.now(),
                               productId: "",
                               variety: "",
-                              grade: "A",
+                              grade: "",
                               grossWeight: "",
                               deductions: "",
                               weightUnit: "KGs",
@@ -7018,12 +7018,12 @@ Powered by Stacli mandi os`;
                             />
                           </div>
 
-                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "140px" }}>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "140px" }}>
                             <ModernMultiSelectField
                               label="Grade"
                               value={item.grade}
                               showRemoveIcon={false}
-                              placeholder="Select the grade"
+                              placeholder="Select the Grade"
                               options={["A", "B", "C", "Extra", "Super", "Standard"]}
                               onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)}
                             />
@@ -7134,7 +7134,7 @@ Powered by Stacli mandi os`;
                           ...lotCreationForm,
                           lotId: generateLotId(lotCounter),
                           vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
-                          lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", weightUnit: "KGs", status: "Pending Auction" }]
+                          lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "", grossWeight: "", weightUnit: "KGs", status: "Pending Auction" }]
                         });
                     }}>{lotClearBtn.label}</Button>
                   </div>
