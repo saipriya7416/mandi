@@ -981,15 +981,15 @@ function ModernMultiSelectField({
           minHeight: "48px",
           padding: "8px 16px",
           borderRadius: "12px",
-          border: "1.5px solid #2d2d2d",
-          background: "#1a1a1a",
-          color: "#ffffff",
+          border: "1.5px solid #EBE9E1",
+          background: "#FFFFFF",
+          color: COLORS.sidebar,
           display: "flex",
           alignItems: "center",
           gap: "10px",
           cursor: disabled ? "not-allowed" : "pointer",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          boxShadow: open ? "0 0 0 2px rgba(255,255,255,0.15)" : "none",
+          boxShadow: open ? "0 0 0 2px rgba(0,0,0,0.05)" : "none",
           opacity: disabled ? 0.6 : 1
         }}
       >
@@ -997,7 +997,7 @@ function ModernMultiSelectField({
           {internalValues.length > 0 ? (
             <div style={{ display: "flex", gap: "6px", overflow: "hidden" }}>
                {internalValues.slice(0, 2).map(v => (
-                 <span key={v} style={{ background: "#333", padding: "2px 8px", borderRadius: "6px", fontSize: "11px", border: "1px solid #444" }}>{v}</span>
+                 <span key={v} style={{ background: "#F1F5F9", padding: "2px 8px", borderRadius: "6px", fontSize: "11px", border: "1px solid #E2E8F0", color: COLORS.sidebar }}>{v}</span>
                ))}
                {internalValues.length > 2 && <span style={{ color: "#888", fontSize: "11px" }}>+{internalValues.length - 2} more</span>}
             </div>
