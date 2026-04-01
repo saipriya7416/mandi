@@ -18851,151 +18851,129 @@ Powered by Stacli mandi os`;
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
                 <div style={{ overflowX: "auto", border: "1px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
                   {viewingEntity.type === "LOT" ? (
-                    <div style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "24px" }}>
+                    <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
+                      {/* Flat horizontal fields grid — no section headers */}
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "12px" }}>
 
-                      {/* Section 2: Supplier Info */}
-                      <div>
-                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 2: Supplier Info</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Supplier Name</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Supplier ID</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{(() => { const rawId = typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId); const str = String(rawId || ""); const numPart = str.includes('-') ? str.split('-').pop() : str; return numPart ? Number(numPart).toString() : "N/A"; })()}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Origin / Source Location</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.origin || "N/A"}</div>
-                          </div>
+                        {/* Supplier Name */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Supplier Name</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</div>
                         </div>
-                      </div>
 
-                      {/* Section 3: Produce Info */}
-                      <div>
-                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 3: Produce Info</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Product</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.productId || viewingEntity.data.lineItems?.[0]?.product || "N/A"}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Variety</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.variety || "N/A"}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Grade</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grade || "N/A"}</div>
-                          </div>
+                        {/* Supplier ID */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Supplier ID</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{(() => { const rawId = typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId); const str = String(rawId || ""); const numPart = str.includes('-') ? str.split('-').pop() : str; return numPart ? Number(numPart).toString() : "N/A"; })()}</div>
                         </div>
-                      </div>
 
-                      {/* Section 4: Weight & Transport */}
-                      <div>
-                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 4: Weight & Transport</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Weight</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grossWeight || "0"}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Weight Unit</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.weightUnit || "KG"}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Vehicle / Lorry Number</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</div>
-                          </div>
+                        {/* Origin */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Origin / Location</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.origin || "N/A"}</div>
                         </div>
-                      </div>
 
-                      {/* Section 5: Transport Proof & Remarks */}
-                      <div>
-                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 5: Transport Proof & Remarks</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", alignItems: "start" }}>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Driver Name</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span>Attached Bill Photo</span>
-                              {viewingEntity.data.attached_bill_photo && (
+                        {/* Product */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Product</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.productId || viewingEntity.data.lineItems?.[0]?.product || "N/A"}</div>
+                        </div>
+
+                        {/* Variety */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Variety</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.variety || "N/A"}</div>
+                        </div>
+
+                        {/* Grade */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Grade</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grade || "N/A"}</div>
+                        </div>
+
+                        {/* Weight */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Weight</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grossWeight || "0"}</div>
+                        </div>
+
+                        {/* Weight Unit */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Weight Unit</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.weightUnit || "KG"}</div>
+                        </div>
+
+                        {/* Vehicle Number */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Vehicle / Lorry No.</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</div>
+                        </div>
+
+                        {/* Driver Name */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Driver Name</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</div>
+                        </div>
+
+                        {/* Notes */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Notes</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.notes || "N/A"}</div>
+                        </div>
+
+                        {/* Bill Photo */}
+                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Bill Photo</div>
+                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>
+                            {viewingEntity.data.attached_bill_photo ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <img
+                                  src={viewingEntity.data.attached_bill_photo}
+                                  alt="Bill"
+                                  style={{ width: "60px", height: "40px", objectFit: "cover", borderRadius: "6px", border: "1px solid #E2E8F0", cursor: "pointer" }}
+                                  onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
+                                />
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setBillPhotoModal({
-                                      open: true,
-                                      imageUrl: viewingEntity.data.attached_bill_photo,
-                                      lotNo: viewingEntity.data.lotId || "N/A",
-                                      supplierName: viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || "N/A",
-                                      supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId)) || "N/A",
-                                      zoom: 1
-                                    });
-                                  }}
+                                  onClick={(e) => { e.stopPropagation(); setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 }); }}
                                   style={{ background: "#FFFFFF", color: COLORS.sidebar, border: "1px solid #CBD5E1", padding: "4px 8px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", cursor: "pointer" }}
-                                >
-                                  View Bill Photo
-                                </button>
-                              )}
-                            </div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>
-                              {viewingEntity.data.attached_bill_photo ? (
-                                <div style={{ position: "relative", width: "100px", height: "60px" }}>
-                                  <img 
-                                    src={viewingEntity.data.attached_bill_photo} 
-                                    alt="Bill" 
-                                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px", border: "1px solid #E2E8F0", cursor: "pointer" }}
-                                    onClick={() => setBillPhotoModal({
-                                      open: true,
-                                      imageUrl: viewingEntity.data.attached_bill_photo,
-                                      lotNo: viewingEntity.data.lotId || "N/A",
-                                      supplierName: viewingEntity.data.farmerName || "N/A",
-                                      supplierId: stripIdPrefix(typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A",
-                                      zoom: 1
-                                    })}
-                                  />
-                                </div>
-                              ) : (
-                                <span style={{ color: COLORS.muted, fontSize: "12px" }}>No bill photo available</span>
-                              )}
-                            </div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Notes</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.notes || "N/A"}</div>
+                                >View</button>
+                              </div>
+                            ) : (
+                              <span style={{ color: COLORS.muted, fontSize: "12px" }}>No bill attached</span>
+                            )}
                           </div>
                         </div>
+
                       </div>
 
-                      {/* Additional Processing items if any */}
+                      {/* Additional produce items (if more than 1 line item) */}
                       {viewingEntity.data.lineItems && viewingEntity.data.lineItems.length > 1 && (
-                        <div style={{ marginTop: "16px" }}>
-                          <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Additional Produce Items</h4>
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", background: "#F8FAFC", borderRadius: "8px", display: "block", overflow: "hidden" }}>
-                             <thead>
-                               <tr style={{ background: "#E2E8F0", color: COLORS.sidebar, textAlign: "left" }}>
-                                 <th style={{ padding: "12px" }}>Product</th>
-                                 <th style={{ padding: "12px" }}>Variety</th>
-                                 <th style={{ padding: "12px" }}>Weight</th>
-                                 <th style={{ padding: "12px" }}>Status</th>
-                               </tr>
-                             </thead>
-                             <tbody style={{ display: "table", width: "100%" }}>
-                               {viewingEntity.data.lineItems.slice(1).map((it, i) => (
-                                 <tr key={i} style={{ borderBottom: "1px solid #EBE9E1" }}>
-                                   <td style={{ padding: "12px", fontWeight: "800" }}>{it.productId || it.product}</td>
-                                   <td style={{ padding: "12px", fontWeight: "700" }}>{it.variety}</td>
-                                   <td style={{ padding: "12px", fontWeight: "700" }}>{it.grossWeight} {it.weightUnit}</td>
-                                   <td style={{ padding: "12px", fontWeight: "700" }}>{it.status}</td>
-                                 </tr>
-                               ))}
-                             </tbody>
+                        <div style={{ marginTop: "8px" }}>
+                          <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>Additional Produce Items</div>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", background: "#F8FAFC", borderRadius: "8px", overflow: "hidden", border: "1px solid #E2E8F0" }}>
+                            <thead>
+                              <tr style={{ background: "#E2E8F0", color: COLORS.sidebar, textAlign: "left" }}>
+                                <th style={{ padding: "10px 12px" }}>Product</th>
+                                <th style={{ padding: "10px 12px" }}>Variety</th>
+                                <th style={{ padding: "10px 12px" }}>Weight</th>
+                                <th style={{ padding: "10px 12px" }}>Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {viewingEntity.data.lineItems.slice(1).map((it, i) => (
+                                <tr key={i} style={{ borderBottom: "1px solid #EBE9E1" }}>
+                                  <td style={{ padding: "10px 12px", fontWeight: "800" }}>{it.productId || it.product}</td>
+                                  <td style={{ padding: "10px 12px", fontWeight: "700" }}>{it.variety}</td>
+                                  <td style={{ padding: "10px 12px", fontWeight: "700" }}>{it.grossWeight} {it.weightUnit}</td>
+                                  <td style={{ padding: "10px 12px", fontWeight: "700" }}>{it.status}</td>
+                                </tr>
+                              ))}
+                            </tbody>
                           </table>
                         </div>
                       )}
+
                     </div>
                   ) : (
                     <div style={{ overflowX: "auto" }}>
