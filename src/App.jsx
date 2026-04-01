@@ -1458,13 +1458,24 @@ function FormGrid({ sections }) {
                         padding: "12px 14px",
                         borderRadius: "8px",
                         border: "1.5px solid #EBE9E1",
-                        background: f.disabled ? "#FDFBF4" : (f.label === "Lot ID *" ? COLORS.sidebar : "#FFFFFF"),
+                        background: f.disabled ? "#FDFBF4" : (f.label === "Lot ID *" ? "#000000" : "#FFFFFF"),
                         color: f.disabled ? COLORS.muted : (f.label === "Lot ID *" ? "#FFFFFF" : COLORS.sidebar),
                         outline: "none",
                         fontSize: "13px",
                         fontWeight: "600",
                         cursor: "pointer",
                         appearance: "auto",
+                        transition: "background 0.2s"
+                      }}
+                      onMouseEnter={(e) => {
+                        if (f.label === "Lot ID *" && !f.disabled) {
+                          e.target.style.background = "#2563EB";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (f.label === "Lot ID *" && !f.disabled) {
+                          e.target.style.background = "#000000";
+                        }
                       }}
                     >
                       {(!f.value || f.value === "") && (
@@ -1489,11 +1500,22 @@ function FormGrid({ sections }) {
                         padding: "12px 14px",
                         borderRadius: "8px",
                         border: "1px solid #EBE9E1",
-                        background: f.disabled ? "#FDFBF4" : "#FFFFFF",
-                        color: f.disabled ? COLORS.muted : COLORS.sidebar,
+                        background: f.disabled ? "#FDFBF4" : (f.label === "Lot ID *" ? "#000000" : "#FFFFFF"),
+                        color: f.disabled ? COLORS.muted : (f.label === "Lot ID *" ? "#FFFFFF" : COLORS.sidebar),
                         outline: "none",
                         fontSize: "13px",
                         fontWeight: "600",
+                        transition: "background 0.2s"
+                      }}
+                      onMouseEnter={(e) => {
+                        if (f.label === "Lot ID *" && !f.disabled) {
+                          e.target.style.background = "#2563EB";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (f.label === "Lot ID *" && !f.disabled) {
+                          e.target.style.background = "#000000";
+                        }
                       }}
                     />
                   )}
@@ -5059,6 +5081,20 @@ Powered by Stacli mandi os`;
               </h2>
             </div>
             <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+              <Button style={{
+                background: "#000000",
+                color: "#FFFFFF",
+                fontWeight: "800",
+                borderRadius: "24px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 20px",
+                border: "none",
+                cursor: "pointer"
+              }} onClick={() => window.location.reload()}>
+                <RefreshCw size={16} /> Refresh
+              </Button>
               <div
                 style={{
                   background: "rgba(16, 185, 129, 0.1)",
@@ -6930,27 +6966,35 @@ Powered by Stacli mandi os`;
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product / Variety / Grade *</label>
-                        <ModernMultiSelectField
-                          label="Product / Variety / Grade *"
+                        <select
                           value={item.lineItemId}
-                          hideLabel={true}
-                          options={(() => {
+                          onChange={(e) =>
+                            handleAllocationItemAction("Update", idx, "lineItemId", e.target.value)
+                          }
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #EBE9E1",
+                            background: "#FFFFFF",
+                            color: COLORS.sidebar,
+                            outline: "none",
+                            fontSize: "13px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            appearance: "auto",
+                          }}
+                        >
+                          <option value="" disabled>Select Product / Variety / Grade</option>
+                          {(() => {
                             const currentLot = lots.find(l => l.lotId === allocationForm.lotId);
                             if (!currentLot) return [];
-                            return (currentLot.lineItems || []).map(li => {
+                            return (currentLot.lineItems || []).map((li, i) => {
                               const parts = [li.productId || li.product, li.variety, li.grade].filter(Boolean);
-                              return parts.join(" / ");
+                              const label = parts.join(" / ");
+                              return <option key={i} value={label} style={{ background: "#000000", color: "#FFFFFF" }}>{label}</option>;
                             });
                           })()}
-                          onChange={(e) =>
-                            handleAllocationItemAction(
-                              "Update",
-                              idx,
-                              "lineItemId",
-                              e.target.value,
-                            )
-                          }
-                        />
+                        </select>
                       </div>
 
                       <div
@@ -7077,16 +7121,19 @@ Powered by Stacli mandi os`;
                           Sale Rate (₹/KG) *
                         </label>
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="decimal"
                           value={item.saleRate}
-                          onChange={(e) =>
-                            handleAllocationItemAction(
-                              "Update",
-                              idx,
-                              "saleRate",
-                              e.target.value,
-                            )
-                          }
+                          onChange={(e) => {
+                            if (/^\d*\.?\d*$/.test(e.target.value)) {
+                              handleAllocationItemAction(
+                                "Update",
+                                idx,
+                                "saleRate",
+                                e.target.value,
+                              )
+                            }
+                          }}
                           placeholder="0"
                           style={{
                             padding: "12px 14px",
@@ -7117,16 +7164,19 @@ Powered by Stacli mandi os`;
                           Allocated Amount (₹)
                         </label>
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="decimal"
                           value={item.allocatedAmount}
-                          onChange={(e) =>
-                            handleAllocationItemAction(
-                              "Update",
-                              idx,
-                              "allocatedAmount",
-                              e.target.value,
-                            )
-                          }
+                          onChange={(e) => {
+                            if (/^\d*\.?\d*$/.test(e.target.value)) {
+                              handleAllocationItemAction(
+                                "Update",
+                                idx,
+                                "allocatedAmount",
+                                e.target.value,
+                              )
+                            }
+                          }}
                           placeholder={Number(item.quantity) * Number(item.saleRate) || "0"}
                           style={{
                             padding: "12px 14px",
