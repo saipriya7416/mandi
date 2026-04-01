@@ -5955,6 +5955,8 @@ Powered by Stacli mandi os`;
                         return { product: selectedProduct, items: matches };
                       });
 
+                      const hasAtLeastOneMatch = groupedByProduct.some(group => group.items.length > 0);
+
                       if (!hasAtLeastOneMatch) {
                         const emptyMsg = memberDateFilter !== "All" 
                           ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not available in this date.`
