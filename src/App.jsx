@@ -1388,8 +1388,8 @@ function FormGrid({ sections }) {
                         padding: "12px 14px",
                         borderRadius: "8px",
                         border: "1.5px solid #EBE9E1",
-                        background: f.disabled ? "#FDFBF4" : "#FFFFFF",
-                        color: f.disabled ? COLORS.muted : COLORS.sidebar,
+                        background: f.disabled ? "#FDFBF4" : (f.label === "Lot ID *" ? "#1a1a1a" : "#FFFFFF"),
+                        color: f.disabled ? COLORS.muted : (f.label === "Lot ID *" ? "#FFFFFF" : COLORS.sidebar),
                         outline: "none",
                         fontSize: "13px",
                         fontWeight: "600",
@@ -1401,7 +1401,7 @@ function FormGrid({ sections }) {
                         <option value="" disabled>{getSelectPlaceholder(f.label)}</option>
                       )}
                       {f.options && f.options.map((opt, i) => (
-                        <option key={i} value={opt}>{opt}</option>
+                        <option key={i} value={opt} style={{ background: "#1a1a1a", color: "#FFFFFF" }}>{opt}</option>
                       ))}
                     </select>
                   ) : (
@@ -1499,6 +1499,10 @@ export default function App() {
   });
   const [isMemberProductDropdownOpen, setIsMemberProductDropdownOpen] = useState(false);
   const [lotSearchQuery, setLotSearchQuery] = useState("");
+  const [lotDateFilter, setLotDateFilter] = useState("");
+  const [lotCustomDateStart, setLotCustomDateStart] = useState("");
+  const [lotCustomDateEnd, setLotCustomDateEnd] = useState("");
+  const [lotProductFilter, setLotProductFilter] = useState("");
   const [allocationSearchQuery, setAllocationSearchQuery] = useState("");
   const [billSearchQuery, setBillSearchQuery] = useState("");
   const [invoiceSearchQuery, setInvoiceSearchQuery] = useState("");
@@ -6302,66 +6306,205 @@ Powered by Stacli mandi os`;
                   }}
                 >
                   {/* Lot Search Integrated Upside */}
-                  <div style={{ marginBottom: "24px" }}>
-                    <input
-                      type="text"
-                      placeholder="Search by Supplier Name or Vehicle Number..."
-                      value={lotSearchQuery}
-                      onChange={(e) => setLotSearchQuery(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "16px 20px",
-                        borderRadius: "16px",
-                        border: "1.5px solid #EBE9E1",
-                        fontSize: "14px",
-                      }}
-                    />
+                  <div style={{ marginBottom: "24px", display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: "250px" }}>
+                      <input
+                        type="text"
+                        placeholder="Search by supplier name / vehicle number / product"
+                        value={lotSearchQuery}
+                        onChange={(e) => setLotSearchQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "16px 20px",
+                          borderRadius: "16px",
+                          border: "1.5px solid #EBE9E1",
+                          fontSize: "14px",
+                        }}
+                      />
+                    </div>
+                    <div style={{ width: "240px" }}>
+                       <select
+                         value={lotDateFilter}
+                         onChange={(e) => {
+                           setLotDateFilter(e.target.value);
+                           if (e.target.value !== "Custom Date") {
+                             setLotCustomDateStart("");
+                             setLotCustomDateEnd("");
+                           }
+                         }}
+                         style={{
+                            width: "100%",
+                            padding: "16px 20px",
+                            borderRadius: "16px",
+                            border: "1.5px solid #EBE9E1",
+                            fontSize: "14px",
+                            color: lotDateFilter ? COLORS.sidebar : COLORS.muted,
+                            cursor: "pointer",
+                            appearance: "auto",
+                            background: "#FFFFFF"
+                         }}
+                       >
+                         <option value="" disabled>Select date from particular date</option>
+                         <option value="Today">Today</option>
+                         <option value="15 Days">15 Days</option>
+                         <option value="30 Days / One Month">30 Days / One Month</option>
+                         <option value="Custom Date">Custom Date</option>
+                       </select>
+                    </div>
+                    <div style={{ width: "220px" }}>
+                       <select
+                         value={lotProductFilter}
+                         onChange={(e) => setLotProductFilter(e.target.value)}
+                         style={{
+                            width: "100%",
+                            padding: "16px 20px",
+                            borderRadius: "16px",
+                            border: "1.5px solid #EBE9E1",
+                            fontSize: "14px",
+                            color: lotProductFilter ? COLORS.sidebar : COLORS.muted,
+                            cursor: "pointer",
+                            appearance: "auto",
+                            background: "#FFFFFF"
+                         }}
+                       >
+                         <option value="" disabled>Select Product</option>
+                         {Array.from(new Set(
+                            lots.filter(li => {
+                               const supplierName = (li.farmerName || li.supplierId?.name || (typeof li.supplierId === "string" ? li.supplierId : "")).toLowerCase();
+                               const query = (lotSearchQuery || "").toLowerCase();
+                               return !query || supplierName.includes(query);
+                            }).flatMap(li => li.lineItems?.map(i => i.productId).filter(Boolean))
+                         )).map(prod => (
+                           <option key={prod} value={prod}>{prod}</option>
+                         ))}
+                       </select>
+                    </div>
                   </div>
+
+                  {lotDateFilter === "Custom Date" && (
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "24px", alignItems: "center" }}>
+                      <input
+                        type="date"
+                        value={lotCustomDateStart}
+                        onChange={(e) => setLotCustomDateStart(e.target.value)}
+                        style={{ padding: "12px 16px", borderRadius: "12px", border: "1.5px solid #EBE9E1", fontSize: "14px", outline: "none" }}
+                      />
+                      <span style={{ fontWeight: "700", color: COLORS.muted }}>to</span>
+                      <input
+                        type="date"
+                        value={lotCustomDateEnd}
+                        onChange={(e) => setLotCustomDateEnd(e.target.value)}
+                        style={{ padding: "12px 16px", borderRadius: "12px", border: "1.5px solid #EBE9E1", fontSize: "14px", outline: "none" }}
+                      />
+                    </div>
+                  )}
                   <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
-                      {lots
-                        .filter(l => {
+                      {(() => {
+                        const filteredLotsForDisplay = lots.filter(l => {
                           const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
                           const vehicleNo = (l.vehicleNumber || "").toLowerCase();
+                          const productsStr = (l.lineItems || []).map(item => item.productId?.toLowerCase() || "").join(" ");
                           const query = (lotSearchQuery || "").toLowerCase();
-                          return supplierName.includes(query) || vehicleNo.includes(query);
-                        })
-                        .slice()
-                        .reverse()
-                        .map((l) => {
-                          const grossSale = (l.lineItems || []).reduce(
-                            (sum, item) => sum + Number(item.grossWeight) * Number(item.estimatedRate),
-                            0,
-                          );
-                          return (
-                            <PremiumActionCard
-                              key={l._id || l.lotId}
-                              title={<SmartDataNode text={formatNameWithId((l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier")), (typeof l.supplierId === "object" ? l.supplierId?._id : l.supplierId))} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                              subtitle=""
-                              icon={ICON_TRUCK}
-                              status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
-                              details={[
-                                { icon: ICON_TRUCK, text: l.vehicleNumber || "No Vehicle" },
-                                { icon: ICON_LOCATION, text: l.origin || "Origin N/A" },
-                                { icon: ICON_PHONE, text: l.phone || "+917416372496" }, // Example phone from image 2
-                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Est. Gross: ${formatCurrency(grossSale)}` }
-                              ]}
-                              secondaryActions={[
-                                { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "LOT", data: l }) },
-                                { label: "Edit Details", icon: ICON_EDIT, onClick: () => handleEditLot(l) }
-                              ]}
-                              onDelete={() => {
-                                const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
-                                if (code === "0000") handleDeleteLot(l._id);
-                                else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
-                              }}
-                              onLock={() => alert("Lot record locked.")}
-                            />
-                          );
-                        })}
-                      {lots.length === 0 && (
-                        <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No registered lots found.</p>
-                      )}
+                          const matchesQuery = supplierName.includes(query) || vehicleNo.includes(query) || productsStr.includes(query);
+
+                          let matchesDate = true;
+                          if (lotDateFilter) {
+                            const lotDateVal = l.entryDate || l.createdAt;
+                            if (lotDateVal) {
+                              const lotDate = new Date(lotDateVal);
+                              lotDate.setHours(0,0,0,0);
+                              const today = new Date();
+                              today.setHours(0,0,0,0);
+
+                              if (lotDateFilter === "Today") {
+                                matchesDate = lotDate.getTime() === today.getTime();
+                              } else if (lotDateFilter === "15 Days") {
+                                const past = new Date(today); past.setDate(today.getDate() - 15);
+                                matchesDate = lotDate >= past && lotDate <= today;
+                              } else if (lotDateFilter === "30 Days / One Month") {
+                                const past = new Date(today); past.setDate(today.getDate() - 30);
+                                matchesDate = lotDate >= past && lotDate <= today;
+                              } else if (lotDateFilter === "Custom Date") {
+                                if (lotCustomDateStart) { const s = new Date(lotCustomDateStart); s.setHours(0,0,0,0); if (lotDate < s) matchesDate = false; }
+                                if (lotCustomDateEnd) { const e = new Date(lotCustomDateEnd); e.setHours(23,59,59,999); if (lotDate > e) matchesDate = false; }
+                              }
+                            }
+                          }
+
+                          let matchesProduct = true;
+                          if (lotProductFilter) {
+                            matchesProduct = (l.lineItems || []).some(item => item.productId === lotProductFilter);
+                          }
+
+                          return matchesQuery && matchesDate && matchesProduct;
+                        });
+
+                        return (
+                          <>
+                            {lotDateFilter && filteredLotsForDisplay.length > 0 && (
+                              <div style={{ gridColumn: "1/-1", marginBottom: "8px", padding: "16px", background: "#F8FAFC", borderRadius: "12px", border: "1px dashed #CBD5E1" }}>
+                                <h4 style={{ margin: "0 0 12px 0", fontSize: "14px", color: COLORS.primary, fontWeight: "900", textTransform: "uppercase" }}>Search & Date summary</h4>
+                                {Object.entries(
+                                  filteredLotsForDisplay.reduce((acc, l) => {
+                                     const sName = l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Unknown");
+                                     if (!acc[sName]) acc[sName] = { count: 0, products: new Set() };
+                                     acc[sName].count += 1;
+                                     (l.lineItems || []).forEach(i => { if (i.productId) acc[sName].products.add(i.productId); });
+                                     return acc;
+                                  }, {})
+                                ).map(([sName, data]) => (
+                                  <div key={sName} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #E2E8F0" }}>
+                                     <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{sName}</span>
+                                     <span style={{ fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
+                                       Visits: <strong style={{color: COLORS.primary}}>{data.count} times</strong> &nbsp;|&nbsp; 
+                                       Products brought: <strong style={{color: COLORS.sidebar}}>{Array.from(data.products).join(", ")}</strong>
+                                     </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {filteredLotsForDisplay.slice().reverse().map((l) => {
+                              const grossSale = (l.lineItems || []).reduce(
+                                (sum, item) => sum + Number(item.grossWeight) * Number(item.estimatedRate),
+                                0,
+                              );
+                              return (
+                                <PremiumActionCard
+                                  key={l._id || l.lotId}
+                                  title={<SmartDataNode text={formatNameWithId((l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier")), (typeof l.supplierId === "object" ? l.supplierId?._id : l.supplierId))} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+                                  subtitle=""
+                                  icon={ICON_TRUCK}
+                                  status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
+                                  details={[
+                                    { icon: ICON_TRUCK, text: l.vehicleNumber || "No Vehicle" },
+                                    { icon: ICON_LOCATION, text: l.origin || "Origin N/A" },
+                                    { icon: ICON_PHONE, text: l.phone || "+917416372496" }, // Example phone from image 2
+                                    { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Est. Gross: ${formatCurrency(grossSale)}` }
+                                  ]}
+                                  secondaryActions={[
+                                    { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "LOT", data: l }) },
+                                    { label: "Edit Details", icon: ICON_EDIT, onClick: () => handleEditLot(l) }
+                                  ]}
+                                  onDelete={() => {
+                                    const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+                                    if (code === "0000") handleDeleteLot(l._id);
+                                    else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
+                                  }}
+                                  onLock={() => alert("Lot record locked.")}
+                                />
+                              );
+                            })}
+
+                            {filteredLotsForDisplay.length === 0 && (
+                              <p style={{ textAlign: "center", color: "#CC0000", fontWeight: "800", padding: "40px", gridColumn: "1/-1" }}>
+                                {lotDateFilter ? "THIS REGISTERED SUPPLIER IS NOT AVAILABLE IN THIS DATE" : "No registered lots found."}
+                              </p>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -6646,15 +6789,18 @@ Powered by Stacli mandi os`;
                 {lots
                   .filter((l) => l.status !== "Fully Sold")
                   .map((l) => {
-                    const supplierName = (typeof l.supplierId === "object" ? l.supplierId?.name : suppliers.find(s => s._id === l.supplierId)?.name) || "Unknown Supplier";
+                    const supplier = (typeof l.supplierId === "object" ? l.supplierId : suppliers.find(s => s._id === l.supplierId));
+                    const supplierName = supplier?.name || "Unknown Supplier";
+                    const runningId = supplier?.supplierId || "";
+                    const displayName = runningId ? `${supplierName}-${runningId}` : supplierName;
                     const itemCount = l.lineItems?.length || 0;
                     const entryDate = l.entryDate ? formatDate(l.entryDate) : "No Date";
-                    const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "â€”";
+                    const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "—";
                     return (
                       <option
                         key={l._id || l.lotId}
                         value={l.lotId}
-                        label={`${l.lotId}  |  ${supplierName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`}
+                        label={`${l.lotId}  |  ${displayName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`}
                       />
                     );
                   })}
@@ -7101,26 +7247,99 @@ Powered by Stacli mandi os`;
                   </div>
                 </div>
 
-                <div style={{ marginBottom: "24px" }}>
-                  <input
-                    type="text"
-                    placeholder="Search by Customer Name or Invoice Number..."
-                    value={allocationSearchQuery}
-                    onChange={(e) => setAllocationSearchQuery(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "16px 20px",
-                      borderRadius: "16px",
-                      border: "1.5px solid #EBE9E1",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      color: COLORS.sidebar,
-                      outline: "none",
-                      background: "#FDFBF4",
-                      transition: "all 0.2s"
-                    }}
-                  />
+                <div style={{ marginBottom: "24px", display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
+                  <div style={{ flex: 1, minWidth: "250px" }}>
+                    <input
+                      type="text"
+                      placeholder="Search by customer name / invoice number / supplier id"
+                      value={allocationSearchQuery}
+                      onChange={(e) => setAllocationSearchQuery(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "1.5px solid #EBE9E1",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: COLORS.sidebar,
+                        outline: "none",
+                        background: "#FDFBF4",
+                        transition: "all 0.2s"
+                      }}
+                    />
+                  </div>
+                  <div style={{ width: "240px" }}>
+                    <select
+                      value={lotDateFilter}
+                      onChange={(e) => {
+                        setLotDateFilter(e.target.value);
+                        if (e.target.value !== "Custom Date") {
+                          setLotCustomDateStart("");
+                          setLotCustomDateEnd("");
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "1.5px solid #EBE9E1",
+                        fontSize: "14px",
+                        color: lotDateFilter ? COLORS.sidebar : COLORS.muted,
+                        cursor: "pointer",
+                        appearance: "auto",
+                        background: "#FFFFFF"
+                      }}
+                    >
+                      <option value="" disabled>Select date from particular date</option>
+                      <option value="Today">Today</option>
+                      <option value="15 Days">15 Days</option>
+                      <option value="30 Days / One Month">30 Days / One Month</option>
+                      <option value="Custom Date">Custom Date</option>
+                    </select>
+                  </div>
+                  <div style={{ width: "220px" }}>
+                    <select
+                      value={lotProductFilter}
+                      onChange={(e) => setLotProductFilter(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "1.5px solid #EBE9E1",
+                        fontSize: "14px",
+                        color: lotProductFilter ? COLORS.sidebar : COLORS.muted,
+                        cursor: "pointer",
+                        appearance: "auto",
+                        background: "#FFFFFF"
+                      }}
+                    >
+                      <option value="" disabled>Select Product</option>
+                      {Array.from(new Set(
+                        allocations.map(a => a.lineItemId?.split(" / ")[0] || a.productId).filter(Boolean)
+                      )).map(prod => (
+                        <option key={prod} value={prod}>{prod}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+
+                {lotDateFilter === "Custom Date" && (
+                  <div style={{ display: "flex", gap: "16px", marginBottom: "24px", alignItems: "center" }}>
+                    <input
+                      type="date"
+                      value={lotCustomDateStart}
+                      onChange={(e) => setLotCustomDateStart(e.target.value)}
+                      style={{ padding: "12px 16px", borderRadius: "12px", border: "1.5px solid #EBE9E1", fontSize: "14px", outline: "none" }}
+                    />
+                    <span style={{ fontWeight: "700", color: COLORS.muted }}>to</span>
+                    <input
+                      type="date"
+                      value={lotCustomDateEnd}
+                      onChange={(e) => setLotCustomDateEnd(e.target.value)}
+                      style={{ padding: "12px 16px", borderRadius: "12px", border: "1.5px solid #EBE9E1", fontSize: "14px", outline: "none" }}
+                    />
+                  </div>
+                )}
 
                 <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
@@ -7129,9 +7348,44 @@ Powered by Stacli mandi os`;
                         .filter(a => {
                           const customerName = (a.buyerId?.name || a.buyerId || "").toLowerCase();
                           const invoiceNo = (a.buyerInvoiceNo || "").toLowerCase();
+                          
+                          // Find supplier running ID
+                          const matchedLot = lots.find(l => l._id === a.lotId || l.lotId === a.lotId);
+                          const supplierObj = (typeof matchedLot?.supplierId === "object" ? matchedLot.supplierId : suppliers.find(s => s._id === matchedLot?.supplierId));
+                          const supplierId = (supplierObj?.supplierId || "").toLowerCase();
+                          
                           const query = (allocationSearchQuery || "").toLowerCase();
-                          const dateMatch = isWithinFilterRange(a.allocationDate || a.date);
-                          return dateMatch && (customerName.includes(query) || invoiceNo.includes(query));
+                          const matchesSearch = customerName.includes(query) || invoiceNo.includes(query) || supplierId.includes(query);
+
+                          let matchesDate = true;
+                          if (lotDateFilter) {
+                            const dateVal = a.allocationDate || a.date;
+                            if (dateVal) {
+                              const d = new Date(dateVal);
+                              d.setHours(0,0,0,0);
+                              const today = new Date();
+                              today.setHours(0,0,0,0);
+                              if (lotDateFilter === "Today") matchesDate = d.getTime() === today.getTime();
+                              else if (lotDateFilter === "15 Days") {
+                                const past = new Date(today); past.setDate(today.getDate() - 15);
+                                matchesDate = d >= past && d <= today;
+                              } else if (lotDateFilter === "30 Days / One Month") {
+                                const past = new Date(today); past.setDate(today.getDate() - 30);
+                                matchesDate = d >= past && d <= today;
+                              } else if (lotDateFilter === "Custom Date") {
+                                if (lotCustomDateStart) { const s = new Date(lotCustomDateStart); s.setHours(0,0,0,0); if (d < s) matchesDate = false; }
+                                if (lotCustomDateEnd) { const e = new Date(lotCustomDateEnd); e.setHours(23,59,59,999); if (d > e) matchesDate = false; }
+                              }
+                            }
+                          }
+
+                          let matchesProduct = true;
+                          if (lotProductFilter) {
+                            const productPart = (a.lineItemId?.split(" / ")[0] || a.productId || "").toLowerCase();
+                            matchesProduct = productPart === lotProductFilter.toLowerCase();
+                          }
+
+                          return matchesSearch && matchesDate && matchesProduct;
                         })
                         .slice()
                         .reverse();
@@ -7144,7 +7398,14 @@ Powered by Stacli mandi os`;
                         return acc;
                       }, {});
 
-                      return Object.entries(groups).map(([buyerName, items]) => (
+                      return Object.entries(groups).map(([buyerName, items]) => {
+                        const matchedLot = lots.find(l => l._id === items[0].lotId || l.lotId === items[0].lotId);
+                        const supplierObj = (typeof matchedLot?.supplierId === "object" ? matchedLot.supplierId : suppliers.find(s => s._id === matchedLot?.supplierId));
+                        const supplierName = supplierObj?.name || items[0].farmerName || "Unknown";
+                        const supplierId = supplierObj?.supplierId || "";
+                        const supplierDisplay = supplierId ? `${supplierName}-${supplierId}` : supplierName;
+
+                        return (
                         <PremiumActionCard
                           key={buyerName}
                           title={<SmartDataNode text={buyerName} type="Name" data={items[0].buyerId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
@@ -7152,13 +7413,16 @@ Powered by Stacli mandi os`;
                           icon={ICON_USER}
                           status={{ text: "Allocated", color: "#1d4ed8", bg: "#dbeafe" }}
                           details={[
-                            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: items[0].allocationDate }
+                            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: formatDate(items[0].allocationDate) },
+                            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>, text: supplierDisplay }
                           ]}
                           secondaryActions={[
-                            { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(items[0]); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } }
+                            { label: "Modify", icon: ICON_EDIT, onClick: () => { handleEditAllocation(items[0]); setActiveAllocationTab("Allocation Form"); window.scrollTo({ top: 0, behavior: "smooth" }); } },
+                            { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "Allocation", data: { ...items[0], allItems: items, buyerName: buyerName } }) },
+                            { label: "Delete", icon: ICON_TRASH, onClick: () => { if (window.confirm("Delete this allocation group?")) items.forEach(i => handleDeleteAllocation(i._id)); } }
                           ]}
-                          primaryAction={{ label: "View Details", icon: ICON_ARROW_RIGHT, onClick: () => setViewingEntity({ type: "Allocation", data: { ...items[0], allItems: items, buyerName: buyerName } }) }}
-                          onDelete={isAdmin ? () => { if (window.confirm("Delete this allocation group?")) items.forEach(i => handleDeleteAllocation(i._id)); } : undefined}
+                          primaryAction={null}
+                          onDelete={null}
                           onLock={() => alert("Allocation group finalized.")}
                         >
                           <div style={{ marginBottom: "8px", fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Line Items</div>
@@ -18682,24 +18946,7 @@ Powered by Stacli mandi os`;
                 <div style={{ overflowX: "auto", border: "1px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
                   {viewingEntity.type === "LOT" ? (
                     <div style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "24px" }}>
-                      {/* Section 1: Basic Lot Info */}
-                      <div>
-                        <h4 style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary, marginBottom: "12px", textTransform: "uppercase", borderBottom: `2px solid #F1F5F9`, paddingBottom: "8px" }}>Section 1: Basic Lot Info</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Lot ID</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Date and Time</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleString() : formatDate(viewingEntity.data.createdAt)}</div>
-                          </div>
-                          <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
-                            <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Inventory Status</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.status || "Pending"}</div>
-                          </div>
-                        </div>
-                      </div>
+
 
                       {/* Section 2: Supplier Info */}
                       <div>
@@ -18845,55 +19092,57 @@ Powered by Stacli mandi os`;
                       )}
                     </div>
                   ) : (
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                      <thead>
-                        <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
-                        {Object.entries(viewingEntity.data)
-                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
-                            .map(([key]) => (
-                              <th 
-                                key={key} 
-                                style={{ 
-                                  padding: "12px 16px", 
-                                  textAlign: "left", 
-                                  color: COLORS.muted, 
-                                  fontWeight: "900", 
-                                  textTransform: "uppercase",
-                                  fontSize: "11px",
-                                  whiteSpace: "nowrap",
-                                  borderRight: "1px solid #EBE9E1"
-                                }}
-                              >
-                                {key === "farmerName" ? "Supplier Name" : key.replace(/([A-Z])/g, " $1").trim()}
-                              </th>
-                            ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          {Object.entries(viewingEntity.data)
-                            .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
-                            .map(([key, rawValue]) => (
-                              <td 
-                                key={key} 
-                                style={{ 
-                                  padding: "16px", 
-                                  color: COLORS.sidebar, 
-                                  fontWeight: "700",
-                                  borderRight: "1px solid #EBE9E1",
-                                  whiteSpace: "nowrap"
-                                }}
-                              >
-                                {typeof rawValue === 'object' && rawValue !== null 
-                                  ? JSON.stringify(rawValue) 
-                                  : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
-                                    ? rawValue.split('T')[0] 
-                                    : String(rawValue || "N/A")}
-                              </td>
-                            ))}
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", border: "1px solid #EBE9E1" }}>
+                        <thead>
+                          <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
+                            {Object.entries(viewingEntity.data)
+                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
+                              .map(([key]) => (
+                                <th 
+                                  key={key} 
+                                  style={{ 
+                                    padding: "12px 16px", 
+                                    textAlign: "left", 
+                                    color: COLORS.muted, 
+                                    fontWeight: "900", 
+                                    textTransform: "uppercase",
+                                    fontSize: "11px",
+                                    whiteSpace: "nowrap",
+                                    borderRight: "1px solid #EBE9E1"
+                                  }}
+                                >
+                                  {key === "farmerName" ? "Supplier Name" : key.replace(/([A-Z])/g, " $1").trim()}
+                                </th>
+                              ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            {Object.entries(viewingEntity.data)
+                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
+                              .map(([key, rawValue]) => (
+                                <td 
+                                  key={key} 
+                                  style={{ 
+                                    padding: "16px", 
+                                    color: COLORS.sidebar, 
+                                    fontWeight: "700",
+                                    borderRight: "1px solid #EBE9E1",
+                                    whiteSpace: "nowrap"
+                                  }}
+                                >
+                                  {typeof rawValue === 'object' && rawValue !== null 
+                                    ? JSON.stringify(rawValue) 
+                                    : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
+                                      ? rawValue.split('T')[0] 
+                                      : String(rawValue || "N/A")}
+                                </td>
+                              ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
 
