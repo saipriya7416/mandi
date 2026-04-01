@@ -101,7 +101,20 @@ const request = async (method, path, body = null) => {
                         
       if (storeName) {
         const store = getLocal(storeName);
-        const newItem = { ...body, _id: `sim_${Date.now()}`, createdAt: new Date(), date: body.date || body.allocationDate || body.entryDate || new Date().toISOString() };
+        let newId = `sim_${Date.now()}`;
+        
+        if (path === '/supplier' || path === '/buyer') {
+          const nameStr = body.name || body.shopName || (path === '/supplier' ? 'supplier' : 'buyer');
+          const nameBase = nameStr.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+          let seq = store.length + 1;
+          newId = `${nameBase}-${seq}`;
+          while (store.some(x => x._id === newId)) {
+            seq++;
+            newId = `${nameBase}-${seq}`;
+          }
+        }
+
+        const newItem = { ...body, _id: newId, createdAt: new Date(), date: body.date || body.allocationDate || body.entryDate || new Date().toISOString() };
         setLocal(storeName, [...store, newItem]);
 
         // 🤖 AUTOMATION: Propagate to Ledger

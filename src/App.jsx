@@ -1368,6 +1368,17 @@ function FormGrid({ sections }) {
                       info={f.info}
                       hideLabel={true}
                     />
+                  ) : f.type === "othersDropdown" ? (
+                    <OthersDropdown
+                      label={f.label}
+                      value={f.value}
+                      options={f.options || []}
+                      onChange={f.onChange}
+                      disabled={f.disabled}
+                      required={f.required}
+                      info={f.info}
+                      hideLabel={true}
+                    />
                   ) : f.type === "dropdown" ? (
                     <select
                       value={f.value}
@@ -1451,7 +1462,9 @@ export default function App() {
   const [poType, setPoType] = useState("Fruits");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [partyManagementFilterDate, setPartyManagementFilterDate] = useState(new Date().toISOString().split('T')[0]);
+  const [partyManagementDateFilter, setPartyManagementDateFilter] = useState("Today");
+  const [partyManagementCustomStart, setPartyManagementCustomStart] = useState("");
+  const [partyManagementCustomEnd, setPartyManagementCustomEnd] = useState("");
   const isAdmin = user?.role === "Owner / Admin";
   const isAccountant = user?.role === "Accountant";
   const isStaff = user?.role === "Operations Staff";
@@ -1553,8 +1566,21 @@ export default function App() {
 
   const formatNameWithId = (name, id) => {
     const n = String(name || "").trim();
-    const i = stripIdPrefix(id);
-    if (n && i) return `${n} - ${i}`;
+    let i = stripIdPrefix(id);
+
+    if (i.startsWith("sim_")) {
+      const base = n ? n.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '') : "user";
+      const suffix = i.length > 8 ? i.slice(-4) : (i.replace('sim_', '') || "1");
+      i = `${base}-${suffix}`;
+    }
+
+    if (n && i) {
+      const namePart = n.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (namePart && i.toLowerCase().startsWith(namePart + '-')) {
+        return i;
+      }
+      return `${n} - ${i}`;
+    }
     return n || i || "N/A";
   };
 
@@ -1588,10 +1614,21 @@ export default function App() {
     }));
   };
 
-  const renderSupplierMemberCard = (s, keyPrefix = "supplier") => (
+  const renderSupplierMemberCard = (s, keyPrefix = "supplier") => {
+    let showDateBadge = false;
+    if (user?.role === "Owner / Admin" && partyManagementDateFilter && partyManagementDateFilter !== "All") showDateBadge = true;
+    else if (memberDateFilter && memberDateFilter !== "All") showDateBadge = true;
+    return (
     <PremiumActionCard
       key={`${keyPrefix}-${s._id || s.id || s.name}`}
-      title={<SmartDataNode text={formatNameWithId(s.name, getSupplierIdValue(s))} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
+      title={<div style={{ display: "flex", alignItems: "center" }}>
+        <SmartDataNode text={formatNameWithId(s.name, getSupplierIdValue(s))} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />
+        {showDateBadge && (s.createdAt || s.date) && (
+          <span style={{ fontSize: "10px", fontWeight: "800", color: "#64748b", background: "#f1f5f9", padding: "2px 8px", borderRadius: "12px", marginLeft: "8px", flexShrink: 0 }}>
+            {new Date(s.createdAt || s.date).toLocaleDateString('en-GB')}
+          </span>
+        )}
+      </div>}
       subtitle={s.createdAt ? `Registered on: ${new Date(s.createdAt).toLocaleDateString('en-GB')}` : ""}
       icon={ICON_USER}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -1610,14 +1647,25 @@ export default function App() {
         if (code === "0000") handleDeleteSupplier(s._id);
         else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
       }}
-      onLock={() => alert("Profile locked for security.")}
     />
   );
+  };
 
-  const renderBuyerMemberCard = (b, keyPrefix = "buyer") => (
+  const renderBuyerMemberCard = (b, keyPrefix = "buyer") => {
+    let showDateBadge = false;
+    if (user?.role === "Owner / Admin" && partyManagementDateFilter && partyManagementDateFilter !== "All") showDateBadge = true;
+    else if (memberDateFilter && memberDateFilter !== "All") showDateBadge = true;
+    return (
     <PremiumActionCard
       key={`${keyPrefix}-${b._id || b.id || b.name}`}
-      title={<SmartDataNode text={formatNameWithId(b.shopName || b.name, getCustomerIdValue(b))} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
+      title={<div style={{ display: "flex", alignItems: "center" }}>
+        <SmartDataNode text={formatNameWithId(b.shopName || b.name, getCustomerIdValue(b))} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />
+        {showDateBadge && (b.createdAt || b.date) && (
+          <span style={{ fontSize: "10px", fontWeight: "800", color: "#64748b", background: "#f1f5f9", padding: "2px 8px", borderRadius: "12px", marginLeft: "8px", flexShrink: 0 }}>
+            {new Date(b.createdAt || b.date).toLocaleDateString('en-GB')}
+          </span>
+        )}
+      </div>}
       subtitle={b.createdAt ? `Registered on: ${new Date(b.createdAt).toLocaleDateString('en-GB')}` : ""}
       icon={ICON_SHOP}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -1636,9 +1684,9 @@ export default function App() {
         if (code === "0000") handleDeleteBuyer(b._id);
         else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
       }}
-      onLock={() => alert("Stall locked.")}
     />
   );
+  };
 
   const handleSaveInvoicePDF = async () => {
     if (!invoiceRef.current) return;
@@ -4875,27 +4923,28 @@ Powered by Stacli mandi os`;
                 })}
               </div>
               {activeSection === "User Role" && user?.role === "Owner / Admin" && (
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input 
-                    type="date" 
-                    value={partyManagementFilterDate} 
-                    onChange={(e) => {
-                      setPartyManagementFilterDate(e.target.value);
-                      handleRefresh();
-                    }} 
-                    style={{ 
-                      background: "#fff", 
-                      border: "1.5px solid #e2e8f0", 
-                      padding: "8px 12px", 
-                      borderRadius: "14px", 
-                      fontWeight: "750", 
-                      fontSize: "14px", 
-                      color: COLORS.sidebar,
-                      height: "42px",
-                      outline: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.03)"
-                    }} 
-                  />
+                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                  <select
+                    value={partyManagementDateFilter}
+                    onChange={(e) => { setPartyManagementDateFilter(e.target.value); handleRefresh(); }}
+                    style={{
+                      height: "42px", padding: "0 14px", borderRadius: "12px", border: "1.5px solid #E2E8F0", background: "#fff", color: COLORS.sidebar, fontSize: "13px", fontWeight: "700", cursor: "pointer", outline: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.03)"
+                    }}
+                  >
+                    <option value="All">Select data from particular date</option>
+                    <option value="Today">Today</option>
+                    <option value="7 Days">Last 7 Days</option>
+                    <option value="15 Days">Last 15 Days</option>
+                    <option value="30 Days">Last 30 Days</option>
+                    <option value="Custom Date">Custom Date</option>
+                  </select>
+                  {partyManagementDateFilter === "Custom Date" && (
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <input type="date" value={partyManagementCustomStart} onChange={e => { setPartyManagementCustomStart(e.target.value); handleRefresh(); }} style={{ padding: "8px 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#fff", color: COLORS.sidebar, fontWeight: "600", outline: "none", height: "42px" }} />
+                      <span style={{fontSize: "12px", fontWeight:"800", color:COLORS.muted}}>to</span>
+                      <input type="date" value={partyManagementCustomEnd} onChange={e => { setPartyManagementCustomEnd(e.target.value); handleRefresh(); }} style={{ padding: "8px 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#fff", color: COLORS.sidebar, fontWeight: "600", outline: "none", height: "42px" }} />
+                    </div>
+                  )}
                 </div>
               )}
               <button
@@ -5864,47 +5913,56 @@ Powered by Stacli mandi os`;
                       const sourceData = activeTab === "Suppliers" ? suppliers : buyers;
                       const query = memberSearchQuery.trim().toLowerCase();
 
+                      // Calculate active filter state based on Admin override
+                      let isPartyManagementActive = isAdmin && partyManagementDateFilter && partyManagementDateFilter !== "All";
+                      let effectiveFilter = isPartyManagementActive ? partyManagementDateFilter : memberDateFilter;
+                      let effectiveCustomStart = isPartyManagementActive ? partyManagementCustomStart : memberCustomDateStart;
+                      let effectiveCustomEnd = isPartyManagementActive ? partyManagementCustomEnd : memberCustomDateEnd;
+
                       // Calculate display range
                       let displayRange = "";
-                      if (isAdmin && partyManagementFilterDate) {
-                        displayRange = formatDate(new Date(partyManagementFilterDate));
-                      } else if (memberDateFilter !== "All") {
+                      if (effectiveFilter !== "All") {
                         const today = new Date();
                         let start = new Date(today);
                         let end = new Date(today);
 
-                        if (memberDateFilter === "7 Days" || memberDateFilter === "15 Days" || memberDateFilter === "30 Days") {
-                          start.setDate(today.getDate() - parseInt(memberDateFilter));
-                        } else if (memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd) {
-                          start = new Date(memberCustomDateStart);
-                          end = new Date(memberCustomDateEnd);
+                        if (effectiveFilter === "7 Days" || effectiveFilter === "15 Days" || effectiveFilter === "30 Days") {
+                          start.setDate(today.getDate() - parseInt(effectiveFilter));
+                        } else if (effectiveFilter === "Custom Date" && effectiveCustomStart && effectiveCustomEnd) {
+                          start = new Date(effectiveCustomStart);
+                          end = new Date(effectiveCustomEnd);
                         }
-                        displayRange = `${formatDate(start)} to ${formatDate(end)}`;
+                        
+                        if (effectiveFilter === "Today") {
+                          displayRange = formatDate(start);
+                        } else if (effectiveFilter === "Custom Date" && (!effectiveCustomStart || !effectiveCustomEnd)) {
+                          displayRange = "";
+                        } else {
+                          displayRange = `${formatDate(start)} to ${formatDate(end)}`;
+                        }
                       }
 
                       const searchedData = sourceData.filter((record) => {
                         let dateMatch = true;
                         const rDate = record.createdAt || record.date;
                         
-                        if (isAdmin && partyManagementFilterDate) {
-                          const d = new Date(rDate);
-                          const filterD = new Date(partyManagementFilterDate);
-                          dateMatch = d.toDateString() === filterD.toDateString();
-                        } else if (rDate && memberDateFilter !== "All") {
+                        if (rDate && effectiveFilter !== "All") {
                           const d = new Date(rDate);
                           const today = new Date();
-                          if (memberDateFilter === "Today") {
+                          if (effectiveFilter === "Today") {
                             dateMatch = d.toDateString() === today.toDateString();
-                          } else if (["7 Days", "15 Days", "30 Days"].includes(memberDateFilter)) {
-                            const days = parseInt(memberDateFilter);
+                          } else if (["7 Days", "15 Days", "30 Days"].includes(effectiveFilter)) {
+                            const days = parseInt(effectiveFilter);
                             const pastLimit = new Date();
                             pastLimit.setDate(today.getDate() - days);
                             dateMatch = d >= pastLimit && d <= today;
-                          } else if (memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd) {
-                            const s = new Date(memberCustomDateStart);
-                            const e = new Date(memberCustomDateEnd);
+                          } else if (effectiveFilter === "Custom Date" && effectiveCustomStart && effectiveCustomEnd) {
+                            const s = new Date(effectiveCustomStart);
+                            const e = new Date(effectiveCustomEnd);
                             e.setHours(23, 59, 59, 999);
                             dateMatch = d >= s && d <= e;
+                          } else if (effectiveFilter === "Custom Date") {
+                            dateMatch = false; // No match if custom dates are incomplete
                           }
                         }
                         const productText = getProfileProducts(record).join(" ").toLowerCase();
@@ -5921,11 +5979,22 @@ Powered by Stacli mandi os`;
                         return dateMatch && queryMatch;
                       });
 
+                      const getEmptyMessage = () => {
+                         let isSingleDate = effectiveFilter === "Today" || (effectiveFilter === "Custom Date" && effectiveCustomStart === effectiveCustomEnd && effectiveCustomStart);
+                         let isCustomRange = effectiveFilter === "Custom Date" && effectiveCustomStart && effectiveCustomEnd && effectiveCustomStart !== effectiveCustomEnd;
+                         let isRelativeRange = ["7 Days", "15 Days", "30 Days"].includes(effectiveFilter);
+                         
+                         const tgt = activeTab === "Suppliers" ? "suppliers" : "customers";
+                         
+                         if (isSingleDate) return `There are no registered ${tgt} on this date`;
+                         if (isCustomRange || isRelativeRange) return `Registered ${tgt} are not available in this range`;
+                         if (effectiveFilter !== "All") return `The registered ${tgt} are not available in this date.`;
+                         return activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.";
+                      };
+
                       if (selectedProducts.length === 0) {
                         if (searchedData.length === 0) {
-                          const emptyMsg = memberDateFilter !== "All" 
-                            ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not available in this date.`
-                            : (activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.");
+                          const emptyMsg = getEmptyMessage();
                           return (
                             <div style={{ textAlign: "center", padding: "40px" }}>
                               {displayRange && <div style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, marginBottom: "12px" }}>{displayRange}</div>}
@@ -5937,7 +6006,6 @@ Powered by Stacli mandi os`;
                         }
                         return (
                           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                            {displayRange && <div style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, paddingLeft: "4px" }}>{displayRange}</div>}
                             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
                               {activeTab === "Suppliers"
                                 ? searchedData.map((s) => renderSupplierMemberCard(s))
@@ -5958,9 +6026,7 @@ Powered by Stacli mandi os`;
                       const hasAtLeastOneMatch = groupedByProduct.some(group => group.items.length > 0);
 
                       if (!hasAtLeastOneMatch) {
-                        const emptyMsg = memberDateFilter !== "All" 
-                          ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not available in this date.`
-                          : (activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.");
+                        const emptyMsg = getEmptyMessage();
                         return (
                           <div style={{ textAlign: "center", padding: "40px" }}>
                             {displayRange && <div style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, marginBottom: "12px" }}>{displayRange}</div>}
@@ -6112,8 +6178,8 @@ Powered by Stacli mandi os`;
                           },
                           {
                             label: "Supplier Name *",
-                            type: "dropdown",
-                            options: ["", ...suppliers.map((s) => formatNameWithId(s.name, getSupplierIdValue(s)))],
+                            type: "othersDropdown",
+                            options: suppliers.map((s) => formatNameWithId(s.name, getSupplierIdValue(s))),
                             value: suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId) 
                               ? formatNameWithId(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId).name, getSupplierIdValue(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId)))
                               : lotCreationForm.farmerId,
