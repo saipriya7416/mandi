@@ -1,0 +1,76 @@
+
+=== supplierForm (lines: [1994, 2059, 2063, 2066, 2070, 2071, 2072, 2073]) ===
+
+=== allocationForm (lines: [2593, 2611, 2637, 3034, 3763, 3764, 3765, 3767]) ===
+
+=== ALLOCATION (lines: [25, 3033, 3473, 3507, 3761, 3831, 3931, 6650]) ===
+
+=== setSupplierForm (lines: [1994, 2111, 2333, 5556, 5557, 5558, 5559, 5560]) ===
+
+
+=== PARTY MANAGEMENT RENDER (searching for section render) ===
+Line 5538:           {activeSection === "User Role" && (
+  5538:           {activeSection === "User Role" && (
+  5539:             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+  5540:               <div style={{ paddingBottom: "24px", marginBottom: "32px", borderBottom: "1px solid #E
+  5541:                 <div style={{ display: "flex", gap: "20px" }}>
+  5542:                   <div onClick={() => setActiveUserRoleTab("Supplier")} style={{ padding: "10px 24px
+  5543:                   <div onClick={() => setActiveUserRoleTab("Customer")} style={{ padding: "10px 24px
+  5544:                   <div onClick={() => setActiveUserRoleTab("Registered Members")} style={{ padding: 
+  5545:                 </div>
+  5546:               </div>
+  5547: 
+  5548:               {activeUserRoleTab === "Supplier" && (
+  5549:                 <div>
+  5550:                   <FormGrid
+  5551:                     sections={[
+  5552:                       {
+  5553:                         title: "Supplier Profile",
+  5554:                         fields: [
+  5555:                           { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSup
+  5556:                           { label: "Name *", placeholder: "Full name as per ID", value: supplierForm
+  5557:                           { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional 
+  5558:                           { label: "Location Type *", type: "dropdown", options: ["Village", "Town",
+  5559:                           { label: `${supplierForm.villageOrTown || "Location"} Name *`, placeholder
+  5560:                           { label: "District *", placeholder: "Manual typing of district", value: su
+  5561:                           { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunach
+  5562:                           { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).f
+  5563:                         ],
+  5564:                       },
+  5565:                       {
+  5566:                         title: "KYC Details",
+  5567:                         fields: [
+  5568:                           { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"]
+  5569:                           { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: sup
+  5570:                         ],
+  5571:                       },
+  5572:                       {
+  5573:                         title: "Bank Details",
+  5574:                         fields: [
+  5575:                           { label: "Bank Account No.", type: "number", placeholder: "For direct bank
+  5576:                           { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm
+  5577:                           { label: "Bank Location", placeholder: "Bank City/Location", value: suppli
+
+
+=== LOT ALLOCATION RENDER ===
+Line 6651:           {activeSection === "Lot Allocation" && (
+  6651:           {activeSection === "Lot Allocation" && (
+  6652:             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+  6653:               <div
+  6654:                 style={{
+  6655:                   display: "flex",
+  6656:                   justifyContent: "space-between",
+  6657:                   alignItems: "center",
+  6658:                   marginBottom: "32px",
+  6659:                   borderBottom: "1px solid #EBE9E1",
+  6660:                   paddingBottom: "24px",
+  6661:                 }}
+  6662:               >
+  6663:                 <div>
+  6664:                   <h2
+  6665:                     style={{
+  6666:                       fontSize: "28px",
+  6667:                       fontWeight: "800",
+  6668:                       color: COLORS.sidebar,
+  6669:                       margin: "0 0 12px 0",
+  6670:                       letterSpacing: "-0.5px",

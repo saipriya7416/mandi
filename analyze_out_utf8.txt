@@ -1,0 +1,113 @@
+=== SECTIONS ===
+Buyer Invoicing
+CONNECTION
+Dashboard
+Document Management
+Expense Management
+Ledger
+Lot Allocation
+Lot Creation
+Payments
+Product Master & Configuration
+Profile
+Records Tracking
+Search & Filters
+Supplier Billing
+Transportation Tracking
+User Role
+User Roles, Access Control & Security
+Verification & Compliance
+
+=== COMPONENT FUNCTIONS ===
+Line 42: COLORS
+Line 55: Card
+Line 111: Input
+Line 191: SmartDataNode
+Line 280: PremiumActionCard
+Line 494: Button
+Line 583: DB
+Line 820: TabHeader
+Line 909: ModernMultiSelectField
+Line 1135: SelectWithManualEntry
+Line 1240: OthersDropdown
+Line 1366: FormGrid
+Line 4170: MENU
+
+=== PARTY/LOT/ALLOCATION REFERENCES ===
+Line 6081 [Registered Lots]: onClick={() => setActiveLotTab("Registered Lots")}
+Line 6087 [Registered Lots]: activeLotTab === "Registered Lots"
+Line 6091 [Registered Lots]: activeLotTab === "Registered Lots"
+Line 6098 [Registered Lots]: Registered Lots
+Line 6273 [Registered Lots]: {activeLotTab === "Registered Lots" && (
+Line 14672 [Registered Lots]: {/* 2. Registered Lots */}
+Line 14899 [Registered Lots]: {renderCard("Registered Lots", lots.filter(l => isWithinFilterRange(l.date || l.createdAt)).length, "New lots intake in 
+Line 4121 [Lot Allocation]: id: "Lot Allocation",
+Line 4123 [Lot Allocation]: label: "Auction & Lot Allocation",
+Line 6651 [Lot Allocation]: {activeSection === "Lot Allocation" && (
+Line 4111 [Party Management]: label: "Party Management",
+Line 2421 [RegisterLot]: const handleRegisterLot = async () => {
+Line 6629 [RegisterLot]: onClick={handleRegisterLot}
+Line 2012 [buyerForm]: const [buyerForm, setBuyerForm] = useState({
+Line 2671 [buyerForm]: if (!buyerForm.name || !buyerForm.phone)
+Line 2675 [buyerForm]: const existingSync = (buyers || []).find(s => s.name.toLowerCase() === buyerForm.name.toLowerCase());
+Line 2678 [buyerForm]: const targetCode = isEditingBuyer ? buyerForm.buyerId : (existingSync ? (existingSync.buyerId || existingSync.customerId
+Line 2682 [buyerForm]: name: buyerForm.name,
+Line 2683 [buyerForm]: phone: buyerForm.phone,
+Line 2684 [buyerForm]: address: buyerForm.address || "unknown",
+Line 2685 [buyerForm]: shopName: buyerForm.shopName || buyerForm.name,
+Line 2686 [buyerForm]: village: buyerForm.villageOrTownName,
+Line 2687 [buyerForm]: district: buyerForm.district,
+Line 2688 [buyerForm]: state: buyerForm.state,
+Line 2689 [buyerForm]: product: buyerForm.product || "",
+Line 2690 [buyerForm]: idType: buyerForm.idType,
+Line 2691 [buyerForm]: govIdNumber: buyerForm.govIdNumber || "N/A",
+Line 2692 [buyerForm]: creditLimit: Number(buyerForm.creditLimit) || 0,
+Line 2693 [buyerForm]: paymentTerms: buyerForm.paymentTerms || "Immediate",
+Line 2694 [buyerForm]: bankAccount: buyerForm.bankAccount || "",
+Line 2695 [buyerForm]: bankLocation: buyerForm.bankLocation || "",
+Line 2696 [buyerForm]: bankBranch: buyerForm.bankBranch || "",
+Line 2697 [buyerForm]: ifsc: buyerForm.ifsc || "",
+Line 2698 [buyerForm]: advanceBalance: buyerForm.advanceBalance || "",
+Line 2699 [buyerForm]: notes: buyerForm.notes || "",
+Line 5609 [buyerForm]: { label: "Customer ID", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.buyerId : `${buyers.length + 1}
+Line 5610 [buyerForm]: { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyer
+Line 5611 [buyerForm]: { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyer
+Line 5612 [buyerForm]: { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ 
+Line 5613 [buyerForm]: { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onCh
+Line 5614 [buyerForm]: { label: `${buyerForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${buyerForm.villageOrTown || "Location"}
+Line 5615 [buyerForm]: { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerFor
+Line 5616 [buyerForm]: { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+Line 5617 [buyerForm]: { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: buyerFor
+Line 5623 [buyerForm]: { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: buyerForm.idType, onChange: (e) => se
+Line 5624 [buyerForm]: { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerF
+Line 5630 [buyerForm]: { label: "Bank Account No.", type: "number", placeholder: "For bank settlements", value: buyerForm.bankAccount, onChange
+Line 5631 [buyerForm]: { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerFo
+Line 5632 [buyerForm]: { label: "Bank Location", placeholder: "Bank City/Location", value: buyerForm.bankLocation, onChange: (e) => setBuyerFor
+Line 5633 [buyerForm]: { label: "Bank Branch", placeholder: "Branch Name", value: buyerForm.bankBranch, onChange: (e) => setBuyerForm({ ...buye
+Line 5634 [buyerForm]: { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceB
+Line 5635 [buyerForm]: { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, 
+Line 5641 [buyerForm]: { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only", value: buyerForm.c
+Line 5642 [buyerForm]: { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"], value: buyerForm.p
+Line 5643 [buyerForm]: { label: "Notes", placeholder: "Free form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, 
+Line 2012 [BuyerForm]: const [buyerForm, setBuyerForm] = useState({
+Line 2132 [BuyerForm]: setBuyerForm({
+Line 2354 [BuyerForm]: setBuyerForm({
+Line 5610 [BuyerForm]: { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyer
+Line 5611 [BuyerForm]: { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyer
+Line 5612 [BuyerForm]: { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ 
+Line 5613 [BuyerForm]: { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onCh
+Line 5614 [BuyerForm]: { label: `${buyerForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${buyerForm.villageOrTown || "Location"}
+Line 5615 [BuyerForm]: { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerFor
+Line 5616 [BuyerForm]: { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+Line 5617 [BuyerForm]: { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: buyerFor
+Line 5623 [BuyerForm]: { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: buyerForm.idType, onChange: (e) => se
+Line 5624 [BuyerForm]: { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerF
+Line 5630 [BuyerForm]: { label: "Bank Account No.", type: "number", placeholder: "For bank settlements", value: buyerForm.bankAccount, onChange
+Line 5631 [BuyerForm]: { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerFo
+Line 5632 [BuyerForm]: { label: "Bank Location", placeholder: "Bank City/Location", value: buyerForm.bankLocation, onChange: (e) => setBuyerFor
+Line 5633 [BuyerForm]: { label: "Bank Branch", placeholder: "Branch Name", value: buyerForm.bankBranch, onChange: (e) => setBuyerForm({ ...buye
+Line 5634 [BuyerForm]: { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceB
+Line 5635 [BuyerForm]: { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, 
+Line 5641 [BuyerForm]: { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only", value: buyerForm.c
+Line 5642 [BuyerForm]: { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"], value: buyerForm.p
+Line 5643 [BuyerForm]: { label: "Notes", placeholder: "Free form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, 

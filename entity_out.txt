@@ -1,0 +1,28 @@
+1552:   const [viewingEntity, setViewingEntity] = useState(null); // { type: 'Supplier'|'Customer', data: ... }
+18888:         {viewingEntity && (
+18936:                     {viewingEntity.type} Profile
+18943:                   {viewingEntity.type === "LOT" ? (
+18967:                                 <td style={{ padding: "16px 20px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || 
+18968:                                 <td style={{ padding: "16px 20px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerNam
+18969:                                 <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNu
+18970:                                 <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.primary }}>{viewingEntity.data.origin ||
+18971:                                 <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.driverNam
+18972:                                 <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.entryDate
+18974:                                   {viewingEntity.data.attached_bill_photo ? (
+18976:                                       onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo
+18991:                           <span style={{ fontSize: "10px", background: COLORS.sidebar, color: "#fff", padding: "4px 10px", borderRadius: "20
+19008:                               {(viewingEntity.data.lineItems || []).map((it, idx) => (
+19009:                                 <tr key={idx} style={{ borderBottom: idx === viewingEntity.data.lineItems.length - 1 ? "none" : "1px solid #
+19036:                       {viewingEntity.data.notes && (
+19039:                           <p style={{ margin: "8px 0 0", fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.n
+19048:                             {Object.entries(viewingEntity.data)
+19071:                             {Object.entries(viewingEntity.data)
+19103:                   if (viewingEntity.type === "Allocation" && viewingEntity.data.allItems) {
+19104:                     itemsToShow = viewingEntity.data.allItems;
+19106:                   } else if (viewingEntity.type === "LOT") {
+19107:                     itemsToShow = (allocations || []).filter(a => a.lotId === viewingEntity.data._id || a.lotId === viewingEntity.data.lotId
+19145:                                         {viewingEntity.data.attached_bill_photo ? (
+19149:                                               imageUrl: viewingEntity.data.attached_bill_photo, 
+19150:                                               lotNo: viewingEntity.data.lotId || "N/A", 
+19151:                                               supplierName: viewingEntity.data.farmerName || "N/A",
+19152:                                               supplierId: viewingEntity.data.supplierId || "N/A",

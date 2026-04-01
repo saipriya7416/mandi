@@ -6373,115 +6373,143 @@ Powered by Stacli mandi os`;
                       />
                     </div>
                   )}
-                  <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
-                      {(() => {
-                        const filteredLotsForDisplay = lots.filter(l => {
-                          const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
-                          const vehicleNo = (l.vehicleNumber || "").toLowerCase();
-                          const productsStr = (l.lineItems || []).map(item => item.productId?.toLowerCase() || "").join(" ");
-                          const query = (lotSearchQuery || "").toLowerCase();
-                          const matchesQuery = supplierName.includes(query) || vehicleNo.includes(query) || productsStr.includes(query);
+                  <div style={{ overflowX: "auto" }}>
+                    {(() => {
+                      const filteredLotsForDisplay = lots.filter(l => {
+                        const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
+                        const vehicleNo = (l.vehicleNumber || "").toLowerCase();
+                        const productsStr = (l.lineItems || []).map(item => item.productId?.toLowerCase() || "").join(" ");
+                        const query = (lotSearchQuery || "").toLowerCase();
+                        const matchesQuery = supplierName.includes(query) || vehicleNo.includes(query) || productsStr.includes(query);
 
-                          let matchesDate = true;
-                          if (lotDateFilter) {
-                            const lotDateVal = l.entryDate || l.createdAt;
-                            if (lotDateVal) {
-                              const lotDate = new Date(lotDateVal);
-                              lotDate.setHours(0,0,0,0);
-                              const today = new Date();
-                              today.setHours(0,0,0,0);
-
-                              if (lotDateFilter === "Today") {
-                                matchesDate = lotDate.getTime() === today.getTime();
-                              } else if (lotDateFilter === "15 Days") {
-                                const past = new Date(today); past.setDate(today.getDate() - 15);
-                                matchesDate = lotDate >= past && lotDate <= today;
-                              } else if (lotDateFilter === "30 Days / One Month") {
-                                const past = new Date(today); past.setDate(today.getDate() - 30);
-                                matchesDate = lotDate >= past && lotDate <= today;
-                              } else if (lotDateFilter === "Custom Date") {
-                                if (lotCustomDateStart) { const s = new Date(lotCustomDateStart); s.setHours(0,0,0,0); if (lotDate < s) matchesDate = false; }
-                                if (lotCustomDateEnd) { const e = new Date(lotCustomDateEnd); e.setHours(23,59,59,999); if (lotDate > e) matchesDate = false; }
-                              }
+                        let matchesDate = true;
+                        if (lotDateFilter) {
+                          const lotDateVal = l.entryDate || l.createdAt;
+                          if (lotDateVal) {
+                            const lotDate = new Date(lotDateVal);
+                            lotDate.setHours(0,0,0,0);
+                            const today = new Date();
+                            today.setHours(0,0,0,0);
+                            if (lotDateFilter === "Today") {
+                              matchesDate = lotDate.getTime() === today.getTime();
+                            } else if (lotDateFilter === "15 Days") {
+                              const past = new Date(today); past.setDate(today.getDate() - 15);
+                              matchesDate = lotDate >= past && lotDate <= today;
+                            } else if (lotDateFilter === "30 Days / One Month") {
+                              const past = new Date(today); past.setDate(today.getDate() - 30);
+                              matchesDate = lotDate >= past && lotDate <= today;
+                            } else if (lotDateFilter === "Custom Date") {
+                              if (lotCustomDateStart) { const s = new Date(lotCustomDateStart); s.setHours(0,0,0,0); if (lotDate < s) matchesDate = false; }
+                              if (lotCustomDateEnd) { const e = new Date(lotCustomDateEnd); e.setHours(23,59,59,999); if (lotDate > e) matchesDate = false; }
                             }
                           }
+                        }
 
-                          let matchesProduct = true;
-                          if (lotProductFilter) {
-                            matchesProduct = (l.lineItems || []).some(item => item.productId === lotProductFilter);
-                          }
+                        let matchesProduct = true;
+                        if (lotProductFilter) {
+                          matchesProduct = (l.lineItems || []).some(item => item.productId === lotProductFilter);
+                        }
 
-                          return matchesQuery && matchesDate && matchesProduct;
-                        });
+                        return matchesQuery && matchesDate && matchesProduct;
+                      });
 
+                      if (filteredLotsForDisplay.length === 0) {
                         return (
-                          <>
-                            {lotDateFilter && filteredLotsForDisplay.length > 0 && (
-                              <div style={{ gridColumn: "1/-1", marginBottom: "8px", padding: "16px", background: "#F8FAFC", borderRadius: "12px", border: "1px dashed #CBD5E1" }}>
-                                <h4 style={{ margin: "0 0 12px 0", fontSize: "14px", color: COLORS.primary, fontWeight: "900", textTransform: "uppercase" }}>Search & Date summary</h4>
-                                {Object.entries(
-                                  filteredLotsForDisplay.reduce((acc, l) => {
-                                     const sName = l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Unknown");
-                                     if (!acc[sName]) acc[sName] = { count: 0, products: new Set() };
-                                     acc[sName].count += 1;
-                                     (l.lineItems || []).forEach(i => { if (i.productId) acc[sName].products.add(i.productId); });
-                                     return acc;
-                                  }, {})
-                                ).map(([sName, data]) => (
-                                  <div key={sName} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #E2E8F0" }}>
-                                     <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{sName}</span>
-                                     <span style={{ fontSize: "13px", color: COLORS.muted, fontWeight: "600" }}>
-                                       Visits: <strong style={{color: COLORS.primary}}>{data.count} times</strong> &nbsp;|&nbsp; 
-                                       Products brought: <strong style={{color: COLORS.sidebar}}>{Array.from(data.products).join(", ")}</strong>
-                                     </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                            {filteredLotsForDisplay.slice().reverse().map((l) => {
-                              const grossSale = (l.lineItems || []).reduce(
-                                (sum, item) => sum + Number(item.grossWeight) * Number(item.estimatedRate),
-                                0,
-                              );
-                              return (
-                                <PremiumActionCard
-                                  key={l._id || l.lotId}
-                                  title={<SmartDataNode text={(l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Supplier"))} type="Supplier" data={l.supplierId || {}} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-                                  subtitle=""
-                                  icon={ICON_TRUCK}
-                                  status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
-                                  details={[
-                                    { icon: ICON_TRUCK, text: l.vehicleNumber || "No Vehicle" },
-                                    { icon: ICON_LOCATION, text: l.origin || "Origin N/A" },
-                                    { icon: ICON_PHONE, text: l.phone || "+917416372496" }, // Example phone from image 2
-                                    { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>₹</span>, text: `Est. Gross: ${formatCurrency(grossSale)}` }
-                                  ]}
-                                  secondaryActions={[
-                                    { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "LOT", data: l }) },
-                                    { label: "Edit Details", icon: ICON_EDIT, onClick: () => handleEditLot(l) },
-                                    ...(l.attached_bill_photo ? [{ label: "View Bill", icon: "📄", onClick: () => setBillPhotoModal({ open: true, imageUrl: l.attached_bill_photo, lotNo: l.lotId || "N/A", supplierName: l.farmerName || "N/A", supplierId: l.supplierId || "N/A", zoom: 1 }) }] : [])
-                                  ]}
-                                  onDelete={() => {
-                                    const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
-                                    if (code === "0000") handleDeleteLot(l._id);
-                                    else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code.");
-                                  }}
-                                  onLock={() => alert("Lot record locked.")}
-                                />
-                              );
-                            })}
-
-                            {filteredLotsForDisplay.length === 0 && (
-                              <p style={{ textAlign: "center", color: "#CC0000", fontWeight: "800", padding: "40px", gridColumn: "1/-1" }}>
-                                {lotDateFilter ? "THIS REGISTERED SUPPLIER IS NOT AVAILABLE IN THIS DATE" : "No registered lots found."}
-                              </p>
-                            )}
-                          </>
+                          <p style={{ textAlign: "center", color: "#CC0000", fontWeight: "800", padding: "40px" }}>
+                            {lotDateFilter ? "THIS REGISTERED SUPPLIER IS NOT AVAILABLE IN THIS DATE" : "No registered lots found."}
+                          </p>
                         );
-                      })()}
-                    </div>
+                      }
+
+                      return (
+                        <>
+                          {lotDateFilter && filteredLotsForDisplay.length > 0 && (
+                            <div style={{ marginBottom: "16px", padding: "16px", background: "#F8FAFC", borderRadius: "12px", border: "1px dashed #CBD5E1" }}>
+                              <h4 style={{ margin: "0 0 12px 0", fontSize: "13px", color: COLORS.primary, fontWeight: "900", textTransform: "uppercase" }}>Search & Date Summary</h4>
+                              {Object.entries(
+                                filteredLotsForDisplay.reduce((acc, l) => {
+                                  const sName = l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Unknown");
+                                  if (!acc[sName]) acc[sName] = { count: 0, products: new Set() };
+                                  acc[sName].count += 1;
+                                  (l.lineItems || []).forEach(i => { if (i.productId) acc[sName].products.add(i.productId); });
+                                  return acc;
+                                }, {})
+                              ).map(([sName, data]) => (
+                                <div key={sName} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E2E8F0", fontSize: "13px" }}>
+                                  <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{sName}</span>
+                                  <span style={{ color: COLORS.muted, fontWeight: "600" }}>
+                                    Visits: <strong style={{color: COLORS.primary}}>{data.count}</strong> &nbsp;|&nbsp;
+                                    Products: <strong style={{color: COLORS.sidebar}}>{Array.from(data.products).join(", ")}</strong>
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                            <thead>
+                              <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
+                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>LOT ID</th>
+                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>SUPPLIER</th>
+                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>DATE</th>
+                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>VEHICLE</th>
+                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>ORIGIN</th>
+                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>PRODUCTS</th>
+                                <th style={{ padding: "14px 16px", textAlign: "right", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>EST. GROSS</th>
+                                <th style={{ padding: "14px 16px", textAlign: "center", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>ACTIONS</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {filteredLotsForDisplay.slice().reverse().map((l, rowIdx) => {
+                                const grossSale = (l.lineItems || []).reduce((sum, item) => sum + Number(item.grossWeight || 0) * Number(item.estimatedRate || 0), 0);
+                                const supplierName = l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "N/A");
+                                const products = (l.lineItems || []).map(li => [li.productId, li.variety, li.grade].filter(Boolean).join(" / ")).join(", ");
+                                return (
+                                  <tr key={l._id || l.lotId} style={{ background: rowIdx % 2 === 0 ? "#FFFFFF" : "#FDFBF4", borderBottom: "1px solid #EBE9E1", transition: "background 0.15s" }}
+                                    onMouseEnter={e => e.currentTarget.style.background = "#F0F4F0"}
+                                    onMouseLeave={e => e.currentTarget.style.background = rowIdx % 2 === 0 ? "#FFFFFF" : "#FDFBF4"}
+                                  >
+                                    <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar, whiteSpace: "nowrap" }}>{l.lotId}</td>
+                                    <td style={{ padding: "14px 16px", fontWeight: "800", color: COLORS.sidebar }}>{supplierName}</td>
+                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted, whiteSpace: "nowrap" }}>{l.entryDate ? new Date(l.entryDate).toLocaleDateString() : "N/A"}</td>
+                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.sidebar }}>{l.vehicleNumber || "—"}</td>
+                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.primary }}>{l.origin || "—"}</td>
+                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: "#1e293b", maxWidth: "200px" }}>
+                                      {products || <span style={{ color: COLORS.muted }}>—</span>}
+                                    </td>
+                                    <td style={{ padding: "14px 16px", fontWeight: "900", color: "#166534", textAlign: "right", whiteSpace: "nowrap" }}>
+                                      ₹{grossSale.toLocaleString()}
+                                    </td>
+                                    <td style={{ padding: "14px 16px", textAlign: "center", whiteSpace: "nowrap" }}>
+                                      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                                        <button
+                                          onClick={() => setViewingEntity({ type: "LOT", data: l })}
+                                          style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
+                                        >View</button>
+                                        <button
+                                          onClick={() => handleEditLot(l)}
+                                          style={{ background: "#FEF9C3", color: "#92400E", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
+                                        >Edit</button>
+                                        {l.attached_bill_photo && (
+                                          <button
+                                            onClick={() => setBillPhotoModal({ open: true, imageUrl: l.attached_bill_photo, lotNo: l.lotId || "N/A", supplierName: l.farmerName || "N/A", supplierId: l.supplierId || "N/A", zoom: 1 })}
+                                            style={{ background: "#E0F2FE", color: "#0369A1", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
+                                          >Bill</button>
+                                        )}
+                                        <button
+                                          onClick={() => { const code = prompt("🔐 Enter Master Deletion Code:"); if (code === "0000") handleDeleteLot(l._id); else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code."); }}
+                                          style={{ background: "#FEF2F2", color: "#DC2626", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
+                                        >Delete</button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
