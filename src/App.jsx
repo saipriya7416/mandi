@@ -2055,6 +2055,83 @@ Powered by Stacli mandi os`;
     ],
   });
 
+  const getSupplierProfileSections = () => [
+    {
+      title: "Supplier Profile (Linked from Party Management)",
+      fields: [
+        { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `${suppliers.length + 1}`, disabled: true },
+        { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
+        { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
+        { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
+        { label: `${supplierForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${supplierForm.villageOrTown || "Location"} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
+        { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: (e) => setSupplierForm({ ...supplierForm, district: e.target.value }) },
+        { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
+        { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: supplierForm.product, onChange: (e) => setSupplierForm({ ...supplierForm, product: e.target.value }) },
+      ],
+    },
+    {
+      title: "KYC Details",
+      fields: [
+        { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: supplierForm.idType, onChange: (e) => setSupplierForm({ ...supplierForm, idType: e.target.value }) },
+        { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: supplierForm.govIdNumber, onChange: (e) => setSupplierForm({ ...supplierForm, govIdNumber: e.target.value }) },
+      ],
+    },
+    {
+      title: "Bank Details",
+      fields: [
+        { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
+        { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
+        { label: "Bank Location", placeholder: "Bank City/Location", value: supplierForm.bankLocation, onChange: (e) => setSupplierForm({ ...supplierForm, bankLocation: e.target.value }) },
+        { label: "Bank Branch", placeholder: "Branch Name", value: supplierForm.bankBranch, onChange: (e) => setSupplierForm({ ...supplierForm, bankBranch: e.target.value }) },
+        { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
+        { label: "Notes", placeholder: "Free form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
+      ],
+    },
+  ];
+
+  const getCustomerProfileSections = () => [
+    {
+      title: "Customer Profile (Linked from Party Management)",
+      fields: [
+        { label: "Customer ID", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.buyerId : `${buyers.length + 1}`, disabled: true },
+        { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
+        { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
+        { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
+        { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTown: e.target.value }) },
+        { label: `${buyerForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${buyerForm.villageOrTown || "Location"} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
+        { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
+        { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
+        { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: buyerForm.product, onChange: (e) => setBuyerForm({ ...buyerForm, product: e.target.value }) },
+      ],
+    },
+    {
+      title: "KYC Details",
+      fields: [
+        { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
+        { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
+      ],
+    },
+    {
+      title: "Bank Details",
+      fields: [
+        { label: "Bank Account No.", type: "number", placeholder: "For bank settlements", value: buyerForm.bankAccount, onChange: (e) => setBuyerForm({ ...buyerForm, bankAccount: e.target.value }) },
+        { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerForm, ifsc: e.target.value }) },
+        { label: "Bank Location", placeholder: "Bank City/Location", value: buyerForm.bankLocation, onChange: (e) => setBuyerForm({ ...buyerForm, bankLocation: e.target.value }) },
+        { label: "Bank Branch", placeholder: "Branch Name", value: buyerForm.bankBranch, onChange: (e) => setBuyerForm({ ...buyerForm, bankBranch: e.target.value }) },
+        { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceBalance, onChange: (e) => setBuyerForm({ ...buyerForm, advanceBalance: e.target.value }) },
+        { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
+      ],
+    },
+    {
+      title: "Credit Details",
+      fields: [
+        { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only", value: buyerForm.creditLimit, onChange: (e) => setBuyerForm({ ...buyerForm, creditLimit: e.target.value }) },
+        { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"], value: buyerForm.paymentTerms, onChange: (e) => setBuyerForm({ ...buyerForm, paymentTerms: e.target.value }) },
+        { label: "Notes", placeholder: "Free form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
+      ],
+    }
+  ];
+
   const handleRegisterSupplier = async () => {
     if (!supplierForm.name || !supplierForm.phone)
       return alert("Name and phone are mandatory!");
@@ -5547,41 +5624,7 @@ Powered by Stacli mandi os`;
 
               {activeUserRoleTab === "Supplier" && (
                 <div>
-                  <FormGrid
-                    sections={[
-                      {
-                        title: "Supplier Profile",
-                        fields: [
-                          { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `${suppliers.length + 1}`, disabled: true },
-                          { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
-                          { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
-                          { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
-                          { label: `${supplierForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${supplierForm.villageOrTown || "Location"} Name`, value: supplierForm.villageOrTownName, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTownName: e.target.value }) },
-                          { label: "District *", placeholder: "Manual typing of district", value: supplierForm.district, onChange: (e) => setSupplierForm({ ...supplierForm, district: e.target.value }) },
-                          { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: supplierForm.state, onChange: (e) => setSupplierForm({ ...supplierForm, state: e.target.value }) },
-                          { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: supplierForm.product, onChange: (e) => setSupplierForm({ ...supplierForm, product: e.target.value }) },
-                        ],
-                      },
-                      {
-                        title: "KYC Details",
-                        fields: [
-                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: supplierForm.idType, onChange: (e) => setSupplierForm({ ...supplierForm, idType: e.target.value }) },
-                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: supplierForm.govIdNumber, onChange: (e) => setSupplierForm({ ...supplierForm, govIdNumber: e.target.value }) },
-                        ],
-                      },
-                      {
-                        title: "Bank Details",
-                        fields: [
-                          { label: "Bank Account No.", type: "number", placeholder: "For direct bank settlements", value: supplierForm.bankAccount, onChange: (e) => setSupplierForm({ ...supplierForm, bankAccount: e.target.value }) },
-                          { label: "IFSC Code", placeholder: "Bank branch code", value: supplierForm.ifsc, onChange: (e) => setSupplierForm({ ...supplierForm, ifsc: e.target.value }) },
-                          { label: "Bank Location", placeholder: "Bank City/Location", value: supplierForm.bankLocation, onChange: (e) => setSupplierForm({ ...supplierForm, bankLocation: e.target.value }) },
-                          { label: "Bank Branch", placeholder: "Branch Name", value: supplierForm.bankBranch, onChange: (e) => setSupplierForm({ ...supplierForm, bankBranch: e.target.value }) },
-                          { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
-                          { label: "Notes", placeholder: "Free form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
-                        ],
-                      },
-                    ]}
-                  />
+                  <FormGrid sections={getSupplierProfileSections()} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                     <Button 
                       style={{ 
@@ -5601,50 +5644,7 @@ Powered by Stacli mandi os`;
 
               {activeUserRoleTab === "Customer" && (
                 <div>
-                  <FormGrid
-                    sections={[
-                      {
-                        title: "Customer Profile",
-                        fields: [
-                          { label: "Customer ID", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.buyerId : `${buyers.length + 1}`, disabled: true },
-                          { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
-                          { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
-                          { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
-                          { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: buyerForm.villageOrTown, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTown: e.target.value }) },
-                          { label: `${buyerForm.villageOrTown || "Location"} Name *`, placeholder: `Enter ${buyerForm.villageOrTown || "Location"} Name`, value: buyerForm.villageOrTownName, onChange: (e) => setBuyerForm({ ...buyerForm, villageOrTownName: e.target.value }) },
-                          { label: "District *", placeholder: "Manual typing of district", value: buyerForm.district, onChange: (e) => setBuyerForm({ ...buyerForm, district: e.target.value }) },
-                          { label: "State *", type: "dropdown", options: ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"], value: buyerForm.state, onChange: (e) => setBuyerForm({ ...buyerForm, state: e.target.value }) },
-                          { label: "Product *", type: "select", options: Object.keys(PRODUCT_DATA).filter((k) => k !== "default"), value: buyerForm.product, onChange: (e) => setBuyerForm({ ...buyerForm, product: e.target.value }) },
-                        ],
-                      },
-                      {
-                        title: "KYC Details",
-                        fields: [
-                          { label: "ID Type", type: "dropdown", options: ["Aadhaar", "PAN", "GSTIN"], value: buyerForm.idType, onChange: (e) => setBuyerForm({ ...buyerForm, idType: e.target.value }) },
-                          { label: "Government ID", placeholder: "Aadhaar / PAN / GSTIN", value: buyerForm.govIdNumber, onChange: (e) => setBuyerForm({ ...buyerForm, govIdNumber: e.target.value }) },
-                        ],
-                      },
-                      {
-                        title: "Bank Details",
-                        fields: [
-                          { label: "Bank Account No.", type: "number", placeholder: "For bank settlements", value: buyerForm.bankAccount, onChange: (e) => setBuyerForm({ ...buyerForm, bankAccount: e.target.value }) },
-                          { label: "IFSC Code", placeholder: "Bank branch code", value: buyerForm.ifsc, onChange: (e) => setBuyerForm({ ...buyerForm, ifsc: e.target.value }) },
-                          { label: "Bank Location", placeholder: "Bank City/Location", value: buyerForm.bankLocation, onChange: (e) => setBuyerForm({ ...buyerForm, bankLocation: e.target.value }) },
-                          { label: "Bank Branch", placeholder: "Branch Name", value: buyerForm.bankBranch, onChange: (e) => setBuyerForm({ ...buyerForm, bankBranch: e.target.value }) },
-                          { label: "Advance Payment (\u20B9)", type: "number", placeholder: "Advance payment received?", value: buyerForm.advanceBalance, onChange: (e) => setBuyerForm({ ...buyerForm, advanceBalance: e.target.value }) },
-                          { label: "Notes", placeholder: "Free-form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
-                        ],
-                      },
-                      {
-                        title: "Credit Details",
-                        fields: [
-                          { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only", value: buyerForm.creditLimit, onChange: (e) => setBuyerForm({ ...buyerForm, creditLimit: e.target.value }) },
-                          { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"], value: buyerForm.paymentTerms, onChange: (e) => setBuyerForm({ ...buyerForm, paymentTerms: e.target.value }) },
-                          { label: "Notes", placeholder: "Free form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
-                        ],
-                      }
-                    ]}
-                  />
+                  <FormGrid sections={getCustomerProfileSections()} />
                   <div style={{ display: "flex", gap: "16px", marginTop: "32px", flexWrap: "wrap" }}>
                     <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, border: `1.5px solid ${COLORS.sidebar}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => setActiveUserRoleTab("Supplier")}>Previous</Button>
                     <Button 
@@ -6140,7 +6140,7 @@ Powered by Stacli mandi os`;
                               : lotCreationForm.farmerId,
                             onChange: (e) => {
                               const val = e.target.value;
-                              const foundS = suppliers.find((s) => formatNameWithId(s.name, getSupplierIdValue(s)) === val);
+                              const foundS = suppliers.find((s) => formatNameWithId(s.name, getSupplierIdValue(s)) === val || s.name === val || (s._id || s.id) === val);
                               setLotCreationForm({
                                 ...lotCreationForm,
                                 farmerId: foundS?._id || foundS?.id || val,
@@ -6148,6 +6148,15 @@ Powered by Stacli mandi os`;
                                   ? foundS.village || foundS.state || ""
                                   : "",
                               });
+                              if (foundS) {
+                                handleEditSelect("Supplier", foundS);
+                              } else {
+                                setSupplierForm({
+                                  supplierId: "", name: val, phone: "", villageOrTown: "", villageOrTownName: "", district: "", state: "", product: "", idType: "", govIdNumber: "", bankAccount: "", bankLocation: "", bankBranch: "", ifsc: "", advanceBalance: "", notes: "",
+                                });
+                                setIsEditingSupplier(false);
+                                setEditingSupplierId(null);
+                              }
                             },
                           },
                           {
@@ -6198,6 +6207,7 @@ Powered by Stacli mandi os`;
                           },
                         ],
                       },
+                      ...getSupplierProfileSections()
                     ]}
                   />
 
@@ -6218,6 +6228,9 @@ Powered by Stacli mandi os`;
                         ) {
                           alert("Please complete all Intake Details first!");
                           return;
+                        }
+                        if (supplierForm.name && supplierForm.phone) {
+                          handleRegisterSupplier();
                         }
                         setLotSaveBtn({
                           label: "✅ Saved successfully",
@@ -6736,15 +6749,26 @@ Powered by Stacli mandi os`;
                       },
                       {
                         label: "Customer Name *",
-                        type: "dropdown",
-                        options: ["", ...buyers.map((b) => b.name)],
+                        type: "othersDropdown",
+                        options: buyers.map((b) => formatNameWithId(b.name, getCustomerIdValue(b))),
                         value: allocationForm.buyerId,
                         onChange: (e) => {
-                          const selectedName = e.target.value;
+                          const val = e.target.value;
+                          const foundB = buyers.find((b) => formatNameWithId(b.name, getCustomerIdValue(b)) === val || b.name === val || (b._id || b.id) === val);
                           setAllocationForm({
                             ...allocationForm,
-                            buyerId: selectedName,
+                            buyerId: foundB?.name || val,
                           });
+                          
+                          if (foundB) {
+                            handleEditSelect("Customer", foundB);
+                          } else {
+                            setBuyerForm({
+                                buyerId: "", name: val, shopName: "", phone: "", address: "", villageOrTown: "", villageOrTownName: "", district: "", state: "", product: "", idType: "", govIdNumber: "", creditLimit: "", paymentTerms: "Immediate", bankAccount: "", bankLocation: "", bankBranch: "", ifsc: "", advanceBalance: "", notes: "",
+                            });
+                            setIsEditingBuyer(false);
+                            setEditingBuyerId(null);
+                          }
                         },
                       },
                       {
@@ -6777,6 +6801,7 @@ Powered by Stacli mandi os`;
                       },
                     ],
                   },
+                  ...getCustomerProfileSections()
                 ]}
               />
 
@@ -7185,6 +7210,9 @@ Powered by Stacli mandi os`;
                     padding: "12px 24px",
                   }}
                   onClick={async () => {
+                    if (buyerForm.name && buyerForm.phone) {
+                        handleRegisterBuyer();
+                    }
                     await handleAllocate();
                     setAllocationSaveBtn({
                       label: "✅ Saved successfully",
