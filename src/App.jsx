@@ -1472,7 +1472,11 @@ export default function App() {
   const [supplierSaveBtn, setSupplierSaveBtn] = useState({ label: "Save", color: null });
   const [buyerSaveBtn, setBuyerSaveBtn] = useState({ label: "Save", color: null });
   const [lotSaveBtn, setLotSaveBtn] = useState({ label: "Save", color: null });
+  const [allocationSaveBtn, setAllocationSaveBtn] = useState({ label: "Save", color: null });
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
+  const [memberDateFilter, setMemberDateFilter] = useState("All");
+  const [memberCustomDateStart, setMemberCustomDateStart] = useState("");
+  const [memberCustomDateEnd, setMemberCustomDateEnd] = useState("");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [memberProductFilters, setMemberProductFilters] = useState({
     Suppliers: [],
@@ -1898,6 +1902,7 @@ Powered by Stacli mandi os`;
     ifsc: "",
     advanceBalance: "",
     creditLimit: "",
+    paymentTerms: "Immediate",
     notes: "",
   });
   const [lotCreationForm, setLotCreationForm] = useState({
@@ -1952,7 +1957,7 @@ Powered by Stacli mandi os`;
       bankBranch: supplierForm.bankBranch,
       ifsc: supplierForm.ifsc,
       advanceBalance: supplierForm.advanceBalance,
-      notes: supplierForm.notes || "Registered via Profile Hub",
+      notes: supplierForm.notes || "",
     };
     try {
       let res;
@@ -2012,6 +2017,7 @@ Powered by Stacli mandi os`;
         idType: "",
         govIdNumber: "",
         creditLimit: "",
+        paymentTerms: "Immediate",
         bankAccount: "",
         bankLocation: "",
         bankBranch: "",
@@ -2233,6 +2239,7 @@ Powered by Stacli mandi os`;
         idType: record.idType || "",
         govIdNumber: record.govIdNumber || "",
         creditLimit: record.creditLimit || "",
+        paymentTerms: record.paymentTerms || "Immediate",
         bankAccount: record.bankAccount || "",
         bankLocation: record.bankLocation || "",
         bankBranch: record.bankBranch || "",
@@ -2548,12 +2555,13 @@ Powered by Stacli mandi os`;
       idType: buyerForm.idType,
       govIdNumber: buyerForm.govIdNumber || "N/A",
       creditLimit: Number(buyerForm.creditLimit) || 0,
+      paymentTerms: buyerForm.paymentTerms || "Immediate",
       bankAccount: buyerForm.bankAccount || "",
       bankLocation: buyerForm.bankLocation || "",
       bankBranch: buyerForm.bankBranch || "",
       ifsc: buyerForm.ifsc || "",
       advanceBalance: buyerForm.advanceBalance || "",
-      notes: "Registered via Unified Dashboard",
+      notes: buyerForm.notes || "",
     };
     try {
       let res;
@@ -5433,7 +5441,7 @@ Powered by Stacli mandi os`;
                           { label: "Bank Location", placeholder: "Bank City/Location", value: supplierForm.bankLocation, onChange: (e) => setSupplierForm({ ...supplierForm, bankLocation: e.target.value }) },
                           { label: "Bank Branch", placeholder: "Branch Name", value: supplierForm.bankBranch, onChange: (e) => setSupplierForm({ ...supplierForm, bankBranch: e.target.value }) },
                           { label: "Advance Balance (\u20B9)", type: "number", placeholder: "Running advance", value: supplierForm.advanceBalance, onChange: (e) => setSupplierForm({ ...supplierForm, advanceBalance: e.target.value }) },
-                          { label: "Notes", placeholder: "Free-form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
+                          { label: "Notes", placeholder: "Free form notes", value: supplierForm.notes, onChange: (e) => setSupplierForm({ ...supplierForm, notes: e.target.value }) },
                         ],
                       },
                     ]}
@@ -5494,9 +5502,9 @@ Powered by Stacli mandi os`;
                       {
                         title: "Credit Details",
                         fields: [
-                          { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only" },
-                          { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"] },
-                          { label: "Notes", placeholder: "Free-form notes" },
+                          { label: "Credit Limit (\u20B9) *", type: "number", placeholder: "Max credit allowed; 0 = cash only", value: buyerForm.creditLimit, onChange: (e) => setBuyerForm({ ...buyerForm, creditLimit: e.target.value }) },
+                          { label: "Payment Terms *", type: "dropdown", options: ["Immediate", "7 Days", "15 Days", "30 Days"], value: buyerForm.paymentTerms, onChange: (e) => setBuyerForm({ ...buyerForm, paymentTerms: e.target.value }) },
+                          { label: "Notes", placeholder: "Free form notes", value: buyerForm.notes, onChange: (e) => setBuyerForm({ ...buyerForm, notes: e.target.value }) },
                         ],
                       }
                     ]}
@@ -5547,21 +5555,37 @@ Powered by Stacli mandi os`;
                     const sourceData = activeTab === "Suppliers" ? suppliers : buyers;
                     const query = memberSearchQuery.trim().toLowerCase();
                     const searchedData = sourceData.filter((record) => {
-                      const productText = getProfileProducts(record).join(" ").toLowerCase();
-                      if (!query) return true;
-                      if (activeTab === "Suppliers") {
-                        return (
-                          String(record.name || "").toLowerCase().includes(query) ||
-                          String(record.phone || "").includes(query) ||
-                          productText.includes(query)
-                        );
+                      let dateMatch = true;
+                      const rDate = record.createdAt || record.date;
+                      if (rDate && memberDateFilter !== "All") {
+                        const d = new Date(rDate);
+                        const today = new Date();
+                        if (memberDateFilter === "Today") {
+                          dateMatch = d.toDateString() === today.toDateString();
+                        } else if (memberDateFilter === "15 Days" || memberDateFilter === "30 Days") {
+                          const days = memberDateFilter === "15 Days" ? 15 : 30;
+                          const pastLimit = new Date();
+                          pastLimit.setDate(today.getDate() - days);
+                          dateMatch = d >= pastLimit && d <= today;
+                        } else if (memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd) {
+                          const s = new Date(memberCustomDateStart);
+                          const e = new Date(memberCustomDateEnd);
+                          e.setHours(23, 59, 59, 999);
+                          dateMatch = d >= s && d <= e;
+                        }
                       }
-                      return (
+                      const productText = getProfileProducts(record).join(" ").toLowerCase();
+                      const queryMatch = !query ? true : (activeTab === "Suppliers" ? (
+                        String(record.name || "").toLowerCase().includes(query) ||
+                        String(record.phone || "").includes(query) ||
+                        productText.includes(query)
+                      ) : (
                         String(record.name || "").toLowerCase().includes(query) ||
                         String(record.shopName || "").toLowerCase().includes(query) ||
                         String(record.phone || "").includes(query) ||
                         productText.includes(query)
-                      );
+                      ));
+                      return dateMatch && queryMatch;
                     });
 
                     const groupedByProduct = selectedProducts.map((selectedProduct) => {
@@ -5596,6 +5620,38 @@ Powered by Stacli mandi os`;
                                 transition: "all 0.2s",
                               }}
                             />
+                          </div>
+                          <div style={{ display: "flex", gap: "12px", minWidth: "400px" }}>
+                            <select
+                              value={memberDateFilter}
+                              onChange={(e) => setMemberDateFilter(e.target.value)}
+                              style={{
+                                flex: 1,
+                                height: "52px",
+                                padding: "0 14px",
+                                borderRadius: "12px",
+                                border: "1.5px solid #E2E8F0",
+                                background: "#F8FAFC",
+                                color: COLORS.sidebar,
+                                fontSize: "13px",
+                                fontWeight: "700",
+                                cursor: "pointer",
+                                outline: "none",
+                              }}
+                            >
+                              <option value="All">Select data from particular date</option>
+                              <option value="Today">Today</option>
+                              <option value="15 Days">15 Days</option>
+                              <option value="30 Days">30 Days</option>
+                              <option value="Custom Date">Custom Date</option>
+                            </select>
+                            {memberDateFilter === "Custom Date" && (
+                              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                <input type="date" value={memberCustomDateStart} onChange={e => setMemberCustomDateStart(e.target.value)} style={{ padding: "8px 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "600", outline: "none", height: "52px" }} />
+                                <span style={{fontSize: "12px", fontWeight:"800", color:COLORS.muted}}>to</span>
+                                <input type="date" value={memberCustomDateEnd} onChange={e => setMemberCustomDateEnd(e.target.value)} style={{ padding: "8px 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "600", outline: "none", height: "52px" }} />
+                              </div>
+                            )}
                           </div>
                           <div style={{ position: "relative", minWidth: "280px" }}>
                             <button
@@ -5774,21 +5830,37 @@ Powered by Stacli mandi os`;
                       const sourceData = activeTab === "Suppliers" ? suppliers : buyers;
                       const query = memberSearchQuery.trim().toLowerCase();
                       const searchedData = sourceData.filter((record) => {
-                        const productText = getProfileProducts(record).join(" ").toLowerCase();
-                        if (!query) return true;
-                        if (activeTab === "Suppliers") {
-                          return (
-                            String(record.name || "").toLowerCase().includes(query) ||
-                            String(record.phone || "").includes(query) ||
-                            productText.includes(query)
-                          );
+                        let dateMatch = true;
+                        const rDate = record.createdAt || record.date;
+                        if (rDate && memberDateFilter !== "All") {
+                          const d = new Date(rDate);
+                          const today = new Date();
+                          if (memberDateFilter === "Today") {
+                            dateMatch = d.toDateString() === today.toDateString();
+                          } else if (memberDateFilter === "15 Days" || memberDateFilter === "30 Days") {
+                            const days = memberDateFilter === "15 Days" ? 15 : 30;
+                            const pastLimit = new Date();
+                            pastLimit.setDate(today.getDate() - days);
+                            dateMatch = d >= pastLimit && d <= today;
+                          } else if (memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd) {
+                            const s = new Date(memberCustomDateStart);
+                            const e = new Date(memberCustomDateEnd);
+                            e.setHours(23, 59, 59, 999);
+                            dateMatch = d >= s && d <= e;
+                          }
                         }
-                        return (
+                        const productText = getProfileProducts(record).join(" ").toLowerCase();
+                        const queryMatch = !query ? true : (activeTab === "Suppliers" ? (
+                          String(record.name || "").toLowerCase().includes(query) ||
+                          String(record.phone || "").includes(query) ||
+                          productText.includes(query)
+                        ) : (
                           String(record.name || "").toLowerCase().includes(query) ||
                           String(record.shopName || "").toLowerCase().includes(query) ||
                           String(record.phone || "").includes(query) ||
                           productText.includes(query)
-                        );
+                        ));
+                        return dateMatch && queryMatch;
                       });
 
                       if (selectedProducts.length === 0) {
@@ -5973,10 +6045,10 @@ Powered by Stacli mandi os`;
                               const foundS = suppliers.find((s) => formatNameWithId(s.name, getSupplierIdValue(s)) === val);
                               setLotCreationForm({
                                 ...lotCreationForm,
-                                farmerId: foundS?.name || val,
+                                farmerId: foundS?._id || foundS?.id || val,
                                 origin: foundS
                                   ? foundS.village || foundS.state || ""
-                                  : lotCreationForm.origin,
+                                  : "",
                               });
                             },
                           },
@@ -6191,7 +6263,7 @@ Powered by Stacli mandi os`;
               {activeLotTab === "Produce Details" && (
                 <div style={{ animation: "fadeIn 0.4s ease-out" }}>
                   <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
-                    <div style={{ borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <h3 style={{ fontSize: "20px", fontWeight: "900", color: COLORS.sidebar, margin: 0 }}>Produce Details</h3>
                         {(() => {
                           const selectedSupplier =
@@ -6200,10 +6272,10 @@ Powered by Stacli mandi os`;
                           const supplierName = selectedSupplier?.name || lotCreationForm.farmerId || "N/A";
                           const supplierId = getSupplierIdValue(selectedSupplier) || "N/A";
                           return (
-                            <div style={{ textAlign: "right", fontSize: "12px", fontWeight: "700", color: COLORS.muted, lineHeight: 1.6 }}>
-                              <div>LOT NO - {lotCreationForm.lotId || "N/A"}</div>
-                              <div>Supplier Name - {supplierName}</div>
-                              <div>Supplier ID - {supplierId}</div>
+                            <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.muted }}>
+                               LOT NO: <span style={{color: COLORS.sidebar, fontWeight: "900"}}>{lotCreationForm.lotId || "N/A"}</span> &nbsp;/&nbsp; 
+                               Supplier: <span style={{color: COLORS.sidebar, fontWeight: "900"}}>{supplierName}</span> &nbsp;/&nbsp; 
+                               ID: <span style={{color: COLORS.sidebar, fontWeight: "900"}}>{supplierId}</span>
                             </div>
                           );
                         })()}
@@ -6221,10 +6293,21 @@ Powered by Stacli mandi os`;
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product *</label>
-                            <select value={item.productId} onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                              <option value="" disabled>{getSelectPlaceholder("Product")}</option>
-                               {Object.keys(PRODUCT_DATA).filter(k => k !== "default").map(p => <option key={p} value={p}>{p}</option>)}
-                            </select>
+                            <input 
+                              list={`product-list-${idx}`}
+                              value={item.productId} 
+                              onChange={(e) => handleLineItemAction("Update", idx, "productId", e.target.value)} 
+                              placeholder={getSelectPlaceholder("Product")}
+                              style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: "#FFFFFF" }} 
+                            />
+                            <datalist id={`product-list-${idx}`}>
+                               {(() => {
+                                 const selectedSupplier = suppliers.find(s => s._id === lotCreationForm.farmerId || s.name === lotCreationForm.farmerId);
+                                 const supplierProducts = getProfileProducts(selectedSupplier);
+                                 const productOptions = supplierProducts.length > 0 ? supplierProducts : Object.keys(PRODUCT_DATA).filter(k => k !== "default");
+                                 return productOptions.map(p => <option key={p} value={p}>{p}</option>);
+                               })()}
+                            </datalist>
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -6652,7 +6735,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Balance Qty Available
+                          Balance KGs
                         </label>
                         <input
                           type="text"
@@ -6850,14 +6933,23 @@ Powered by Stacli mandi os`;
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
                 <Button
                   style={{
-                    background: COLORS.sidebar,
+                    background: allocationSaveBtn.color || COLORS.sidebar,
                     fontWeight: "800",
                     boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
                     padding: "12px 24px",
                   }}
-                  onClick={handleAllocate}
+                  onClick={async () => {
+                    await handleAllocate();
+                    setAllocationSaveBtn({
+                      label: "✅ Saved successfully",
+                      color: COLORS.success,
+                    });
+                    setTimeout(() => {
+                      setAllocationSaveBtn({ label: "Save", color: null });
+                    }, 3000);
+                  }}
                 >
-                  Record All Allocations
+                  {allocationSaveBtn.label}
                 </Button>
                 <Button
                   style={{
@@ -18651,8 +18743,8 @@ Powered by Stacli mandi os`;
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                       <thead>
                         <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
-                          {Object.entries(viewingEntity.data)
-                            .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment"].includes(key))
+                        {Object.entries(viewingEntity.data)
+                          .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
                             .map(([key]) => (
                               <th 
                                 key={key} 
@@ -18675,7 +18767,7 @@ Powered by Stacli mandi os`;
                       <tbody>
                         <tr>
                           {Object.entries(viewingEntity.data)
-                            .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment"].includes(key))
+                            .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
                             .map(([key, rawValue]) => (
                               <td 
                                 key={key} 

@@ -262,5 +262,7 @@ table input {
 
 /* ===== Dropdown List Background Improvement ===== */
 select option {
-  background-color: #F4F7FA;
+  background-color: #1F2937; color: #ffffff;
 }
+
+input[type='number']::-webkit-outer-spin-button, input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } input[type='number'] { -moz-appearance: textfield; }
