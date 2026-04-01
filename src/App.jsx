@@ -996,10 +996,23 @@ function ModernMultiSelectField({
         <div style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "13.5px", fontWeight: "600" }}>
           {internalValues.length > 0 ? (
             <div style={{ display: "flex", gap: "6px", overflow: "hidden" }}>
-               {internalValues.slice(0, 2).map(v => (
-                 <span key={v} style={{ background: "#F1F5F9", padding: "2px 8px", borderRadius: "6px", fontSize: "11px", border: "1px solid #E2E8F0", color: COLORS.sidebar }}>{v}</span>
+               {internalValues.slice(0, 3).map(v => (
+                 <span key={v} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#F1F5F9", padding: "2px 10px", borderRadius: "8px", fontSize: "11.5px", border: "1.5px solid #E2E8F0", color: COLORS.sidebar }}>
+                   {v}
+                   <span 
+                     onClick={(e) => { 
+                       e.stopPropagation(); 
+                       const next = internalValues.filter(x => x !== v);
+                       setInternalValues(next);
+                       onChange?.({ target: { value: next.join(" / ") } });
+                     }}
+                     style={{ cursor: "pointer", color: "#64748B", fontSize: "16px", fontWeight: "900", transition: "all 0.2s", opacity: 0.7 }}
+                     onMouseEnter={(e) => { e.currentTarget.style.color = "#FF3B30"; e.currentTarget.style.transform = "scale(1.2)"; }}
+                     onMouseLeave={(e) => { e.currentTarget.style.color = "#64748B"; e.currentTarget.style.transform = "scale(1)"; }}
+                   >×</span>
+                 </span>
                ))}
-               {internalValues.length > 2 && <span style={{ color: "#888", fontSize: "11px" }}>+{internalValues.length - 2} more</span>}
+               {internalValues.length > 3 && <span style={{ color: "#888", fontSize: "11px", alignSelf: "center" }}>+{internalValues.length - 3} more</span>}
             </div>
           ) : (
             <span style={{ color: "#666" }}>Select {label}...</span>
@@ -1015,10 +1028,10 @@ function ModernMultiSelectField({
           left: 0,
           right: 0,
           zIndex: 1000,
-          background: "#1a1a1a",
-          border: "1px solid #2d2d2d",
+          background: COLORS.sidebar,
+          border: "1px solid rgba(255,255,255,0.1)",
           borderRadius: "14px",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.45)",
           padding: "14px",
           minWidth: "300px",
           animation: "slideUp 0.2s ease-out"
@@ -1038,8 +1051,8 @@ function ModernMultiSelectField({
                 }}
                 style={{
                   width: "100%",
-                  background: "#262626",
-                  border: "1px solid #333",
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
                   borderRadius: "10px",
                   padding: "10px 14px",
                   color: "#fff",
@@ -1052,12 +1065,12 @@ function ModernMultiSelectField({
             {searchText && !normalizedOptions.some(o => o.toLowerCase() === searchText.toLowerCase()) && (
               <button 
                 onClick={handleManualAdd}
-                style={{ background: COLORS.primary, color: "#fff", border: "none", borderRadius: "10px", padding: "0 12px", fontSize: "12px", fontWeight: "800", cursor: "pointer" }}
+                style={{ background: "rgba(255,255,255,0.2)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "10px", padding: "0 12px", fontSize: "12px", fontWeight: "800", cursor: "pointer" }}
               >Add</button>
             )}
             <button 
               onClick={handleApply}
-              style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "10px", padding: "0 18px", fontSize: "12px", fontWeight: "900", cursor: "pointer", transition: "opacity 0.2s" }}
+              style={{ background: COLORS.primary, color: "#fff", border: "none", borderRadius: "10px", padding: "0 18px", fontSize: "12px", fontWeight: "900", cursor: "pointer", transition: "opacity 0.2s" }}
               onMouseEnter={e => e.currentTarget.style.opacity = 0.9}
               onMouseLeave={e => e.currentTarget.style.opacity = 1}
             >Apply</button>
@@ -1079,18 +1092,18 @@ function ModernMultiSelectField({
                         padding: "10px 12px",
                         borderRadius: "10px",
                         cursor: "pointer",
-                        background: isSelected ? "rgba(34, 197, 94, 0.1)" : "transparent",
+                        background: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
                         transition: "all 0.2s",
                         marginBottom: "2px"
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = isSelected ? "rgba(34, 197, 94, 0.15)" : "#262626"}
-                      onMouseLeave={e => e.currentTarget.style.background = isSelected ? "rgba(34, 197, 94, 0.1)" : "transparent"}
+                      onMouseEnter={e => e.currentTarget.style.background = isSelected ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)"}
+                      onMouseLeave={e => e.currentTarget.style.background = isSelected ? "rgba(255,255,255,0.15)" : "transparent"}
                     >
                       <div style={{
                         width: "20px",
                         height: "20px",
-                        border: isSelected ? "none" : "2px solid #444",
-                        background: isSelected ? "#22c55e" : "transparent",
+                        border: isSelected ? "none" : "2px solid rgba(255,255,255,0.35)",
+                        background: isSelected ? COLORS.primary : "transparent",
                         borderRadius: "6px",
                         display: "flex",
                         alignItems: "center",
@@ -1102,13 +1115,13 @@ function ModernMultiSelectField({
                       }}>
                         {isSelected && "✓"}
                       </div>
-                      <span style={{ fontSize: "13.5px", fontWeight: isSelected ? "700" : "500", color: isSelected ? "#fff" : "#ccc" }}>{opt}</span>
+                      <span style={{ fontSize: "13.5px", fontWeight: isSelected ? "800" : "500", color: "#ffffff" }}>{opt}</span>
                     </div>
                   );
                 })}
               </>
             ) : (
-              <div style={{ padding: "30px 10px", textAlign: "center", color: "#666", fontSize: "12px" }}>
+              <div style={{ padding: "30px 10px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
                 No options available.
               </div>
             )}
@@ -1445,7 +1458,7 @@ function FormGrid({ sections }) {
                         padding: "12px 14px",
                         borderRadius: "8px",
                         border: "1.5px solid #EBE9E1",
-                        background: f.disabled ? "#FDFBF4" : (f.label === "Lot ID *" ? "#1a1a1a" : "#FFFFFF"),
+                        background: f.disabled ? "#FDFBF4" : (f.label === "Lot ID *" ? COLORS.sidebar : "#FFFFFF"),
                         color: f.disabled ? COLORS.muted : (f.label === "Lot ID *" ? "#FFFFFF" : COLORS.sidebar),
                         outline: "none",
                         fontSize: "13px",
@@ -18898,129 +18911,104 @@ Powered by Stacli mandi os`;
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
                 <div style={{ overflowX: "auto", border: "1px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
                   {viewingEntity.type === "LOT" ? (
-                    <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-
-                      {/* Flat horizontal fields grid — no section headers */}
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "12px" }}>
-
-                        {/* Supplier Name */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Supplier Name</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</div>
+                    <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
+                      
+                      {/* Lot Information — Horizontal Table Format */}
+                      <div>
+                        <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div style={{ width: "4px", height: "16px", background: COLORS.sidebar, borderRadius: "2px" }}></div>
+                          LOT RECORD INFORMATION
                         </div>
-
-                        {/* Supplier ID */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Supplier ID</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{(() => { const rawId = typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId); const str = String(rawId || ""); const numPart = str.includes('-') ? str.split('-').pop() : str; return numPart ? Number(numPart).toString() : "N/A"; })()}</div>
-                        </div>
-
-                        {/* Origin */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Origin / Location</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.origin || "N/A"}</div>
-                        </div>
-
-                        {/* Product */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Product</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.productId || viewingEntity.data.lineItems?.[0]?.product || "N/A"}</div>
-                        </div>
-
-                        {/* Variety */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Variety</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.variety || "N/A"}</div>
-                        </div>
-
-                        {/* Grade */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Grade</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grade || "N/A"}</div>
-                        </div>
-
-                        {/* Weight */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Weight</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.grossWeight || "0"}</div>
-                        </div>
-
-                        {/* Weight Unit */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Weight Unit</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.[0]?.weightUnit || "KG"}</div>
-                        </div>
-
-                        {/* Vehicle Number */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Vehicle / Lorry No.</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</div>
-                        </div>
-
-                        {/* Driver Name */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Driver Name</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</div>
-                        </div>
-
-                        {/* Notes */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Notes</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.notes || "N/A"}</div>
-                        </div>
-
-                        {/* Bill Photo */}
-                        <div style={{ padding: "12px 16px", background: "#F8FAFC", borderRadius: "10px", border: "1px solid #E2E8F0" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>Bill Photo</div>
-                          <div style={{ fontSize: "13px", fontWeight: "800", color: COLORS.sidebar }}>
-                            {viewingEntity.data.attached_bill_photo ? (
-                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                <img
-                                  src={viewingEntity.data.attached_bill_photo}
-                                  alt="Bill"
-                                  style={{ width: "60px", height: "40px", objectFit: "cover", borderRadius: "6px", border: "1px solid #E2E8F0", cursor: "pointer" }}
-                                  onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
-                                />
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 }); }}
-                                  style={{ background: "#FFFFFF", color: COLORS.sidebar, border: "1px solid #CBD5E1", padding: "4px 8px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", cursor: "pointer" }}
-                                >View</button>
-                              </div>
-                            ) : (
-                              <span style={{ color: COLORS.muted, fontSize: "12px" }}>No bill attached</span>
-                            )}
-                          </div>
-                        </div>
-
-                      </div>
-
-                      {/* Additional produce items (if more than 1 line item) */}
-                      {viewingEntity.data.lineItems && viewingEntity.data.lineItems.length > 1 && (
-                        <div style={{ marginTop: "8px" }}>
-                          <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>Additional Produce Items</div>
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", background: "#F8FAFC", borderRadius: "8px", overflow: "hidden", border: "1px solid #E2E8F0" }}>
+                        <div style={{ overflowX: "auto", border: "1.5px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
+                          <table style={{ minWidth: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
                             <thead>
-                              <tr style={{ background: "#E2E8F0", color: COLORS.sidebar, textAlign: "left" }}>
-                                <th style={{ padding: "10px 12px" }}>Product</th>
-                                <th style={{ padding: "10px 12px" }}>Variety</th>
-                                <th style={{ padding: "10px 12px" }}>Weight</th>
-                                <th style={{ padding: "10px 12px" }}>Status</th>
+                              <tr style={{ background: "#F8FAFC", borderBottom: "1.5px solid #EBE9E1" }}>
+                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Lot ID</th>
+                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Supplier Name</th>
+                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Vehicle No</th>
+                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Origin</th>
+                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Driver Name</th>
+                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Entry Date</th>
+                                <th style={{ padding: "12px 20px", textAlign: "right", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Bill Photo</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {viewingEntity.data.lineItems.slice(1).map((it, i) => (
-                                <tr key={i} style={{ borderBottom: "1px solid #EBE9E1" }}>
-                                  <td style={{ padding: "10px 12px", fontWeight: "800" }}>{it.productId || it.product}</td>
-                                  <td style={{ padding: "10px 12px", fontWeight: "700" }}>{it.variety}</td>
-                                  <td style={{ padding: "10px 12px", fontWeight: "700" }}>{it.grossWeight} {it.weightUnit}</td>
-                                  <td style={{ padding: "10px 12px", fontWeight: "700" }}>{it.status}</td>
+                              <tr>
+                                <td style={{ padding: "16px 20px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</td>
+                                <td style={{ padding: "16px 20px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</td>
+                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</td>
+                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.primary }}>{viewingEntity.data.origin || "N/A"}</td>
+                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</td>
+                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleDateString() : "N/A"}</td>
+                                <td style={{ padding: "16px 20px", textAlign: "right" }}>
+                                  {viewingEntity.data.attached_bill_photo ? (
+                                    <button
+                                      onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
+                                      style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
+                                    >View Bill</button>
+                                  ) : "None"}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Produce Details Box — Nested */}
+                      <div style={{ background: "#FDFBF4", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                        <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span>PRODUCE ITEMS & QUANTITY</span>
+                          <span style={{ fontSize: "10px", background: COLORS.sidebar, color: "#fff", padding: "4px 10px", borderRadius: "20px" }}>{viewingEntity.data.lineItems?.length || 0} ITEMS</span>
+                        </div>
+                        
+                        <div style={{ overflowX: "auto" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12.5px" }}>
+                            <thead>
+                              <tr style={{ textAlign: "left", borderBottom: "2px solid #EBE9E1" }}>
+                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>S.No</th>
+                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Product Name</th>
+                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Variety</th>
+                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Grade</th>
+                                <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Gross WT (KG)</th>
+                                <th style={{ padding: "12px", textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>Unit</th>
+                                <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(viewingEntity.data.lineItems || []).map((it, idx) => (
+                                <tr key={idx} style={{ borderBottom: idx === viewingEntity.data.lineItems.length - 1 ? "none" : "1px solid #F1F5F9" }}>
+                                  <td style={{ padding: "14px 12px", color: COLORS.muted, fontWeight: "700" }}>{idx + 1}</td>
+                                  <td style={{ padding: "14px 12px", fontWeight: "900", color: COLORS.sidebar }}>{it.productId || it.product}</td>
+                                  <td style={{ padding: "14px 12px", fontWeight: "800", color: COLORS.primary }}>{it.variety || "Standard"}</td>
+                                  <td style={{ padding: "14px 12px", fontWeight: "800", color: "#1e293b" }}>{it.grade}</td>
+                                  <td style={{ padding: "14px 12px", textAlign: "right", fontWeight: "900", color: "#166534" }}>{it.grossWeight}</td>
+                                  <td style={{ padding: "14px 12px", textAlign: "center", fontWeight: "700", color: COLORS.muted }}>{it.weightUnit || "KG"}</td>
+                                  <td style={{ padding: "14px 12px", textAlign: "right" }}>
+                                    <span style={{ 
+                                      padding: "4px 10px", 
+                                      borderRadius: "6px", 
+                                      fontSize: "10px", 
+                                      fontWeight: "800", 
+                                      background: it.status === "Fully Sold" ? "#DCFCE7" : "#F1F5F9",
+                                      color: it.status === "Fully Sold" ? "#166534" : COLORS.sidebar
+                                    }}>
+                                      {it.status}
+                                    </span>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
                           </table>
                         </div>
-                      )}
+                      </div>
 
+                      {/* Notes Section if exists */}
+                      {viewingEntity.data.notes && (
+                        <div style={{ padding: "16px 24px", background: "#F8FAFC", borderRadius: "10px", border: "1px dashed #E2E8F0" }}>
+                          <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>REMARKS / NOTES:</span>
+                          <p style={{ margin: "8px 0 0", fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.notes}</p>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div style={{ overflowX: "auto" }}>
