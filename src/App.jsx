@@ -1530,23 +1530,29 @@ export default function App() {
     return Array.from(new Set(allProducts));
   };
 
+  const stripIdPrefix = (id) => String(id || "").replace(/^(SUPP-|CUST-|CUS-)/i, "");
+
   const getSupplierIdValue = (record = {}) =>
-    record.supplierId ||
-    record.supplierCode ||
-    record.id ||
-    record._id ||
-    "";
+    stripIdPrefix(
+      record.supplierId ||
+      record.supplierCode ||
+      record.id ||
+      record._id ||
+      ""
+    );
 
   const getCustomerIdValue = (record = {}) =>
-    record.buyerId ||
-    record.customerId ||
-    record.id ||
-    record._id ||
-    "";
+    stripIdPrefix(
+      record.buyerId ||
+      record.customerId ||
+      record.id ||
+      record._id ||
+      ""
+    );
 
   const formatNameWithId = (name, id) => {
     const n = String(name || "").trim();
-    const i = String(id || "").trim();
+    const i = stripIdPrefix(id);
     if (n && i) return `${n} - ${i}`;
     return n || i || "N/A";
   };
@@ -1585,11 +1591,12 @@ export default function App() {
     <PremiumActionCard
       key={`${keyPrefix}-${s._id || s.id || s.name}`}
       title={<SmartDataNode text={formatNameWithId(s.name, getSupplierIdValue(s))} type="Name" data={s} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Supplier Billing"); setActiveSupplierBillTab("Bill Settlement"); }} />}
-      subtitle=""
+      subtitle={s.createdAt ? `Registered on: ${new Date(s.createdAt).toLocaleDateString('en-GB')}` : ""}
       icon={ICON_USER}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
       details={[
         { icon: ICON_USER, text: formatNameWithId(s.name, getSupplierIdValue(s)) },
+        { icon: ICON_CLOCK_SIDE, text: s.createdAt ? `Joined: ${new Date(s.createdAt).toLocaleDateString('en-GB')}` : "Date N/A" },
         { icon: ICON_PHONE, text: s.phone || "N/A" },
         { icon: ICON_LOCATION, text: s.village || "Location N/A" },
       ]}
@@ -1610,11 +1617,12 @@ export default function App() {
     <PremiumActionCard
       key={`${keyPrefix}-${b._id || b.id || b.name}`}
       title={<SmartDataNode text={formatNameWithId(b.shopName || b.name, getCustomerIdValue(b))} type="Name" data={b} onAdd={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSection("Buyer Invoicing"); setActiveBuyerInvoiceTab("Invoice Entry"); }} />}
-      subtitle=""
+      subtitle={b.createdAt ? `Registered on: ${new Date(b.createdAt).toLocaleDateString('en-GB')}` : ""}
       icon={ICON_SHOP}
       status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
       details={[
         { icon: ICON_USER, text: formatNameWithId(b.name, getCustomerIdValue(b)) },
+        { icon: ICON_CLOCK_SIDE, text: b.createdAt ? `Joined: ${new Date(b.createdAt).toLocaleDateString('en-GB')}` : "Date N/A" },
         { icon: ICON_PHONE, text: b.phone || "N/A" },
         { icon: ICON_LOCATION, text: b.address || "Location N/A" },
       ]}
@@ -1937,7 +1945,7 @@ Powered by Stacli mandi os`;
     const existingSync = suppliers.find(s => s.name.toLowerCase() === supplierForm.name.toLowerCase());
     const isEdit = isEditingSupplier || !!existingSync;
     const targetId = isEditingSupplier ? editingSupplierId : (existingSync ? existingSync._id : null);
-    const targetCode = isEditingSupplier ? supplierForm.supplierId : (existingSync ? (existingSync.supplierId || existingSync.supplierCode) : `SUPP-${suppliers.length + 1}`);
+    const targetCode = isEditingSupplier ? supplierForm.supplierId : (existingSync ? (existingSync.supplierId || existingSync.supplierCode) : `${suppliers.length + 1}`);
 
     const payload = {
       supplierId: targetCode,
@@ -2540,7 +2548,7 @@ Powered by Stacli mandi os`;
     const existingSync = (buyers || []).find(s => s.name.toLowerCase() === buyerForm.name.toLowerCase());
     const isEdit = isEditingBuyer || !!existingSync;
     const targetId = isEditingBuyer ? editingBuyerId : (existingSync ? existingSync._id : null);
-    const targetCode = isEditingBuyer ? buyerForm.buyerId : (existingSync ? (existingSync.buyerId || existingSync.customerId) : `CUST-${(buyers || []).length + 1}`);
+    const targetCode = isEditingBuyer ? buyerForm.buyerId : (existingSync ? (existingSync.buyerId || existingSync.customerId) : `${(buyers || []).length + 1}`);
 
     const payload = {
       buyerId: targetCode,
@@ -5416,7 +5424,7 @@ Powered by Stacli mandi os`;
                       {
                         title: "Supplier Profile",
                         fields: [
-                          { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `SUPP-${suppliers.length + 1}`, disabled: true },
+                          { label: "Supplier ID", placeholder: "Auto-generated", value: isEditingSupplier ? supplierForm.supplierId : `${suppliers.length + 1}`, disabled: true },
                           { label: "Name *", placeholder: "Full name as per ID", value: supplierForm.name, onChange: (e) => setSupplierForm({ ...supplierForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Primary + optional alternate", value: supplierForm.phone, onChange: (e) => setSupplierForm({ ...supplierForm, phone: e.target.value }) },
                           { label: "Location Type *", type: "dropdown", options: ["Village", "Town", "City"], value: supplierForm.villageOrTown, onChange: (e) => setSupplierForm({ ...supplierForm, villageOrTown: e.target.value }) },
@@ -5470,7 +5478,7 @@ Powered by Stacli mandi os`;
                       {
                         title: "Customer Profile",
                         fields: [
-                          { label: "Customer ID", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.buyerId : `CUST-${buyers.length + 1}`, disabled: true },
+                          { label: "Customer ID", placeholder: "Auto-generated", value: isEditingBuyer ? buyerForm.buyerId : `${buyers.length + 1}`, disabled: true },
                           { label: "Customer Name *", placeholder: "Individual or business name", value: buyerForm.name, onChange: (e) => setBuyerForm({ ...buyerForm, name: e.target.value }) },
                           { label: "Mobile Number *", type: "tel", placeholder: "Mobile Number", value: buyerForm.phone, onChange: (e) => setBuyerForm({ ...buyerForm, phone: e.target.value }) },
                           { label: "Address *", placeholder: "Delivery / shop address", value: buyerForm.address, onChange: (e) => setBuyerForm({ ...buyerForm, address: e.target.value }) },
@@ -5562,8 +5570,8 @@ Powered by Stacli mandi os`;
                         const today = new Date();
                         if (memberDateFilter === "Today") {
                           dateMatch = d.toDateString() === today.toDateString();
-                        } else if (memberDateFilter === "15 Days" || memberDateFilter === "30 Days") {
-                          const days = memberDateFilter === "15 Days" ? 15 : 30;
+                        } else if (["7 Days", "15 Days", "30 Days"].includes(memberDateFilter)) {
+                          const days = parseInt(memberDateFilter);
                           const pastLimit = new Date();
                           pastLimit.setDate(today.getDate() - days);
                           dateMatch = d >= pastLimit && d <= today;
@@ -5641,8 +5649,9 @@ Powered by Stacli mandi os`;
                             >
                               <option value="All">Select data from particular date</option>
                               <option value="Today">Today</option>
+                              <option value="7 Days">7 Days</option>
                               <option value="15 Days">15 Days</option>
-                              <option value="30 Days">30 Days</option>
+                              <option value="30 Days">30 Days / One Month</option>
                               <option value="Custom Date">Custom Date</option>
                             </select>
                             {memberDateFilter === "Custom Date" && (
@@ -5837,8 +5846,8 @@ Powered by Stacli mandi os`;
                           const today = new Date();
                           if (memberDateFilter === "Today") {
                             dateMatch = d.toDateString() === today.toDateString();
-                          } else if (memberDateFilter === "15 Days" || memberDateFilter === "30 Days") {
-                            const days = memberDateFilter === "15 Days" ? 15 : 30;
+                          } else if (["7 Days", "15 Days", "30 Days"].includes(memberDateFilter)) {
+                            const days = parseInt(memberDateFilter);
                             const pastLimit = new Date();
                             pastLimit.setDate(today.getDate() - days);
                             dateMatch = d >= pastLimit && d <= today;
@@ -5865,9 +5874,12 @@ Powered by Stacli mandi os`;
 
                       if (selectedProducts.length === 0) {
                         if (searchedData.length === 0) {
+                          const emptyMsg = memberDateFilter !== "All" 
+                            ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not in this date.`
+                            : (activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.");
                           return (
-                            <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>
-                              {activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found."}
+                            <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", fontSize: "14px", fontWeight: "700" }}>
+                              {emptyMsg}
                             </p>
                           );
                         }
@@ -5890,9 +5902,12 @@ Powered by Stacli mandi os`;
 
                       const hasAtLeastOneMatch = groupedByProduct.some((g) => g.items.length > 0);
                       if (!hasAtLeastOneMatch) {
+                        const emptyMsg = memberDateFilter !== "All" 
+                          ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not in this date.`
+                          : (activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.");
                         return (
-                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px" }}>
-                            {activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found."}
+                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", fontSize: "14px", fontWeight: "700" }}>
+                            {emptyMsg}
                           </p>
                         );
                       }
@@ -18606,7 +18621,7 @@ Powered by Stacli mandi os`;
                           </div>
                           <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
                             <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Supplier ID</div>
-                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{(typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId)) || "N/A"}</div>
+                            <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{stripIdPrefix((typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId))) || "N/A"}</div>
                           </div>
                           <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
                             <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "4px" }}>Origin / Source Location</div>
@@ -18695,7 +18710,7 @@ Powered by Stacli mandi os`;
                                       imageUrl: viewingEntity.data.billAttachment,
                                       lotNo: viewingEntity.data.lotId || "N/A",
                                       supplierName: viewingEntity.data.farmerName || "N/A",
-                                      supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A",
+                                      supplierId: stripIdPrefix(typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A",
                                       zoom: 1
                                     })}
                                   />
@@ -18956,7 +18971,7 @@ Powered by Stacli mandi os`;
               <div style={{ padding: "10px 16px", borderTop: "1px solid #E2E8F0", fontSize: "12px", color: COLORS.sidebar, fontWeight: "700" }}>
                 <div>LOT NO - {billPhotoModal.lotNo || "N/A"}</div>
                 <div>Supplier Name - {billPhotoModal.supplierName || "N/A"}</div>
-                <div>Supplier ID - {billPhotoModal.supplierId || "N/A"}</div>
+                <div>Supplier ID - {stripIdPrefix(billPhotoModal.supplierId) || "N/A"}</div>
               </div>
             </div>
           </div>
