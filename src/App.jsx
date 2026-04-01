@@ -1462,9 +1462,6 @@ export default function App() {
   const [poType, setPoType] = useState("Fruits");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [partyManagementDateFilter, setPartyManagementDateFilter] = useState("Today");
-  const [partyManagementCustomStart, setPartyManagementCustomStart] = useState("");
-  const [partyManagementCustomEnd, setPartyManagementCustomEnd] = useState("");
   const isAdmin = user?.role === "Owner / Admin";
   const isAccountant = user?.role === "Accountant";
   const isStaff = user?.role === "Operations Staff";
@@ -1616,8 +1613,7 @@ export default function App() {
 
   const renderSupplierMemberCard = (s, keyPrefix = "supplier") => {
     let showDateBadge = false;
-    if (user?.role === "Owner / Admin" && partyManagementDateFilter && partyManagementDateFilter !== "All") showDateBadge = true;
-    else if (memberDateFilter && memberDateFilter !== "All") showDateBadge = true;
+    if (memberDateFilter && memberDateFilter !== "All") showDateBadge = true;
     return (
     <PremiumActionCard
       key={`${keyPrefix}-${s._id || s.id || s.name}`}
@@ -1653,8 +1649,7 @@ export default function App() {
 
   const renderBuyerMemberCard = (b, keyPrefix = "buyer") => {
     let showDateBadge = false;
-    if (user?.role === "Owner / Admin" && partyManagementDateFilter && partyManagementDateFilter !== "All") showDateBadge = true;
-    else if (memberDateFilter && memberDateFilter !== "All") showDateBadge = true;
+    if (memberDateFilter && memberDateFilter !== "All") showDateBadge = true;
     return (
     <PremiumActionCard
       key={`${keyPrefix}-${b._id || b.id || b.name}`}
@@ -4922,31 +4917,7 @@ Powered by Stacli mandi os`;
                   month: "long",
                 })}
               </div>
-              {activeSection === "User Role" && user?.role === "Owner / Admin" && (
-                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                  <select
-                    value={partyManagementDateFilter}
-                    onChange={(e) => { setPartyManagementDateFilter(e.target.value); handleRefresh(); }}
-                    style={{
-                      height: "42px", padding: "0 14px", borderRadius: "12px", border: "1.5px solid #E2E8F0", background: "#fff", color: COLORS.sidebar, fontSize: "13px", fontWeight: "700", cursor: "pointer", outline: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.03)"
-                    }}
-                  >
-                    <option value="All">Select data from particular date</option>
-                    <option value="Today">Today</option>
-                    <option value="7 Days">Last 7 Days</option>
-                    <option value="15 Days">Last 15 Days</option>
-                    <option value="30 Days">Last 30 Days</option>
-                    <option value="Custom Date">Custom Date</option>
-                  </select>
-                  {partyManagementDateFilter === "Custom Date" && (
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <input type="date" value={partyManagementCustomStart} onChange={e => { setPartyManagementCustomStart(e.target.value); handleRefresh(); }} style={{ padding: "8px 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#fff", color: COLORS.sidebar, fontWeight: "600", outline: "none", height: "42px" }} />
-                      <span style={{fontSize: "12px", fontWeight:"800", color:COLORS.muted}}>to</span>
-                      <input type="date" value={partyManagementCustomEnd} onChange={e => { setPartyManagementCustomEnd(e.target.value); handleRefresh(); }} style={{ padding: "8px 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#fff", color: COLORS.sidebar, fontWeight: "600", outline: "none", height: "42px" }} />
-                    </div>
-                  )}
-                </div>
-              )}
+
               <button
                 id="global-refresh-button"
                 onClick={handleRefresh}
@@ -5913,29 +5884,23 @@ Powered by Stacli mandi os`;
                       const sourceData = activeTab === "Suppliers" ? suppliers : buyers;
                       const query = memberSearchQuery.trim().toLowerCase();
 
-                      // Calculate active filter state based on Admin override
-                      let isPartyManagementActive = isAdmin && partyManagementDateFilter && partyManagementDateFilter !== "All";
-                      let effectiveFilter = isPartyManagementActive ? partyManagementDateFilter : memberDateFilter;
-                      let effectiveCustomStart = isPartyManagementActive ? partyManagementCustomStart : memberCustomDateStart;
-                      let effectiveCustomEnd = isPartyManagementActive ? partyManagementCustomEnd : memberCustomDateEnd;
-
                       // Calculate display range
                       let displayRange = "";
-                      if (effectiveFilter !== "All") {
+                      if (memberDateFilter !== "All") {
                         const today = new Date();
                         let start = new Date(today);
                         let end = new Date(today);
 
-                        if (effectiveFilter === "7 Days" || effectiveFilter === "15 Days" || effectiveFilter === "30 Days") {
-                          start.setDate(today.getDate() - parseInt(effectiveFilter));
-                        } else if (effectiveFilter === "Custom Date" && effectiveCustomStart && effectiveCustomEnd) {
-                          start = new Date(effectiveCustomStart);
-                          end = new Date(effectiveCustomEnd);
+                        if (memberDateFilter === "7 Days" || memberDateFilter === "15 Days" || memberDateFilter === "30 Days") {
+                          start.setDate(today.getDate() - parseInt(memberDateFilter));
+                        } else if (memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd) {
+                          start = new Date(memberCustomDateStart);
+                          end = new Date(memberCustomDateEnd);
                         }
                         
-                        if (effectiveFilter === "Today") {
+                        if (memberDateFilter === "Today") {
                           displayRange = formatDate(start);
-                        } else if (effectiveFilter === "Custom Date" && (!effectiveCustomStart || !effectiveCustomEnd)) {
+                        } else if (memberDateFilter === "Custom Date" && (!memberCustomDateStart || !memberCustomDateEnd)) {
                           displayRange = "";
                         } else {
                           displayRange = `${formatDate(start)} to ${formatDate(end)}`;
@@ -5946,22 +5911,22 @@ Powered by Stacli mandi os`;
                         let dateMatch = true;
                         const rDate = record.createdAt || record.date;
                         
-                        if (rDate && effectiveFilter !== "All") {
+                        if (rDate && memberDateFilter !== "All") {
                           const d = new Date(rDate);
                           const today = new Date();
-                          if (effectiveFilter === "Today") {
+                          if (memberDateFilter === "Today") {
                             dateMatch = d.toDateString() === today.toDateString();
-                          } else if (["7 Days", "15 Days", "30 Days"].includes(effectiveFilter)) {
-                            const days = parseInt(effectiveFilter);
+                          } else if (["7 Days", "15 Days", "30 Days"].includes(memberDateFilter)) {
+                            const days = parseInt(memberDateFilter);
                             const pastLimit = new Date();
                             pastLimit.setDate(today.getDate() - days);
                             dateMatch = d >= pastLimit && d <= today;
-                          } else if (effectiveFilter === "Custom Date" && effectiveCustomStart && effectiveCustomEnd) {
-                            const s = new Date(effectiveCustomStart);
-                            const e = new Date(effectiveCustomEnd);
+                          } else if (memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd) {
+                            const s = new Date(memberCustomDateStart);
+                            const e = new Date(memberCustomDateEnd);
                             e.setHours(23, 59, 59, 999);
                             dateMatch = d >= s && d <= e;
-                          } else if (effectiveFilter === "Custom Date") {
+                          } else if (memberDateFilter === "Custom Date") {
                             dateMatch = false; // No match if custom dates are incomplete
                           }
                         }
@@ -5980,15 +5945,15 @@ Powered by Stacli mandi os`;
                       });
 
                       const getEmptyMessage = () => {
-                         let isSingleDate = effectiveFilter === "Today" || (effectiveFilter === "Custom Date" && effectiveCustomStart === effectiveCustomEnd && effectiveCustomStart);
-                         let isCustomRange = effectiveFilter === "Custom Date" && effectiveCustomStart && effectiveCustomEnd && effectiveCustomStart !== effectiveCustomEnd;
-                         let isRelativeRange = ["7 Days", "15 Days", "30 Days"].includes(effectiveFilter);
+                         let isSingleDate = memberDateFilter === "Today" || (memberDateFilter === "Custom Date" && memberCustomDateStart === memberCustomDateEnd && memberCustomDateStart);
+                         let isCustomRange = memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd && memberCustomDateStart !== memberCustomDateEnd;
+                         let isRelativeRange = ["7 Days", "15 Days", "30 Days"].includes(memberDateFilter);
                          
                          const tgt = activeTab === "Suppliers" ? "suppliers" : "customers";
                          
                          if (isSingleDate) return `There are no registered ${tgt} on this date`;
                          if (isCustomRange || isRelativeRange) return `Registered ${tgt} are not available in this range`;
-                         if (effectiveFilter !== "All") return `The registered ${tgt} are not available in this date.`;
+                         if (memberDateFilter !== "All") return `The registered ${tgt} are not available in this date.`;
                          return activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.";
                       };
 
