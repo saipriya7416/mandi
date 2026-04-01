@@ -19440,23 +19440,21 @@ Powered by Stacli mandi os`;
                 {viewingEntity.type === "LOT" ? (
                   <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
                      
-                     {/* Header Info - Quick Stats */}
-                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", background: "#fcfcfc", padding: "20px", borderRadius: "12px", border: "1.5px solid #EBE9E1" }}>
-                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>LOT ID</span>
-                            <span style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</span>
+                     {/* Header Info - Clean Table-like Stats */}
+                     <div style={{ background: "#fcfcfc", padding: "16px 20px", borderRadius: "12px", border: "1.5px solid #EBE9E1" }}>
+                         {/* Labels Row */}
+                         <div style={{ display: "flex", borderBottom: "1px solid #EBE9E1", paddingBottom: "10px", marginBottom: "10px" }}>
+                             <div style={{ flex: 1, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>LOT ID</div>
+                             <div style={{ flex: 1.5, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>SUPPLIER NAME & ID</div>
+                             <div style={{ flex: 1, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>VEHICLE NUMBER</div>
+                             <div style={{ flex: 1, fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>TOTAL ITEMS</div>
                          </div>
-                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>SUPPLIER</span>
-                            <span style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</span>
-                         </div>
-                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>VEHICLE</span>
-                            <span style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</span>
-                         </div>
-                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>TOTAL ITEMS</span>
-                            <span style={{ fontSize: "14px", fontWeight: "900", color: COLORS.primary }}>{viewingEntity.data.lineItems?.length || 0}</span>
+                         {/* Values Row */}
+                         <div style={{ display: "flex" }}>
+                             <div style={{ flex: 1, fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, letterSpacing: "0.5px" }}>{viewingEntity.data.lotId || "N/A"}</div>
+                             <div style={{ flex: 1.5, fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</div>
+                             <div style={{ flex: 1, fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</div>
+                             <div style={{ flex: 1, fontSize: "14px", fontWeight: "900", color: COLORS.primary }}>{viewingEntity.data.lineItems?.length || 0} ITEMS</div>
                          </div>
                      </div>
 
