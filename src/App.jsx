@@ -1227,7 +1227,7 @@ function PartyModernMultiSelectField({
           {internalValues.length > 0 ? (
             <span>{internalValues.join(" / ")}</span>
           ) : (
-            <span style={{ color: "#666" }}>Select {label}...</span>
+            <span style={{ color: "#666" }}>{label?.toLowerCase().startsWith("select") ? label : `Select ${label}...`}</span>
           )}
         </div>
         <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>▼</span>
@@ -3894,6 +3894,22 @@ Powered by Stacli mandi os`;
     }
   };
 
+  const resetPartyManagementState = async () => {
+    setIsRefreshing(true);
+    handleCancelAll("Supplier");
+    handleCancelAll("Customer");
+    setMemberDateFilter("All");
+    setMemberCustomDateStart("");
+    setMemberCustomDateEnd("");
+    setMemberSearchQuery("");
+    setMemberProductFilters({ Suppliers: [], Customers: [] });
+    setMemberProductSearch({ Suppliers: "", Customers: "" });
+    setActiveUserRoleTab("Supplier");
+    setActiveRegisteredTab("Suppliers");
+    await fetchData();
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await fetchData();
@@ -5390,7 +5406,7 @@ Powered by Stacli mandi os`;
 
               <button
                 id="global-refresh-button"
-                onClick={handleRefresh}
+                onClick={activeSection === "User Role" ? resetPartyManagementState : handleRefresh}
                 disabled={isRefreshing}
                 style={{
                   background: isRefreshing ? "#F1F5F9" : COLORS.sidebar,
