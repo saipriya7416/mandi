@@ -5838,6 +5838,23 @@ Powered by Stacli mandi os`;
                       const selectedProducts = memberProductFilters[activeTab] || [];
                       const sourceData = activeTab === "Suppliers" ? suppliers : buyers;
                       const query = memberSearchQuery.trim().toLowerCase();
+
+                      // Calculate display range
+                      let displayRange = "";
+                      if (memberDateFilter !== "All") {
+                        const today = new Date();
+                        let start = new Date(today);
+                        let end = new Date(today);
+
+                        if (memberDateFilter === "7 Days" || memberDateFilter === "15 Days" || memberDateFilter === "30 Days") {
+                          start.setDate(today.getDate() - parseInt(memberDateFilter));
+                        } else if (memberDateFilter === "Custom Date" && memberCustomDateStart && memberCustomDateEnd) {
+                          start = new Date(memberCustomDateStart);
+                          end = new Date(memberCustomDateEnd);
+                        }
+                        displayRange = `${formatDate(start)} to ${formatDate(end)}`;
+                      }
+
                       const searchedData = sourceData.filter((record) => {
                         let dateMatch = true;
                         const rDate = record.createdAt || record.date;
@@ -5875,19 +5892,25 @@ Powered by Stacli mandi os`;
                       if (selectedProducts.length === 0) {
                         if (searchedData.length === 0) {
                           const emptyMsg = memberDateFilter !== "All" 
-                            ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not in this date.`
+                            ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not available in this date.`
                             : (activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.");
                           return (
-                            <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", fontSize: "14px", fontWeight: "700" }}>
-                              {emptyMsg}
-                            </p>
+                            <div style={{ textAlign: "center", padding: "40px" }}>
+                              {displayRange && <div style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, marginBottom: "12px" }}>{displayRange}</div>}
+                              <p style={{ color: COLORS.muted, fontSize: "14px", fontWeight: "700" }}>
+                                {emptyMsg}
+                              </p>
+                            </div>
                           );
                         }
                         return (
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
-                            {activeTab === "Suppliers"
-                              ? searchedData.map((s) => renderSupplierMemberCard(s))
-                              : searchedData.map((b) => renderBuyerMemberCard(b))}
+                          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                            {displayRange && <div style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, paddingLeft: "4px" }}>{displayRange}</div>}
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
+                              {activeTab === "Suppliers"
+                                ? searchedData.map((s) => renderSupplierMemberCard(s))
+                                : searchedData.map((b) => renderBuyerMemberCard(b))}
+                            </div>
                           </div>
                         );
                       }
@@ -5900,20 +5923,23 @@ Powered by Stacli mandi os`;
                         return { product: selectedProduct, items: matches };
                       });
 
-                      const hasAtLeastOneMatch = groupedByProduct.some((g) => g.items.length > 0);
                       if (!hasAtLeastOneMatch) {
                         const emptyMsg = memberDateFilter !== "All" 
-                          ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not in this date.`
+                          ? `The registered ${activeTab === "Suppliers" ? "suppliers" : "customers"} are not available in this date.`
                           : (activeTab === "Suppliers" ? "No matching suppliers found." : "No matching customers found.");
                         return (
-                          <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", fontSize: "14px", fontWeight: "700" }}>
-                            {emptyMsg}
-                          </p>
+                          <div style={{ textAlign: "center", padding: "40px" }}>
+                            {displayRange && <div style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, marginBottom: "12px" }}>{displayRange}</div>}
+                            <p style={{ color: COLORS.muted, fontSize: "14px", fontWeight: "700" }}>
+                              {emptyMsg}
+                            </p>
+                          </div>
                         );
                       }
 
                       return (
                         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                          {displayRange && <div style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar, paddingLeft: "4px" }}>{displayRange}</div>}
                           {groupedByProduct.map((group) => (
                             <div key={`${activeTab}-${group.product}`}>
                               <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.sidebar, marginBottom: "10px", letterSpacing: "0.3px" }}>
@@ -6054,7 +6080,9 @@ Powered by Stacli mandi os`;
                             label: "Supplier Name *",
                             type: "dropdown",
                             options: ["", ...suppliers.map((s) => formatNameWithId(s.name, getSupplierIdValue(s)))],
-                            value: lotCreationForm.farmerId,
+                            value: suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId) 
+                              ? formatNameWithId(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId).name, getSupplierIdValue(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId)))
+                              : lotCreationForm.farmerId,
                             onChange: (e) => {
                               const val = e.target.value;
                               const foundS = suppliers.find((s) => formatNameWithId(s.name, getSupplierIdValue(s)) === val);
