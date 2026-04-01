@@ -6535,105 +6535,133 @@ Powered by Stacli mandi os`;
                       <option key={s._id} value={s.name} />
                     ))}
                   </datalist>
-                  <FormGrid
-                    sections={[
-                      {
-                        title: "Intake Details",
-                        fields: [
-                          {
-                            label: "Lot ID *",
-                            type: "text",
-                            value: lotCreationForm.lotId,
-                            disabled: true,
-                            placeholder: "Auto-generated sequence",
-                          },
-                          {
-                            label: "Date & Time *",
-                            type: "datetime-local",
-                            value: lotCreationForm.dateTime,
-                            disabled: !!lotCreationForm.id,
-                            onChange: (e) =>
-                              setLotCreationForm({
-                                ...lotCreationForm,
-                                dateTime: e.target.value,
-                              }),
-                          },
-                          {
-                            label: "Supplier Name *",
-                            type: "othersDropdown",
-                            options: suppliers.map((s) => formatNameWithId(s.name, getSupplierIdValue(s))),
-                            value: suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId) 
-                              ? formatNameWithId(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId).name, getSupplierIdValue(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId)))
-                              : lotCreationForm.farmerId,
-                            onChange: (e) => {
-                              const val = e.target.value;
-                              const foundS = suppliers.find((s) => formatNameWithId(s.name, getSupplierIdValue(s)) === val || s.name === val || (s._id || s.id) === val);
-                              setLotCreationForm({
-                                ...lotCreationForm,
-                                farmerId: foundS?._id || foundS?.id || val,
-                                origin: foundS
-                                  ? foundS.village || foundS.state || ""
-                                  : "",
+                  <div style={{ background: "#FFFFFF", padding: "32px", borderRadius: "12px", border: "1px solid #EBE9E1" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.sidebar, borderBottom: "1px solid #EBE9E1", paddingBottom: "16px", marginBottom: "24px", marginTop: 0 }}>Intake Details</h3>
+                    <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "flex-end" }}>
+                      {[
+                        {
+                          label: "Lot ID *",
+                          type: "text",
+                          value: lotCreationForm.lotId,
+                          disabled: true,
+                          placeholder: "Auto-generated sequence",
+                        },
+                        {
+                          label: "Date & Time *",
+                          type: "datetime-local",
+                          value: lotCreationForm.dateTime,
+                          disabled: !!lotCreationForm.id,
+                          onChange: (e) =>
+                            setLotCreationForm({
+                              ...lotCreationForm,
+                              dateTime: e.target.value,
+                            }),
+                        },
+                        {
+                          label: "Supplier Name *",
+                          type: "othersDropdown",
+                          options: suppliers.map((s) => formatNameWithId(s.name, getSupplierIdValue(s))),
+                          value: suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId) 
+                            ? formatNameWithId(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId).name, getSupplierIdValue(suppliers.find(s => (s._id || s.id) === lotCreationForm.farmerId)))
+                            : lotCreationForm.farmerId,
+                          onChange: (e) => {
+                            const val = e.target.value;
+                            const foundS = suppliers.find((s) => formatNameWithId(s.name, getSupplierIdValue(s)) === val || s.name === val || (s._id || s.id) === val);
+                            setLotCreationForm({
+                              ...lotCreationForm,
+                              farmerId: foundS?._id || foundS?.id || val,
+                              origin: foundS
+                                ? foundS.village || foundS.state || ""
+                                : "",
+                            });
+                            if (!foundS) {
+                              setSupplierForm({
+                                supplierId: "", name: val, phone: "", villageOrTown: "", villageOrTownName: "", district: "", state: "", product: "", idType: "", govIdNumber: "", bankAccount: "", bankLocation: "", bankBranch: "", ifsc: "", advanceBalance: "", notes: "",
                               });
-                              if (!foundS) {
-                                setSupplierForm({
-                                  supplierId: "", name: val, phone: "", villageOrTown: "", villageOrTownName: "", district: "", state: "", product: "", idType: "", govIdNumber: "", bankAccount: "", bankLocation: "", bankBranch: "", ifsc: "", advanceBalance: "", notes: "",
-                                });
-                                setIsEditingSupplier(false);
-                                setEditingSupplierId(null);
-                              }
-                            },
+                              setIsEditingSupplier(false);
+                              setEditingSupplierId(null);
+                            }
                           },
-                          {
-                            label: "Vehicle / Lorry Number *",
-                            type: "text",
-                            value: lotCreationForm.vehicleNumber,
-                            onChange: (e) =>
-                              setLotCreationForm({
-                                ...lotCreationForm,
-                                vehicleNumber: e.target.value,
-                              }),
-                            placeholder:
-                              "Registration number of arriving vehicle",
-                          },
-                          {
-                            label: "Driver Name",
-                            type: "text",
-                            value: lotCreationForm.driverName,
-                            onChange: (e) =>
-                              setLotCreationForm({
-                                ...lotCreationForm,
-                                driverName: e.target.value,
-                              }),
-                            placeholder: "Optional",
-                          },
-                          {
-                            label: "Origin / Source Location *",
-                            type: "text",
-                            value: lotCreationForm.origin,
-                            onChange: (e) =>
-                              setLotCreationForm({
-                                ...lotCreationForm,
-                                origin: e.target.value,
-                              }),
-                            placeholder: "Village or farm location",
-                          },
-                          {
-                            label: "Notes",
-                            type: "text",
-                            value: lotCreationForm.notes,
-                            onChange: (e) =>
-                              setLotCreationForm({
-                                ...lotCreationForm,
-                                notes: e.target.value,
-                              }),
-                            placeholder:
-                              "Any special remarks about condition of produce",
-                          },
-                        ],
-                      }
-                    ]}
-                  />
+                        },
+                        {
+                          label: "Vehicle / Lorry Number *",
+                          type: "text",
+                          value: lotCreationForm.vehicleNumber,
+                          onChange: (e) =>
+                            setLotCreationForm({
+                              ...lotCreationForm,
+                              vehicleNumber: e.target.value,
+                            }),
+                          placeholder:
+                            "Enter vehicle number",
+                        },
+                        {
+                          label: "Driver Name",
+                          type: "text",
+                          value: lotCreationForm.driverName,
+                          onChange: (e) =>
+                            setLotCreationForm({
+                              ...lotCreationForm,
+                              driverName: e.target.value,
+                            }),
+                          placeholder: "Optional",
+                        },
+                        {
+                          label: "Origin / Source location *",
+                          type: "text",
+                          value: lotCreationForm.origin,
+                          onChange: (e) =>
+                            setLotCreationForm({
+                              ...lotCreationForm,
+                              origin: e.target.value,
+                            }),
+                          placeholder: "Source location",
+                        },
+                        {
+                          label: "Notes",
+                          type: "text",
+                          value: lotCreationForm.notes,
+                          onChange: (e) =>
+                            setLotCreationForm({
+                              ...lotCreationForm,
+                              notes: e.target.value,
+                            }),
+                          placeholder: "Remarks",
+                        },
+                      ].map((f, idx) => (
+                        <div key={idx} style={{ flex: 1, minWidth: "150px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>{f.label}</label>
+                          {f.type === "othersDropdown" ? (
+                             <ModernMultiSelectField 
+                               label={f.label}
+                               value={f.value}
+                               options={f.options || []}
+                               onChange={f.onChange}
+                               hideLabel={true}
+                             />
+                          ) : (
+                            <input 
+                              type={f.type}
+                              value={f.value}
+                              onChange={f.onChange}
+                              disabled={f.disabled}
+                              placeholder={f.placeholder}
+                              style={{ 
+                                padding: "12px 14px", 
+                                borderRadius: "8px", 
+                                border: "1.5px solid #EBE9E1", 
+                                color: COLORS.sidebar, 
+                                outline: "none", 
+                                fontSize: "13px", 
+                                fontWeight: "600",
+                                background: f.disabled ? "#F1F5F9" : "#fff"
+                              }} 
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   <div
                     style={{ display: "flex", gap: "16px", marginTop: "32px", justifyContent: "flex-start" }}
@@ -6871,7 +6899,6 @@ Powered by Stacli mandi os`;
                           subtitle={
                             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                <span style={{ fontSize: "10px", color: COLORS.muted }}>Lot ID: <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{l.lotId}</span></span>
-                               <span style={{ fontSize: "10px", color: COLORS.muted }}>Supplier ID: <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{supplierIdDisp}</span></span>
                             </div>
                           }
                           status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
@@ -6959,7 +6986,7 @@ Powered by Stacli mandi os`;
                     
                     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                       {lotCreationForm.lineItems.map((item, idx) => (
-                        <div key={item.id} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", padding: "24px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative" }}>
+                        <div key={item.id} style={{ display: "flex", gap: "16px", padding: "16px", background: "#FDFBF4", borderRadius: "8px", border: "1px solid #EBE9E1", position: "relative", alignItems: "flex-end", flexWrap: "nowrap", overflowX: "auto" }}>
                           
                           {idx > 0 && (
                             <div style={{ position: "absolute", top: "12px", right: "12px", cursor: "pointer", color: "#CC0000", fontWeight: "bold", fontSize: "12px" }} onClick={() => handleLineItemAction("Remove", idx)}>
@@ -6967,7 +6994,7 @@ Powered by Stacli mandi os`;
                             </div>
                           )}
 
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "160px" }}>
                             <ModernMultiSelectField
                               label="Product"
                               value={item.productId}
@@ -6981,7 +7008,7 @@ Powered by Stacli mandi os`;
                             />
                           </div>
 
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "160px" }}>
                             <ModernMultiSelectField
                               label="Variety"
                               value={item.variety}
@@ -6991,7 +7018,7 @@ Powered by Stacli mandi os`;
                             />
                           </div>
 
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "140px" }}>
                             <ModernMultiSelectField
                               label="Grade"
                               value={item.grade}
@@ -7002,12 +7029,12 @@ Powered by Stacli mandi os`;
                             />
                           </div>
 
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "120px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Weight ({item.weightUnit}) *</label>
                             <input type="number" value={item.grossWeight} onChange={(e) => handleLineItemAction("Update", idx, "grossWeight", e.target.value)} placeholder="0" style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                           </div>
 
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "150px" }}>
                             <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Weight Unit (KGs/Tones)</label>
                             <select 
                                 value={item.weightUnit} 
@@ -7032,7 +7059,7 @@ Powered by Stacli mandi os`;
                             </select>
                           </div>
 
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "140px" }}>
                              <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Inventory Status (Auto)</label>
                              <input type="text" disabled value={item.status || "Pending"} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                           </div>
