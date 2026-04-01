@@ -913,6 +913,8 @@ function ModernMultiSelectField({
   options = [],
   disabled,
   hideLabel = false,
+  showRemoveIcon = true,
+  placeholder,
 }) {
   const [open, setOpen] = useState(false);
   const [internalValues, setInternalValues] = useState([]);
@@ -999,26 +1001,28 @@ function ModernMultiSelectField({
                {internalValues.slice(0, 3).map(v => (
                  <span key={v} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#F1F5F9", padding: "2px 10px", borderRadius: "8px", fontSize: "11.5px", border: "1.5px solid #E2E8F0", color: COLORS.sidebar }}>
                    {v}
-                   <span 
-                     onClick={(e) => { 
-                       e.stopPropagation(); 
-                       const next = internalValues.filter(x => x !== v);
-                       setInternalValues(next);
-                       onChange?.({ target: { value: next.join(" / ") } });
-                     }}
-                     style={{ cursor: "pointer", color: "#64748B", fontSize: "16px", fontWeight: "900", transition: "all 0.2s", opacity: 0.7 }}
-                     onMouseEnter={(e) => { e.currentTarget.style.color = "#FF3B30"; e.currentTarget.style.transform = "scale(1.2)"; }}
-                     onMouseLeave={(e) => { e.currentTarget.style.color = "#64748B"; e.currentTarget.style.transform = "scale(1)"; }}
-                   >x</span>
+                   {showRemoveIcon && (
+                     <span 
+                       onClick={(e) => { 
+                         e.stopPropagation(); 
+                         const next = internalValues.filter(x => x !== v);
+                         setInternalValues(next);
+                         onChange?.({ target: { value: next.join(" / ") } });
+                       }}
+                       style={{ cursor: "pointer", color: "#64748B", fontSize: "16px", fontWeight: "900", transition: "all 0.2s", opacity: 0.7 }}
+                       onMouseEnter={(e) => { e.currentTarget.style.color = "#FF3B30"; e.currentTarget.style.transform = "scale(1.2)"; }}
+                       onMouseLeave={(e) => { e.currentTarget.style.color = "#64748B"; e.currentTarget.style.transform = "scale(1)"; }}
+                     >x</span>
+                   )}
                  </span>
                ))}
                {internalValues.length > 3 && <span style={{ color: "#888", fontSize: "11px", alignSelf: "center" }}>+{internalValues.length - 3} more</span>}
             </div>
           ) : (
-            <span style={{ color: "#666" }}>Select {label}...</span>
+            <span style={{ color: "#666" }}>{placeholder || `Select ${label}...`}</span>
           )}
         </div>
-        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}></span>
+        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s", color: "#666", fontSize: "10px" }}>▼</span>
       </div>
 
       {open && (
@@ -2059,6 +2063,36 @@ export default function App() {
       }}
     />
   );
+  };
+
+  const renderRegisteredLotCard = (l, idx) => {
+    const selectedSupplier = suppliers.find(s => (s._id || s.id) === (l.supplierId?._id || l.supplierId || l.farmerId) || s.name === l.farmerName);
+    const supplierName = selectedSupplier?.name || l.farmerName || "N/A";
+    const supplierId = getSupplierIdValue(selectedSupplier) || "N/A";
+    const phone = selectedSupplier?.phone || "N/A";
+
+    return (
+      <PremiumActionCard
+        key={l._id || idx}
+        title={<div style={{ fontSize: "16.5px", fontWeight: "900", color: COLORS.sidebar }}>{l.lotId}</div>}
+        subtitle=""
+        icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>}
+        status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
+        details={[
+          { icon: null, text: <div style={{ fontSize: "14px", fontWeight: "850", color: "#1e293b", marginTop: "4px" }}>{supplierName} - {supplierId}</div> },
+          { icon: ICON_PHONE, text: <div style={{ fontSize: "12px", fontWeight: "750", color: COLORS.sidebar, opacity: 0.8 }}>{phone}</div> }
+        ]}
+        secondaryActions={[
+          { label: "View Details", icon: null, variant: "primary", onClick: () => setViewingEntity({ type: "LOT", data: l }) },
+          { label: "Edit Details", icon: null, onClick: () => { setActiveLotTab("LOT Creation"); handleEditSelect("LOT", l); } }
+        ]}
+        onDelete={() => {
+          const code = prompt(" SECURITY CHECK: Enter Master Deletion Code to remove this record:");
+          if (code === "0000") handleDeleteLot(l._id);
+          else if (code !== null) alert(" ACCESS DENIED: Invalid deletion code.");
+        }}
+      />
+    );
   };
 
   const renderBuyerMemberCard = (b, keyPrefix = "buyer") => {
@@ -6469,6 +6503,27 @@ Powered by Stacli mandi os`;
                   >
                     Registered Lots
                   </div>
+                  
+                  <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+                    <Button 
+                      onClick={() => window.location.reload()} 
+                      style={{ 
+                        background: COLORS.primary, 
+                        color: "#fff", 
+                        padding: "8px 16px", 
+                        borderRadius: "8px", 
+                        fontSize: "12px", 
+                        fontWeight: "800",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                      Refresh Module
+                    </Button>
+                  </div>
 
                 </div>
               </div>
@@ -6622,7 +6677,7 @@ Powered by Stacli mandi os`;
                         boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
                       }}
                       onClick={() => {
-                        setLotClearBtn({ label: "Cleared", color: "red" });
+                        setLotClearBtn({ label: "Cleared \u274c", color: "red" });
                         setTimeout(() => setLotClearBtn({ label: "Clear", color: "#CC0000" }), 2000);
                         setLotCreationForm({
                           ...lotCreationForm,
@@ -6655,144 +6710,117 @@ Powered by Stacli mandi os`;
               )}
 
               {activeLotTab === "Registered Lots" && (
-                <div
-                  style={{
-                    background: "#FFFFFF",
-                    padding: "32px",
-                    borderRadius: "16px",
-                    border: "1.5px solid #EBE9E1",
-                    animation: "fadeIn 0.4s ease-out"
-                  }}
-                >
-                  <div style={{ marginBottom: "32px", display: "flex", gap: "16px", alignItems: "stretch" }}>
-                    <div style={{ position: "relative", flex: 1 }}>
-                      <input
-                        type="text"
-                        placeholder="Search by supplier name / vehicle number / product"
-                        value={lotSearchQuery}
-                        onChange={(e) => setLotSearchQuery(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "16px 20px",
-                          borderRadius: "16px",
-                          border: "1.5px solid #E2E8F0",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                          color: COLORS.sidebar,
-                          outline: "none",
-                          background: "#F8FAFC",
-                          transition: "all 0.2s",
-                        }}
-                      />
+                <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+                  <div style={{ display: "flex", gap: "20px", marginBottom: "32px", alignItems: "flex-end", flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: "300px" }}>
+                       <label style={{ display: "block", fontSize: "12px", fontWeight: "800", color: COLORS.muted, marginBottom: "8px", marginLeft: "4px" }}>Search by Supplier, Vehicle or Lot ID</label>
+                       <div style={{ position: "relative" }}>
+                          <input 
+                            type="text" 
+                            placeholder="Type to search..." 
+                            value={lotSearchQuery}
+                            onChange={(e) => setLotSearchQuery(e.target.value)}
+                            style={{ width: "100%", padding: "14px 18px 14px 44px", borderRadius: "14px", border: "1.5px solid #EBE9E1", fontSize: "14px", color: COLORS.sidebar, fontWeight: "600", outline: "none", background: "#FFFFFF", transition: "all 0.3s" }}
+                          />
+                          <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: COLORS.muted }}>🔍</span>
+                       </div>
                     </div>
                     
-                    <div style={{ display: "flex", gap: "12px", minWidth: "450px" }}>
-                      <select
-                        value={lotDateFilter}
-                        onChange={(e) => {
-                          setLotDateFilter(e.target.value);
-                          if (e.target.value !== "Custom Date") {
-                            setLotCustomDateStart("");
-                            setLotCustomDateEnd("");
-                          }
-                        }}
-                        style={{
-                          flex: 1,
-                          height: "56px",
-                          padding: "0 14px",
-                          borderRadius: "16px",
-                          border: "1.5px solid #E2E8F0",
-                          background: "#F8FAFC",
-                          color: COLORS.sidebar,
-                          fontSize: "13px",
-                          fontWeight: "700",
-                          cursor: "pointer",
-                          outline: "none",
-                        }}
-                      >
-                        <option value="">Select data from particular date</option>
-                        <option value="Today">Today</option>
-                        <option value="15 Days">15 Days</option>
-                        <option value="30 Days / One Month">30 Days / One Month</option>
-                        <option value="Custom Date">Custom Date</option>
-                      </select>
+                    <div style={{ width: "240px" }}>
+                       <label style={{ display: "block", fontSize: "12px", fontWeight: "800", color: COLORS.muted, marginBottom: "8px", marginLeft: "4px" }}>Filter by Date</label>
+                       <select 
+                          value={lotDateFilter} 
+                          onChange={(e) => setLotDateFilter(e.target.value)}
+                          style={{ width: "100%", padding: "14px 16px", borderRadius: "14px", border: "1.5px solid #EBE9E1", background: "#FFFFFF", color: COLORS.sidebar, fontWeight: "700", fontSize: "13px", outline: "none", cursor: "pointer", height: "52px" }}
+                       >
+                          <option value="">All Transactions</option>
+                          <option value="Today">Today Only</option>
+                          <option value="7 Days">Last 7 Days</option>
+                          <option value="30 Days / One Month">Last 30 Days</option>
+                          <option value="Custom Date">Custom Range</option>
+                       </select>
+                    </div>
 
-                      {lotDateFilter === "Custom Date" && (
-                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                          <input type="date" value={lotCustomDateStart} onChange={e => setLotCustomDateStart(e.target.value)} style={{ height: "56px", padding: "0 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "600", outline: "none" }} />
-                          <span style={{ fontSize: "12px", fontWeight: "800", color: COLORS.muted }}>to</span>
-                          <input type="date" value={lotCustomDateEnd} onChange={e => setLotCustomDateEnd(e.target.value)} style={{ height: "56px", padding: "0 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "600", outline: "none" }} />
-                        </div>
-                      )}
-
-                      <div style={{ minWidth: "220px" }}>
-                        <ModernMultiSelectField
-                          label="Select Product"
-                          hideLabel={true}
-                          value={lotProductFilter}
-                          options={Array.from(new Set(
-                            lots.flatMap(l => (l.lineItems || []).map(i => i.productId).filter(Boolean))
-                          ))}
-                          onChange={(e) => setLotProductFilter(e.target.value)}
-                        />
-                      </div>
+                    <div style={{ width: "280px" }}>
+                       <label style={{ display: "block", fontSize: "12px", fontWeight: "800", color: COLORS.muted, marginBottom: "8px", marginLeft: "4px" }}>Filter by Product</label>
+                       <div style={{ width: "100%" }}>
+                         <ModernMultiSelectField
+                            label="Filter Product"
+                            hideLabel={true}
+                            value={lotProductFilter}
+                            options={Object.keys(PRODUCT_DATA).filter(k => k !== "default")}
+                            onChange={(e) => setLotProductFilter(e.target.value)}
+                            placeholder="All Products"
+                         />
+                       </div>
                     </div>
                   </div>
 
-                  <div style={{ overflowX: "auto", marginTop: "10px" }}>
+                  {lotDateFilter === "Custom Date" && (
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "32px", padding: "16px", background: "#FDFBF4", borderRadius: "12px", border: "1.5px solid #EBE9E1", animation: "slideDown 0.3s ease-out" }}>
+                       <div style={{ flex: 1 }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "800", color: COLORS.muted, marginBottom: "6px" }}>Start Date</label>
+                          <input type="date" value={lotCustomDateStart} onChange={e => setLotCustomDateStart(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", outline: "none", fontWeight: "600" }} />
+                       </div>
+                       <div style={{ flex: 1 }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "800", color: COLORS.muted, marginBottom: "6px" }}>End Date</label>
+                          <input type="date" value={lotCustomDateEnd} onChange={e => setLotCustomDateEnd(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1.5px solid #EBE9E1", outline: "none", fontWeight: "600" }} />
+                       </div>
+                    </div>
+                  )}
+
+                  <div style={{ height: "650px", overflowY: "auto", padding: "4px" }}>
                     {(() => {
-                      const allLotRows = [];
-                      lots.forEach(l => {
-                        (l.lineItems || []).forEach(li => {
-                          const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
-                          const vehicleNo = (l.vehicleNumber || "").toLowerCase();
-                          const prodName = (li.productId || "").toLowerCase();
-                          const query = (lotSearchQuery || "").toLowerCase();
-                          
-                          const matchesQuery = !query || supplierName.includes(query) || vehicleNo.includes(query) || prodName.includes(query);
-
-                          let matchesDate = true;
-                          if (lotDateFilter) {
-                            const lotDateVal = l.entryDate || l.createdAt;
-                            if (lotDateVal) {
-                              const lotDate = new Date(lotDateVal);
-                              lotDate.setHours(0,0,0,0);
-                              const today = new Date();
-                              today.setHours(0,0,0,0);
-                              if (lotDateFilter === "Today") {
-                                matchesDate = lotDate.getTime() === today.getTime();
-                              } else if (lotDateFilter === "15 Days") {
-                                const past = new Date(today); past.setDate(today.getDate() - 15);
-                                matchesDate = lotDate >= past && lotDate <= today;
-                              } else if (lotDateFilter === "30 Days / One Month") {
-                                const past = new Date(today); past.setDate(today.getDate() - 30);
-                                matchesDate = lotDate >= past && lotDate <= today;
-                              } else if (lotDateFilter === "Custom Date") {
-                                if (lotCustomDateStart) { const s = new Date(lotCustomDateStart); s.setHours(0,0,0,0); if (lotDate < s) matchesDate = false; }
-                                if (lotCustomDateEnd) { const e = new Date(lotCustomDateEnd); e.setHours(23,59,59,999); if (lotDate > e) matchesDate = false; }
-                              }
+                      const query = lotSearchQuery.trim().toLowerCase();
+                      const today = new Date();
+                      today.setHours(0,0,0,0);
+                      
+                      const filteredLots = lots.filter(l => {
+                        let matchesDate = true;
+                        if (lotDateFilter) {
+                          const lotDate = l.createdAt ? new Date(l.createdAt) : (l.entryDate ? new Date(l.entryDate) : null);
+                          if (lotDate) {
+                            lotDate.setHours(0,0,0,0);
+                            if (lotDateFilter === "Today") matchesDate = lotDate.getTime() === today.getTime();
+                            else if (lotDateFilter === "7 Days") {
+                              const past = new Date(today); past.setDate(today.getDate() - 7);
+                              matchesDate = lotDate >= past && lotDate <= new Date();
+                            } else if (lotDateFilter === "30 Days / One Month") {
+                              const past = new Date(today); past.setDate(today.getDate() - 30);
+                              matchesDate = lotDate >= past && lotDate <= new Date();
+                            } else if (lotDateFilter === "Custom Date") {
+                              if (lotCustomDateStart) { const d_s = new Date(lotCustomDateStart); d_s.setHours(0,0,0,0); if (lotDate < d_s) matchesDate = false; }
+                              if (lotCustomDateEnd) { const d_e = new Date(lotCustomDateEnd); d_e.setHours(23,59,59,999); if (lotDate > d_e) matchesDate = false; }
                             }
                           }
+                        }
 
-                          let matchesProduct = true;
-                          if (lotProductFilter) {
-                            const selectedProds = parseMultiValue(lotProductFilter);
-                            if (selectedProds.length > 0) {
-                              matchesProduct = selectedProds.some(p => p === li.productId);
-                            }
-                          }
+                        let matchesProduct = true;
+                        const selectedProds = parseMultiValue(lotProductFilter);
+                        if (selectedProds.length > 0) {
+                          const lotProds = (l.lineItems || []).map(li => li.productId || li.product);
+                          matchesProduct = selectedProds.some(p => lotProds.includes(p));
+                        }
 
-                          if (matchesQuery && matchesDate && matchesProduct) {
-                            allLotRows.push({ lot: l, item: li });
-                          }
-                        });
+                        const s_sup = suppliers.find(sup => sup._id === l.supplierId || sup.name === l.farmerName);
+                        const sName = s_sup?.name || l.farmerName || "";
+                        const sId = getSupplierIdValue(s_sup) || "";
+                        const matchesQuery = !query ? true : (
+                          sName.toLowerCase().includes(query) ||
+                          sId.toLowerCase().includes(query) ||
+                          l.lotId.toLowerCase().includes(query) ||
+                          l.vehicleNumber?.toLowerCase().includes(query)
+                        );
+
+                        return matchesDate && matchesProduct && matchesQuery;
                       });
 
-                      if (allLotRows.length === 0) {
+                      if (filteredLots.length === 0) {
                         return (
-                          <div style={{ textAlign: "center", padding: "60px", background: "#FDFBF4", borderRadius: "12px", border: "1px dashed #EBE9E1" }}>
-                            <p style={{ color: "#CC0000", fontWeight: "800", fontSize: "15px" }}>
-                              {lotDateFilter ? "THIS REGISTERED SUPPLIER IS NOT AVAILABLE IN THIS DATE" : "No registered lots found matching your criteria."}
+                          <div style={{ textAlign: "center", padding: "100px", background: "#FDFBF4", borderRadius: "16px", border: "1.5px dashed #EBE9E1" }}>
+                            <div style={{ fontSize: "40px", marginBottom: "20px", opacity: 0.5 }}>📂</div>
+                            <p style={{ color: COLORS.muted, fontWeight: "800", fontSize: "16px" }}>
+                              {lotDateFilter ? "No registered lots found for this selection." : "Start by registering your first lot intake."}
                             </p>
                           </div>
                         );
@@ -6905,6 +6933,7 @@ Powered by Stacli mandi os`;
                             <ModernMultiSelectField
                               label="Product"
                               value={item.productId}
+                              showRemoveIcon={false}
                               options={(() => {
                                  const selectedSupplier = suppliers.find(s => s._id === lotCreationForm.farmerId || s.name === lotCreationForm.farmerId);
                                  const supplierProducts = getProfileProducts(selectedSupplier);
@@ -6918,7 +6947,8 @@ Powered by Stacli mandi os`;
                             <ModernMultiSelectField
                               label="Variety"
                               value={item.variety}
-                              options={["Standard", "Hybrid", "Local", "Desi", "F1", "Other"]}
+                              showRemoveIcon={false}
+                              options={PRODUCT_DATA[item.productId]?.varieties || ["Standard", "Hybrid", "Local", "Desi", "F1", "Other"]}
                               onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)}
                             />
                           </div>
@@ -6927,6 +6957,8 @@ Powered by Stacli mandi os`;
                             <ModernMultiSelectField
                               label="Grade"
                               value={item.grade}
+                              showRemoveIcon={false}
+                              placeholder="Select the grade"
                               options={["A", "B", "C", "Extra", "Super", "Standard"]}
                               onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)}
                             />
@@ -19371,44 +19403,53 @@ Powered by Stacli mandi os`;
                   {viewingEntity.type === "LOT" ? (
                     <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
                       
-                      {/* Lot Information \u2014 Horizontal Table Format */}
-                      <div>
-                        <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      {/* Lot Information Summary — Grid Layout */}
+                       <div>
+                        <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
                           <div style={{ width: "4px", height: "16px", background: COLORS.sidebar, borderRadius: "2px" }}></div>
-                          LOT RECORD INFORMATION
+                          LOT RECORD INFORMATION summary
                         </div>
-                        <div style={{ overflowX: "auto", border: "1.5px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
-                          <table style={{ minWidth: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                            <thead>
-                              <tr style={{ background: "#F8FAFC", borderBottom: "1.5px solid #EBE9E1" }}>
-                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Lot ID</th>
-                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Supplier Name</th>
-                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Vehicle No</th>
-                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Origin</th>
-                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Driver Name</th>
-                                <th style={{ padding: "12px 20px", textAlign: "left", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Entry Date</th>
-                                <th style={{ padding: "12px 20px", textAlign: "right", color: COLORS.muted, fontWeight: "800", textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.5px" }}>Bill Photo</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td style={{ padding: "16px 20px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</td>
-                                <td style={{ padding: "16px 20px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</td>
-                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</td>
-                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.primary }}>{viewingEntity.data.origin || "N/A"}</td>
-                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</td>
-                                <td style={{ padding: "16px 20px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleDateString() : "N/A"}</td>
-                                <td style={{ padding: "16px 20px", textAlign: "right" }}>
-                                  {viewingEntity.data.attached_bill_photo ? (
-                                    <button
-                                      onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
-                                      style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
-                                    >View Bill</button>
-                                  ) : "None"}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                        
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", background: "#fcfcfc", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>LOT ID</span>
+                              <span style={{ fontSize: "15px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</span>
+                           </div>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>SUPPLIER NAME</span>
+                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</span>
+                           </div>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>VEHICLE NO</span>
+                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</span>
+                           </div>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>ORIGIN</span>
+                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.primary }}>{viewingEntity.data.origin || "N/A"}</span>
+                           </div>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>DRIVER NAME</span>
+                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</span>
+                           </div>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>ENTRY DATE</span>
+                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleDateString() : "N/A"}</span>
+                           </div>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>BILL PHOTO</span>
+                              <div>
+                                {viewingEntity.data.attached_bill_photo ? (
+                                  <button
+                                    onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
+                                    style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
+                                  >View Bill</button>
+                                ) : <span style={{fontSize: "12px", fontWeight:"700", color: COLORS.muted}}>None</span>}
+                              </div>
+                           </div>
+                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>TOTAL ITEMS</span>
+                              <span style={{ fontSize: "15px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.length || 0}</span>
+                           </div>
                         </div>
                       </div>
 
