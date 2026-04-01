@@ -6493,9 +6493,6 @@ Powered by Stacli mandi os`;
                       {lotSaveBtn.label}
                     </Button>
                     
-                    {isAdmin && (
-                      <Button style={{ background: "#FCFAEF", color: "#9EB343", border: "1.5px solid #E3E5DD", fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => alert("Edit Mode enabled for Admin")}>Edit</Button>
-                    )}
 
                     <Button style={{ background: "#F1F5F9", color: "#CC0000", border: "none", fontWeight: "900", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => {
                         setActiveLotTab("LOT Creation");
@@ -6505,7 +6502,7 @@ Powered by Stacli mandi os`;
                           vehicleNumber: "", driverName: "", origin: "", attachedBill: null, notes: "",
                           lineItems: [{ id: Date.now(), productId: "", variety: "", grade: "A", grossWeight: "", weightUnit: "KGs", status: "Pending Auction" }]
                         });
-                    }}>Reset Everything</Button>
+                    }}>Reset</Button>
                   </div>
                 </div>
               )}
