@@ -5711,100 +5711,6 @@ Powered by Stacli mandi os`;
                       Account Details
                     </h3>
                     
-                    {/* Profile Image Upload */}
-                    <div style={{ marginBottom: "32px", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
-                      <div 
-                        style={{ 
-                          width: "120px", 
-                          height: "120px", 
-                          borderRadius: "50%", 
-                          background: "#F8FAFC", 
-                          border: "2px dashed #E2E8F0",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          position: "relative",
-                          cursor: "pointer",
-                          overflow: "hidden",
-                          transition: "all 0.3s"
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.borderColor = COLORS.primary}
-                        onMouseOut={(e) => e.currentTarget.style.borderColor = "#E2E8F0"}
-                        onClick={() => document.getElementById('profile-image-upload').click()}
-                      >
-                        {user?.profileImage ? (
-                          <img 
-                            src={user.profileImage} 
-                            alt="Profile" 
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                          />
-                        ) : (
-                          <div style={{ textAlign: "center", color: COLORS.muted }}>
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                              <circle cx="12" cy="13" r="4"></circle>
-                            </svg>
-                            <div style={{ fontSize: "10px", marginTop: "4px", fontWeight: "700" }}>UPLOAD</div>
-                          </div>
-                        )}
-                        <div style={{
-                          position: "absolute",
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          background: "rgba(0,0,0,0.4)",
-                          color: "white",
-                          fontSize: "10px",
-                          fontWeight: "800",
-                          padding: "4px 0",
-                          textAlign: "center",
-                          opacity: 0,
-                          transition: "opacity 0.2s"
-                        }}
-                        id="avatar-overlay"
-                        >
-                          CHANGE
-                        </div>
-                      </div>
-                      <input 
-                        type="file" 
-                        id="profile-image-upload" 
-                        accept="image/*"
-                        style={{ display: "none" }} 
-                        onChange={async (e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-                          
-                          try {
-                            // Show local preview immediately
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setUser(prev => ({ ...prev, profileImage: reader.result }));
-                            };
-                            reader.readAsDataURL(file);
-
-                            // Upload to server
-                            const res = await MandiService.uploadFile(file, 'profile-image');
-                            if (res.status === "SUCCESS") {
-                              const imageUrl = res.data.fileUrl || res.data.url;
-                              setUser(prev => {
-                                const updatedUser = { ...prev, profileImage: imageUrl };
-                                localStorage.setItem('mandi_user', JSON.stringify(updatedUser));
-                                return updatedUser;
-                              });
-                              alert("\u2705 Profile image updated successfully!");
-                            }
-                          } catch (err) {
-                            console.error("Upload error:", err);
-                            alert("  Failed to upload image. Using local preview instead.");
-                          }
-                        }}
-                      />
-                      <p style={{ fontSize: "12px", color: COLORS.muted, margin: 0, fontWeight: "600" }}>
-                        Click to upload profile photo (JPG/PNG)
-                      </p>
-                    </div>
-
                     <div
                       style={{
                         display: "flex",
@@ -19506,6 +19412,7 @@ Powered by Stacli mandi os`;
                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Grade</th>
                                <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Wt (KG)</th>
                                <th style={{ padding: "12px", textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>Status</th>
+                               <th style={{ padding: "12px", textAlign: "left", color: COLORS.muted, fontWeight: "800" }}>Notes/Remarks</th>
                              </tr>
                            </thead>
                            <tbody>
@@ -19536,6 +19443,7 @@ Powered by Stacli mandi os`;
                                        {it.status}
                                      </span>
                                    </td>
+                                   <td style={{ padding: "12px", color: COLORS.sidebar, fontWeight: "700", whiteSpace: "normal", minWidth: "150px" }}>{viewingEntity.data.notes || "-"}</td>
                                  </tr>
                                );
                              })}
@@ -19547,19 +19455,14 @@ Powered by Stacli mandi os`;
                                    {(viewingEntity.data.lineItems || []).reduce((acc, it) => acc + Number(it.grossWeight || 0), 0).toLocaleString()} KG
                                 </td>
                                 <td></td>
+                                <td></td>
                              </tr>
                            </tfoot>
                          </table>
                        </div>
                      </div>
 
-                     {/* Notes Section if exists */}
-                     {viewingEntity.data.notes && (
-                       <div style={{ padding: "16px 24px", background: "#F8FAFC", borderRadius: "10px", border: "1px dashed #E2E8F0" }}>
-                         <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>REMARKS / NOTES:</span>
-                         <p style={{ margin: "8px 0 0", fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.notes}</p>
-                       </div>
-                     )}
+                     {/* Notes Section moved to table columns */}
                   </div>
                 ) : (
                     <div style={{ overflowX: "auto" }}>
