@@ -6754,6 +6754,32 @@ Powered by Stacli mandi os`;
                          />
                        </div>
                     </div>
+
+                    <div style={{ marginLeft: "auto", alignSelf: "flex-end" }}>
+                      <button
+                        style={{
+                          background: COLORS.sidebar,
+                          color: "#fff",
+                          border: "none",
+                          padding: "14px 24px",
+                          borderRadius: "14px",
+                          fontWeight: "850",
+                          fontSize: "13px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          transition: "all 0.2s",
+                          height: "52px",
+                          boxShadow: "0 4px 12px rgba(30, 36, 11, 0.15)"
+                        }}
+                        onMouseOver={e => e.currentTarget.style.transform = "translateY(-2px)"}
+                        onMouseOut={e => e.currentTarget.style.transform = "translateY(0)"}
+                      >
+                         <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#4ADE80", boxShadow: "0 0 10px #4ADE80" }}></div>
+                         Active
+                      </button>
+                    </div>
                   </div>
 
                   {lotDateFilter === "Custom Date" && (
@@ -6827,70 +6853,82 @@ Powered by Stacli mandi os`;
                       }
 
                       return (
-                        <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
-                          <thead>
-                            <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px", borderTopLeftRadius: "8px", borderBottomLeftRadius: "8px" }}>#</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>LOT ID</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>DATE</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>SUPPLIER NAME</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>SUPPLIER ID</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>PHONE</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>VEHICLE NO</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>ORIGIN</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>PRODUCT</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>VARIETY</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>GRADE</th>
-                              <th style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>WEIGHT</th>
-                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>UNIT</th>
-                              <th style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>EST. AMOUNT</th>
-                              <th style={{ padding: "16px", textAlign: "center", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>STATUS</th>
-                              <th style={{ padding: "16px", textAlign: "center", fontWeight: "800", fontSize: "11px", letterSpacing: "1px", borderTopRightRadius: "8px", borderBottomRightRadius: "8px" }}>ACTIONS</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {allLotRows.slice().reverse().map((row, idx) => {
-                              const l = row.lot;
-                              const li = row.item;
-                              const selectedSupplier = suppliers.find(s => (s._id || s.id) === l.supplierId?._id || (typeof l.supplierId === "string" ? l.supplierId === s._id : false) || l.farmerName === s.name);
-                              const supplierIdDisp = getSupplierIdValue(selectedSupplier) || "N/A";
-                              const estAmount = Number(li.grossWeight || 0) * Number(li.estimatedRate || 0);
+                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px", padding: "4px" }}>
+                    {filteredLots.slice().reverse().map((l, idx) => {
+                      const selectedSupplier = suppliers.find(s => (s._id || s.id) === l.supplierId?._id || (typeof l.supplierId === "string" ? l.supplierId === s._id : false) || l.farmerName === s.name);
+                      const supplierNameDisp = selectedSupplier?.name || l.farmerName || "N/A";
+                      const supplierIdDisp = getSupplierIdValue(selectedSupplier) || "N/A";
+                      const numericId = supplierIdDisp.split("-").pop() || "N/A";
 
-                              return (
-                                <tr key={`${l.lotId}-${li.id}-${idx}`} style={{ background: "#FFFFFF", transition: "all 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
-                                  onMouseEnter={e => e.currentTarget.style.background = "#F8FAFC"}
-                                  onMouseLeave={e => e.currentTarget.style.background = "#FFFFFF"}
-                                >
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted, borderTopLeftRadius: "8px", borderBottomLeftRadius: "8px" }}>{allLotRows.length - idx}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar, whiteSpace: "nowrap" }}>{l.lotId}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted, whiteSpace: "nowrap" }}>{l.entryDate ? new Date(l.entryDate).toLocaleDateString("en-IN", { day: '2-digit', month: '2-digit', year: 'numeric' }) : "N/A"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "800", color: COLORS.sidebar }}>{l.farmerName || selectedSupplier?.name || "N/A"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{supplierIdDisp}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "600", color: COLORS.sidebar }}>{selectedSupplier?.phone || "\u2014"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.sidebar }}>{l.vehicleNumber || "\u2014"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.primary }}>{l.origin || "\u2014"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar }}>{li.productId || "\u2014"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.variety || "\u2014"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.grade || "A"}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar, textAlign: "right" }}>{Number(li.grossWeight).toLocaleString()}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.weightUnit}</td>
-                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: "#166534", textAlign: "right" }}>\u20B9{estAmount.toLocaleString()}</td>
-                                  <td style={{ padding: "14px 16px", textAlign: "center" }}>
-                                    <span style={{ padding: "4px 10px", borderRadius: "12px", background: li.status === "Pending Auction" ? "#FEF9C3" : "#DCFCE7", color: li.status === "Pending Auction" ? "#854D0E" : "#166534", fontSize: "11px", fontWeight: "800" }}>
-                                      {li.status || "Pending"}
-                                    </span>
-                                  </td>
-                                  <td style={{ padding: "14px 16px", textAlign: "center", borderTopRightRadius: "8px", borderBottomRightRadius: "8px" }}>
-                                    <button
-                                      onClick={() => setViewingEntity({ type: "LOT", data: l })}
-                                      style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer", transition: "0.2s" }}
-                                    >View</button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
+                      return (
+                        <PremiumActionCard
+                          key={`${l.lotId}-${idx}`}
+                          title={
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <span>{supplierNameDisp} - {numericId}</span>
+                            </div>
+                          }
+                          subtitle={
+                            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                               <span style={{ fontSize: "10px", color: COLORS.muted }}>Lot ID: <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{l.lotId}</span></span>
+                               <span style={{ fontSize: "10px", color: COLORS.muted }}>Supplier ID: <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{supplierIdDisp}</span></span>
+                            </div>
+                          }
+                          status={{ text: "Active", color: "#166534", bg: "#dcfce7" }}
+                          details={[
+                            { icon: ICON_PHONE, text: selectedSupplier?.phone || "No Phone" }
+                          ]}
+                          secondaryActions={[
+                            { 
+                              icon: <Package size={14} />, 
+                              label: "View Details", 
+                              onClick: () => setViewingEntity({ type: "LOT", data: l }) 
+                            },
+                            { 
+                              icon: <Edit2 size={14} />, 
+                              label: "Edit Details", 
+                              onClick: () => {
+                                setIntakeForm({
+                                  lotId: l.lotId,
+                                  farmerId: l.farmerName || supplierNameDisp,
+                                  supplierId: l.supplierId?._id || l.supplierId,
+                                  vehicleNumber: l.vehicleNumber || "",
+                                  driverName: l.driverName || "",
+                                  origin: l.origin || "",
+                                  entryDate: l.entryDate || getISTDateTime(),
+                                  attached_bill_photo: l.attached_bill_photo || "",
+                                  lineItems: l.lineItems || [],
+                                });
+                                setActiveLotTab("LOT Creation");
+                              }
+                            }
+                          ]}
+                          onDelete={() => {
+                            if (window.confirm("Are you sure you want to delete this lot record?")) {
+                              const updatedLots = lots.filter(lot => lot.lotId !== l.lotId);
+                              setLots(updatedLots);
+                            }
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
+                             <div style={{ display: "flex", flexDirection: "column" }}>
+                                <span style={{ fontSize: "9px", color: COLORS.muted, textTransform: "uppercase" }}>Products</span>
+                                <span style={{ fontSize: "11px", fontWeight: "800", color: COLORS.sidebar }}>
+                                  {(l.lineItems || []).map(li => li.productId || li.product).join(", ")}
+                                </span>
+                             </div>
+                             <div style={{ textAlign: "right" }}>
+                                <span style={{ fontSize: "9px", color: COLORS.muted, textTransform: "uppercase" }}>Total Qty</span>
+                                <span style={{ fontSize: "12px", fontWeight: "900", color: COLORS.primary }}>
+                                  {(l.lineItems || []).reduce((acc, li) => acc + Number(li.grossWeight || 0), 0).toLocaleString()} <span style={{fontSize: "10px"}}>KG</span>
+                                </span>
+                             </div>
+                          </div>
+                        </PremiumActionCard>
+                      );
+                    })}
+                  </div>
+
                       );
                     })()}
                   </div>
@@ -19399,117 +19437,110 @@ Powered by Stacli mandi os`;
               </div>
 
               <div style={{ padding: "32px", maxHeight: "60vh", overflowY: "auto" }}>
-                <div style={{ overflowX: "auto", border: "1px solid #EBE9E1", borderRadius: "12px", background: "#fff" }}>
-                  {viewingEntity.type === "LOT" ? (
-                    <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
-                      
-                      {/* Lot Information Summary — Grid Layout */}
-                       <div>
-                        <div style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
-                          <div style={{ width: "4px", height: "16px", background: COLORS.sidebar, borderRadius: "2px" }}></div>
-                          LOT RECORD INFORMATION summary
-                        </div>
-                        
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", background: "#fcfcfc", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>LOT ID</span>
-                              <span style={{ fontSize: "15px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</span>
-                           </div>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>SUPPLIER NAME</span>
-                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</span>
-                           </div>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>VEHICLE NO</span>
-                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</span>
-                           </div>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>ORIGIN</span>
-                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.primary }}>{viewingEntity.data.origin || "N/A"}</span>
-                           </div>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>DRIVER NAME</span>
-                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.driverName || "N/A"}</span>
-                           </div>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>ENTRY DATE</span>
-                              <span style={{ fontSize: "15px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.entryDate ? new Date(viewingEntity.data.entryDate).toLocaleDateString() : "N/A"}</span>
-                           </div>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>BILL PHOTO</span>
-                              <div>
-                                {viewingEntity.data.attached_bill_photo ? (
-                                  <button
-                                    onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
-                                    style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
-                                  >View Bill</button>
-                                ) : <span style={{fontSize: "12px", fontWeight:"700", color: COLORS.muted}}>None</span>}
-                              </div>
-                           </div>
-                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                              <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase" }}>TOTAL ITEMS</span>
-                              <span style={{ fontSize: "15px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lineItems?.length || 0}</span>
-                           </div>
-                        </div>
-                      </div>
+                {viewingEntity.type === "LOT" ? (
+                  <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
+                     
+                     {/* Header Info - Quick Stats */}
+                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", background: "#fcfcfc", padding: "20px", borderRadius: "12px", border: "1.5px solid #EBE9E1" }}>
+                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>LOT ID</span>
+                            <span style={{ fontSize: "14px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</span>
+                         </div>
+                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>SUPPLIER</span>
+                            <span style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}</span>
+                         </div>
+                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>VEHICLE</span>
+                            <span style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>{viewingEntity.data.vehicleNumber || "N/A"}</span>
+                         </div>
+                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <span style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted }}>TOTAL ITEMS</span>
+                            <span style={{ fontSize: "14px", fontWeight: "900", color: COLORS.primary }}>{viewingEntity.data.lineItems?.length || 0}</span>
+                         </div>
+                     </div>
 
-                      {/* Produce Details Box \u2014 Nested */}
-                      <div style={{ background: "#FDFBF4", padding: "24px", borderRadius: "16px", border: "1.5px solid #EBE9E1" }}>
-                        <div style={{ fontSize: "13px", fontWeight: "900", color: COLORS.sidebar, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span>PRODUCE ITEMS & QUANTITY</span>
-                          <span style={{ fontSize: "10px", background: COLORS.sidebar, color: "#fff", padding: "4px 10px", borderRadius: "20px" }}>{viewingEntity.data.lineItems?.length || 0} ITEMS</span>
-                        </div>
-                        
-                        <div style={{ overflowX: "auto" }}>
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12.5px" }}>
-                            <thead>
-                              <tr style={{ textAlign: "left", borderBottom: "2px solid #EBE9E1" }}>
-                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>S.No</th>
-                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Product Name</th>
-                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Variety</th>
-                                <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Grade</th>
-                                <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Gross WT (KG)</th>
-                                <th style={{ padding: "12px", textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>Unit</th>
-                                <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Status</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {(viewingEntity.data.lineItems || []).map((it, idx) => (
-                                <tr key={idx} style={{ borderBottom: idx === viewingEntity.data.lineItems.length - 1 ? "none" : "1px solid #F1F5F9" }}>
-                                  <td style={{ padding: "14px 12px", color: COLORS.muted, fontWeight: "700" }}>{idx + 1}</td>
-                                  <td style={{ padding: "14px 12px", fontWeight: "900", color: COLORS.sidebar }}>{it.productId || it.product}</td>
-                                  <td style={{ padding: "14px 12px", fontWeight: "800", color: COLORS.primary }}>{it.variety || "Standard"}</td>
-                                  <td style={{ padding: "14px 12px", fontWeight: "800", color: "#1e293b" }}>{it.grade}</td>
-                                  <td style={{ padding: "14px 12px", textAlign: "right", fontWeight: "900", color: "#166534" }}>{it.grossWeight}</td>
-                                  <td style={{ padding: "14px 12px", textAlign: "center", fontWeight: "700", color: COLORS.muted }}>{it.weightUnit || "KG"}</td>
-                                  <td style={{ padding: "14px 12px", textAlign: "right" }}>
-                                    <span style={{ 
-                                      padding: "4px 10px", 
-                                      borderRadius: "6px", 
-                                      fontSize: "10px", 
-                                      fontWeight: "800", 
-                                      background: it.status === "Fully Sold" ? "#DCFCE7" : "#F1F5F9",
-                                      color: it.status === "Fully Sold" ? "#166534" : COLORS.sidebar
-                                    }}>
-                                      {it.status}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
+                     {/* Unified Produce Table */}
+                     <div style={{ background: "#FDFBF4", borderRadius: "16px", border: "1.5px solid #EBE9E1", overflow: "hidden" }}>
+                       <div style={{ padding: "16px 20px", background: "#fcfcfc", borderBottom: "1.5px solid #EBE9E1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: "12px", fontWeight: "900", color: COLORS.sidebar }}>PRODUCE ITEMS & INTAKE DETAILS</span>
+                           {viewingEntity.data.attached_bill_photo && (
+                              <button
+                                onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
+                                style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", cursor: "pointer" }}
+                              >View Bill Photo</button>
+                           )}
+                       </div>
+                       
+                       <div style={{ overflowX: "auto" }}>
+                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                           <thead>
+                             <tr style={{ textAlign: "left", background: "#f8fafc", borderBottom: "1.5px solid #EBE9E1" }}>
+                               <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>S.No</th>
+                               <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Product Name</th>
+                               <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Variety</th>
+                               <th style={{ padding: "12px", color: COLORS.muted, fontWeight: "800" }}>Grade</th>
+                               <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Wt (KG)</th>
+                               <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Rate (\u20B9)</th>
+                               <th style={{ padding: "12px", textAlign: "right", color: COLORS.muted, fontWeight: "800" }}>Amount (\u20B9)</th>
+                               <th style={{ padding: "12px", textAlign: "center", color: COLORS.muted, fontWeight: "800" }}>Status</th>
+                             </tr>
+                           </thead>
+                           <tbody>
+                             {(viewingEntity.data.lineItems || []).map((it, idx) => {
+                               const estAmt = Number(it.grossWeight || 0) * Number(it.estimatedRate || 0);
+                               return (
+                                 <tr key={idx} style={{ borderBottom: "1px solid #F1F5F9", background: idx % 2 === 0 ? "transparent" : "#fff" }}>
+                                   <td style={{ padding: "12px", color: COLORS.muted, fontWeight: "700" }}>{idx + 1}</td>
+                                   <td style={{ padding: "12px", fontWeight: "900", color: COLORS.sidebar }}>{it.productId || it.product}</td>
+                                   <td style={{ padding: "12px", fontWeight: "800", color: COLORS.primary }}>{it.variety || "Standard"}</td>
+                                   <td style={{ padding: "12px", fontWeight: "800", color: "#1e293b" }}>{it.grade}</td>
+                                   <td style={{ padding: "12px", textAlign: "right", fontWeight: "900", color: COLORS.sidebar }}>{it.grossWeight}</td>
+                                   <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: COLORS.muted }}>{it.estimatedRate || 0}</td>
+                                   <td style={{ padding: "12px", textAlign: "right", fontWeight: "900", color: "#166534" }}>{estAmt.toLocaleString()}</td>
+                                   <td style={{ padding: "12px", textAlign: "center" }}>
+                                     <span style={{ 
+                                       padding: "4px 10px", 
+                                       borderRadius: "6px", 
+                                       fontSize: "10px", 
+                                       fontWeight: "800", 
+                                       background: it.status === "Fully Sold" ? "#DCFCE7" : "#F8FAFC",
+                                       color: it.status === "Fully Sold" ? "#166534" : COLORS.muted,
+                                       border: "1px solid #E2E8F0"
+                                     }}>
+                                       {it.status}
+                                     </span>
+                                   </td>
+                                 </tr>
+                               );
+                             })}
+                           </tbody>
+                           <tfoot>
+                             <tr style={{ background: "#FDFBF4", borderTop: "1.5px solid #EBE9E1" }}>
+                                <td colSpan="4" style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.muted, fontSize: "11px" }}>GRAND TOTALS:</td>
+                                <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: COLORS.sidebar }}>
+                                   {(viewingEntity.data.lineItems || []).reduce((acc, it) => acc + Number(it.grossWeight || 0), 0).toLocaleString()} KG
+                                </td>
+                                <td></td>
+                                <td style={{ padding: "16px", textAlign: "right", fontWeight: "900", color: "#166534" }}>
+                                   \u20B9{(viewingEntity.data.lineItems || []).reduce((acc, it) => acc + (Number(it.grossWeight || 0) * Number(it.estimatedRate || 0)), 0).toLocaleString()}
+                                </td>
+                                <td></td>
+                             </tr>
+                           </tfoot>
+                         </table>
+                       </div>
+                     </div>
 
-                      {/* Notes Section if exists */}
-                      {viewingEntity.data.notes && (
-                        <div style={{ padding: "16px 24px", background: "#F8FAFC", borderRadius: "10px", border: "1px dashed #E2E8F0" }}>
-                          <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>REMARKS / NOTES:</span>
-                          <p style={{ margin: "8px 0 0", fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.notes}</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
+                     {/* Notes Section if exists */}
+                     {viewingEntity.data.notes && (
+                       <div style={{ padding: "16px 24px", background: "#F8FAFC", borderRadius: "10px", border: "1px dashed #E2E8F0" }}>
+                         <span style={{ fontSize: "11px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase" }}>REMARKS / NOTES:</span>
+                         <p style={{ margin: "8px 0 0", fontSize: "13px", fontWeight: "700", color: COLORS.sidebar }}>{viewingEntity.data.notes}</p>
+                       </div>
+                     )}
+                  </div>
+                ) : (
                     <div style={{ overflowX: "auto" }}>
                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", border: "1px solid #EBE9E1" }}>
                         <thead>
@@ -19562,7 +19593,6 @@ Powered by Stacli mandi os`;
                       </table>
                     </div>
                   )}
-                </div>
 
                 {/* SPECIAL TABLE FOR GROUPED ALLOCATIONS OR LOT TRACEABILITY */}
                 {(() => {
