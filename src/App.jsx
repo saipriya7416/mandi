@@ -6197,17 +6197,6 @@ Powered by Stacli mandi os`;
                             placeholder: "Village or farm location",
                           },
                           {
-                            label: "Attached Bill Photo",
-                            type: "file",
-                            onChange: (e) =>
-                              setLotCreationForm({
-                                ...lotCreationForm,
-                                attachedBill: e.target.files[0],
-                              }),
-                            placeholder:
-                              "Photo of paper bill / delivery challan from supplier",
-                          },
-                          {
                             label: "Notes",
                             type: "text",
                             value: lotCreationForm.notes,
@@ -6615,7 +6604,7 @@ Powered by Stacli mandi os`;
 
                         </div>
                       ))}
-                      <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }} onClick={() => handleLineItemAction("Add")}>Add Next Produce Item</Button>
+                      <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)", width: "36px", height: "36px", borderRadius: "50%", padding: 0, display: "flex", justifyContent: "center", alignItems: "center", fontSize: "20px" }} onClick={() => handleLineItemAction("Add")}>+</Button>
                     </div>
                   </div>
               
@@ -7160,11 +7149,18 @@ Powered by Stacli mandi os`;
                       background: "#FFFFFF",
                       color: COLORS.accent,
                       border: `2px solid ${COLORS.accent}`,
-                      borderRadius: "10px",
-                      fontWeight: "800",
+                      borderRadius: "50%",
+                      width: "36px",
+                      height: "36px",
+                      padding: 0,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontSize: "20px",
+                      fontWeight: "900",
                     }}
                   >
-                    Add Another Item
+                    +
                   </Button>
                 </div>
               </div>
@@ -7463,7 +7459,7 @@ Powered by Stacli mandi os`;
                   "Bill Header",
                   "Produce Sold",
                   "Expense Deductions",
-                  "Financial Summary",
+                  "Settlement Overview",
                   "Preview & Print",
                   "Generated Bills",
                 ]}
@@ -8108,6 +8104,22 @@ Powered by Stacli mandi os`;
                             }}
                           />
                         </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Deduction Quantity</label>
+                          <input type="number" value={item.deductions || ""} onChange={(e) => handleSupplierItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Thotrasi (6%)</label>
+                          <input type="number" disabled value={(Number(item.deductions || 0) * 0.06).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Grading (4%)</label>
+                          <input type="number" disabled value={(Number(item.deductions || 0) * 0.04).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Net Weight</label>
+                          <input type="number" disabled value={(Number(item.quantity || 0) - Number(item.deductions || 0)).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
+                        </div>
                         <div
                           style={{
                             display: "flex",
@@ -8167,7 +8179,7 @@ Powered by Stacli mandi os`;
                             type="number"
                             disabled
                             value={
-                              Number(item.quantity) * Number(item.rate) || 0
+                              ((Number(item.quantity) - Number(item.deductions || 0)) * Number(item.rate) || 0).toFixed(2)
                             }
                             style={{
                               padding: "10px",
@@ -8180,6 +8192,14 @@ Powered by Stacli mandi os`;
                               fontWeight: "800",
                             }}
                           />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Advance Balance</label>
+                          <input type="number" disabled value={(Number(suppliers.find(s => s._id === supplierSettlementForm.supplierId || s.name === supplierSettlementForm.supplierId)?.advanceBalance) || 0).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Amount Balance</label>
+                          <input type="number" disabled value={(((Number(item.quantity || 0) - Number(item.deductions || 0)) * Number(item.rate || 0)) - (Number(suppliers.find(s => s._id === supplierSettlementForm.supplierId || s.name === supplierSettlementForm.supplierId)?.advanceBalance) || 0)).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                         </div>
                       </div>
                     ))}
@@ -8558,7 +8578,7 @@ Powered by Stacli mandi os`;
                     >
                       <div style={{ flex: 1, marginRight: "12px" }}>
                         <ModernMultiSelectField
-                          label="Other deduction label"
+                          label="Other Deductions"
                           value={supplierSettlementForm.expenses.miscName}
                           options={["Loading", "Unloading", "Weighment", "Cleaning", "Sorting", "Miscellaneous"]}
                           onChange={(e) =>
@@ -8639,7 +8659,7 @@ Powered by Stacli mandi os`;
                 </div>
               )}
 
-              {activeSupplierBillTab === "Financial Summary" && (
+              {activeSupplierBillTab === "Settlement Overview" && (
                 <div
                   style={{
                     background: "#FFFFFF",
@@ -8661,20 +8681,20 @@ Powered by Stacli mandi os`;
                       letterSpacing: "-0.5px",
                     }}
                   >
-                    Financial Settlement Summary
+                    Settlement Overview
                   </h2>
 
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: "20px",
+                      gap: "24px",
                     }}
                   >
                     {(() => {
                       const grossSale = (supplierSettlementForm.items || []).reduce(
                         (sum, it) =>
-                          sum + (Number(it.quantity) * Number(it.rate) || 0),
+                          sum + ((Number(it.quantity) - Number(it.deductions || 0)) * Number(it.rate) || 0),
                         0,
                       );
                       const ex = supplierSettlementForm.expenses;
@@ -8691,165 +8711,73 @@ Powered by Stacli mandi os`;
                         parsedCommission = Number(ex.commission) || 0;
                       }
 
-                      const totalExpenses =
-                        (Number(ex.transport) || 0) +
-                        parsedCommission +
-                        (Number(ex.labour) || 0) +
-                        (Number(ex.weighing) || 0) +
-                        (Number(ex.packing) || 0) +
-                        (Number(ex.miscAmount) || 0);
-                      const advance = Number(ex.advance) || 0;
-                      const netSale = grossSale - totalExpenses;
-                      const balancePayable = netSale - advance;
+                      // Manual Settlement Fields (User requested to move these here or have them here specifically)
+                      // Final Settlement Amount = Total Amount (Produce Sold) + All Expenses Deduction
+                      // Manual: Labour, Other, Misc. Assuming existing ones.
+                      const finalSettlement = grossSale + (Number(ex.labour) || 0) + (Number(ex.miscAmount) || 0) + parsedCommission + (Number(ex.transport) || 0);
 
                       return (
                         <>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "16px",
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                paddingBottom: "12px",
-                                borderBottom: "1px solid #F1F5F9",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: COLORS.muted,
-                                  fontWeight: "600",
-                                }}
-                              >
-                                Gross Sale
-                              </span>
-                              <span
-                                style={{
-                                  color: COLORS.sidebar,
-                                  fontWeight: "800",
-                                }}
-                              >
-                                {formatCurrency(grossSale)}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                paddingBottom: "12px",
-                                borderBottom: "1px solid #F1F5F9",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: COLORS.muted,
-                                  fontWeight: "600",
-                                }}
-                              >
-                                Total Expenses
-                              </span>
-                              <span
-                                style={{ color: "#CC0000", fontWeight: "800" }}
-                              >
-                                - {formatCurrency(totalExpenses)}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                paddingBottom: "12px",
-                                borderBottom: "1px solid #F1F5F9",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: COLORS.sidebar,
-                                  fontWeight: "700",
-                                }}
-                              >
-                                Net Sale
-                              </span>
-                              <span
-                                style={{
-                                  color: COLORS.sidebar,
-                                  fontWeight: "800",
-                                }}
-                              >
-                                {formatCurrency(netSale)}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                paddingBottom: "16px",
-                                borderBottom: "1px solid #F1F5F9",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: COLORS.muted,
-                                  fontWeight: "600",
-                                }}
-                              >
-                                Advance Payment
-                              </span>
-                              <span
-                                style={{ color: "#CC0000", fontWeight: "800" }}
-                              >
-                                - {formatCurrency(advance)}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                paddingTop: "8px",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: COLORS.sidebar,
-                                  fontWeight: "800",
-                                  fontSize: "18px",
-                                  letterSpacing: "-0.5px",
-                                }}
-                              >
-                                Final Settlement (Payable)
-                              </span>
-                              <span
-                                style={{
-                                  color: COLORS.sidebar,
-                                  fontWeight: "900",
-                                  fontSize: "18px",
-                                  letterSpacing: "-0.5px",
-                                }}
-                              >
-                                {formatCurrency(balancePayable)}
-                              </span>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+                            {/* Manual Entry Section */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px", background: "#FDFBF4", borderRadius: "12px", border: "1.5px solid #EBE9E1" }}>
+                               <h3 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "8px" }}>Manual Expenses</h3>
+                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Labour Charges</label>
+                                  <input type="number" value={ex.labour} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, labour: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
+                               </div>
+                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Other Deductions</label>
+                                  <input type="number" value={ex.transport} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, transport: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
+                               </div>
+                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Misc. Expenses</label>
+                                  <input type="number" value={ex.miscAmount} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, miscAmount: e.target.value}})} placeholder="₹" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
+                               </div>
                             </div>
 
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                paddingTop: "12px",
-                                marginTop: "8px",
-                                borderTop: "1px dashed #E2E8F0"
-                              }}
-                            >
-                              <span style={{ color: COLORS.sidebar, fontWeight: "800", fontSize: "16px" }}>
-                                Balance Amount
-                              </span>
-                              <span style={{ color: COLORS.sidebar, fontWeight: "900", fontSize: "16px" }}>
-                                {formatCurrency(balancePayable)}
-                              </span>
+                            {/* Automatic Fields Section */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px", background: "#F1F5F9", borderRadius: "12px", border: "1.5px solid #E2E8F0" }}>
+                               <h3 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "8px" }}>Automatic Summary</h3>
+                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Total Amount (Produce Sold)</label>
+                                  <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(grossSale)}</span>
+                               </div>
+                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Taxes / Commissions</label>
+                                  <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(parsedCommission)}</span>
+                               </div>
                             </div>
+                          </div>
+
+                          {/* Final Calculation */}
+                          {/* Final Calculation Banner */}
+                          <div style={{ 
+                            background: "linear-gradient(135deg, " + COLORS.sidebar + " 0%, " + COLORS.sidebar + " 100%)", 
+                            padding: "32px", 
+                            borderRadius: "20px", 
+                            display: "flex", 
+                            justifyContent: "space-between", 
+                            alignItems: "center", 
+                            marginTop: "16px",
+                            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                            position: "relative",
+                            overflow: "hidden"
+                          }}>
+                             <div style={{ position: "relative", zIndex: 1 }}>
+                                <h3 style={{ margin: 0, color: "#FFFFFF", fontSize: "20px", fontWeight: "900", letterSpacing: "-0.5px" }}>Final Settlement Amount</h3>
+                                <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,0.7)", fontSize: "13px", fontWeight: "600" }}>Total Produce sold including all expense adjustments</p>
+                             </div>
+                             <div style={{ position: "relative", zIndex: 1, textAlign: "right" }}>
+                                <span style={{ display: "block", fontSize: "36px", fontWeight: "950", color: COLORS.accent, lineHeight: 1 }}>{formatCurrency(finalSettlement)}</span>
+                                <span style={{ display: "block", fontSize: "10px", color: "#FFFFFF", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", marginTop: "8px" }}>Proceed to Preview & Print</span>
+                             </div>
+                          </div>
+
+                          {/* Navigation Buttons */}
+                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
+                            <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Expense Deductions"); }}>Previous</Button>
+                            <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Preview & Print"); }}>Next →</Button>
                           </div>
                         </>
                       );
@@ -8867,31 +8795,12 @@ Powered by Stacli mandi os`;
                     </div>
                     <div style={{ display: "flex", gap: "12px" }}>
                       <button
-                        onClick={handlePrintSupplierBill}
-                        style={{
-                          background: "#f59e0b",
-                          color: "#fff",
-                          padding: "10px 20px",
-                          borderRadius: "10px",
-                          border: "none",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          fontWeight: "800",
-                          fontSize: "14px",
-                          boxShadow: "0 4px 12px rgba(245,158,11,0.2)"
-                        }}
-                      >
-                        <Printer size={18} /> Print Bill
-                      </button>
-                      <button
                         onClick={handleSaveSupplierBillPDF}
                         style={{
-                          background: COLORS.sidebar,
+                          background: "#1a3c34",
                           color: "#fff",
-                          padding: "10px 20px",
-                          borderRadius: "10px",
+                          padding: "12px 24px",
+                          borderRadius: "8px",
                           border: "none",
                           cursor: "pointer",
                           display: "flex",
@@ -8899,10 +8808,31 @@ Powered by Stacli mandi os`;
                           gap: "8px",
                           fontWeight: "800",
                           fontSize: "14px",
+                          boxShadow: "0 4px 12px rgba(26,60,52,0.2)"
                         }}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         Save as PDF
+                      </button>
+                      <button
+                        onClick={() => handleSendSupplierWhatsApp(lastGeneratedBill)}
+                        style={{
+                          background: "#25D366",
+                          color: "#fff",
+                          padding: "12px 24px",
+                          borderRadius: "8px",
+                          border: "none",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          fontWeight: "800",
+                          fontSize: "14px",
+                          boxShadow: "0 4px 12px rgba(37,211,102,0.2)"
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.399-4.305 9.79-9.884 9.79m8.415-18.298A11.715 11.715 0 0012.045 0C5.41 0 .011 5.393 0 12.015c0 2.115.55 4.18 1.59 6.037L0 24l6.105-1.602a11.834 11.834 0 005.937 1.598h.005c6.628 0 12.028-5.391 12.033-12.013a11.859 11.859 0 00-3.58-8.505"/></svg>
+                        WhatsApp
                       </button>
                     </div>
                   </div>
@@ -8911,98 +8841,243 @@ Powered by Stacli mandi os`;
                     ref={billRef}
                     style={{
                       background: "#fff",
-                      padding: "50px",
+                      padding: "40px",
                       borderRadius: "0",
-                      border: "1px solid #E2E8F0",
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.05)",
-                      maxWidth: "850px",
+                      border: "2px solid #1a3c34",
+                      maxWidth: "900px",
                       margin: "0 auto",
                       position: "relative",
-                      color: "#1a1a1a"
+                      color: "#1a1a1a",
+                      fontFamily: "'Plus Jakarta Sans', sans-serif"
                     }}
                   >
                     {!lastGeneratedBill ? (
                       <div style={{ textAlign: "center", padding: "60px", color: COLORS.muted }}>
-                        <h3>No bill generated yet.</h3>
+                        <h3 style={{ fontWeight: 800 }}>No bill generated yet.</h3>
                         <p>Generate a bill to preview the official document here.</p>
                       </div>
-                    ) : (
-                      <>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "40px" }}>
-                          <div>
-                            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "42px", margin: 0, color: COLORS.accent, letterSpacing: "1px" }}>BILL</h1>
-                            <p style={{ fontSize: "20px", fontWeight: "700", color: COLORS.sidebar, marginTop: "8px" }}>Bill No: {lastGeneratedBill.billNumber}</p>
-                          </div>
-                          <div style={{ textAlign: "right" }}>
-                            <h3 style={{ fontFamily: "'Playfair Display', serif", margin: 0, fontSize: "22px", color: COLORS.sidebar }}>Mandi OS Enterprise</h3>
-                            <p style={{ color: COLORS.muted, fontWeight: "600", marginTop: "4px" }}>{formatDate(lastGeneratedBill.date)}</p>
-                          </div>
-                        </div>
+                    ) : (() => {
+                      const supplier = suppliers.find(s => (s._id || s.name) === lastGeneratedBill.supplierId) || { name: lastGeneratedBill.supplierName };
+                      const lot = lots.find(l => l.lotId === lastGeneratedBill.lotId) || {};
+                      const ex = lastGeneratedBill.expenses || {};
+                      const items = lastGeneratedBill.items || [];
+                      const grossSaleAmount = items.reduce((s, it) => s + (Number(it.quantity || 0) * Number(it.rate || 0)), 0);
+                      const totalDeductions = Object.entries(ex).reduce((s, [k, v]) => k !== 'advance' ? s + (Number(v) || 0) : s, 0);
+                      const netSaleAmount = grossSaleAmount - totalDeductions;
+                      const balancePayable = netSaleAmount - (Number(ex.advance) || 0);
 
-                        <div style={{ height: "1px", background: COLORS.accent, marginBottom: "32px", opacity: 0.3 }}></div>
-
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "40px" }}>
-                          <div>
-                            <h4 style={{ color: COLORS.muted, fontSize: "12px", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "12px" }}>Bill To</h4>
-                            <p style={{ fontSize: "18px", fontWeight: "900", margin: 0 }}>{suppliers.find(s => (s._id || s.name) === lastGeneratedBill.supplierId)?.name || lastGeneratedBill.supplierName || "Supplier"}</p>
-                            <p style={{ color: COLORS.muted, marginTop: "4px" }}>{suppliers.find(s => (s._id || s.name) === lastGeneratedBill.supplierId)?.village || "Location N/A"}</p>
+                      return (
+                        <>
+                          {/* Header Block */}
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "4px solid #1a3c34", paddingBottom: "20px", marginBottom: "20px" }}>
+                            <div style={{ background: "#1a3c34", padding: "15px", borderRadius: "8px" }}>
+                              <div style={{ border: "2px solid #fff", color: "#fff", padding: "10px", fontSize: "32px", fontWeight: "900", textAlign: "center" }}>
+                                SPV
+                              </div>
+                              <div style={{ color: "#fff", fontSize: "10px", textAlign: "center", marginTop: "4px", fontWeight: "700" }}>FRUITS</div>
+                            </div>
+                            <div style={{ flex: 1, paddingLeft: "30px" }}>
+                              <h1 style={{ margin: 0, fontSize: "42px", fontWeight: "900", color: "#1a3c34", letterSpacing: "1px" }}>SPV FRUITS</h1>
+                              <h3 style={{ margin: "2px 0", fontSize: "16px", fontWeight: "700", color: "#1a3c34" }}>SRI PRASANNA VENKATESWARA FRUITS</h3>
+                              <p style={{ margin: "2px 0", color: "#2e7d32", fontSize: "12px", fontWeight: "800" }}>FRUIT SUPPLIER AND TRADERS</p>
+                              <p style={{ margin: "4px 0", color: "#666", fontSize: "11px", fontWeight: "600" }}>Shop No. 35, Mango Market Yard, Tanapalli Cross, TIRUPATI - 517 501, AP</p>
+                              <p style={{ margin: 0, color: "#1a3c34", fontSize: "11px", fontWeight: "800", textDecoration: "underline" }}>www.spvfruits.com</p>
+                            </div>
+                            <div style={{ textAlign: "right" }}>
+                              <p style={{ margin: "2px 0", fontSize: "13px", fontWeight: "800", color: "#1a3c34" }}>📞 9866425756</p>
+                              <p style={{ margin: "2px 0", fontSize: "13px", fontWeight: "800", color: "#1a3c34" }}>9848272835</p>
+                              <p style={{ margin: "2px 0", fontSize: "13px", fontWeight: "800", color: "#1a3c34" }}>9110500540</p>
+                            </div>
                           </div>
-                          <div style={{ textAlign: "right" }}>
-                            <h4 style={{ color: COLORS.muted, fontSize: "12px", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "12px" }}>Reference</h4>
-                            <p style={{ fontWeight: "800" }}>Lot ID: {lastGeneratedBill.lotId || "N/A"}</p>
-                          </div>
-                        </div>
 
-                        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "32px" }}>
-                          <thead>
-                            <tr style={{ borderBottom: "1.5px solid #000" }}>
-                              <th style={{ textAlign: "left", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Item Description</th>
-                              <th style={{ textAlign: "right", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Weight</th>
-                              <th style={{ textAlign: "right", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Rate</th>
-                              <th style={{ textAlign: "right", padding: "16px 12px", fontSize: "13px", color: COLORS.muted }}>Total</th>
-                            </tr>
-                          </thead>
-                          <tbody style={{ borderBottom: "1px solid #E2E8F0" }}>
-                            {(lastGeneratedBill.items || []).map((item, idx) => (
-                              <tr key={idx}>
-                                <td style={{ padding: "18px 12px", fontWeight: "700", fontSize: "15px" }}>{item.productName || "Various Produce"}</td>
-                                <td style={{ textAlign: "right", padding: "18px 12px" }}>{item.quantity} KG</td>
-                                <td style={{ textAlign: "right", padding: "18px 12px" }}>₹{item.rate}</td>
-                                <td style={{ textAlign: "right", padding: "18px 12px", fontWeight: "900" }}>₹{(Number(item.quantity) * Number(item.rate)).toLocaleString()}</td>
+                          {/* Banner Heading */}
+                          <div style={{ background: "#1a3c34", color: "#fff", display: "flex", justifyContent: "space-between", padding: "8px 20px", borderRadius: "4px", marginBottom: "20px" }}>
+                            <span style={{ fontWeight: "800", fontSize: "15px" }}>FARMER SETTLEMENT BILL</span>
+                            <div style={{ display: "flex", gap: "40px" }}>
+                              <span style={{ fontWeight: "700", fontSize: "13px" }}>BILL NO. <span style={{ textDecoration: "underline", marginLeft: "10px" }}>{lastGeneratedBill.billNumber}</span></span>
+                              <span style={{ fontWeight: "700", fontSize: "13px" }}>DATE <span style={{ textDecoration: "underline", marginLeft: "10px" }}>{formatDate(lastGeneratedBill.date)}</span></span>
+                            </div>
+                          </div>
+
+                          {/* Supplier/Log Meta Info */}
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px", marginBottom: "20px" }}>
+                            <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
+                              <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>FARMER / SUPPLIER (M/s)</label>
+                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{supplier.name}</span>
+                            </div>
+                            <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
+                              <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>LOT ID</label>
+                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{lastGeneratedBill.lotId || "N/A"}</span>
+                            </div>
+                            <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
+                              <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>VEHICLE NO.</label>
+                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{lot.vehicleNumber || lastGeneratedBill.vehicleNumber || "N/A"}</span>
+                            </div>
+                            <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
+                              <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>SUPPLIER ID</label>
+                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{lastGeneratedBill.supplierId || "N/A"}</span>
+                            </div>
+                            <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
+                              <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>LOCATION</label>
+                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{lot.location || supplier.location || supplier.village || "N/A"}</span>
+                            </div>
+                            <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
+                              <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>DATE</label>
+                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{formatDate(lastGeneratedBill.date)}</span>
+                            </div>
+                          </div>
+
+                          {/* Items Table */}
+                          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px", border: "1.5px solid #1a3c34" }}>
+                            <thead>
+                              <tr style={{ background: "#1a3c34", color: "#fff" }}>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)", width: "50px" }}>S.No</th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)", textAlign: "left" }}>PARTICULARS <br/><span style={{fontSize:'8px'}}>(Product - Variety - Grade)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>GROSS WT <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>DEDN <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>NET WT <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>RATE <br/><span style={{fontSize:'8px'}}>(₹/KG)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)", textAlign: "right" }}>AMOUNT <br/><span style={{fontSize:'8px'}}>(₹)</span></th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody>
+                              {items.map((it, idx) => (
+                                <tr key={idx} style={{ textAlign: "center" }}>
+                                  <td style={{ padding: "12px", fontSize: "12px", fontWeight: "700", border: "1px solid #1a3c34" }}>{idx + 1}</td>
+                                  <td style={{ padding: "12px", fontSize: "12px", fontWeight: "800", border: "1px solid #1a3c34", textAlign: "left" }}>
+                                    {it.productName} {it.variety ? `- ${it.variety}` : ""} {it.grade ? `- ${it.grade}` : ""}
+                                  </td>
+                                  <td style={{ padding: "12px", fontSize: "12px", fontWeight: "700", border: "1px solid #1a3c34" }}>{it.grossWeight || it.quantity || "0"}</td>
+                                  <td style={{ padding: "12px", fontSize: "12px", border: "1px solid #1a3c34" }}>{it.deduction || "0"}</td>
+                                  <td style={{ padding: "12px", fontSize: "12px", fontWeight: "900", border: "1px solid #1a3c34" }}>{it.netWeight || it.quantity || "0"}</td>
+                                  <td style={{ padding: "12px", fontSize: "12px", border: "1px solid #1a3c34" }}>{it.rate || "0"}</td>
+                                  <td style={{ padding: "12px", fontSize: "13px", fontWeight: "900", border: "1px solid #1a3c34", textAlign: "right" }}>
+                                    ₹{((it.netWeight || it.quantity || 0) * (it.rate || 0)).toLocaleString()}
+                                  </td>
+                                </tr>
+                              ))}
+                              {/* Filler Rows if less than 6 */}
+                              {[...Array(Math.max(0, 6 - items.length))].map((_, i) => (
+                                <tr key={`filler-${i}`}>
+                                  {[...Array(7)].map((__, j) => (
+                                    <td key={j} style={{ padding: "15px", border: "1px solid #1a3c34" }}>&nbsp;</td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
 
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                          <div style={{ width: "320px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px", color: COLORS.muted }}>
-                              <span style={{ fontWeight: "600" }}>Subtotal</span>
-                              <span style={{ fontWeight: "800", color: "#000" }}>{formatCurrency((lastGeneratedBill.items || []).reduce((s, it) => s + (Number(it.quantity) * Number(it.rate)), 0))}</span>
+                          <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+                            {/* Expenditure Column */}
+                            <div style={{ flex: 1 }}>
+                              <div style={{ background: "#1a3c34", color: "#fff", padding: "6px 12px", fontSize: "11px", fontWeight: "800", textAlign: "center", borderRadius: "4px 4px 0 0" }}>
+                                EXPENDITURE DEDUCTIONS
+                              </div>
+                              <div style={{ border: "1px solid #1a3c34", borderTop: "none", padding: "10px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
+                                  <span>Lorry Hire / Freight</span>
+                                  <span>₹ {ex.transport || ex.freight || "0"}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
+                                  <span>Coolie / Labour</span>
+                                  <span>₹ {ex.labour || "0"}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
+                                  <span>Cash Advance</span>
+                                  <span>₹ {ex.cashAdvance || "0"}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
+                                  <span>Kata (Weighing Charges)</span>
+                                  <span>₹ {ex.weighing || "0"}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
+                                  <span>Packing / Bag Charges</span>
+                                  <span>₹ {ex.packing || "0"}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
+                                  <span>AMC Charges</span>
+                                  <span>₹ {ex.commission || "0"}</span>
+                                </div>
+                                <div style={{ background: "#1a3c34", color: "#fff", padding: "8px 12px", display: "flex", justifyContent: "space-between", marginTop: "10px", fontSize: "13px", fontWeight: "900" }}>
+                                  <span>TOTAL DEDUCTIONS (₹)</span>
+                                  <span>{totalDeductions.toLocaleString()}</span>
+                                </div>
+                              </div>
                             </div>
-                            <div style={{ height: "1px", background: "#000", margin: "18px 0" }}></div>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px" }}>
-                              <span style={{ fontSize: "18px", fontWeight: "900", color: COLORS.sidebar }}>Grand Total</span>
-                              <span style={{ fontSize: "18px", fontWeight: "900", color: COLORS.accent }}>{formatCurrency(lastGeneratedBill.grandTotal || lastGeneratedBill.netAmount || (lastGeneratedBill.items||[]).reduce((s,it)=>s+(Number(it.quantity)*Number(it.rate)),0))}</span>
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px", color: "#166534" }}>
-                              <span style={{ fontWeight: "700" }}>Advance Received</span>
-                              <span style={{ fontWeight: "900" }}>{formatCurrency(lastGeneratedBill.expenses?.advance || 0)}</span>
-                            </div>
-                            <div style={{ height: "1px", borderTop: "1px dotted #E2E8F0", margin: "16px 0" }}></div>
-                            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                              <span style={{ fontWeight: "800", color: COLORS.sidebar }}>Balance Amount</span>
-                              <span style={{ fontWeight: "900", color: COLORS.sidebar }}>{formatCurrency(lastGeneratedBill.balancePayable || lastGeneratedBill.balanceDue || 0)}</span>
+
+                            {/* Summary Column */}
+                            <div style={{ flex: 1 }}>
+                              <div style={{ paddingTop: "24px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
+                                  <span>Gross Sale Amount</span>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <span>₹</span>
+                                    <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{grossSaleAmount.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
+                                  <span>Less: Total Deductions</span>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <span>₹</span>
+                                    <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{totalDeductions.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 10px", fontSize: "16px", fontWeight: "900", background: "#f0fdf4", margin: "10px 0", color: "#166534", borderRadius: "6px" }}>
+                                  <span>Net Sale Amount</span>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <span>₹</span>
+                                    <span>{netSaleAmount.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
+                                  <span>Advance Payment</span>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <span>₹</span>
+                                    <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{(Number(ex.advance) || 0).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 10px", fontSize: "16px", fontWeight: "900", background: "#dcfce7", margin: "10px 0", color: "#14532d", border: "1.5px solid #14532d", borderRadius: "6px" }}>
+                                  <span>Balance Payable to Farmer</span>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <span>₹</span>
+                                    <span>{balancePayable.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div style={{ textAlign: "center", marginTop: "100px", borderTop: "1px solid #f1f5f9", paddingTop: "24px" }}>
-                          <p style={{ color: COLORS.muted, fontWeight: "700", fontSize: "14px" }}>Thank you for your business!</p>
-                          <p style={{ color: COLORS.muted, fontSize: "10px", marginTop: "4px", textTransform: "uppercase", letterSpacing: "3px" }}>POWERED BY MOS</p>
-                        </div>
-                      </>
-                    )}
+                          {/* Remarks Section */}
+                          <div style={{ marginBottom: "30px", fontSize: "11px", fontWeight: "700", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+                            <span style={{ color: "#666" }}>REMARKS | NOTES :</span>
+                            <div style={{ marginTop: "5px", height: "30px", borderBottom: "1px dashed #ccc" }}>{lastGeneratedBill.remarks || ""}</div>
+                          </div>
+
+                          {/* Signatures */}
+                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px", padding: "20px 0" }}>
+                            <div style={{ textAlign: "center", width: "250px" }}>
+                              <p style={{ fontSize: "11px", fontWeight: "800", color: "#1a3c34", marginBottom: "40px" }}>FARMER / SUPPLIER SIGNATURE</p>
+                              <div style={{ borderTop: "2px solid #1a3c34", width: "100%" }}></div>
+                            </div>
+                            <div style={{ textAlign: "center", width: "250px" }}>
+                              <p style={{ fontSize: "11px", fontWeight: "800", color: "#1a3c34", marginBottom: "40px" }}>FOR SPV FRUITS</p>
+                              <div style={{ borderTop: "2px solid #1a3c34", width: "100%" }}></div>
+                              <p style={{ fontSize: "10px", color: "#666", marginTop: "5px", fontWeight: "700" }}>Authorised Signatory</p>
+                            </div>
+                          </div>
+
+                          {/* Footer */}
+                          <div style={{ background: "#1a3c34", color: "#fff", padding: "12px", textAlign: "center", borderRadius: "4px", marginTop: "30px" }}>
+                            <p style={{ margin: 0, fontSize: "10px", fontWeight: "700", letterSpacing: "1px" }}>
+                              This is a computer generated bill | <span style={{ color: "#a5d6a7" }}>Stacli MOS — Powered by</span> <a href="http://www.stacli.com" style={{ color: "#fff", textDecoration: "none" }}>www.stacli.com</a>
+                            </p>
+                          </div>
+                          <p style={{ textAlign: "center", fontSize: "9px", color: "#999", marginTop: "8px", fontWeight: "600" }}>
+                            Subject to Tirupati, Andhra Pradesh, India jurisdiction. Bills once issued are final and locked.
+                          </p>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
@@ -10284,7 +10359,7 @@ Powered by Stacli mandi os`;
                     >
                       <div style={{ flex: 1, marginRight: "12px" }}>
                         <ModernMultiSelectField
-                          label="Other Charges label"
+                          label="Other Charges"
                           value={buyerInvoiceForm.charges.otherName}
                           options={["Packing", "Loading", "Unloading", "Transport", "Miscellaneous"]}
                           onChange={(e) =>
