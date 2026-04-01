@@ -2410,12 +2410,20 @@ Powered by Stacli mandi os`;
 
     let fileUrl = null;
     if (lotCreationForm.attachedBill) {
+      const file = lotCreationForm.attachedBill;
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        return alert("Invalid file type. Only JPG, PNG, and PDF are allowed.");
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        return alert("File size too large. Limit is 10MB.");
+      }
       try {
         const uploadRes = await MandiService.uploadFile(
           lotCreationForm.attachedBill,
           "INTAKE_BILL",
         );
-        fileUrl = uploadRes.data?.url || uploadRes.url || "uploaded";
+        fileUrl = uploadRes.data?.url || uploadRes.url;
       } catch (err) {
         console.warn("Bill upload failed or API not configured", err);
       }
@@ -2434,7 +2442,7 @@ Powered by Stacli mandi os`;
       vehicleNumber: lotCreationForm.vehicleNumber,
       driverName: lotCreationForm.driverName,
       origin: lotCreationForm.origin,
-      billAttachment: fileUrl,
+      attached_bill_photo: fileUrl,
       notes: lotCreationForm.notes,
       lineItems: lotCreationForm.lineItems.map((i) => ({
         productId: i.productId,
@@ -6441,7 +6449,8 @@ Powered by Stacli mandi os`;
                                   ]}
                                   secondaryActions={[
                                     { label: "View Details", icon: ICON_SHOP, onClick: () => setViewingEntity({ type: "LOT", data: l }) },
-                                    { label: "Edit Details", icon: ICON_EDIT, onClick: () => handleEditLot(l) }
+                                    { label: "Edit Details", icon: ICON_EDIT, onClick: () => handleEditLot(l) },
+                                    ...(l.attached_bill_photo ? [{ label: "View Bill", icon: "📄", onClick: () => setBillPhotoModal({ open: true, imageUrl: l.attached_bill_photo, lotNo: l.lotId || "N/A", supplierName: l.farmerName || "N/A", supplierId: l.supplierId || "N/A", zoom: 1 }) }] : [])
                                   ]}
                                   onDelete={() => {
                                     const code = prompt("🔐 SECURITY CHECK: Enter Master Deletion Code to remove this record:");
@@ -7398,7 +7407,8 @@ Powered by Stacli mandi os`;
                             </table>
                           </div>
                         </PremiumActionCard>
-                      ));
+                      );
+                    });
                     })()}
                     {allocations.length === 0 && (
                       <p style={{ textAlign: "center", color: COLORS.muted, padding: "40px", gridColumn: "1/-1" }}>No recorded allocations found.</p>
@@ -7406,9 +7416,9 @@ Powered by Stacli mandi os`;
                   </div>
                 </div>
               </div>
-            </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
           {/* SUPPLIER BILLING MODULE */}
           {activeSection === "Supplier Billing" && (
@@ -18880,13 +18890,13 @@ Powered by Stacli mandi os`;
                           <div style={{ padding: "12px", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #E2E8F0" }}>
                             <div style={{ fontSize: "10px", fontWeight: "800", color: COLORS.muted, textTransform: "uppercase", marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <span>Attached Bill Photo</span>
-                              {viewingEntity.data.billAttachment && (
+                              {viewingEntity.data.attached_bill_photo && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setBillPhotoModal({
                                       open: true,
-                                      imageUrl: viewingEntity.data.billAttachment,
+                                      imageUrl: viewingEntity.data.attached_bill_photo,
                                       lotNo: viewingEntity.data.lotId || "N/A",
                                       supplierName: viewingEntity.data.farmerName || suppliers.find(s => s._id === viewingEntity.data.supplierId)?.name || "N/A",
                                       supplierId: (typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : (suppliers.find(s => s.name === viewingEntity.data.farmerName)?.supplierId || viewingEntity.data.supplierId)) || "N/A",
@@ -18900,15 +18910,15 @@ Powered by Stacli mandi os`;
                               )}
                             </div>
                             <div style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar }}>
-                              {viewingEntity.data.billAttachment ? (
+                              {viewingEntity.data.attached_bill_photo ? (
                                 <div style={{ position: "relative", width: "100px", height: "60px" }}>
                                   <img 
-                                    src={viewingEntity.data.billAttachment} 
+                                    src={viewingEntity.data.attached_bill_photo} 
                                     alt="Bill" 
                                     style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px", border: "1px solid #E2E8F0", cursor: "pointer" }}
                                     onClick={() => setBillPhotoModal({
                                       open: true,
-                                      imageUrl: viewingEntity.data.billAttachment,
+                                      imageUrl: viewingEntity.data.attached_bill_photo,
                                       lotNo: viewingEntity.data.lotId || "N/A",
                                       supplierName: viewingEntity.data.farmerName || "N/A",
                                       supplierId: stripIdPrefix(typeof viewingEntity.data.supplierId === 'object' ? viewingEntity.data.supplierId?._id : viewingEntity.data.supplierId) || "N/A",
@@ -18961,7 +18971,7 @@ Powered by Stacli mandi os`;
                         <thead>
                           <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
                             {Object.entries(viewingEntity.data)
-                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
+                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "attached_bill_photo", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
                               .map(([key]) => (
                                 <th 
                                   key={key} 
@@ -18984,7 +18994,7 @@ Powered by Stacli mandi os`;
                         <tbody>
                           <tr>
                             {Object.entries(viewingEntity.data)
-                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "billAttachment", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
+                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "attached_bill_photo", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
                               .map(([key, rawValue]) => (
                                 <td 
                                   key={key} 
@@ -19039,6 +19049,7 @@ Powered by Stacli mandi os`;
                                 <th style={{ padding: "12px", textAlign: "right" }}>Allocated Amt (₹)</th>
                                 <th style={{ padding: "12px", textAlign: "right" }}>Total Sale (₹)</th>
                                 <th style={{ padding: "12px", textAlign: "left" }}>Invoice Ref</th>
+                                <th style={{ padding: "12px", textAlign: "left" }}>Bill Photo</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -19055,6 +19066,25 @@ Powered by Stacli mandi os`;
                                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "800", color: "#C2410C", background: "#FFF7ED" }}>₹{finalAmt.toLocaleString()}</td>
                                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "900" }}>₹{finalAmt.toLocaleString()}</td>
                                     <td style={{ padding: "12px", color: COLORS.muted, fontSize: "11px" }}>{it.buyerInvoiceNo || "UNLINKED"}</td>
+                                     <td style={{ padding: "12px" }}>
+                                        {viewingEntity.data.attached_bill_photo ? (
+                                          <span 
+                                            onClick={() => setBillPhotoModal({ 
+                                              open: true, 
+                                              imageUrl: viewingEntity.data.attached_bill_photo, 
+                                              lotNo: viewingEntity.data.lotId || "N/A", 
+                                              supplierName: viewingEntity.data.farmerName || "N/A",
+                                              supplierId: viewingEntity.data.supplierId || "N/A",
+                                              zoom: 1 
+                                            })} 
+                                            style={{ color: COLORS.primary, fontWeight: "900", cursor: "pointer", textDecoration: "underline", fontSize: "11px" }}
+                                          >
+                                            View Bill
+                                          </span>
+                                        ) : (
+                                          <span style={{ color: COLORS.muted, fontSize: "11px", fontWeight: "700" }}>No bill attached</span>
+                                        )}
+                                     </td>
                                   </tr>
                                 );
                               })}
