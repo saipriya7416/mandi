@@ -3910,6 +3910,40 @@ Powered by Stacli mandi os`;
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
+  const resetLotIntakeState = async () => {
+    setIsRefreshing(true);
+    setLotSearchQuery("");
+    setLotDateFilter("");
+    setLotCustomDateStart("");
+    setLotCustomDateEnd("");
+    setLotProductFilter("");
+    setLotCreationForm({
+      lotId: generateLotId(lotCounter),
+      dateTime: new Date().toISOString().slice(0, 16),
+      farmerId: "",
+      vehicleNumber: "",
+      driverName: "",
+      origin: "",
+      attachedBill: null,
+      notes: "",
+      lineItems: [
+        {
+          id: Date.now(),
+          productId: "",
+          variety: "",
+          grade: "A",
+          grossWeight: "",
+          weightUnit: "KGs",
+          status: "Pending Auction",
+        },
+      ],
+    });
+    setActiveLotTab("LOT Creation");
+    setLotSaveBtn({ label: "Save", color: null });
+    await fetchData();
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await fetchData();
@@ -5369,22 +5403,6 @@ Powered by Stacli mandi os`;
               </h2>
             </div>
             <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-              {activeSection !== "User Role" && (
-                <Button style={{
-                  background: "#000000",
-                  color: "#FFFFFF",
-                  fontWeight: "800",
-                  borderRadius: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "10px 20px",
-                  border: "none",
-                  cursor: "pointer"
-                }} onClick={() => window.location.reload()}>
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-              )}
               <div
                 style={{
                   background: "rgba(16, 185, 129, 0.1)",
@@ -5406,7 +5424,13 @@ Powered by Stacli mandi os`;
 
               <button
                 id="global-refresh-button"
-                onClick={activeSection === "User Role" ? resetPartyManagementState : handleRefresh}
+                onClick={
+                  activeSection === "User Role"
+                    ? resetPartyManagementState
+                    : activeSection === "Lot Creation"
+                    ? resetLotIntakeState
+                    : handleRefresh
+                }
                 disabled={isRefreshing}
                 style={{
                   background: isRefreshing ? "#F1F5F9" : COLORS.sidebar,
@@ -5424,6 +5448,10 @@ Powered by Stacli mandi os`;
                   fontSize: "14px",
                 }}
               >
+                <RefreshCw size={18} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
+                <span>{isRefreshing ? "Syncing..." : "Refresh"}</span>
+              </button>
+            </div>         >
                 <RefreshCw size={18} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
                 <span>{isRefreshing ? "Syncing..." : "Refresh"}</span>
               </button>
@@ -6442,9 +6470,7 @@ Powered by Stacli mandi os`;
                                   ? foundS.village || foundS.state || ""
                                   : "",
                               });
-                              if (foundS) {
-                                handleEditSelect("Supplier", foundS);
-                              } else {
+                              if (!foundS) {
                                 setSupplierForm({
                                   supplierId: "", name: val, phone: "", villageOrTown: "", villageOrTownName: "", district: "", state: "", product: "", idType: "", govIdNumber: "", bankAccount: "", bankLocation: "", bankBranch: "", ifsc: "", advanceBalance: "", notes: "",
                                 });
@@ -6500,13 +6526,12 @@ Powered by Stacli mandi os`;
                               "Any special remarks about condition of produce",
                           },
                         ],
-                      },
-                      ...getSupplierProfileSections()
+                      }
                     ]}
                   />
 
                   <div
-                    style={{ display: "flex", gap: "16px", marginTop: "32px" }}
+                    style={{ display: "flex", gap: "16px", marginTop: "32px", justifyContent: "flex-start" }}
                   >
                     <Button
                       style={{
@@ -6587,9 +6612,8 @@ Powered by Stacli mandi os`;
                     animation: "fadeIn 0.4s ease-out"
                   }}
                 >
-                  {/* Lot Search Integrated Upside */}
-                  <div style={{ marginBottom: "24px", display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, minWidth: "250px" }}>
+                  <div style={{ marginBottom: "32px", display: "flex", gap: "16px", alignItems: "stretch" }}>
+                    <div style={{ position: "relative", flex: 1 }}>
                       <input
                         type="text"
                         placeholder="Search by supplier name / vehicle number / product"
@@ -6599,222 +6623,194 @@ Powered by Stacli mandi os`;
                           width: "100%",
                           padding: "16px 20px",
                           borderRadius: "16px",
-                          border: "1.5px solid #EBE9E1",
+                          border: "1.5px solid #E2E8F0",
                           fontSize: "14px",
+                          fontWeight: "600",
+                          color: COLORS.sidebar,
+                          outline: "none",
+                          background: "#F8FAFC",
+                          transition: "all 0.2s",
                         }}
                       />
                     </div>
-                    <div style={{ width: "240px" }}>
-                       <select
-                         value={lotDateFilter}
-                         onChange={(e) => {
-                           setLotDateFilter(e.target.value);
-                           if (e.target.value !== "Custom Date") {
-                             setLotCustomDateStart("");
-                             setLotCustomDateEnd("");
-                           }
-                         }}
-                         style={{
-                            width: "100%",
-                            padding: "16px 20px",
-                            borderRadius: "16px",
-                            border: "1.5px solid #EBE9E1",
-                            fontSize: "14px",
-                            color: lotDateFilter ? COLORS.sidebar : COLORS.muted,
-                            cursor: "pointer",
-                            appearance: "auto",
-                            background: "#FFFFFF"
-                         }}
-                       >
-                         <option value="" disabled>Select date from particular date</option>
-                         <option value="Today">Today</option>
-                         <option value="15 Days">15 Days</option>
-                         <option value="30 Days / One Month">30 Days / One Month</option>
-                         <option value="Custom Date">Custom Date</option>
-                       </select>
-                    </div>
-                    <div style={{ width: "220px" }}>
-                       <select
-                         value={lotProductFilter}
-                         onChange={(e) => setLotProductFilter(e.target.value)}
-                         style={{
-                            width: "100%",
-                            padding: "16px 20px",
-                            borderRadius: "16px",
-                            border: "1.5px solid #EBE9E1",
-                            fontSize: "14px",
-                            color: lotProductFilter ? COLORS.sidebar : COLORS.muted,
-                            cursor: "pointer",
-                            appearance: "auto",
-                            background: "#FFFFFF"
-                         }}
-                       >
-                         <option value="" disabled>Select Product</option>
-                         {Array.from(new Set(
-                            lots.filter(li => {
-                               const supplierName = (li.farmerName || li.supplierId?.name || (typeof li.supplierId === "string" ? li.supplierId : "")).toLowerCase();
-                               const query = (lotSearchQuery || "").toLowerCase();
-                               return !query || supplierName.includes(query);
-                            }).flatMap(li => li.lineItems?.map(i => i.productId).filter(Boolean))
-                         )).map(prod => (
-                           <option key={prod} value={prod}>{prod}</option>
-                         ))}
-                       </select>
+                    
+                    <div style={{ display: "flex", gap: "12px", minWidth: "450px" }}>
+                      <select
+                        value={lotDateFilter}
+                        onChange={(e) => {
+                          setLotDateFilter(e.target.value);
+                          if (e.target.value !== "Custom Date") {
+                            setLotCustomDateStart("");
+                            setLotCustomDateEnd("");
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          height: "56px",
+                          padding: "0 14px",
+                          borderRadius: "16px",
+                          border: "1.5px solid #E2E8F0",
+                          background: "#F8FAFC",
+                          color: COLORS.sidebar,
+                          fontSize: "13px",
+                          fontWeight: "700",
+                          cursor: "pointer",
+                          outline: "none",
+                        }}
+                      >
+                        <option value="">Select data from particular date</option>
+                        <option value="Today">Today</option>
+                        <option value="15 Days">15 Days</option>
+                        <option value="30 Days / One Month">30 Days / One Month</option>
+                        <option value="Custom Date">Custom Date</option>
+                      </select>
+
+                      {lotDateFilter === "Custom Date" && (
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                          <input type="date" value={lotCustomDateStart} onChange={e => setLotCustomDateStart(e.target.value)} style={{ height: "56px", padding: "0 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "600", outline: "none" }} />
+                          <span style={{ fontSize: "12px", fontWeight: "800", color: COLORS.muted }}>to</span>
+                          <input type="date" value={lotCustomDateEnd} onChange={e => setLotCustomDateEnd(e.target.value)} style={{ height: "56px", padding: "0 12px", borderRadius: "12px", border: "1.5px solid #E2E8F0", fontSize: "12px", background: "#F8FAFC", color: COLORS.sidebar, fontWeight: "600", outline: "none" }} />
+                        </div>
+                      )}
+
+                      <div style={{ minWidth: "220px" }}>
+                        <ModernMultiSelectField
+                          label="Select Product"
+                          hideLabel={true}
+                          value={lotProductFilter}
+                          options={Array.from(new Set(
+                            lots.flatMap(l => (l.lineItems || []).map(i => i.productId).filter(Boolean))
+                          ))}
+                          onChange={(e) => setLotProductFilter(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {lotDateFilter === "Custom Date" && (
-                    <div style={{ display: "flex", gap: "16px", marginBottom: "24px", alignItems: "center" }}>
-                      <input
-                        type="date"
-                        value={lotCustomDateStart}
-                        onChange={(e) => setLotCustomDateStart(e.target.value)}
-                        style={{ padding: "12px 16px", borderRadius: "12px", border: "1.5px solid #EBE9E1", fontSize: "14px", outline: "none" }}
-                      />
-                      <span style={{ fontWeight: "700", color: COLORS.muted }}>to</span>
-                      <input
-                        type="date"
-                        value={lotCustomDateEnd}
-                        onChange={(e) => setLotCustomDateEnd(e.target.value)}
-                        style={{ padding: "12px 16px", borderRadius: "12px", border: "1.5px solid #EBE9E1", fontSize: "14px", outline: "none" }}
-                      />
-                    </div>
-                  )}
-                  <div style={{ overflowX: "auto" }}>
+                  <div style={{ overflowX: "auto", marginTop: "10px" }}>
                     {(() => {
-                      const filteredLotsForDisplay = lots.filter(l => {
-                        const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
-                        const vehicleNo = (l.vehicleNumber || "").toLowerCase();
-                        const productsStr = (l.lineItems || []).map(item => item.productId?.toLowerCase() || "").join(" ");
-                        const query = (lotSearchQuery || "").toLowerCase();
-                        const matchesQuery = supplierName.includes(query) || vehicleNo.includes(query) || productsStr.includes(query);
+                      const allLotRows = [];
+                      lots.forEach(l => {
+                        (l.lineItems || []).forEach(li => {
+                          const supplierName = (l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "")).toLowerCase();
+                          const vehicleNo = (l.vehicleNumber || "").toLowerCase();
+                          const prodName = (li.productId || "").toLowerCase();
+                          const query = (lotSearchQuery || "").toLowerCase();
+                          
+                          const matchesQuery = !query || supplierName.includes(query) || vehicleNo.includes(query) || prodName.includes(query);
 
-                        let matchesDate = true;
-                        if (lotDateFilter) {
-                          const lotDateVal = l.entryDate || l.createdAt;
-                          if (lotDateVal) {
-                            const lotDate = new Date(lotDateVal);
-                            lotDate.setHours(0,0,0,0);
-                            const today = new Date();
-                            today.setHours(0,0,0,0);
-                            if (lotDateFilter === "Today") {
-                              matchesDate = lotDate.getTime() === today.getTime();
-                            } else if (lotDateFilter === "15 Days") {
-                              const past = new Date(today); past.setDate(today.getDate() - 15);
-                              matchesDate = lotDate >= past && lotDate <= today;
-                            } else if (lotDateFilter === "30 Days / One Month") {
-                              const past = new Date(today); past.setDate(today.getDate() - 30);
-                              matchesDate = lotDate >= past && lotDate <= today;
-                            } else if (lotDateFilter === "Custom Date") {
-                              if (lotCustomDateStart) { const s = new Date(lotCustomDateStart); s.setHours(0,0,0,0); if (lotDate < s) matchesDate = false; }
-                              if (lotCustomDateEnd) { const e = new Date(lotCustomDateEnd); e.setHours(23,59,59,999); if (lotDate > e) matchesDate = false; }
+                          let matchesDate = true;
+                          if (lotDateFilter) {
+                            const lotDateVal = l.entryDate || l.createdAt;
+                            if (lotDateVal) {
+                              const lotDate = new Date(lotDateVal);
+                              lotDate.setHours(0,0,0,0);
+                              const today = new Date();
+                              today.setHours(0,0,0,0);
+                              if (lotDateFilter === "Today") {
+                                matchesDate = lotDate.getTime() === today.getTime();
+                              } else if (lotDateFilter === "15 Days") {
+                                const past = new Date(today); past.setDate(today.getDate() - 15);
+                                matchesDate = lotDate >= past && lotDate <= today;
+                              } else if (lotDateFilter === "30 Days / One Month") {
+                                const past = new Date(today); past.setDate(today.getDate() - 30);
+                                matchesDate = lotDate >= past && lotDate <= today;
+                              } else if (lotDateFilter === "Custom Date") {
+                                if (lotCustomDateStart) { const s = new Date(lotCustomDateStart); s.setHours(0,0,0,0); if (lotDate < s) matchesDate = false; }
+                                if (lotCustomDateEnd) { const e = new Date(lotCustomDateEnd); e.setHours(23,59,59,999); if (lotDate > e) matchesDate = false; }
+                              }
                             }
                           }
-                        }
 
-                        let matchesProduct = true;
-                        if (lotProductFilter) {
-                          matchesProduct = (l.lineItems || []).some(item => item.productId === lotProductFilter);
-                        }
+                          let matchesProduct = true;
+                          if (lotProductFilter) {
+                            const selectedProds = parseMultiValue(lotProductFilter);
+                            if (selectedProds.length > 0) {
+                              matchesProduct = selectedProds.some(p => p === li.productId);
+                            }
+                          }
 
-                        return matchesQuery && matchesDate && matchesProduct;
+                          if (matchesQuery && matchesDate && matchesProduct) {
+                            allLotRows.push({ lot: l, item: li });
+                          }
+                        });
                       });
 
-                      if (filteredLotsForDisplay.length === 0) {
+                      if (allLotRows.length === 0) {
                         return (
-                          <p style={{ textAlign: "center", color: "#CC0000", fontWeight: "800", padding: "40px" }}>
-                            {lotDateFilter ? "THIS REGISTERED SUPPLIER IS NOT AVAILABLE IN THIS DATE" : "No registered lots found."}
-                          </p>
+                          <div style={{ textAlign: "center", padding: "60px", background: "#FDFBF4", borderRadius: "12px", border: "1px dashed #EBE9E1" }}>
+                            <p style={{ color: "#CC0000", fontWeight: "800", fontSize: "15px" }}>
+                              {lotDateFilter ? "THIS REGISTERED SUPPLIER IS NOT AVAILABLE IN THIS DATE" : "No registered lots found matching your criteria."}
+                            </p>
+                          </div>
                         );
                       }
 
                       return (
-                        <>
-                          {lotDateFilter && filteredLotsForDisplay.length > 0 && (
-                            <div style={{ marginBottom: "16px", padding: "16px", background: "#F8FAFC", borderRadius: "12px", border: "1px dashed #CBD5E1" }}>
-                              <h4 style={{ margin: "0 0 12px 0", fontSize: "13px", color: COLORS.primary, fontWeight: "900", textTransform: "uppercase" }}>Search & Date Summary</h4>
-                              {Object.entries(
-                                filteredLotsForDisplay.reduce((acc, l) => {
-                                  const sName = l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "Unknown");
-                                  if (!acc[sName]) acc[sName] = { count: 0, products: new Set() };
-                                  acc[sName].count += 1;
-                                  (l.lineItems || []).forEach(i => { if (i.productId) acc[sName].products.add(i.productId); });
-                                  return acc;
-                                }, {})
-                              ).map(([sName, data]) => (
-                                <div key={sName} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #E2E8F0", fontSize: "13px" }}>
-                                  <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{sName}</span>
-                                  <span style={{ color: COLORS.muted, fontWeight: "600" }}>
-                                    Visits: <strong style={{color: COLORS.primary}}>{data.count}</strong> &nbsp;|&nbsp;
-                                    Products: <strong style={{color: COLORS.sidebar}}>{Array.from(data.products).join(", ")}</strong>
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                        <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px", fontSize: "13px" }}>
+                          <thead>
+                            <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px", borderTopLeftRadius: "8px", borderBottomLeftRadius: "8px" }}>#</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>LOT ID</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>DATE</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>SUPPLIER NAME</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>SUPPLIER ID</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>PHONE</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>VEHICLE NO</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>ORIGIN</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>PRODUCT</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>VARIETY</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>GRADE</th>
+                              <th style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>WEIGHT</th>
+                              <th style={{ padding: "16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>UNIT</th>
+                              <th style={{ padding: "16px", textAlign: "right", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>EST. AMOUNT</th>
+                              <th style={{ padding: "16px", textAlign: "center", fontWeight: "800", fontSize: "11px", letterSpacing: "1px" }}>STATUS</th>
+                              <th style={{ padding: "16px", textAlign: "center", fontWeight: "800", fontSize: "11px", letterSpacing: "1px", borderTopRightRadius: "8px", borderBottomRightRadius: "8px" }}>ACTIONS</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {allLotRows.slice().reverse().map((row, idx) => {
+                              const l = row.lot;
+                              const li = row.item;
+                              const selectedSupplier = suppliers.find(s => (s._id || s.id) === l.supplierId?._id || (typeof l.supplierId === "string" ? l.supplierId === s._id : false) || l.farmerName === s.name);
+                              const supplierIdDisp = getSupplierIdValue(selectedSupplier) || "N/A";
+                              const estAmount = Number(li.grossWeight || 0) * Number(li.estimatedRate || 0);
 
-                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                            <thead>
-                              <tr style={{ background: COLORS.sidebar, color: "#fff" }}>
-                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>LOT ID</th>
-                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>SUPPLIER</th>
-                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>DATE</th>
-                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>VEHICLE</th>
-                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>ORIGIN</th>
-                                <th style={{ padding: "14px 16px", textAlign: "left", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>PRODUCTS</th>
-                                <th style={{ padding: "14px 16px", textAlign: "right", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>EST. GROSS</th>
-                                <th style={{ padding: "14px 16px", textAlign: "center", fontWeight: "800", fontSize: "11px", letterSpacing: "0.5px" }}>ACTIONS</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {filteredLotsForDisplay.slice().reverse().map((l, rowIdx) => {
-                                const grossSale = (l.lineItems || []).reduce((sum, item) => sum + Number(item.grossWeight || 0) * Number(item.estimatedRate || 0), 0);
-                                const supplierName = l.farmerName || l.supplierId?.name || (typeof l.supplierId === "string" ? l.supplierId : "N/A");
-                                const products = (l.lineItems || []).map(li => [li.productId, li.variety, li.grade].filter(Boolean).join(" / ")).join(", ");
-                                return (
-                                  <tr key={l._id || l.lotId} style={{ background: rowIdx % 2 === 0 ? "#FFFFFF" : "#FDFBF4", borderBottom: "1px solid #EBE9E1", transition: "background 0.15s" }}
-                                    onMouseEnter={e => e.currentTarget.style.background = "#F0F4F0"}
-                                    onMouseLeave={e => e.currentTarget.style.background = rowIdx % 2 === 0 ? "#FFFFFF" : "#FDFBF4"}
-                                  >
-                                    <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar, whiteSpace: "nowrap" }}>{l.lotId}</td>
-                                    <td style={{ padding: "14px 16px", fontWeight: "800", color: COLORS.sidebar }}>{supplierName}</td>
-                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted, whiteSpace: "nowrap" }}>{l.entryDate ? new Date(l.entryDate).toLocaleDateString() : "N/A"}</td>
-                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.sidebar }}>{l.vehicleNumber || "—"}</td>
-                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.primary }}>{l.origin || "—"}</td>
-                                    <td style={{ padding: "14px 16px", fontWeight: "700", color: "#1e293b", maxWidth: "200px" }}>
-                                      {products || <span style={{ color: COLORS.muted }}>—</span>}
-                                    </td>
-                                    <td style={{ padding: "14px 16px", fontWeight: "900", color: "#166534", textAlign: "right", whiteSpace: "nowrap" }}>
-                                      ₹{grossSale.toLocaleString()}
-                                    </td>
-                                    <td style={{ padding: "14px 16px", textAlign: "center", whiteSpace: "nowrap" }}>
-                                      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
-                                        <button
-                                          onClick={() => setViewingEntity({ type: "LOT", data: l })}
-                                          style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
-                                        >View</button>
-                                        <button
-                                          onClick={() => handleEditLot(l)}
-                                          style={{ background: "#FEF9C3", color: "#92400E", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
-                                        >Edit</button>
-                                        {l.attached_bill_photo && (
-                                          <button
-                                            onClick={() => setBillPhotoModal({ open: true, imageUrl: l.attached_bill_photo, lotNo: l.lotId || "N/A", supplierName: l.farmerName || "N/A", supplierId: l.supplierId || "N/A", zoom: 1 })}
-                                            style={{ background: "#E0F2FE", color: "#0369A1", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
-                                          >Bill</button>
-                                        )}
-                                        <button
-                                          onClick={() => { const code = prompt("🔐 Enter Master Deletion Code:"); if (code === "0000") handleDeleteLot(l._id); else if (code !== null) alert("🚫 ACCESS DENIED: Invalid deletion code."); }}
-                                          style={{ background: "#FEF2F2", color: "#DC2626", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer" }}
-                                        >Delete</button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </>
+                              return (
+                                <tr key={`${l.lotId}-${li.id}-${idx}`} style={{ background: "#FFFFFF", transition: "all 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
+                                  onMouseEnter={e => e.currentTarget.style.background = "#F8FAFC"}
+                                  onMouseLeave={e => e.currentTarget.style.background = "#FFFFFF"}
+                                >
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted, borderTopLeftRadius: "8px", borderBottomLeftRadius: "8px" }}>{allLotRows.length - idx}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar, whiteSpace: "nowrap" }}>{l.lotId}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted, whiteSpace: "nowrap" }}>{l.entryDate ? new Date(l.entryDate).toLocaleDateString("en-IN", { day: '2-digit', month: '2-digit', year: 'numeric' }) : "N/A"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "800", color: COLORS.sidebar }}>{l.farmerName || selectedSupplier?.name || "N/A"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{supplierIdDisp}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "600", color: COLORS.sidebar }}>{selectedSupplier?.phone || "—"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.sidebar }}>{l.vehicleNumber || "—"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.primary }}>{l.origin || "—"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar }}>{li.productId || "—"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.variety || "—"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.grade || "A"}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: COLORS.sidebar, textAlign: "right" }}>{Number(li.grossWeight).toLocaleString()}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "700", color: COLORS.muted }}>{li.weightUnit}</td>
+                                  <td style={{ padding: "14px 16px", fontWeight: "900", color: "#166534", textAlign: "right" }}>₹{estAmount.toLocaleString()}</td>
+                                  <td style={{ padding: "14px 16px", textAlign: "center" }}>
+                                    <span style={{ padding: "4px 10px", borderRadius: "12px", background: li.status === "Pending Auction" ? "#FEF9C3" : "#DCFCE7", color: li.status === "Pending Auction" ? "#854D0E" : "#166534", fontSize: "11px", fontWeight: "800" }}>
+                                      {li.status || "Pending"}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: "14px 16px", textAlign: "center", borderTopRightRadius: "8px", borderBottomRightRadius: "8px" }}>
+                                    <button
+                                      onClick={() => setViewingEntity({ type: "LOT", data: l })}
+                                      style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: "800", cursor: "pointer", transition: "0.2s" }}
+                                    >View</button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       );
                     })()}
                   </div>
@@ -6921,7 +6917,50 @@ Powered by Stacli mandi os`;
 
                         </div>
                       ))}
-                      <Button style={{ alignSelf: "flex-start", background: "#FFFFFF", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, fontWeight: "800", boxShadow: "0 2px 4px rgba(0,0,0,0.02)", width: "36px", height: "36px", borderRadius: "50%", padding: 0, display: "flex", justifyContent: "center", alignItems: "center", fontSize: "20px" }} onClick={() => handleLineItemAction("Add")}>+</Button>
+                      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                        <div style={{ position: "relative", flex: 1, maxWidth: "320px" }}>
+                          <input 
+                            readOnly
+                            placeholder="Add Produce Details"
+                            onClick={() => handleLineItemAction("Add")}
+                            style={{
+                              width: "100%",
+                              padding: "12px 16px",
+                              borderRadius: "12px",
+                              border: "1.5px solid #EBE9E1",
+                              fontSize: "14px",
+                              color: COLORS.sidebar,
+                              cursor: "pointer",
+                              background: "#FFFFFF",
+                              fontWeight: "700"
+                            }}
+                          />
+                          <button 
+                            onClick={() => handleLineItemAction("Add")}
+                            style={{
+                              position: "absolute",
+                              right: "8px",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              background: COLORS.sidebar,
+                              color: "#fff",
+                              border: "none",
+                              width: "30px",
+                              height: "30px",
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "20px",
+                              fontWeight: "bold",
+                              cursor: "pointer",
+                              transition: "all 0.2s"
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"}
+                            onMouseLeave={e => e.currentTarget.style.transform = "translateY(-50%) scale(1)"}
+                          >+</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
               
