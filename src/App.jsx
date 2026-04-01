@@ -1451,6 +1451,7 @@ export default function App() {
   const [poType, setPoType] = useState("Fruits");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [partyManagementFilterDate, setPartyManagementFilterDate] = useState(new Date().toISOString().split('T')[0]);
   const isAdmin = user?.role === "Owner / Admin";
   const isAccountant = user?.role === "Accountant";
   const isStaff = user?.role === "Operations Staff";
@@ -4873,6 +4874,30 @@ Powered by Stacli mandi os`;
                   month: "long",
                 })}
               </div>
+              {activeSection === "User Role" && user?.role === "Owner / Admin" && (
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input 
+                    type="date" 
+                    value={partyManagementFilterDate} 
+                    onChange={(e) => {
+                      setPartyManagementFilterDate(e.target.value);
+                      handleRefresh();
+                    }} 
+                    style={{ 
+                      background: "#fff", 
+                      border: "1.5px solid #e2e8f0", 
+                      padding: "8px 12px", 
+                      borderRadius: "14px", 
+                      fontWeight: "750", 
+                      fontSize: "14px", 
+                      color: COLORS.sidebar,
+                      height: "42px",
+                      outline: "none",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.03)"
+                    }} 
+                  />
+                </div>
+              )}
               <button
                 id="global-refresh-button"
                 onClick={handleRefresh}
@@ -5841,7 +5866,9 @@ Powered by Stacli mandi os`;
 
                       // Calculate display range
                       let displayRange = "";
-                      if (memberDateFilter !== "All") {
+                      if (isAdmin && partyManagementFilterDate) {
+                        displayRange = formatDate(new Date(partyManagementFilterDate));
+                      } else if (memberDateFilter !== "All") {
                         const today = new Date();
                         let start = new Date(today);
                         let end = new Date(today);
@@ -5858,7 +5885,12 @@ Powered by Stacli mandi os`;
                       const searchedData = sourceData.filter((record) => {
                         let dateMatch = true;
                         const rDate = record.createdAt || record.date;
-                        if (rDate && memberDateFilter !== "All") {
+                        
+                        if (isAdmin && partyManagementFilterDate) {
+                          const d = new Date(rDate);
+                          const filterD = new Date(partyManagementFilterDate);
+                          dateMatch = d.toDateString() === filterD.toDateString();
+                        } else if (rDate && memberDateFilter !== "All") {
                           const d = new Date(rDate);
                           const today = new Date();
                           if (memberDateFilter === "Today") {
