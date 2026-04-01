@@ -870,6 +870,15 @@ const shouldUseMultiSelectForField = (label) => {
     "grade",
     "kgs",
     "kg",
+    "allocation items",
+    "line item",
+    "produce sold",
+    "expense deduction",
+    "other expenses deduction",
+    "labour",
+    "item purchased",
+    "additional charges",
+    "other charges label",
   ].some((keyword) => normalized.includes(keyword));
 };
 
@@ -963,18 +972,41 @@ function ModernMultiSelectField({
         style={{
           width: "100%",
           minHeight: "44px",
-          padding: "10px 12px",
+          padding: "10px 14px",
           borderRadius: "8px",
           border: "1.5px solid #EBE9E1",
           background: disabled ? "#FDFBF4" : "#FFFFFF",
           color: disabled ? COLORS.muted : COLORS.sidebar,
           fontSize: "13px",
-          fontWeight: "600",
+          fontWeight: "650",
           textAlign: "left",
           cursor: disabled ? "not-allowed" : "pointer",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          transition: "all 0.2s"
         }}
       >
-        {selectedValues.length ? selectedValues.join(" / ") : getModernMultiSelectPlaceholder(label)}
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+          {selectedValues.length ? selectedValues.join(" / ") : getModernMultiSelectPlaceholder(label)}
+        </span>
+        {selectedValues.length > 0 && !disabled && (
+          <span style={{
+            marginLeft: "8px",
+            background: COLORS.primary,
+            color: "#FFFFFF",
+            width: "18px",
+            height: "18px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "14px",
+            fontWeight: "900",
+            flexShrink: 0,
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>+</span>
+        )}
       </button>
 
       {selectedValues.length > 0 && (
@@ -1055,10 +1087,27 @@ function ModernMultiSelectField({
             {filteredOptions.map((opt) => {
               const checked = normalizedDraft.includes(opt.toLowerCase());
               return (
-                <label key={opt} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 4px", cursor: "pointer" }}>
-                  <input type="checkbox" checked={checked} onChange={() => toggleValue(opt)} />
-                  <span style={{ fontSize: "13px", fontWeight: "600" }}>{opt}</span>
-                </label>
+                <div
+                  key={opt}
+                  onClick={() => toggleValue(opt)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "8px",
+                    padding: "8px 10px",
+                    cursor: "pointer",
+                    borderRadius: "6px",
+                    background: checked ? `${COLORS.primary}15` : "transparent",
+                    transition: "all 0.2s",
+                    marginBottom: "2px"
+                  }}
+                  onMouseOver={(e) => !checked && (e.currentTarget.style.background = "rgba(255,255,255,0.5)")}
+                  onMouseOut={(e) => !checked && (e.currentTarget.style.background = "transparent")}
+                >
+                  <span style={{ fontSize: "13px", fontWeight: "700", color: checked ? COLORS.sidebar : COLORS.muted }}>{opt}</span>
+                  {checked && <span style={{ color: COLORS.primary, fontWeight: "900", fontSize: "14px" }}>✓</span>}
+                </div>
               );
             })}
             {canAddManual && (
@@ -5711,109 +5760,16 @@ Powered by Stacli mandi os`;
                               </div>
                             )}
                           </div>
-                          <div style={{ position: "relative", minWidth: "280px" }}>
-                            <button
-                              onClick={() => setIsMemberProductDropdownOpen((prev) => !prev)}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                minHeight: "52px",
-                                padding: "0 14px",
-                                borderRadius: "12px",
-                                border: "1.5px solid #E2E8F0",
-                                background: "#F8FAFC",
-                                color: COLORS.sidebar,
-                                fontSize: "13px",
-                                fontWeight: "700",
-                                textAlign: "left",
-                                cursor: "pointer",
+                          <div style={{ minWidth: "280px" }}>
+                            <ModernMultiSelectField
+                              label="Select Product"
+                              value={selectedProducts.join(" / ")}
+                              options={productOptions}
+                              onChange={(e) => {
+                                const vals = parseMultiValue(e.target.value);
+                                setMemberProductFilters((prev) => ({ ...prev, [activeTab]: vals }));
                               }}
-                            >
-                              Select Product
-                            </button>
-
-                            {isMemberProductDropdownOpen && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "calc(100% + 8px)",
-                                  left: 0,
-                                  right: 0,
-                                  zIndex: 20,
-                                  background: "#EEF1F4",
-                                  border: "1px solid #D7DEE6",
-                                  borderRadius: "12px",
-                                  boxShadow: "0 10px 24px rgba(15, 23, 42, 0.12)",
-                                  padding: "12px",
-                                }}
-                              >
-                                <input
-                                  type="text"
-                                  value={activeProductSearch}
-                                  onChange={(e) =>
-                                    setMemberProductSearch((prev) => ({
-                                      ...prev,
-                                      [activeTab]: e.target.value,
-                                    }))
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter" && canAddManualProduct) {
-                                      addMemberProductFilter(activeTab, activeProductSearch);
-                                    }
-                                  }}
-                                  placeholder={getSelectPlaceholder("Product")}
-                                  style={{
-                                    width: "100%",
-                                    padding: "10px 12px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #CBD5E1",
-                                    marginBottom: "10px",
-                                    outline: "none",
-                                    fontSize: "13px",
-                                  }}
-                                />
-                                <div style={{ maxHeight: "220px", overflowY: "auto", paddingRight: "4px" }}>
-                                  {filteredProductOptions.map((opt) => {
-                                    const checked = selectedProducts.some(
-                                      (p) => normalizeProductName(p) === normalizeProductName(opt),
-                                    );
-                                    return (
-                                      <label key={opt} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 6px", borderRadius: "6px", cursor: "pointer" }}>
-                                        <input
-                                          type="checkbox"
-                                          checked={checked}
-                                          onChange={(e) => {
-                                            if (e.target.checked) addMemberProductFilter(activeTab, opt);
-                                            else removeMemberProductFilter(activeTab, opt);
-                                          }}
-                                        />
-                                        <span style={{ fontSize: "13px", fontWeight: "600", color: COLORS.sidebar }}>{opt}</span>
-                                      </label>
-                                    );
-                                  })}
-                                  {canAddManualProduct && (
-                                    <button
-                                      onClick={() => addMemberProductFilter(activeTab, activeProductSearch)}
-                                      style={{
-                                        width: "100%",
-                                        textAlign: "left",
-                                        marginTop: "6px",
-                                        padding: "8px 10px",
-                                        borderRadius: "8px",
-                                        border: "1px dashed #94A3B8",
-                                        background: "#FFFFFF",
-                                        cursor: "pointer",
-                                        fontSize: "13px",
-                                        fontWeight: "700",
-                                        color: COLORS.sidebar,
-                                      }}
-                                    >
-                                      Add manual product: "{activeProductSearch.trim()}"
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                            />
                           </div>
                         </div>
 
@@ -6562,23 +6518,21 @@ Powered by Stacli mandi os`;
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Variety *</label>
-                            <select value={item.variety} onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                              <option value="" disabled>{getSelectPlaceholder("Variety")}</option>
-                               {(PRODUCT_DATA[item.productId]?.varieties || []).map(v => <option key={v} value={v}>{v}</option>)}
-                            </select>
+                            <ModernMultiSelectField
+                              label="Variety"
+                              value={item.variety}
+                              options={["Standard", "Hybrid", "Local", "Desi", "F1", "Other"]}
+                              onChange={(e) => handleLineItemAction("Update", idx, "variety", e.target.value)}
+                            />
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Grade</label>
-                            <select value={item.grade} onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)} style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}>
-                              <option value="" disabled>{getSelectPlaceholder("Grade")}</option>
-                               <option value="A">A Grade</option>
-                               <option value="B">B Grade</option>
-                               <option value="C">C Grade</option>
-                               <option value="Export">Export</option>
-                               <option value="Local">Local</option>
-                            </select>
+                            <ModernMultiSelectField
+                              label="Grade"
+                              value={item.grade}
+                              options={["A", "B", "C", "Extra", "Super", "Standard"]}
+                              onChange={(e) => handleLineItemAction("Update", idx, "grade", e.target.value)}
+                            />
                           </div>
 
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -6604,9 +6558,8 @@ Powered by Stacli mandi os`;
                                     handleLineItemAction("Update", idx, "weightUnit", nextUnit);
                                     handleLineItemAction("Update", idx, "grossWeight", newGross.toString());
                                 }} 
-                                style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }}
+                                style={{ padding: "12px 14px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: "#fff", cursor: "pointer" }}
                             >
-                              <option value="" disabled>{getSelectPlaceholder("Weight Unit")}</option>
                                <option value="KGs">KGs (Kilograms)</option>
                                <option value="Tones">Tones (Metric Tons)</option>
                             </select>
@@ -6910,8 +6863,16 @@ Powered by Stacli mandi os`;
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product / Variety / Grade *</label>
-                        <select
+                        <ModernMultiSelectField
+                          label="Product / Variety / Grade *"
                           value={item.lineItemId}
+                          options={(() => {
+                            const currentLot = lots.find(l => l.lotId === allocationForm.lotId);
+                            if (!currentLot) return [];
+                            return currentLot.lineItems.map(li => 
+                              `${li.product || ""} ${li.variety || ""} ${li.grade || ""}`.trim()
+                            );
+                          })()}
                           onChange={(e) =>
                             handleAllocationItemAction(
                               "Update",
@@ -6920,24 +6881,7 @@ Powered by Stacli mandi os`;
                               e.target.value,
                             )
                           }
-                          style={{
-                            padding: "12px 14px",
-                            borderRadius: "8px",
-                            border: "1.5px solid #EBE9E1",
-                            backgroundColor: "#FFFFFF",
-                            color: COLORS.sidebar,
-                            outline: "none",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                            appearance: "auto",
-                          }}
-                        >
-                          {["", ...(lots.find((l) => (l.lotId || l._id) === allocationForm.lotId)?.lineItems || [])].map((li) => {
-                            const val = typeof li === 'string' ? li : `${li.productId} / ${li.variety} / ${li.grade}`;
-                            return <option key={val} value={val}>{val || "Select Product / Variety / Grade"}</option>;
-                          })}
-                        </select>
+                        />
                       </div>
 
                       <div
@@ -7462,7 +7406,7 @@ Powered by Stacli mandi os`;
                   </div>
                 </div>
               </div>
-            )}
+            </div>
             </div>
           )}
 
@@ -8041,7 +7985,7 @@ Powered by Stacli mandi os`;
                           </div>
                         </div>
 
-                          <OthersDropdown
+                          <ModernMultiSelectField
                             label="Item / Product Name"
                             value={item.productName}
                             options={(lots.find((l) => l.lotId === supplierSettlementForm.lotId)?.lineItems || []).map((li) => `${li.product || li.productId || ""} ${li.variety || ""}`.trim())}
@@ -8567,31 +8511,22 @@ Powered by Stacli mandi os`;
                         border: "1px solid #EBE9E1",
                       }}
                     >
-                      <input
-                        type="text"
-                        value={supplierSettlementForm.expenses.miscName}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              miscName: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="Other deduction label..."
-                        style={{
-                          flex: 1,
-                          marginRight: "12px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          background: "transparent",
-                        }}
-                      />
+                      <div style={{ flex: 1, marginRight: "12px" }}>
+                        <ModernMultiSelectField
+                          label="Other deduction label"
+                          value={supplierSettlementForm.expenses.miscName}
+                          options={["Loading", "Unloading", "Weighment", "Cleaning", "Sorting", "Miscellaneous"]}
+                          onChange={(e) =>
+                            setSupplierSettlementForm({
+                              ...supplierSettlementForm,
+                              expenses: {
+                                ...supplierSettlementForm.expenses,
+                                miscName: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
                       <input
                         type="number"
                         value={supplierSettlementForm.expenses.miscAmount}
@@ -9849,94 +9784,32 @@ Powered by Stacli mandi os`;
                           >
                             Product + Variety + Grade
                           </label>
-                          <select
+                          <ModernMultiSelectField
+                            label="Available Item from Lot"
                             value={item.productInfo}
+                            options={(() => {
+                              const currentLot = lots.find(l => l.lotId === buyerInvoiceForm.lotReference);
+                              if (!currentLot) return [];
+                              return currentLot.lineItems.map(li => 
+                                `${li.product || li.productId || ""} ${li.variety || ""}`.trim()
+                              );
+                            })()}
                             onChange={(e) => {
                               const label = e.target.value;
-                              const matchedLot = lots.find(
-                                (l) =>
-                                  l.lotId === buyerInvoiceForm.lotReference,
-                              );
-                              const matchedItem = matchedLot
-                                ? matchedLot.lineItems.find(
-                                    (li) =>
-                                      `${li.product || li.productId || ""} ${li.variety || ""}`.trim() ===
-                                        label ||
-                                      `${li.productId || ""} ${li.variety || ""}`.trim() ===
-                                        label,
-                                  )
-                                : null;
+                              const matchedLot = lots.find(l => l.lotId === buyerInvoiceForm.lotReference);
+                              const matchedItem = matchedLot ? matchedLot.lineItems.find(li => 
+                                `${li.product || li.productId || ""} ${li.variety || ""}`.trim() === label.split(' / ')[0]
+                              ) : null;
 
-                              handleBuyerInvoiceItemAction(
-                                "Update",
-                                idx,
-                                "productInfo",
-                                label,
-                              );
+                              handleBuyerInvoiceItemAction("Update", idx, "productInfo", label);
                               if (matchedItem) {
-                                handleBuyerInvoiceItemAction(
-                                  "Update",
-                                  idx,
-                                  "grossWeight",
-                                  Math.max(
-                                    0,
-                                    (Number(matchedItem.grossWeight) || 0) -
-                                      (Number(matchedItem.deductions) || 0),
-                                  ),
-                                );
-                                if (
-                                  matchedItem.rate ||
-                                  matchedItem.estimatedRate
-                                ) {
-                                  handleBuyerInvoiceItemAction(
-                                    "Update",
-                                    idx,
-                                    "rate",
-                                    matchedItem.rate ||
-                                      matchedItem.estimatedRate,
-                                  );
+                                handleBuyerInvoiceItemAction("Update", idx, "grossWeight", Math.max(0, (Number(matchedItem.grossWeight) || 0) - (Number(matchedItem.deductions) || 0)));
+                                if (matchedItem.rate || matchedItem.estimatedRate) {
+                                  handleBuyerInvoiceItemAction("Update", idx, "rate", matchedItem.rate || matchedItem.estimatedRate);
                                 }
                               }
                             }}
-                            style={{
-                              padding: "10px",
-                              borderRadius: "8px",
-                              border: "1px solid #EBE9E1",
-                              color: COLORS.sidebar,
-                              outline: "none",
-                              fontSize: "13px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            <option value="">
-                              {getSelectPlaceholder("Available Item from Lot")}
-                            </option>
-                            {(() => {
-                              const currentLot = lots.find(
-                                (l) =>
-                                  l.lotId === buyerInvoiceForm.lotReference,
-                              );
-                              if (!currentLot)
-                                return (
-                                  <option disabled>
-                                    Select a Lot ID in Step 1 first
-                                  </option>
-                                );
-                              return currentLot.lineItems.map((li, lIdx) => {
-                                const itemName =
-                                  `${li.product || li.productId || ""} ${li.variety || ""}`.trim() ||
-                                  "Produce";
-                                return (
-                                  <option key={lIdx} value={itemName}>
-                                    {itemName} (Available:{" "}
-                                    {(Number(li.grossWeight) || 0) -
-                                      (Number(li.deductions) || 0)}{" "}
-                                    KG)
-                                  </option>
-                                );
-                              });
-                            })()}
-                          </select>
+                          />
                         </div>
                         <div
                           style={{
@@ -10363,31 +10236,22 @@ Powered by Stacli mandi os`;
                         border: "1px solid #EBE9E1",
                       }}
                     >
-                      <input
-                        type="text"
-                        value={buyerInvoiceForm.charges.otherName}
-                        onChange={(e) =>
-                          setBuyerInvoiceForm({
-                            ...buyerInvoiceForm,
-                            charges: {
-                              ...buyerInvoiceForm.charges,
-                              otherName: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="Other Charges label..."
-                        style={{
-                          flex: 1,
-                          marginRight: "12px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          background: "transparent",
-                        }}
-                      />
+                      <div style={{ flex: 1, marginRight: "12px" }}>
+                        <ModernMultiSelectField
+                          label="Other Charges label"
+                          value={buyerInvoiceForm.charges.otherName}
+                          options={["Packing", "Loading", "Unloading", "Transport", "Miscellaneous"]}
+                          onChange={(e) =>
+                            setBuyerInvoiceForm({
+                              ...buyerInvoiceForm,
+                              charges: {
+                                ...buyerInvoiceForm.charges,
+                                otherName: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
                       <input
                         type="number"
                         value={buyerInvoiceForm.charges.otherAmount}
