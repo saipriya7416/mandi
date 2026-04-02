@@ -3105,10 +3105,6 @@ Powered by Stacli mandi os`;
       items.splice(idx, 1);
     } else if (action === "Update") {
       items[idx][field] = value;
-      // Deduction calculation: Quantity - Allocated Quantity
-      if (field === "quantity" && items[idx].allocatedQuantity !== undefined) {
-         items[idx].deductions = Math.max(0, Number(value || 0) - Number(items[idx].allocatedQuantity || 0));
-      }
     }
     setSupplierSettlementForm({ ...supplierSettlementForm, items });
   };
@@ -3550,6 +3546,7 @@ Powered by Stacli mandi os`;
     date: getISTDate(),
     supplierId: "",
     lotId: "",
+    location: "",
     vehicleNumber: "",
     items: [{ id: Date.now(), productName: "", quantity: "", rate: "", deductions: "", thotrasi: "", grading: "" }],
     expenses: {
@@ -4067,10 +4064,11 @@ Powered by Stacli mandi os`;
     setIsRefreshing(true);
     if (activeSection === "Supplier Billing") {
        setSupplierSettlementForm({
-         billNumber: billCounter,
+         billNumber: billCounter + 1,
          date: getISTDate(),
          supplierId: "",
          lotId: "",
+         location: "",
          vehicleNumber: "",
          items: [{ id: Date.now(), productName: "", quantity: "", rate: "", deductions: "" }],
          expenses: { commission: "", transport: "", labour: "", advance: "", weighing: "", otherDeductions: [{ name: "Other", amount: "" }] }
@@ -7936,14 +7934,7 @@ Powered by Stacli mandi os`;
                   >
                     Bill Header
                   </h2>
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fit, minmax(280px, 1fr))",
-                      gap: "24px",
-                    }}
-                  >
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
                     <div
                       style={{
                         display: "flex",
@@ -7984,28 +7975,19 @@ Powered by Stacli mandi os`;
                         gap: "8px",
                       }}
                     >
-                      <label
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: "700",
-                          color: COLORS.muted,
-                        }}
-                      >
-                        Date
+                      <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>
+                        Farmer / Supplier (M/s)
                       </label>
                       <input
-                        type="date"
-                        value={supplierSettlementForm.date}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            date: e.target.value,
-                          })
-                        }
+                        type="text"
+                        disabled
+                        value={supplierSettlementForm.supplierId}
+                        placeholder="Auto-filled from Lot ID"
                         style={{
                           padding: "12px 14px",
                           borderRadius: "8px",
                           border: "1px solid #EBE9E1",
+                          background: "#F1F5F9",
                           color: COLORS.sidebar,
                           outline: "none",
                           fontSize: "13px",
@@ -8021,100 +8003,25 @@ Powered by Stacli mandi os`;
                         gap: "8px",
                       }}
                     >
-                      <label
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: "700",
-                          color: COLORS.muted,
-                        }}
-                      >
-                        Supplier Name
+                      <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>
+                        Location
                       </label>
-                      <select
-                        value={supplierSettlementForm.supplierId}
-                        onChange={(e) => {
-                          const selectedName = e.target.value;
-                          const matchedSupplier = suppliers.find(
-                            (s) => s.name === selectedName,
-                          );
-                          const selectedId = matchedSupplier
-                            ? matchedSupplier._id
-                            : null;
-
-                          // find the most recent lot for this supplier (matching by ID or Name)
-                          const farmerLots = lots.filter(
-                            (l) =>
-                              l.supplierId === selectedId ||
-                              l.supplierId === selectedName ||
-                              l.supplierId?.name === selectedName ||
-                              l.farmerId === selectedName,
-                          );
-                          const latestLot =
-                            farmerLots.length > 0
-                              ? farmerLots[farmerLots.length - 1]
-                              : null;
-
-                          const itemsToAdd =
-                            latestLot &&
-                            latestLot.lineItems &&
-                            latestLot.lineItems.length > 0
-                              ? latestLot.lineItems.map((iter, idx) => ({
-                                  id: Date.now() + idx,
-                                  productName:
-                                    `${iter.productId || ""} ${iter.variety || ""}`.trim() ||
-                                    "Produce",
-                                  quantity: Math.max(
-                                    0,
-                                    (Number(iter.grossWeight) || 0) -
-                                      (Number(iter.deductions) || 0),
-                                  ),
-                                  rate: iter.estimatedRate || "",
-                                }))
-                              : [
-                                  {
-                                    id: Date.now(),
-                                    productName: "",
-                                    quantity: 0,
-                                    rate: 0,
-                                  },
-                                ];
-
-                          setSupplierSettlementForm((prev) => ({
-                            ...prev,
-                            supplierId: selectedName,
-                            supplierPhone: matchedSupplier?.phone || matchedSupplier?.mobile || "",
-                            lotId: latestLot ? latestLot.lotId : "",
-                            vehicleNumber: latestLot
-                              ? latestLot.vehicleNumber || ""
-                              : "",
-                            date:
-                              latestLot && latestLot.entryDate
-                                ? latestLot.entryDate.slice(0, 10)
-                                : prev.date,
-                            items: itemsToAdd,
-                            expenses: {
-                              ...prev.expenses,
-                              advance: matchedSupplier?.advanceBalance || prev.expenses.advance || 0,
-                            }
-                          }));
-                        }}
+                      <input
+                        type="text"
+                        disabled
+                        value={supplierSettlementForm.location || ""}
+                        placeholder="Auto-filled from Lot ID"
                         style={{
                           padding: "12px 14px",
                           borderRadius: "8px",
                           border: "1px solid #EBE9E1",
+                          background: "#F1F5F9",
                           color: COLORS.sidebar,
                           outline: "none",
                           fontSize: "13px",
                           fontWeight: "600",
                         }}
-                      >
-                        <option value="" disabled>{getSelectPlaceholder("Supplier Name")}</option>
-                        {suppliers.map((s) => (
-                          <option key={s._id} value={s.name}>
-                            {s.name}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     </div>
 
                     <div
@@ -8139,7 +8046,7 @@ Powered by Stacli mandi os`;
                             fontWeight: "800",
                           }}
                         >
-                          AUTO
+                          MANUAL
                         </span>
                       </label>
                       <select
@@ -8172,7 +8079,7 @@ Powered by Stacli mandi os`;
                                       productName: `${iter.product || iter.productId || ""} ${iter.variety || ""}`.trim() || "Produce",
                                       quantity: Number(iter.grossWeight || 0),
                                       allocatedQuantity: allocatedQty,
-                                      deductions: Math.max(0, Number(iter.grossWeight || 0) - allocatedQty),
+                                      deductions: "",
                                       rate: saleRate,
                                     };
                                   })
@@ -8182,7 +8089,7 @@ Powered by Stacli mandi os`;
                                       productName: "",
                                       quantity: 0,
                                       rate: 0,
-                                      deductions: 0
+                                      deductions: ""
                                     },
                                   ];
 
@@ -8210,14 +8117,11 @@ Powered by Stacli mandi os`;
                                 : matchedLot?.supplierId?.name ||
                                   matchedLot?.supplierId ||
                                   prev.supplierId,
+                              location: matchedLot?.origin || resolvedSupplier?.village || "",
                               supplierPhone: resolvedSupplier?.phone || resolvedSupplier?.mobile || prev.supplierPhone || "",
                               vehicleNumber: matchedLot
                                 ? matchedLot.vehicleNumber || prev.vehicleNumber
                                 : prev.vehicleNumber,
-                              date:
-                                matchedLot && matchedLot.entryDate
-                                  ? matchedLot.entryDate.slice(0, 10)
-                                  : prev.date,
                               items: itemsToAdd,
                             };
                           });
@@ -8236,22 +8140,6 @@ Powered by Stacli mandi os`;
                       >
                         <option value="" style={{ background: "#e2e8f0", color: COLORS.sidebar }}>{getSelectPlaceholder("Lot ID Reference")}</option>
                         {lots
-                          .filter((l) => {
-                            const matchedSupp = suppliers.find(
-                              (s) =>
-                                s.name === supplierSettlementForm.supplierId,
-                            );
-                            const suppId = matchedSupp ? matchedSupp._id : null;
-                            return (
-                              !supplierSettlementForm.supplierId ||
-                              l.supplierId === suppId ||
-                              l.supplierId ===
-                                supplierSettlementForm.supplierId ||
-                              l.supplierId?.name ===
-                                supplierSettlementForm.supplierId ||
-                              l.farmerId === supplierSettlementForm.supplierId
-                            );
-                          })
                           .map((l) => (
                             <option key={l._id || l.lotId} value={l.lotId} style={{ background: "#e2e8f0", color: COLORS.sidebar }}>
                               {l.lotId}
@@ -8287,13 +8175,8 @@ Powered by Stacli mandi os`;
                       </label>
                       <input
                         type="text"
+                        disabled
                         value={supplierSettlementForm.vehicleNumber}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            vehicleNumber: e.target.value,
-                          })
-                        }
                         placeholder="Auto-filled from Lot"
                         style={{
                           padding: "12px 14px",
@@ -8303,9 +8186,7 @@ Powered by Stacli mandi os`;
                           outline: "none",
                           fontSize: "13px",
                           fontWeight: "600",
-                          background: supplierSettlementForm.vehicleNumber
-                            ? "#FDFBF4"
-                            : "#FFFFFF",
+                          background: "#F1F5F9",
                         }}
                       />
                     </div>
@@ -8344,9 +8225,7 @@ Powered by Stacli mandi os`;
                           padding: "12px 14px",
                           borderRadius: "8px",
                           border: "1px solid #EBE9E1",
-                          background: supplierSettlementForm.supplierPhone
-                            ? "#FDFBF4"
-                            : "#F1F5F9",
+                          background: "#F1F5F9",
                           color: supplierSettlementForm.supplierPhone
                             ? COLORS.sidebar
                             : COLORS.muted,
@@ -8547,7 +8426,15 @@ Powered by Stacli mandi os`;
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Deduction Quantity</label>
-                          <input type="number" disabled value={item.deductions === 0 ? "0" : (item.deductions || "")} onWheel={(e) => e.target.blur()} onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: "#F1F5F9" }} />
+                          <input 
+                            type="number" 
+                            value={item.deductions === 0 ? "0" : (item.deductions || "")} 
+                            onWheel={(e) => e.target.blur()} 
+                            onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()} 
+                            onChange={(e) => handleSupplierItemAction("Update", idx, "deductions", e.target.value)}
+                            placeholder="0" 
+                            style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: "#FFFFFF" }} 
+                          />
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Thotrasi (6%)</label>
@@ -9120,11 +9007,7 @@ Powered by Stacli mandi os`;
                             </div>
                             <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
                               <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>LOCATION</label>
-                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{lot.location || supplier.location || supplier.village || "N/A"}</span>
-                            </div>
-                            <div style={{ borderBottom: "1px solid #ccc", padding: "8px 0" }}>
-                              <label style={{ fontSize: "10px", fontWeight: "800", color: "#666", display: "block" }}>DATE</label>
-                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{formatDate(lastGeneratedBill.date)}</span>
+                              <span style={{ fontSize: "13px", fontWeight: "900" }}>{lastGeneratedBill.location || lot.location || supplier.location || supplier.village || "N/A"}</span>
                             </div>
                           </div>
 
@@ -9410,36 +9293,37 @@ Powered by Stacli mandi os`;
                           if (res.status === "SUCCESS") {
                             setLastGeneratedBill(res.data);
                             alert(
-                              `\u2705 BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
+                              `✅ BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
                             );
-                            setBillCounter(prev => prev + 1);
-                             setSupplierSettlementForm({
-                               billNumber: billCounter + 1,
-                               date: getISTDate(),
-                               supplierId: "",
-                               lotId: "",
-                               vehicleNumber: "",
-                               items: [
-                                 {
-                                   id: Date.now(),
-                                   productName: "",
-                                   quantity: 0,
-                                   rate: 0,
-                                 },
-                               ],
-                               expenses: {
-                                 transport: "0",
-                                 commission: "0",
-                                 labour: "0",
-                                 advance: "0",
-                                 weighing: "0",
-                                 otherDeductions: [{ name: "Other", amount: "0" }],
-                               },
-                             });
-                             setActiveSupplierBillTab("Generate Bill");
-                             setIsEditingSupplierBill(false);
-                             setEditingSupplierBillId(null);
-                             fetchData();
+                            setBillCounter((prev) => prev + 1);
+                            setSupplierSettlementForm({
+                              billNumber: billCounter + 1,
+                              date: getISTDate(),
+                              supplierId: "",
+                              lotId: "",
+                              location: "",
+                              vehicleNumber: "",
+                              items: [
+                                {
+                                  id: Date.now(),
+                                  productName: "",
+                                  quantity: 0,
+                                  rate: 0,
+                                  deductions: "",
+                                },
+                              ],
+                              expenses: {
+                                transport: "0",
+                                commission: "0",
+                                labour: "0",
+                                weighing: "0",
+                                otherDeductions: [{ name: "Other", amount: "0" }],
+                              },
+                            });
+                            setActiveSupplierBillTab("Generate Bill");
+                            setIsEditingSupplierBill(false);
+                            setEditingSupplierBillId(null);
+                            fetchData();
                           } else {
                             alert(` FAILED: ${res.message || "Database Error"}`);
                           }
