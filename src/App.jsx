@@ -1803,7 +1803,8 @@ function FormGrid({ sections, isParty = false }) {
                       {f.options && f.options.map((opt, i) => {
                         const val = typeof opt === "object" ? opt.value : opt;
                         const label = typeof opt === "object" ? opt.label : opt;
-                        return <option key={i} value={val} style={{ background: "#2D3748", color: "#FFFFFF" }}>{label}</option>;
+                        const title = typeof opt === "object" ? (opt.tooltip || opt.label) : opt;
+                        return <option key={i} value={val} title={title} style={{ background: "#2D3748", color: "#FFFFFF" }}>{label}</option>;
                       })}
                     </select>
                   ) : (
@@ -7143,7 +7144,8 @@ Powered by Stacli mandi os`;
                           const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "\u2014";
                           const formattedLotId = l.lotId?.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") || "N/A";
                           return {
-                            label: `${formattedLotId}  |  ${displayName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`,
+                            label: formattedLotId,
+                            tooltip: `${formattedLotId}  |  ${displayName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`,
                             value: l.lotId
                           };
                         })
@@ -7183,7 +7185,7 @@ Powered by Stacli mandi os`;
                           }),
                       },
                       {
-                        label: "Invoice No",
+                        label: "Customer Invoice Number",
                         type: "text",
                         value: allocationForm.buyerInvoiceNo || generateNextAllocationInvoiceNo(),
                         disabled: true,
@@ -7853,7 +7855,6 @@ Powered by Stacli mandi os`;
                           icon={ICON_USER}
                           status={{ text: "Allocated", color: "#1d4ed8", bg: "#dbeafe" }}
                           details={[
-                            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: formatDate(items[0].allocationDate) },
                             { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>, text: supplierDisplay }
                           ]}
                           secondaryActions={[
@@ -7865,26 +7866,7 @@ Powered by Stacli mandi os`;
                           onDelete={null}
                           onLock={() => alert("Allocation group finalized.")}
                         >
-                          <div style={{ marginBottom: "8px", fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Line Items</div>
-                          <div style={{ overflowX: "auto" }}>
-                            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
-                              <tbody>
-                                {items.map((it, idx) => {
-                                  const matchedLot = lots.find(l => l.lotId === (it.lotNumber || it.lotReference) || l._id === (it.lotNumber || it.lotReference));
-                                  const displayLotId = matchedLot ? matchedLot.lotId?.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") : "N/A";
-                                  
-                                  return (
-                                    <tr key={idx} style={{ borderBottom: idx < items.length - 1 ? "1px solid #F1F5F9" : "none" }}>
-                                      <td style={{ padding: "8px 4px", fontWeight: "700" }}>
-                                        <div style={{ display: "flex", flexDirection: "column" }}>
-                                          <span style={{ fontSize: '10px', color: COLORS.sidebar, fontWeight: "900" }}>Lot ID: {displayLotId}</span>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
+                          <div style={{ padding: "8px 0" }}>
                           </div>
                         </PremiumActionCard>
                       );
@@ -19489,7 +19471,16 @@ Powered by Stacli mandi os`;
                                     borderRight: "1px solid #EBE9E1"
                                   }}
                                 >
-                                  {key === "farmerName" ? "Supplier Name" : key.replace(/([A-Z])/g, " $1").trim()}
+                                  {(() => {
+                                      const normalized = key.toLowerCase();
+                                      if (normalized === "farmerid") return "Supplier ID";
+                                      if (normalized === "lineitemid") return "Items";
+                                      if (normalized === "buyerid") return "Customer ID";
+                                      if (normalized === "farmername") return "Supplier Name";
+                                      if (normalized === "buyerinvoiceno") return "Customer Invoice Number";
+                                      if (normalized === "allocationdate") return "Allocation Date";
+                                      return key.replace(/([A-Z])/g, " $1").trim();
+                                    })()}
                                 </th>
                               ))}
                           </tr>
@@ -19497,7 +19488,7 @@ Powered by Stacli mandi os`;
                         <tbody>
                           <tr>
                             {Object.entries(viewingEntity.data)
-                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "attached_bill_photo", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
+                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allocationDate", "buyerInvoiceNo", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "attached_bill_photo", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
                               .map(([key, rawValue]) => (
                                 <td 
                                   key={key} 
@@ -19509,11 +19500,17 @@ Powered by Stacli mandi os`;
                                     whiteSpace: "nowrap"
                                   }}
                                 >
-                                  {typeof rawValue === 'object' && rawValue !== null 
-                                    ? JSON.stringify(rawValue) 
-                                    : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
-                                      ? rawValue.split('T')[0] 
-                                      : String(rawValue || "N/A")}
+                                  {(() => {
+                                      if (key === "buyerId" && viewingEntity.type === "Allocation") {
+                                        const found = buyers.find(b => b._id === rawValue || b.name === rawValue || b.buyerId === rawValue);
+                                        return found?.buyerId || rawValue;
+                                      }
+                                      return typeof rawValue === 'object' && rawValue !== null 
+                                        ? JSON.stringify(rawValue) 
+                                        : (typeof rawValue === 'string' && rawValue.includes('T') && !isNaN(Date.parse(rawValue))) 
+                                          ? rawValue.split('T')[0] 
+                                          : String(rawValue || "N/A");
+                                    })()}
                                 </td>
                               ))}
                           </tr>
