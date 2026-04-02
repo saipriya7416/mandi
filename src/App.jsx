@@ -5227,7 +5227,7 @@ Powered by Stacli mandi os`;
                 <input
                   className="stacli-input"
                   type="password"
-                  placeholder="Enter the password"
+                  placeholder="Password"
                   value={authForm.password}
                   onChange={(e) =>
                     setAuthForm({ ...authForm, password: e.target.value })
