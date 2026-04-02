@@ -7884,17 +7884,38 @@ Powered by Stacli mandi os`;
           {/* SUPPLIER BILLING MODULE */}
           {activeSection === "Supplier Billing" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <TabHeader
-                tabs={[
-                  "Bill Header",
-                  "Produce Sold",
-                  "Expenses and Settlement",
-                  "Preview & Print",
-                  "Generated Bills",
-                ]}
-                active={activeSupplierBillTab}
-                set={setActiveSupplierBillTab}
-              />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                 <TabHeader
+                   tabs={[
+                     "Bill Header",
+                     "Produce Sold",
+                     "Expenses and Settlement",
+                     "Preview & Print",
+                     "Generated Bills",
+                   ]}
+                   active={activeSupplierBillTab}
+                   set={setActiveSupplierBillTab}
+                 />
+                 <Button 
+                   onClick={() => {
+                     if (window.confirm("Refresh all Supplier Billing data? Current unsaved entries will be lost.")) {
+                        setSupplierSettlementForm({
+                          billNumber: billCounter,
+                          date: getISTDate(),
+                          supplierId: "",
+                          lotId: "",
+                          vehicleNumber: "",
+                          items: [{ id: Date.now(), productName: "", quantity: "", rate: "", deductions: "" }],
+                          expenses: { commission: "", transport: "", labour: "", advance: "", weighing: "", otherDeductions: [{ name: "Other", amount: "" }] }
+                        });
+                        fetchData();
+                     }
+                   }}
+                   style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1px solid ${COLORS.sidebar}`, gap: "8px", fontWeight: "800", height: "40px" }}
+                 >
+                   <RefreshCw size={16} /> Refresh
+                 </Button>
+               </div>
 
               {activeSupplierBillTab === "Bill Header" && (
                 <div
@@ -8133,29 +8154,40 @@ Powered by Stacli mandi os`;
                           );
 
                           const itemsToAdd =
-                            matchedLot &&
-                            matchedLot.lineItems &&
-                            matchedLot.lineItems.length > 0
-                              ? matchedLot.lineItems.map((iter, idx) => ({
-                                  id: Date.now() + idx,
-                                  productName:
-                                    `${iter.product || iter.productId || ""} ${iter.variety || ""}`.trim() ||
-                                    "Produce",
-                                  quantity: Math.max(
-                                    0,
-                                    (Number(iter.grossWeight) || 0) -
-                                      (Number(iter.deductions) || 0),
-                                  ),
-                                  rate: iter.rate || iter.estimatedRate || 0,
-                                }))
-                              : [
-                                  {
-                                    id: Date.now(),
-                                    productName: "",
-                                    quantity: 0,
-                                    rate: 0,
-                                  },
-                                ];
+                              matchedLot &&
+                              matchedLot.lineItems &&
+                              matchedLot.lineItems.length > 0
+                                ? matchedLot.lineItems.map((iter, idx) => {
+                                    // Find all allocations for THIS lot and THIS specific line item (product/variety match)
+                                    const itemAllocations = (allocations || [])
+                                      .filter(a => a.lotId === selectedLotId)
+                                      .flatMap(a => a.items || [])
+                                      .filter(ai => ai.lineItemId === iter._id || ai.productName === `${iter.product || ""} ${iter.variety || ""}`.trim());
+                                    
+                                    const allocatedQty = itemAllocations.reduce((acc, ai) => acc + (Number(ai.quantity) || 0), 0);
+                                    // Use the first allocation's saleRate, or fallback to the lot's estimated rate
+                                    const saleRate = itemAllocations.length > 0 
+                                      ? (Number(itemAllocations[0].saleRate) || 0) 
+                                      : (Number(iter.estimatedRate) || Number(iter.rate) || 0);
+
+                                    return {
+                                      id: Date.now() + idx,
+                                      lineItemId: iter._id,
+                                      productName: `${iter.product || iter.productId || ""} ${iter.variety || ""}`.trim() || "Produce",
+                                      quantity: Number(iter.grossWeight || 0),
+                                      deductions: Math.max(0, Number(iter.grossWeight || 0) - allocatedQty),
+                                      rate: saleRate,
+                                    };
+                                  })
+                                : [
+                                    {
+                                      id: Date.now(),
+                                      productName: "",
+                                      quantity: 0,
+                                      rate: 0,
+                                      deductions: 0
+                                    },
+                                  ];
 
                           const resolvedSupplier = matchedLot
                             ? suppliers.find(
@@ -8512,7 +8544,9 @@ Powered by Stacli mandi os`;
                           </label>
                           <input
                             type="number"
-                            value={item.quantity}
+                            value={item.quantity === 0 ? "0" : (item.quantity || "")}
+                            onWheel={(e) => e.target.blur()}
+                            onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                             onChange={(e) =>
                               handleSupplierItemAction(
                                 "Update",
@@ -8535,7 +8569,7 @@ Powered by Stacli mandi os`;
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Deduction Quantity</label>
-                          <input type="number" value={item.deductions || 0} onChange={(e) => handleSupplierItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <input type="number" value={item.deductions === 0 ? "0" : (item.deductions || "")} onWheel={(e) => e.target.blur()} onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()} onChange={(e) => handleSupplierItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Thotrasi (6%)</label>
@@ -8567,7 +8601,9 @@ Powered by Stacli mandi os`;
                           </label>
                           <input
                             type="number"
-                            value={item.rate}
+                            value={item.rate === 0 ? "0" : (item.rate || "")}
+                            onWheel={(e) => e.target.blur()}
+                            onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                             onChange={(e) =>
                               handleSupplierItemAction(
                                 "Update",
@@ -8732,7 +8768,9 @@ Powered by Stacli mandi os`;
                       <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Lorry Freight / Transport</label>
                       <input
                         type="number"
-                        value={supplierSettlementForm.expenses.transport}
+                        value={supplierSettlementForm.expenses.transport === 0 ? "0" : (supplierSettlementForm.expenses.transport || "")}
+                        onWheel={(e) => e.target.blur()}
+                        onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                         onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, transport: e.target.value}})}
                         placeholder="0"
                         style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
@@ -8753,7 +8791,9 @@ Powered by Stacli mandi os`;
                       <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Expenditure</label>
                       <input
                         type="text"
-                        value={supplierSettlementForm.expenses.commission}
+                        value={supplierSettlementForm.expenses.commission === 0 ? "0" : (supplierSettlementForm.expenses.commission || "")}
+                        onWheel={(e) => e.target.blur()} 
+                        onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                         onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})}
                         placeholder="0"
                         style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
@@ -8774,7 +8814,9 @@ Powered by Stacli mandi os`;
                       <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Labour / Hamali</label>
                       <input
                         type="number"
-                        value={supplierSettlementForm.expenses.labour}
+                        value={supplierSettlementForm.expenses.labour === 0 ? "0" : (supplierSettlementForm.expenses.labour || "")}
+                        onWheel={(e) => e.target.blur()} 
+                        onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                         onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, labour: e.target.value}})}
                         placeholder="0"
                         style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
@@ -8796,6 +8838,8 @@ Powered by Stacli mandi os`;
                       <input
                         type="number"
                         value={supplierSettlementForm.expenses.advance}
+                        onWheel={(e) => e.target.blur()} 
+                        onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                         onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, advance: e.target.value}})}
                         placeholder="0"
                         style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
@@ -8816,7 +8860,9 @@ Powered by Stacli mandi os`;
                       <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Weighing Charges (Kata)</label>
                       <input
                         type="number"
-                        value={supplierSettlementForm.expenses.weighing}
+                        value={supplierSettlementForm.expenses.weighing === 0 ? "0" : (supplierSettlementForm.expenses.weighing || "")}
+                        onWheel={(e) => e.target.blur()} 
+                        onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                         onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, weighing: e.target.value}})}
                         placeholder="0"
                         style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
@@ -8847,19 +8893,32 @@ Powered by Stacli mandi os`;
                              }}
                              style={{ flex: 1, padding: "8px", borderRadius: "6px", border: "1px solid #EBE9E1", fontSize: "12px", fontWeight: "700" }}
                            />
-                           {odIdx === supplierSettlementForm.expenses.otherDeductions.length - 1 && (
-                             <button
-                               onClick={() => {
-                                 const newList = [...supplierSettlementForm.expenses.otherDeductions, { name: "", amount: "" }];
-                                 setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, otherDeductions: newList}});
-                               }}
-                               style={{ background: COLORS.sidebar, color: "#fff", border: "none", borderRadius: "4px", width: "24px", height: "24px", cursor: "pointer", fontWeight: "900" }}
-                             >+</button>
-                           )}
+                           <div style={{ display: "flex", gap: "6px" }}>
+                             {odIdx === supplierSettlementForm.expenses.otherDeductions.length - 1 && (
+                               <button
+                                 onClick={() => {
+                                   const newList = [...supplierSettlementForm.expenses.otherDeductions, { name: "", amount: "" }];
+                                   setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, otherDeductions: newList}});
+                                 }}
+                                 style={{ background: COLORS.sidebar, color: "#fff", border: "none", borderRadius: "4px", width: "24px", height: "24px", cursor: "pointer", fontWeight: "900" }}
+                               >+</button>
+                             )}
+                             {odIdx > 0 && (
+                               <button
+                                 onClick={() => {
+                                   const newList = supplierSettlementForm.expenses.otherDeductions.filter((_, i) => i !== odIdx);
+                                   setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, otherDeductions: newList}});
+                                 }}
+                                 style={{ background: "#FEE2E2", color: "#B91C1C", border: "1px solid #FECACA", borderRadius: "4px", width: "24px", height: "24px", cursor: "pointer", fontWeight: "900" }}
+                               >x</button>
+                             )}
+                           </div>
                         </div>
                         <input
                           type="number"
                           value={od.amount}
+                          onWheel={(e) => e.target.blur()} 
+                          onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                           onChange={(e) => {
                              const newList = [...supplierSettlementForm.expenses.otherDeductions];
                              newList[odIdx].amount = e.target.value;
@@ -9029,11 +9088,16 @@ Powered by Stacli mandi os`;
                         <>
                           {/* Header Block */}
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "4px solid #1a3c34", paddingBottom: "20px", marginBottom: "20px" }}>
-                            <div style={{ background: "#1a3c34", padding: "15px", borderRadius: "8px" }}>
-                              <div style={{ border: "2px solid #fff", color: "#fff", padding: "10px", fontSize: "32px", fontWeight: "900", textAlign: "center" }}>
-                                SPV
-                              </div>
-                              <div style={{ color: "#fff", fontSize: "10px", textAlign: "center", marginTop: "4px", fontWeight: "700" }}>FRUITS</div>
+                            <div style={{ padding: "8px", borderRadius: "12px", background: "#fff", border: "1px solid #eee", width: "100px", height: "100px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <img 
+                                src="https://spvfruits.com/assets/images/IconBaseExport.webp" 
+                                style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+                                alt="SPV Logo"
+                                onError={(e) => {
+                                  e.target.onerror = null; 
+                                  e.target.parentNode.innerHTML = '<span style="font-size:24px; font-weight:900; color:#1a3c34">SPV</span>';
+                                }}
+                              />
                             </div>
                             <div style={{ flex: 1, paddingLeft: "30px" }}>
                               <h1 style={{ margin: 0, fontSize: "42px", fontWeight: "900", color: "#1a3c34", letterSpacing: "1px" }}>SPV FRUITS</h1>
