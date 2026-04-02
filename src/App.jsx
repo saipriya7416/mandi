@@ -7140,7 +7140,7 @@ Powered by Stacli mandi os`;
                     title: "Allocation Header",
                     fields: [
                       {
-                        label: "Lot ID *",
+                        label: "Lot ID",
                         info: lots.find(l => (l.lotId || l._id) === allocationForm.lotId)?.supplierId?.name || lots.find(l => (l.lotId || l._id) === allocationForm.lotId)?.farmerName || "",
                         type: "dropdown",
                         value: allocationForm.lotId,
@@ -7166,7 +7166,7 @@ Powered by Stacli mandi os`;
                         })
                       },
                       {
-                        label: "Customer Name *",
+                        label: "Customer Name",
                         type: "othersDropdown",
                         options: buyers.map((b) => formatNameWithId(b.name, getCustomerIdValue(b))),
                         value: allocationForm.buyerId,
@@ -7190,7 +7190,7 @@ Powered by Stacli mandi os`;
                         },
                       },
                       {
-                        label: "Allocation Date *",
+                        label: "Allocation Date",
                         type: "date",
                         value: allocationForm.allocationDate,
                         onChange: (e) =>
@@ -7325,7 +7325,7 @@ Powered by Stacli mandi os`;
                         </div>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product / Variety / Grade *</label>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: COLORS.muted }}>Product / Variety / Grade</label>
                         <select
                           value={item.lineItemId}
                           onChange={(e) =>
@@ -7371,7 +7371,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Required Qty (Total)
+                          Quantity
                         </label>
                         <input
                           type="text"
@@ -7403,19 +7403,19 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Balance KGs
+                          Balance Quantity
                         </label>
                         <input
                           type="text"
                           disabled
-                          value={Number(item.balanceLeft || 0) - Number(item.quantity || 0)}
+                          value={Number(item.totalAvailable || 0) - Number(item.quantity || 0)}
                           style={{
                             padding: "12px 14px",
                             borderRadius: "8px",
                             border: "1px solid #EBE9E1",
                             background: "#F1F5F9",
                             color:
-                              Number(item.balanceLeft || 0) - Number(item.quantity || 0) <= 0
+                              Number(item.totalAvailable || 0) - Number(item.quantity || 0) <= 0
                                 ? "#CC0000"
                                 : COLORS.primary,
                             fontSize: "13px",
@@ -7438,7 +7438,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Allocated Qty (KG) *
+                          Allocated Quantity
                         </label>
                         <input
                           type="number"
@@ -7478,7 +7478,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Sale Rate (\u20B9/KG) *
+                          Sale Rate
                         </label>
                         <input
                           type="text"
@@ -7521,7 +7521,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Allocated Amount (\u20B9)
+                          Allocated Amount
                         </label>
                         <input
                           type="text"
@@ -7565,7 +7565,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Sale Amount (\u20B9) Auto
+                          Sale Amount Auto
                         </label>
                         <input
                           type="text"
@@ -7894,6 +7894,8 @@ Powered by Stacli mandi os`;
                 </div>
               </div>
             )}
+          </div>
+        )}
 
 
 
