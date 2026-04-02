@@ -1857,6 +1857,7 @@ function FormGrid({ sections, isParty = false }) {
 // --- MAIN ARCHITECTURE ---
 export default function App() {
   const [activeSection, setActiveSection] = useState("Dashboard");
+  const [billCounter, setBillCounter] = useState(1);
   const [activeSupplierTab, setActiveSupplierTab] = useState(
     "Supplier Registration",
   );
@@ -3541,21 +3542,19 @@ Powered by Stacli mandi os`;
   });
 
   const [supplierSettlementForm, setSupplierSettlementForm] = useState({
-    billNumber: "BILL-SEQ",
+    billNumber: billCounter,
     date: getISTDate(),
     supplierId: "",
     lotId: "",
     vehicleNumber: "",
-    items: [{ id: Date.now(), productName: "", quantity: "", rate: "" }],
+    items: [{ id: Date.now(), productName: "", quantity: "", rate: "", deductions: "", thotrasi: "", grading: "" }],
     expenses: {
-      transport: "",
-      commission: "",
-      labour: "",
-      advance: "",
-      weighing: "",
-      packing: "",
-      miscName: "",
-      miscAmount: "",
+      transport: "0",
+      commission: "0",
+      labour: "0",
+      advance: "0",
+      weighing: "0",
+      otherDeductions: [{ name: "Other", amount: "0" }],
     },
   });
 
@@ -3949,7 +3948,7 @@ Powered by Stacli mandi os`;
       // Initialize sequential numbers for forms if they are in "SEQ" state
       setSupplierSettlementForm(prev => ({ 
         ...prev, 
-        billNumber: prev.billNumber === "BILL-SEQ" ? getNextBillNumber(currentBills) : prev.billNumber 
+        billNumber: billCounter
       }));
       setBuyerInvoiceForm(prev => ({ 
         ...prev, 
@@ -7889,8 +7888,7 @@ Powered by Stacli mandi os`;
                 tabs={[
                   "Bill Header",
                   "Produce Sold",
-                  "Expense Deductions",
-                  "Settlement Overview",
+                  "Expenses and Settlement",
                   "Preview & Print",
                   "Generated Bills",
                 ]}
@@ -8058,8 +8056,8 @@ Powered by Stacli mandi os`;
                                   {
                                     id: Date.now(),
                                     productName: "",
-                                    quantity: "",
-                                    rate: "",
+                                    quantity: 0,
+                                    rate: 0,
                                   },
                                 ];
 
@@ -8078,7 +8076,7 @@ Powered by Stacli mandi os`;
                             items: itemsToAdd,
                             expenses: {
                               ...prev.expenses,
-                              advance: matchedSupplier?.advanceBalance || prev.expenses.advance || "",
+                              advance: matchedSupplier?.advanceBalance || prev.expenses.advance || 0,
                             }
                           }));
                         }}
@@ -8148,14 +8146,14 @@ Powered by Stacli mandi os`;
                                     (Number(iter.grossWeight) || 0) -
                                       (Number(iter.deductions) || 0),
                                   ),
-                                  rate: iter.rate || iter.estimatedRate || "",
+                                  rate: iter.rate || iter.estimatedRate || 0,
                                 }))
                               : [
                                   {
                                     id: Date.now(),
                                     productName: "",
-                                    quantity: "",
-                                    rate: "",
+                                    quantity: 0,
+                                    rate: 0,
                                   },
                                 ];
 
@@ -8484,13 +8482,13 @@ Powered by Stacli mandi os`;
                                   idx,
                                   "quantity",
                                   Number(lotItem.grossWeight) -
-                                    Number(lotItem.deductions) || "",
+                                    Number(lotItem.deductions) || 0,
                                 );
                                 handleSupplierItemAction(
                                   "Update",
                                   idx,
                                   "rate",
-                                  lotItem.estimatedRate || "",
+                                  lotItem.estimatedRate || 0,
                                 );
                               }
                             }}
@@ -8537,7 +8535,7 @@ Powered by Stacli mandi os`;
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Deduction Quantity</label>
-                          <input type="number" value={item.deductions || ""} onChange={(e) => handleSupplierItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <input type="number" value={item.deductions || 0} onChange={(e) => handleSupplierItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Thotrasi (6%)</label>
@@ -8549,7 +8547,7 @@ Powered by Stacli mandi os`;
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Net Weight</label>
-                          <input type="number" disabled value={(Number(item.quantity || 0) - Number(item.deductions || 0)).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
+                          <input type="number" disabled value={(Number(item.quantity || 0) - Number(item.deductions || 0) - (Number(item.deductions || 0) * 0.10)).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                         </div>
                         <div
                           style={{
@@ -8610,7 +8608,7 @@ Powered by Stacli mandi os`;
                             type="number"
                             disabled
                             value={
-                              ((Number(item.quantity) - Number(item.deductions || 0)) * Number(item.rate) || 0).toFixed(2)
+                              ((Number(item.quantity || 0) - Number(item.deductions || 0) - (Number(item.deductions || 0) * 0.10)) * Number(item.rate || 0)).toFixed(2)
                             }
                             style={{
                               padding: "10px",
@@ -8630,7 +8628,7 @@ Powered by Stacli mandi os`;
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Amount Balance</label>
-                          <input type="number" disabled value={(((Number(item.quantity || 0) - Number(item.deductions || 0)) * Number(item.rate || 0)) - (Number(suppliers.find(s => s._id === supplierSettlementForm.supplierId || s.name === supplierSettlementForm.supplierId)?.advanceBalance) || 0)).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
+                          <input type="number" disabled value={(((Number(item.quantity || 0) - Number(item.deductions || 0) - (Number(item.deductions || 0) * 0.10)) * Number(item.rate || 0)) - (Number(suppliers.find(s => s._id === supplierSettlementForm.supplierId || s.name === supplierSettlementForm.supplierId)?.advanceBalance) || 0)).toFixed(2)} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", background: "#F1F5F9", color: COLORS.muted, outline: "none", fontSize: "13px", fontWeight: "800" }} />
                         </div>
                       </div>
                     ))}
@@ -8681,7 +8679,7 @@ Powered by Stacli mandi os`;
                       }}
                       onClick={() => {
                         window.scrollTo({ top: 0, behavior: "smooth" });
-                        setActiveSupplierBillTab("Expense Deductions");
+                        setActiveSupplierBillTab("Expenses and Settlement");
                       }}
                     >
                       Next 
@@ -8690,7 +8688,7 @@ Powered by Stacli mandi os`;
                 </div>
               )}
 
-              {activeSupplierBillTab === "Expense Deductions" && (
+              {activeSupplierBillTab === "Expenses and Settlement" && (
                 <div
                   style={{
                     background: "#FFFFFF",
@@ -8710,7 +8708,7 @@ Powered by Stacli mandi os`;
                       paddingBottom: "16px",
                     }}
                   >
-                    Expense Deductions
+                    Expenses and Settlement
                   </h2>
                   <div
                     style={{
@@ -8731,38 +8729,13 @@ Powered by Stacli mandi os`;
                         border: "1px solid #EBE9E1",
                       }}
                     >
-                      <label
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: "750",
-                          color: COLORS.sidebar,
-                        }}
-                      >
-                        Lorry Freight / Transport
-                      </label>
+                      <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Lorry Freight / Transport</label>
                       <input
                         type="number"
                         value={supplierSettlementForm.expenses.transport}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              transport: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="\u20B9"
-                        style={{
-                          width: "120px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          textAlign: "right",
-                        }}
+                        onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, transport: e.target.value}})}
+                        placeholder="0"
+                        style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
                       />
                     </div>
 
@@ -8777,38 +8750,13 @@ Powered by Stacli mandi os`;
                         border: "1px solid #EBE9E1",
                       }}
                     >
-                      <label
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: "750",
-                          color: COLORS.sidebar,
-                        }}
-                      >
-                        Market Fee / Commission
-                      </label>
+                      <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Expenditure</label>
                       <input
                         type="text"
                         value={supplierSettlementForm.expenses.commission}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              commission: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="\u20B9 or %"
-                        style={{
-                          width: "120px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          textAlign: "right",
-                        }}
+                        onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, commission: e.target.value}})}
+                        placeholder="0"
+                        style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
                       />
                     </div>
 
@@ -8823,38 +8771,13 @@ Powered by Stacli mandi os`;
                         border: "1px solid #EBE9E1",
                       }}
                     >
-                      <label
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: "750",
-                          color: COLORS.sidebar,
-                        }}
-                      >
-                        Labour / Hamali
-                      </label>
+                      <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Labour / Hamali</label>
                       <input
                         type="number"
                         value={supplierSettlementForm.expenses.labour}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              labour: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="\u20B9"
-                        style={{
-                          width: "120px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          textAlign: "right",
-                        }}
+                        onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, labour: e.target.value}})}
+                        placeholder="0"
+                        style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
                       />
                     </div>
 
@@ -8869,38 +8792,13 @@ Powered by Stacli mandi os`;
                         border: "1px solid #EBE9E1",
                       }}
                     >
-                      <label
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: "750",
-                          color: COLORS.sidebar,
-                        }}
-                      >
-                        Cash Advance Paid
-                      </label>
+                      <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Cash Advance Paid</label>
                       <input
                         type="number"
                         value={supplierSettlementForm.expenses.advance}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              advance: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="\u20B9"
-                        style={{
-                          width: "120px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          textAlign: "right",
-                        }}
+                        onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, advance: e.target.value}})}
+                        placeholder="0"
+                        style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
                       />
                     </div>
 
@@ -8915,302 +8813,132 @@ Powered by Stacli mandi os`;
                         border: "1px solid #EBE9E1",
                       }}
                     >
-                      <label
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: "750",
-                          color: COLORS.sidebar,
-                        }}
-                      >
-                        Weighing Charges (Kata)
-                      </label>
+                      <label style={{ fontSize: "14px", fontWeight: "750", color: COLORS.sidebar }}>Weighing Charges (Kata)</label>
                       <input
                         type="number"
                         value={supplierSettlementForm.expenses.weighing}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              weighing: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="\u20B9"
-                        style={{
-                          width: "120px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          textAlign: "right",
-                        }}
+                        onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, weighing: e.target.value}})}
+                        placeholder="0"
+                        style={{ width: "120px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
                       />
                     </div>
 
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "16px",
-                        background: "#FDFBF4",
-                        borderRadius: "10px",
-                        border: "1px solid #EBE9E1",
-                      }}
-                    >
-                      <label
+                    {supplierSettlementForm.expenses.otherDeductions.map((od, odIdx) => (
+                      <div
+                        key={odIdx}
                         style={{
-                          fontSize: "14px",
-                          fontWeight: "750",
-                          color: COLORS.sidebar,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "16px",
+                          background: "#FDFBF4",
+                          borderRadius: "10px",
+                          border: "1px solid #EBE9E1",
                         }}
                       >
-                        Packing Material
-                      </label>
-                      <input
-                        type="number"
-                        value={supplierSettlementForm.expenses.packing}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              packing: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="\u20B9"
-                        style={{
-                          width: "120px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          textAlign: "right",
-                        }}
-                      />
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "16px",
-                        background: "#FDFBF4",
-                        borderRadius: "10px",
-                        border: "1px solid #EBE9E1",
-                      }}
-                    >
-                      <div style={{ flex: 1, marginRight: "12px" }}>
-                        <ModernMultiSelectField
-                          label="Other Deductions"
-                          value={supplierSettlementForm.expenses.miscName}
-                          options={["Loading", "Unloading", "Weighment", "Cleaning", "Sorting", "Miscellaneous"]}
-                          onChange={(e) =>
-                            setSupplierSettlementForm({
-                              ...supplierSettlementForm,
-                              expenses: {
-                                ...supplierSettlementForm.expenses,
-                                miscName: e.target.value,
-                              },
-                            })
-                          }
+                        <div style={{ flex: 1, marginRight: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+                           <input 
+                             placeholder="Deduction Name"
+                             value={od.name}
+                             onChange={(e) => {
+                               const newList = [...supplierSettlementForm.expenses.otherDeductions];
+                               newList[odIdx].name = e.target.value;
+                               setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, otherDeductions: newList}});
+                             }}
+                             style={{ flex: 1, padding: "8px", borderRadius: "6px", border: "1px solid #EBE9E1", fontSize: "12px", fontWeight: "700" }}
+                           />
+                           {odIdx === supplierSettlementForm.expenses.otherDeductions.length - 1 && (
+                             <button
+                               onClick={() => {
+                                 const newList = [...supplierSettlementForm.expenses.otherDeductions, { name: "", amount: "" }];
+                                 setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, otherDeductions: newList}});
+                               }}
+                               style={{ background: COLORS.sidebar, color: "#fff", border: "none", borderRadius: "4px", width: "24px", height: "24px", cursor: "pointer", fontWeight: "900" }}
+                             >+</button>
+                           )}
+                        </div>
+                        <input
+                          type="number"
+                          value={od.amount}
+                          onChange={(e) => {
+                             const newList = [...supplierSettlementForm.expenses.otherDeductions];
+                             newList[odIdx].amount = e.target.value;
+                             setSupplierSettlementForm({...supplierSettlementForm, expenses: {...supplierSettlementForm.expenses, otherDeductions: newList}});
+                          }}
+                          placeholder="0"
+                          style={{ width: "100px", padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", outline: "none", fontSize: "14px", fontWeight: "700", textAlign: "right" }}
                         />
                       </div>
-                      <input
-                        type="number"
-                        value={supplierSettlementForm.expenses.miscAmount}
-                        onChange={(e) =>
-                          setSupplierSettlementForm({
-                            ...supplierSettlementForm,
-                            expenses: {
-                              ...supplierSettlementForm.expenses,
-                              miscAmount: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="\u20B9"
-                        style={{
-                          width: "120px",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          border: "1px solid #EBE9E1",
-                          outline: "none",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          textAlign: "right",
-                        }}
-                      />
-                    </div>
+                    ))}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginTop: "32px",
-                      paddingTop: "24px",
-                      borderTop: "2px solid #F1F5F9",
-                    }}
-                  >
-                    <Button
-                      style={{
-                        background: "#F1F5F9",
-                        color: COLORS.sidebar,
-                        fontWeight: "800",
-                        border: "none",
-                      }}
-                      onClick={() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                        setActiveSupplierBillTab("Produce Sold");
-                      }}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      style={{
-                        background: COLORS.sidebar,
-                        fontWeight: "800",
-                        padding: "12px 32px",
-                        borderRadius: "8px",
-                      }}
-                      onClick={() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                        setActiveSupplierBillTab("Financial Summary");
-                      }}
-                    >
-                      Next 
-                    </Button>
-                  </div>
-                </div>
-              )}
 
-              {activeSupplierBillTab === "Settlement Overview" && (
-                <div
-                  style={{
-                    background: "#FFFFFF",
-                    padding: "40px",
-                    borderRadius: "16px",
-                    border: "1px solid #EBE9E1",
-                    animation: "fadeIn 0.3s ease-in",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.01)",
-                  }}
-                >
-                  <h2
-                    style={{
-                      fontSize: "22px",
-                      fontWeight: "900",
-                      color: COLORS.sidebar,
-                      margin: "0 0 32px 0",
-                      borderBottom: "1.5px solid #F1F5F9",
-                      paddingBottom: "20px",
-                      letterSpacing: "-0.5px",
-                    }}
-                  >
-                    Settlement Overview
-                  </h2>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "24px",
-                    }}
-                  >
+                  <div style={{ marginTop: "32px", borderTop: "2.5px solid #F1F5F9", paddingTop: "32px" }}>
                     {(() => {
                       const grossSale = (supplierSettlementForm.items || []).reduce(
                         (sum, it) =>
-                          sum + ((Number(it.quantity) - Number(it.deductions || 0)) * Number(it.rate) || 0),
+                          sum + ((Number(it.quantity || 0) - Number(it.deductions || 0) - (Number(it.deductions || 0) * 0.10)) * Number(it.rate || 0)),
                         0,
                       );
                       const ex = supplierSettlementForm.expenses;
 
+                      const totalOtherDeductions = (ex.otherDeductions || []).reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+
                       let parsedCommission = 0;
-                      if (
-                        typeof ex.commission === "string" &&
-                        ex.commission.includes("%")
-                      ) {
+                      if (typeof ex.commission === "string" && ex.commission.includes("%")) {
                         const pct = Number(ex.commission.replace("%", ""));
-                        if (!isNaN(pct))
-                          parsedCommission = (grossSale * pct) / 100;
+                        if (!isNaN(pct)) parsedCommission = (grossSale * pct) / 100;
                       } else {
                         parsedCommission = Number(ex.commission) || 0;
                       }
 
-                      // Manual Settlement Fields (User requested to move these here or have them here specifically)
-                      // Final Settlement Amount = Total Amount (Produce Sold) + All Expenses Deduction
-                      // Manual: Labour, Other, Misc. Assuming existing ones.
-                      const finalSettlement = grossSale + (Number(ex.labour) || 0) + (Number(ex.miscAmount) || 0) + parsedCommission + (Number(ex.transport) || 0);
+                      const finalSettlement = grossSale - (Number(ex.labour) || 0) - totalOtherDeductions - parsedCommission - (Number(ex.transport) || 0) - (Number(ex.weighing) || 0) - (Number(ex.advance) || 0);
 
                       return (
-                        <>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-                            {/* Manual Entry Section */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px", background: "#FDFBF4", borderRadius: "12px", border: "1.5px solid #EBE9E1" }}>
-                               <h3 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "8px" }}>Manual Expenses</h3>
-                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Labour Charges</label>
-                                  <input type="number" value={ex.labour} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, labour: e.target.value}})} placeholder="\u20B9" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
-                               </div>
-                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Other Deductions</label>
-                                  <input type="number" value={ex.transport} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, transport: e.target.value}})} placeholder="\u20B9" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
-                               </div>
-                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Misc. Expenses</label>
-                                  <input type="number" value={ex.miscAmount} onChange={(e) => setSupplierSettlementForm({...supplierSettlementForm, expenses: {...ex, miscAmount: e.target.value}})} placeholder="\u20B9" style={{ width: "120px", padding: "8px", borderRadius: "8px", border: "1px solid #EBE9E1", fontWeight: "700", textAlign: "right" }} />
-                               </div>
-                            </div>
-
-                            {/* Automatic Fields Section */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px", background: "#F1F5F9", borderRadius: "12px", border: "1.5px solid #E2E8F0" }}>
-                               <h3 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "8px" }}>Automatic Summary</h3>
-                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Total Amount (Produce Sold)</label>
-                                  <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(grossSale)}</span>
-                               </div>
-                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Taxes / Commissions</label>
-                                  <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(parsedCommission)}</span>
-                               </div>
-                            </div>
-                          </div>
-
-                          {/* Final Calculation */}
-                          {/* Final Calculation Banner */}
-                          <div style={{ 
-                            background: "linear-gradient(135deg, " + COLORS.sidebar + " 0%, " + COLORS.sidebar + " 100%)", 
-                            padding: "32px", 
-                            borderRadius: "20px", 
-                            display: "flex", 
-                            justifyContent: "space-between", 
-                            alignItems: "center", 
-                            marginTop: "16px",
-                            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-                            position: "relative",
-                            overflow: "hidden"
-                          }}>
-                             <div style={{ position: "relative", zIndex: 1 }}>
-                                <h3 style={{ margin: 0, color: "#FFFFFF", fontSize: "20px", fontWeight: "900", letterSpacing: "-0.5px" }}>Final Settlement Amount</h3>
-                                <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,0.7)", fontSize: "13px", fontWeight: "600" }}>Total Produce sold including all expense adjustments</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "24px" }}>
+                             <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px", background: "#F1F5F9", borderRadius: "12px", border: "1.5px solid #E2E8F0" }}>
+                                <h3 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "8px" }}>Automatic Summary</h3>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                   <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Total Amount (Produce Sold)</label>
+                                   <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(grossSale)}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                   <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Expenditure Deductions</label>
+                                   <span style={{ fontWeight: "800", color: "#B91C1C" }}>- {formatCurrency(parsedCommission + (Number(ex.transport) || 0) + (Number(ex.labour) || 0) + totalOtherDeductions + (Number(ex.weighing) || 0))}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                   <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Cash Advance adjustment</label>
+                                   <span style={{ fontWeight: "800", color: "#B91C1C" }}>- {formatCurrency(ex.advance)}</span>
+                                </div>
                              </div>
-                             <div style={{ position: "relative", zIndex: 1, textAlign: "right" }}>
-                                <span style={{ display: "block", fontSize: "36px", fontWeight: "950", color: COLORS.accent, lineHeight: 1 }}>{formatCurrency(finalSettlement)}</span>
-                                <span style={{ display: "block", fontSize: "10px", color: "#FFFFFF", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", marginTop: "8px" }}>Proceed to Preview & Print</span>
+
+                             <div style={{ 
+                                background: "linear-gradient(135deg, " + COLORS.sidebar + " 0%, " + COLORS.sidebar + " 100%)", 
+                                padding: "32px", 
+                                borderRadius: "20px", 
+                                display: "flex", 
+                                justifyContent: "space-between", 
+                                alignItems: "center", 
+                                boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                                position: "relative",
+                                overflow: "hidden"
+                             }}>
+                                <div style={{ position: "relative", zIndex: 1 }}>
+                                   <h3 style={{ margin: 0, color: "#FFFFFF", fontSize: "20px", fontWeight: "900", letterSpacing: "-0.5px" }}>Final Settlement Amount</h3>
+                                   <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,0.7)", fontSize: "13px", fontWeight: "600" }}>Net amount after all deductions</p>
+                                </div>
+                                <div style={{ position: "relative", zIndex: 1, textAlign: "right" }}>
+                                   <span style={{ display: "block", fontSize: "36px", fontWeight: "950", color: COLORS.accent, lineHeight: 1 }}>{formatCurrency(finalSettlement)}</span>
+                                   <span style={{ display: "block", fontSize: "10px", color: "#FFFFFF", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", marginTop: "8px" }}>Proceed to Preview & Print</span>
+                                </div>
                              </div>
                           </div>
 
-                          {/* Navigation Buttons */}
                           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
-                            <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Expense Deductions"); }}>Previous</Button>
+                            <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Produce Sold"); }}>Previous</Button>
                             <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Preview & Print"); }}>Next </Button>
                           </div>
-                        </>
+                        </div>
                       );
                     })()}
                   </div>
@@ -9293,7 +9021,7 @@ Powered by Stacli mandi os`;
                       const ex = lastGeneratedBill.expenses || {};
                       const items = lastGeneratedBill.items || [];
                       const grossSaleAmount = items.reduce((s, it) => s + (Number(it.quantity || 0) * Number(it.rate || 0)), 0);
-                      const totalDeductions = Object.entries(ex).reduce((s, [k, v]) => k !== 'advance' ? s + (Number(v) || 0) : s, 0);
+                      const totalDeductions = (ex.otherDeductions || []).reduce((sum, d) => sum + (Number(d.amount) || 0), 0) + (Number(ex.transport) || 0) + (Number(ex.labour) || 0) + (Number(ex.weighing) || 0) + (typeof ex.commission === 'string' && ex.commission.includes('%') ? (grossSaleAmount * Number(ex.commission.replace('%',''))/100) : (Number(ex.commission) || 0));
                       const netSaleAmount = grossSaleAmount - totalDeductions;
                       const balancePayable = netSaleAmount - (Number(ex.advance) || 0);
 
@@ -9407,26 +9135,24 @@ Powered by Stacli mandi os`;
                               <div style={{ border: "1px solid #1a3c34", borderTop: "none", padding: "10px" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Lorry Hire / Freight</span>
-                                  <span>\u20B9 {ex.transport || ex.freight || "0"}</span>
+                                  <span>\u20B9 {ex.transport || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Coolie / Labour</span>
                                   <span>\u20B9 {ex.labour || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
-                                  <span>Cash Advance</span>
-                                  <span>\u20B9 {ex.cashAdvance || "0"}</span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Kata (Weighing Charges)</span>
                                   <span>\u20B9 {ex.weighing || "0"}</span>
                                 </div>
+                                {ex.otherDeductions?.map((od, i) => (
+                                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
+                                    <span>{od.name || 'Misc.'}</span>
+                                    <span>\u20B9 {od.amount || "0"}</span>
+                                  </div>
+                                ))}
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
-                                  <span>Packing / Bag Charges</span>
-                                  <span>\u20B9 {ex.packing || "0"}</span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
-                                  <span>AMC Charges</span>
+                                  <span>Expenditure</span>
                                   <span>\u20B9 {ex.commission || "0"}</span>
                                 </div>
                                 <div style={{ background: "#1a3c34", color: "#fff", padding: "8px 12px", display: "flex", justifyContent: "space-between", marginTop: "10px", fontSize: "13px", fontWeight: "900" }}>
@@ -9599,7 +9325,7 @@ Powered by Stacli mandi os`;
               )}
 
               <div style={{ display: "flex", gap: "16px", marginTop: "32px" }}>
-                {activeSupplierBillTab === "Financial Summary" && (
+                {activeSupplierBillTab === "Expenses and Settlement" && (
                   <>
                     <Button
                       style={{
@@ -9611,7 +9337,7 @@ Powered by Stacli mandi os`;
                       }}
                       onClick={() => {
                         window.scrollTo({ top: 0, behavior: "smooth" });
-                        setActiveSupplierBillTab("Expense Deductions");
+                        setActiveSupplierBillTab("Produce Sold");
                       }}
                     >
                       Previous
@@ -9644,37 +9370,34 @@ Powered by Stacli mandi os`;
                             alert(
                               `\u2705 BILL ${isEditingSupplierBill ? "UPDATED" : "GENERATED"}: ${supplierSettlementForm.billNumber} has been recorded in the database.`,
                             );
-                            // Reset but keep track of last one for preview
-                            const savedBillNumber = supplierSettlementForm.billNumber;
-                            setSupplierSettlementForm({
-                              billNumber: getNextBillNumber(sbRes.data),
-                              date: getISTDate(),
-                              supplierId: "",
-                              lotId: "",
-                              vehicleNumber: "",
-                              items: [
-                                {
-                                  id: Date.now(),
-                                  productName: "",
-                                  quantity: "",
-                                  rate: "",
-                                },
-                              ],
-                              expenses: {
-                                transport: "",
-                                commission: "",
-                                labour: "",
-                                advance: "",
-                                weighing: "",
-                                packing: "",
-                                miscName: "",
-                                miscAmount: "",
-                              },
-                            });
-                            setActiveSupplierBillTab("Preview & Print");
-                            setIsEditingSupplierBill(false);
-                            setEditingSupplierBillId(null);
-                            fetchData();
+                            setBillCounter(prev => prev + 1);
+                             setSupplierSettlementForm({
+                               billNumber: billCounter + 1,
+                               date: getISTDate(),
+                               supplierId: "",
+                               lotId: "",
+                               vehicleNumber: "",
+                               items: [
+                                 {
+                                   id: Date.now(),
+                                   productName: "",
+                                   quantity: 0,
+                                   rate: 0,
+                                 },
+                               ],
+                               expenses: {
+                                 transport: "0",
+                                 commission: "0",
+                                 labour: "0",
+                                 advance: "0",
+                                 weighing: "0",
+                                 otherDeductions: [{ name: "Other", amount: "0" }],
+                               },
+                             });
+                             setActiveSupplierBillTab("Preview & Print");
+                             setIsEditingSupplierBill(false);
+                             setEditingSupplierBillId(null);
+                             fetchData();
                           } else {
                             alert(` FAILED: ${res.message || "Database Error"}`);
                           }
@@ -9715,7 +9438,7 @@ Powered by Stacli mandi os`;
                           )
                         ) {
                           setSupplierSettlementForm({
-                            billNumber: getNextBillNumber(),
+                            billNumber: billCounter,
                             date: getISTDate(),
                             supplierId: "",
                             lotId: "",
