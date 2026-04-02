@@ -6444,26 +6444,7 @@ Powered by Stacli mandi os`;
                     Registered Lots
                   </div>
                   
-                  <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
-                    <Button 
-                      onClick={() => window.location.reload()} 
-                      style={{ 
-                        background: COLORS.primary, 
-                        color: "#fff", 
-                        padding: "8px 16px", 
-                        borderRadius: "8px", 
-                        fontSize: "12px", 
-                        fontWeight: "800",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-                      }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                      Refresh Module
-                    </Button>
-                  </div>
+
 
                 </div>
               </div>
