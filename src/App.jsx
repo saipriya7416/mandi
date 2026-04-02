@@ -7369,7 +7369,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Quantity
+                          Quantity (KG)
                         </label>
                         <input
                           type="text"
@@ -7401,7 +7401,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Balance Quantity
+                          Balance Quantity (KG)
                         </label>
                         <input
                           type="text"
@@ -7436,7 +7436,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Allocated Quantity
+                          Allocated Quantity (KG)
                         </label>
                         <input
                           type="number"
