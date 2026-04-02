@@ -1440,6 +1440,152 @@ function PartyModernMultiSelectField({
   );
 }
 
+function TargetedMultiSelectField({
+  label,
+  value,
+  onChange,
+  options = [],
+  disabled,
+  hideLabel = false,
+}) {
+  const [internalValues, setInternalValues] = useState([]);
+  const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    setInternalValues(parseMultiValue(value));
+  }, [value]);
+
+  const handleManualAdd = () => {
+    if (searchText.trim()) {
+      const trimmed = searchText.trim();
+      if (!internalValues.includes(trimmed)) {
+        const next = [...internalValues, trimmed];
+        setInternalValues(next);
+        onChange?.({ target: { value: next.join(" / ") } });
+      }
+      setSearchText("");
+    }
+  };
+
+  const removeValue = (val) => {
+    const next = internalValues.filter(x => x !== val);
+    setInternalValues(next);
+    onChange?.({ target: { value: next.join(" / ") } });
+  };
+
+  const datalistId = `datalist-${String(label || "").replace(/\s+/g, '-')}`;
+
+  return (
+    <div style={{ position: "relative", width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
+      {!hideLabel && (
+        <label style={{ fontSize: "12px", fontWeight: "750", color: "#64748B", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{label}</span>
+          {internalValues.length > 0 && (
+            <span style={{ fontSize: "10px", background: "#E2E8F0", padding: "2px 8px", borderRadius: "10px", color: COLORS.sidebar, fontWeight: "800" }}>
+              {internalValues.length} Selected
+            </span>
+          )}
+        </label>
+      )}
+      
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <input 
+          list={datalistId}
+          placeholder={`Enter or select ${String(label || "").replace(/\*/g, '').trim()}...`}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleManualAdd();
+            }
+          }}
+          disabled={disabled}
+          style={{
+            flex: 1,
+            padding: "12px 14px",
+            borderRadius: "8px",
+            border: "1.5px solid #EBE9E1",
+            background: disabled ? "#FDFBF4" : "#FFFFFF",
+            color: disabled ? COLORS.muted : COLORS.sidebar,
+            outline: "none",
+            fontSize: "13px",
+            fontWeight: "600",
+          }}
+        />
+        <datalist id={datalistId}>
+          {(options || []).map(opt => <option key={opt} value={opt} />)}
+        </datalist>
+        <button 
+          type="button"
+          onClick={handleManualAdd}
+          disabled={disabled || !searchText.trim()}
+          style={{ 
+            background: COLORS.primary, 
+            color: "#fff", 
+            border: "none", 
+            borderRadius: "8px", 
+            padding: "12px 16px", 
+            fontSize: "13px", 
+            fontWeight: "800", 
+            cursor: (disabled || !searchText.trim()) ? "not-allowed" : "pointer",
+            opacity: (disabled || !searchText.trim()) ? 0.6 : 1,
+            height: "100%"
+          }}
+        >
+          Add
+        </button>
+      </div>
+
+      {internalValues.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
+          {internalValues.map(v => (
+            <div key={v} style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#F8FAFC",
+              border: "1px solid #E2E8F0",
+              borderRadius: "8px",
+              padding: "6px 12px",
+              fontSize: "13px",
+              fontWeight: "600",
+              color: COLORS.sidebar
+            }}>
+              {v}
+              <button 
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeValue(v);
+                }}
+                disabled={disabled}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#94A3B8",
+                  cursor: disabled ? "not-allowed" : "pointer",
+                  fontWeight: "bold",
+                  fontSize: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 4px",
+                  marginLeft: "4px"
+                }}
+                onMouseEnter={e => !disabled && (e.currentTarget.style.color = "#FF3B30")}
+                onMouseLeave={e => !disabled && (e.currentTarget.style.color = "#94A3B8")}
+              >
+                (x)
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SelectWithManualEntry({
   label,
   value,
@@ -1712,6 +1858,14 @@ function FormGrid({ sections, isParty = false }) {
                 >
                   {(() => {
                     const useModernMultiSelect = shouldUseMultiSelectForField(f.label);
+                    const labelLower = String(f.label || "").trim().toLowerCase();
+                    const isTargetField = [
+                      "product", "product *", 
+                      "id type", "id type *", 
+                      "payment terms", "payment terms *", 
+                      "select product", "select product *"
+                    ].includes(labelLower);
+
                     return (
                       <>
                   <label
@@ -1726,7 +1880,16 @@ function FormGrid({ sections, isParty = false }) {
                     <span>{f.label}</span>
                     {f.info && <span style={{ color: COLORS.primary, fontWeight: "900" }}>{f.info}</span>}
                   </label>
-                  {useModernMultiSelect ? (
+                  {isTargetField ? (
+                    <TargetedMultiSelectField
+                      label={f.label}
+                      value={f.value}
+                      options={f.options || []}
+                      onChange={f.onChange}
+                      disabled={f.disabled}
+                      hideLabel={true}
+                    />
+                  ) : useModernMultiSelect ? (
                     isParty ? (
                       <PartyModernMultiSelectField
                         label={f.label}
@@ -7369,7 +7532,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Quantity (KG)
+                          Quantity
                         </label>
                         <input
                           type="text"
@@ -7401,7 +7564,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Balance Quantity (KG)
+                          Balance Quantity
                         </label>
                         <input
                           type="text"
@@ -7436,7 +7599,7 @@ Powered by Stacli mandi os`;
                             color: COLORS.muted,
                           }}
                         >
-                          Allocated Quantity (KG)
+                          Allocated Quantity
                         </label>
                         <input
                           type="number"
