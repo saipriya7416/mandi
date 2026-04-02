@@ -1800,9 +1800,11 @@ function FormGrid({ sections, isParty = false }) {
                       {(!f.value || f.value === "") && (
                         <option value="" disabled>{getSelectPlaceholder(f.label)}</option>
                       )}
-                      {f.options && f.options.map((opt, i) => (
-                        <option key={i} value={opt} style={{ background: "#1a1a1a", color: "#FFFFFF" }}>{opt}</option>
-                      ))}
+                      {f.options && f.options.map((opt, i) => {
+                        const val = typeof opt === "object" ? opt.value : opt;
+                        const label = typeof opt === "object" ? opt.label : opt;
+                        return <option key={i} value={val} style={{ background: "#2D3748", color: "#FFFFFF" }}>{label}</option>;
+                      })}
                     </select>
                   ) : (
                     <input
@@ -4027,6 +4029,35 @@ Powered by Stacli mandi os`;
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
+  const resetLotAllocationState = async () => {
+    setIsRefreshing(true);
+    setAllocationSearchQuery("");
+    setLotDateFilter("");
+    setLotCustomDateStart("");
+    setLotCustomDateEnd("");
+    setAllocationForm({
+      lotId: "",
+      buyerId: "",
+      allocationDate: getISTDate(),
+      buyerInvoiceNo: "",
+      notes: "",
+      items: [
+        {
+          id: Date.now(),
+          lineItemId: "",
+          quantity: "",
+          saleRate: "",
+          totalAvailable: 0,
+          balanceLeft: 0,
+          allocatedAmount: "",
+        },
+      ],
+    });
+    setAllocationSaveBtn({ label: "Save", color: null });
+    await fetchData();
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await fetchData();
@@ -5514,6 +5545,8 @@ Powered by Stacli mandi os`;
                     ? resetPartyManagementState
                     : activeSection === "Lot Creation"
                     ? resetLotIntakeState
+                    : activeSection === "Lot Allocation"
+                    ? resetLotAllocationState
                     : handleRefresh
                 }
                 disabled={isRefreshing}
@@ -7111,15 +7144,27 @@ Powered by Stacli mandi os`;
                       {
                         label: "Lot ID *",
                         info: lots.find(l => (l.lotId || l._id) === allocationForm.lotId)?.supplierId?.name || lots.find(l => (l.lotId || l._id) === allocationForm.lotId)?.farmerName || "",
-                        type: "text",
-                        list: "lots-list",
+                        type: "dropdown",
                         value: allocationForm.lotId,
                         onChange: (e) =>
                           setAllocationForm({
                             ...allocationForm,
                             lotId: e.target.value,
                           }),
-                        placeholder: "Search lot...",
+                        options: lots.filter(l => l.status !== "Fully Sold").map(l => {
+                          const supplier = (typeof l.supplierId === "object" ? l.supplierId : suppliers.find(s => s._id === l.supplierId));
+                          const supplierName = supplier?.name || "Unknown Supplier";
+                          const runningId = supplier?.supplierId || "";
+                          const displayName = runningId ? `${supplierName}-${runningId}` : supplierName;
+                          const itemCount = l.lineItems?.length || 0;
+                          const entryDate = l.entryDate ? formatDate(l.entryDate) : "No Date";
+                          const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "\u2014";
+                          const formattedLotId = l.lotId?.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") || "N/A";
+                          return {
+                            label: `${formattedLotId}  |  ${displayName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`,
+                            value: l.lotId
+                          };
+                        })
                       },
                       {
                         label: "Customer Name *",
@@ -7174,31 +7219,9 @@ Powered by Stacli mandi os`;
                         placeholder: "E.g. quality remarks",
                       },
                     ],
-                  },
-                  ...getCustomerProfileSections()
+                  }
                 ]}
               />
-
-              <datalist id="lots-list">
-                {lots
-                  .filter((l) => l.status !== "Fully Sold")
-                  .map((l) => {
-                    const supplier = (typeof l.supplierId === "object" ? l.supplierId : suppliers.find(s => s._id === l.supplierId));
-                    const supplierName = supplier?.name || "Unknown Supplier";
-                    const runningId = supplier?.supplierId || "";
-                    const displayName = runningId ? `${supplierName}-${runningId}` : supplierName;
-                    const itemCount = l.lineItems?.length || 0;
-                    const entryDate = l.entryDate ? formatDate(l.entryDate) : "No Date";
-                    const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "\u2014";
-                    return (
-                      <option
-                        key={l._id || l.lotId}
-                        value={l.lotId}
-                        label={`${l.lotId}  |  ${displayName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`}
-                      />
-                    );
-                  })}
-              </datalist>
 
               {/* Multi-Item Table Section */}
               <div
@@ -7566,26 +7589,48 @@ Powered by Stacli mandi os`;
                       </div>
                     </div>
                   ))}
-                  <Button
+                  <div
                     onClick={() => handleAllocationItemAction("Add")}
                     style={{
-                      alignSelf: "flex-start",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
                       background: "#FFFFFF",
                       color: COLORS.accent,
-                      border: `2px solid ${COLORS.accent}`,
+                      border: `1.5px dashed ${COLORS.accent}`,
+                      borderRadius: "12px",
+                      padding: "12px 20px",
+                      cursor: "pointer",
+                      width: "fit-content",
+                      transition: "all 0.2s"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#F4FDF8";
+                      e.currentTarget.style.border = `1.5px solid ${COLORS.accent}`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "#FFFFFF";
+                      e.currentTarget.style.border = `1.5px dashed ${COLORS.accent}`;
+                    }}
+                  >
+                    <span style={{ fontSize: "14px", fontWeight: "800" }}>Add Allocation Items</span>
+                    <div style={{
+                      background: COLORS.accent,
+                      color: "#FFFFFF",
                       borderRadius: "50%",
-                      width: "36px",
-                      height: "36px",
-                      padding: 0,
+                      width: "24px",
+                      height: "24px",
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      fontSize: "20px",
-                      fontWeight: "900",
-                    }}
-                  >
-                    +
-                  </Button>
+                      fontSize: "18px",
+                      fontWeight: "bold",
+                      lineHeight: "0px",
+                      paddingBottom: "2px"
+                    }}>
+                      +
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -7753,7 +7798,7 @@ Powered by Stacli mandi os`;
                 )}
 
                 <div style={{ maxHeight: "750px", overflowY: "auto", padding: "16px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))", gap: "16px" }}>
                     {(() => {
                       const filtered = allocations
                         .filter(a => {
@@ -7839,28 +7884,21 @@ Powered by Stacli mandi os`;
                           <div style={{ marginBottom: "8px", fontSize: "10px", fontWeight: "900", color: COLORS.muted, textTransform: "uppercase", letterSpacing: "1px" }}>Line Items</div>
                           <div style={{ overflowX: "auto" }}>
                             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
-                              <thead>
-                                <tr style={{ borderBottom: "1.5px solid #E2E8F0", textAlign: "left", color: COLORS.muted }}>
-                                  <th style={{ padding: "8px 4px" }}>Product</th>
-                                  <th style={{ padding: "8px 4px", textAlign: "right" }}>Qty</th>
-                                  <th style={{ padding: "8px 4px", textAlign: "right" }}>Rate</th>
-                                  <th style={{ padding: "8px 4px", textAlign: "right" }}>Amount</th>
-                                </tr>
-                              </thead>
                               <tbody>
-                                {items.map((it, idx) => (
-                                  <tr key={idx} style={{ borderBottom: idx < items.length - 1 ? "1px solid #F1F5F9" : "none" }}>
-                                    <td style={{ padding: "8px 4px", fontWeight: "700" }}>
-                                      <div style={{ display: "flex", flexDirection: "column" }}>
-                                        <span>{it.lineItemId || "Produce"}</span>
-                                        <span style={{ fontSize: '9px', color: COLORS.muted }}>Lot: {it.lotNumber || it.lotReference || "-"}</span>
-                                      </div>
-                                    </td>
-                                    <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "700" }}>{it.quantity} KG</td>
-                                    <td style={{ padding: "8px 4px", textAlign: "right", color: COLORS.primary }}>\u20B9{it.rate}</td>
-                                    <td style={{ padding: "8px 4px", textAlign: "right", fontWeight: "900" }}>\u20B9{(Number(it.quantity) * Number(it.rate)).toLocaleString()}</td>
-                                  </tr>
-                                ))}
+                                {items.map((it, idx) => {
+                                  const matchedLot = lots.find(l => l.lotId === (it.lotNumber || it.lotReference) || l._id === (it.lotNumber || it.lotReference));
+                                  const displayLotId = matchedLot ? matchedLot.lotId?.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") : "N/A";
+                                  
+                                  return (
+                                    <tr key={idx} style={{ borderBottom: idx < items.length - 1 ? "1px solid #F1F5F9" : "none" }}>
+                                      <td style={{ padding: "8px 4px", fontWeight: "700" }}>
+                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                          <span style={{ fontSize: '10px', color: COLORS.sidebar, fontWeight: "900" }}>Lot ID: {displayLotId}</span>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -19364,7 +19402,18 @@ Powered by Stacli mandi os`;
                           <span style={{ fontSize: "12px", fontWeight: "900", color: COLORS.sidebar }}>PRODUCE ITEMS & INTAKE DETAILS</span>
                            {viewingEntity.data.attached_bill_photo && (
                               <button
-                                onClick={() => setBillPhotoModal({ open: true, imageUrl: viewingEntity.data.attached_bill_photo, lotNo: viewingEntity.data.lotId || "N/A", supplierName: viewingEntity.data.farmerName || "N/A", supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 })}
+                                onClick={() => {
+                                  const rawLotId = viewingEntity.data.lotId || "N/A";
+                                  const displayLotId = (rawLotId && rawLotId.startsWith("LOT-")) ? rawLotId.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") : (rawLotId && rawLotId.startsWith("sim_") ? "N/A" : rawLotId);
+                                  
+                                  setBillPhotoModal({ 
+                                    open: true, 
+                                    imageUrl: viewingEntity.data.attached_bill_photo, 
+                                    lotNo: displayLotId, 
+                                    supplierName: viewingEntity.data.farmerName || "N/A", 
+                                    supplierId: viewingEntity.data.supplierId || "N/A", zoom: 1 
+                                  });
+                                }}
                                 style={{ background: "#F1F5F9", color: COLORS.sidebar, border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "10px", fontWeight: "800", cursor: "pointer" }}
                               >View Bill Photo</button>
                            )}
@@ -19392,7 +19441,15 @@ Powered by Stacli mandi os`;
                                return (
                                  <tr key={idx} style={{ borderBottom: "1px solid #F1F5F9", background: idx % 2 === 0 ? "transparent" : "#fff" }}>
                                    <td style={{ padding: "12px", color: COLORS.muted, fontWeight: "700" }}>{idx + 1}</td>
-                                   <td style={{ padding: "12px", fontWeight: "900", color: COLORS.sidebar }}>{viewingEntity.data.lotId || "N/A"}</td>
+                                   <td style={{ padding: "12px", fontWeight: "900", color: COLORS.sidebar }}>
+                                     {(() => {
+                                       const raw = viewingEntity.data.lotId;
+                                       if (!raw) return "N/A";
+                                       if (String(raw).startsWith("sim_")) return "N/A";
+                                       if (String(raw).startsWith("LOT-")) return String(raw).replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3");
+                                       return raw;
+                                     })()}
+                                   </td>
                                    <td style={{ padding: "12px", fontWeight: "800", color: COLORS.sidebar }}>
                                      {viewingEntity.data.farmerName || suppliers.find(s => s._id === (viewingEntity.data.supplierId?._id || viewingEntity.data.supplierId))?.name || "N/A"}
                                    </td>
@@ -19486,10 +19543,7 @@ Powered by Stacli mandi os`;
                   let itemsToShow = [];
                   let tableTitle = "";
 
-                  if (viewingEntity.type === "Allocation" && viewingEntity.data.allItems) {
-                    itemsToShow = viewingEntity.data.allItems;
-                    tableTitle = "ALL ALLOCATION LINE ITEMS IN THIS TRANSACTION";
-                  } else if (viewingEntity.type === "LOT") {
+                  if (viewingEntity.type === "LOT") {
                     itemsToShow = (allocations || []).filter(a => a.lotId === viewingEntity.data._id || a.lotId === viewingEntity.data.lotId || a.lotReference === viewingEntity.data.lotId);
                     tableTitle = "LINKED TRANSACTION LEDGER (TRACED SALES FROM THIS LOT)";
                   }
@@ -19530,14 +19584,19 @@ Powered by Stacli mandi os`;
                                      <td style={{ padding: "12px" }}>
                                         {viewingEntity.data.attached_bill_photo ? (
                                           <span 
-                                            onClick={() => setBillPhotoModal({ 
-                                              open: true, 
-                                              imageUrl: viewingEntity.data.attached_bill_photo, 
-                                              lotNo: viewingEntity.data.lotId || "N/A", 
-                                              supplierName: viewingEntity.data.farmerName || "N/A",
-                                              supplierId: viewingEntity.data.supplierId || "N/A",
-                                              zoom: 1 
-                                            })} 
+                                            onClick={() => {
+                                              const rawLotId = viewingEntity.data.lotId || "N/A";
+                                              const displayLotId = (rawLotId && rawLotId.startsWith("LOT-")) ? rawLotId.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") : (rawLotId && rawLotId.startsWith("sim_") ? "N/A" : rawLotId);
+                                              
+                                              setBillPhotoModal({ 
+                                                open: true, 
+                                                imageUrl: viewingEntity.data.attached_bill_photo, 
+                                                lotNo: displayLotId, 
+                                                supplierName: viewingEntity.data.farmerName || "N/A", 
+                                                supplierId: viewingEntity.data.supplierId || "N/A", 
+                                                zoom: 1 
+                                              });
+                                            }} 
                                             style={{ color: COLORS.primary, fontWeight: "900", cursor: "pointer", textDecoration: "underline", fontSize: "11px" }}
                                           >
                                             View Bill
