@@ -1900,6 +1900,7 @@ export default function App() {
   const [lotSaveBtn, setLotSaveBtn] = useState({ label: "Save", color: null });
   const [lotClearBtn, setLotClearBtn] = useState({ label: "Clear", color: "#CC0000" });
   const [allocationSaveBtn, setAllocationSaveBtn] = useState({ label: "Save", color: null });
+  const [allocationClearBtn, setAllocationClearBtn] = useState({ label: "Clear", color: "#CC0000" });
   const [activeRegisteredTab, setActiveRegisteredTab] = useState("Suppliers");
   const [memberDateFilter, setMemberDateFilter] = useState("All");
   const [memberCustomDateStart, setMemberCustomDateStart] = useState("");
@@ -7658,38 +7659,40 @@ Powered by Stacli mandi os`;
                 >
                   {allocationSaveBtn.label}
                 </Button>
-                <Button
-                  style={{
-                    background: "#F1F5F9",
-                    color: "#CC0000",
-                    border: "none",
-                    fontWeight: "900",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                    padding: "12px 24px",
-                  }}
-                  onClick={() =>
-                    setAllocationForm({
-                      lotId: "",
-                      buyerId: "",
-                      allocationDate: getISTDate(),
-                      buyerInvoiceNo: "",
-                      notes: "",
-                      items: [
-                        {
-                          id: Date.now(),
-                          lineItemId: "",
-                          quantity: "",
-                          saleRate: "",
-                          totalAvailable: 0,
-                          balanceLeft: 0,
-                          allocatedAmount: "",
-                        },
-                      ],
-                    })
-                  }
-                >
-                  Clear All
-                </Button>
+                 <Button
+                    style={{
+                      background: "#F1F5F9",
+                      color: allocationClearBtn.color,
+                      border: "none",
+                      fontWeight: "900",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                      padding: "12px 24px",
+                    }}
+                    onClick={() => {
+                        setAllocationClearBtn({ label: "Cleared ❌", color: "red" });
+                        setTimeout(() => setAllocationClearBtn({ label: "Clear", color: "#CC0000" }), 1000);
+                        setAllocationForm({
+                          lotId: "",
+                          buyerId: "",
+                          allocationDate: getISTDate(),
+                          buyerInvoiceNo: "",
+                          notes: "",
+                          items: [
+                            {
+                              id: Date.now(),
+                              lineItemId: "",
+                              quantity: "",
+                              saleRate: "",
+                              totalAvailable: 0,
+                              balanceLeft: 0,
+                              allocatedAmount: "",
+                            },
+                          ],
+                        });
+                    }}
+                  >
+                    {allocationClearBtn.label}
+                  </Button>
               </div>
               </>
             )}
