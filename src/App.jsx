@@ -8563,7 +8563,7 @@ Powered by Stacli mandi os`;
                               color: COLORS.muted,
                             }}
                           >
-                            Rate (\u20B9/KG)
+                            Rate (/KG)
                           </label>
                           <input
                             type="number"
@@ -8602,7 +8602,7 @@ Powered by Stacli mandi os`;
                               color: COLORS.muted,
                             }}
                           >
-                            Total (\u20B9) Auto
+                            Total Auto
                           </label>
                           <input
                             type="number"
@@ -8900,15 +8900,15 @@ Powered by Stacli mandi os`;
                                 <h3 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.sidebar, marginBottom: "8px" }}>Automatic Summary</h3>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                    <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Total Amount (Produce Sold)</label>
-                                   <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{formatCurrency(grossSale)}</span>
+                                   <span style={{ fontWeight: "800", color: COLORS.sidebar }}>{Number(grossSale).toLocaleString()}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                    <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Expenditure Deductions</label>
-                                   <span style={{ fontWeight: "800", color: "#B91C1C" }}>- {formatCurrency(parsedCommission + (Number(ex.transport) || 0) + (Number(ex.labour) || 0) + totalOtherDeductions + (Number(ex.weighing) || 0))}</span>
+                                   <span style={{ fontWeight: "800", color: "#B91C1C" }}>- {Number(parsedCommission + (Number(ex.transport) || 0) + (Number(ex.labour) || 0) + totalOtherDeductions + (Number(ex.weighing) || 0)).toLocaleString()}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                    <label style={{ fontSize: "13px", fontWeight: "700", color: COLORS.muted }}>Cash Advance adjustment</label>
-                                   <span style={{ fontWeight: "800", color: "#B91C1C" }}>- {formatCurrency(ex.advance)}</span>
+                                   <span style={{ fontWeight: "800", color: "#B91C1C" }}>- {Number(ex.advance).toLocaleString()}</span>
                                 </div>
                              </div>
 
@@ -8928,7 +8928,7 @@ Powered by Stacli mandi os`;
                                    <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,0.7)", fontSize: "13px", fontWeight: "600" }}>Net amount after all deductions</p>
                                 </div>
                                 <div style={{ position: "relative", zIndex: 1, textAlign: "right" }}>
-                                   <span style={{ display: "block", fontSize: "36px", fontWeight: "950", color: COLORS.accent, lineHeight: 1 }}>{formatCurrency(finalSettlement)}</span>
+                                   <span style={{ display: "block", fontSize: "36px", fontWeight: "950", color: COLORS.accent, lineHeight: 1 }}>{Number(finalSettlement).toLocaleString()}</span>
                                    <span style={{ display: "block", fontSize: "10px", color: "#FFFFFF", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", marginTop: "8px" }}>Proceed to Preview & Print</span>
                                 </div>
                              </div>
@@ -9095,8 +9095,8 @@ Powered by Stacli mandi os`;
                                 <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>GROSS WT <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
                                 <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>DEDN <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
                                 <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>NET WT <br/><span style={{fontSize:'8px'}}>(KG)</span></th>
-                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>RATE <br/><span style={{fontSize:'8px'}}>(\u20B9/KG)</span></th>
-                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)", textAlign: "right" }}>AMOUNT <br/><span style={{fontSize:'8px'}}>(\u20B9)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)" }}>RATE <br/><span style={{fontSize:'8px'}}>(/KG)</span></th>
+                                <th style={{ padding: "10px", fontSize: "11px", border: "1px solid rgba(255,255,255,0.2)", textAlign: "right" }}>AMOUNT</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -9111,7 +9111,7 @@ Powered by Stacli mandi os`;
                                   <td style={{ padding: "12px", fontSize: "12px", fontWeight: "900", border: "1px solid #1a3c34" }}>{it.netWeight || it.quantity || "0"}</td>
                                   <td style={{ padding: "12px", fontSize: "12px", border: "1px solid #1a3c34" }}>{it.rate || "0"}</td>
                                   <td style={{ padding: "12px", fontSize: "13px", fontWeight: "900", border: "1px solid #1a3c34", textAlign: "right" }}>
-                                    \u20B9{((it.netWeight || it.quantity || 0) * (it.rate || 0)).toLocaleString()}
+                                    {((it.netWeight || it.quantity || 0) * (it.rate || 0)).toLocaleString()}
                                   </td>
                                 </tr>
                               ))}
@@ -9135,28 +9135,28 @@ Powered by Stacli mandi os`;
                               <div style={{ border: "1px solid #1a3c34", borderTop: "none", padding: "10px" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Lorry Hire / Freight</span>
-                                  <span>\u20B9 {ex.transport || "0"}</span>
+                                  <span>{ex.transport || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Coolie / Labour</span>
-                                  <span>\u20B9 {ex.labour || "0"}</span>
+                                  <span>{ex.labour || "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Kata (Weighing Charges)</span>
-                                  <span>\u20B9 {ex.weighing || "0"}</span>
+                                  <span>{ex.weighing || "0"}</span>
                                 </div>
                                 {ex.otherDeductions?.map((od, i) => (
                                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                     <span>{od.name || 'Misc.'}</span>
-                                    <span>\u20B9 {od.amount || "0"}</span>
+                                    <span>{od.amount || "0"}</span>
                                   </div>
                                 ))}
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dotted #ccc", fontSize: "11px", fontWeight: "700" }}>
                                   <span>Expenditure</span>
-                                  <span>\u20B9 {ex.commission || "0"}</span>
+                                  <span>{ex.commission || "0"}</span>
                                 </div>
                                 <div style={{ background: "#1a3c34", color: "#fff", padding: "8px 12px", display: "flex", justifyContent: "space-between", marginTop: "10px", fontSize: "13px", fontWeight: "900" }}>
-                                  <span>TOTAL DEDUCTIONS (\u20B9)</span>
+                                  <span>TOTAL DEDUCTIONS</span>
                                   <span>{totalDeductions.toLocaleString()}</span>
                                 </div>
                               </div>
@@ -9168,35 +9168,35 @@ Powered by Stacli mandi os`;
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
                                   <span>Gross Sale Amount</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>\u20B9</span>
+                                    <span></span>
                                     <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{grossSaleAmount.toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
                                   <span>Less: Total Deductions</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>\u20B9</span>
+                                    <span></span>
                                     <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{totalDeductions.toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 10px", fontSize: "16px", fontWeight: "900", background: "#f0fdf4", margin: "10px 0", color: "#166534", borderRadius: "6px" }}>
                                   <span>Net Sale Amount</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>\u20B9</span>
+                                    <span></span>
                                     <span>{netSaleAmount.toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "13px", fontWeight: "700", borderBottom: "1.5px solid #eee" }}>
                                   <span>Advance Payment</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>\u20B9</span>
+                                    <span></span>
                                     <span style={{ borderBottom: "1px solid #1a3c34", minWidth: "100px", textAlign: "right" }}>{(Number(ex.advance) || 0).toLocaleString()}</span>
                                   </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 10px", fontSize: "16px", fontWeight: "900", background: "#dcfce7", margin: "10px 0", color: "#14532d", border: "1.5px solid #14532d", borderRadius: "6px" }}>
                                   <span>Balance Payable to Farmer</span>
                                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <span>\u20B9</span>
+                                    <span></span>
                                     <span>{balancePayable.toLocaleString()}</span>
                                   </div>
                                 </div>
@@ -9296,7 +9296,7 @@ Powered by Stacli mandi os`;
                               details={[
                                 { icon: ICON_TRUCK, text: b.vehicleNumber || "N/A" },
                                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>, text: b.date },
-                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}>\u20B9</span>, text: `Final: ${formatCurrency(finalSettlement)}` }
+                                { icon: <span style={{fontSize: '14px', fontWeight: '900'}}></span>, text: `Final: ${Number(finalSettlement).toLocaleString()}` }
                               ]}
                               primaryAction={{ 
                                 label: "View Statement", 
