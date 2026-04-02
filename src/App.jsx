@@ -3105,6 +3105,10 @@ Powered by Stacli mandi os`;
       items.splice(idx, 1);
     } else if (action === "Update") {
       items[idx][field] = value;
+      // Deduction calculation: Quantity - Allocated Quantity
+      if (field === "quantity" && items[idx].allocatedQuantity !== undefined) {
+         items[idx].deductions = Math.max(0, Number(value || 0) - Number(items[idx].allocatedQuantity || 0));
+      }
     }
     setSupplierSettlementForm({ ...supplierSettlementForm, items });
   };
@@ -4061,8 +4065,18 @@ Powered by Stacli mandi os`;
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
+    if (activeSection === "Supplier Billing") {
+       setSupplierSettlementForm({
+         billNumber: billCounter,
+         date: getISTDate(),
+         supplierId: "",
+         lotId: "",
+         vehicleNumber: "",
+         items: [{ id: Date.now(), productName: "", quantity: "", rate: "", deductions: "" }],
+         expenses: { commission: "", transport: "", labour: "", advance: "", weighing: "", otherDeductions: [{ name: "Other", amount: "" }] }
+       });
+    }
     await fetchData();
-    // Simulate slight delay for smoothness
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
@@ -5548,6 +5562,8 @@ Powered by Stacli mandi os`;
                     ? resetLotIntakeState
                     : activeSection === "Lot Allocation"
                     ? resetLotAllocationState
+                    : activeSection === "Supplier Billing"
+                    ? handleRefresh
                     : handleRefresh
                 }
                 disabled={isRefreshing}
@@ -7878,44 +7894,23 @@ Powered by Stacli mandi os`;
                 </div>
               </div>
             )}
-          </div>
-        )}
+
+
 
           {/* SUPPLIER BILLING MODULE */}
           {activeSection === "Supplier Billing" && (
             <div style={{ animation: "fadeIn 0.4s ease-out" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                 <TabHeader
-                   tabs={[
-                     "Bill Header",
-                     "Produce Sold",
-                     "Expenses and Settlement",
-                     "Preview & Print",
-                     "Generated Bills",
-                   ]}
-                   active={activeSupplierBillTab}
-                   set={setActiveSupplierBillTab}
-                 />
-                 <Button 
-                   onClick={() => {
-                     if (window.confirm("Refresh all Supplier Billing data? Current unsaved entries will be lost.")) {
-                        setSupplierSettlementForm({
-                          billNumber: billCounter,
-                          date: getISTDate(),
-                          supplierId: "",
-                          lotId: "",
-                          vehicleNumber: "",
-                          items: [{ id: Date.now(), productName: "", quantity: "", rate: "", deductions: "" }],
-                          expenses: { commission: "", transport: "", labour: "", advance: "", weighing: "", otherDeductions: [{ name: "Other", amount: "" }] }
-                        });
-                        fetchData();
-                     }
-                   }}
-                   style={{ background: "#FFFFFF", color: COLORS.sidebar, border: `1px solid ${COLORS.sidebar}`, gap: "8px", fontWeight: "800", height: "40px" }}
-                 >
-                   <RefreshCw size={16} /> Refresh
-                 </Button>
-               </div>
+               <TabHeader
+                 tabs={[
+                   "Bill Header",
+                   "Produce Sold",
+                   "Expenses and Settlement",
+                   "Generate Bill",
+                   "Generated Bills",
+                 ]}
+                 active={activeSupplierBillTab}
+                 set={setActiveSupplierBillTab}
+               />
 
               {activeSupplierBillTab === "Bill Header" && (
                 <div
@@ -8165,7 +8160,6 @@ Powered by Stacli mandi os`;
                                       .filter(ai => ai.lineItemId === iter._id || ai.productName === `${iter.product || ""} ${iter.variety || ""}`.trim());
                                     
                                     const allocatedQty = itemAllocations.reduce((acc, ai) => acc + (Number(ai.quantity) || 0), 0);
-                                    // Use the first allocation's saleRate, or fallback to the lot's estimated rate
                                     const saleRate = itemAllocations.length > 0 
                                       ? (Number(itemAllocations[0].saleRate) || 0) 
                                       : (Number(iter.estimatedRate) || Number(iter.rate) || 0);
@@ -8175,6 +8169,7 @@ Powered by Stacli mandi os`;
                                       lineItemId: iter._id,
                                       productName: `${iter.product || iter.productId || ""} ${iter.variety || ""}`.trim() || "Produce",
                                       quantity: Number(iter.grossWeight || 0),
+                                      allocatedQuantity: allocatedQty,
                                       deductions: Math.max(0, Number(iter.grossWeight || 0) - allocatedQty),
                                       rate: saleRate,
                                     };
@@ -8444,25 +8439,6 @@ Powered by Stacli mandi os`;
                         >
                           <div
                             style={{
-                              background: "#F1F7FF",
-                              color: "#1D4ED8",
-                              padding: "6px 14px",
-                              borderRadius: "8px",
-                              fontSize: "10px",
-                              fontWeight: "900",
-                              border: "1px solid #DBEAFE",
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              alert(
-                                "SYNCING: This item record is being matched with Database Inventory...",
-                              )
-                            }
-                          >
-                            MODIFY
-                          </div>
-                          <div
-                            style={{
                               background: "#FFF1F2",
                               color: "#E11D48",
                               padding: "6px 14px",
@@ -8569,7 +8545,7 @@ Powered by Stacli mandi os`;
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Deduction Quantity</label>
-                          <input type="number" value={item.deductions === 0 ? "0" : (item.deductions || "")} onWheel={(e) => e.target.blur()} onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()} onChange={(e) => handleSupplierItemAction("Update", idx, "deductions", e.target.value)} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600" }} />
+                          <input type="number" disabled value={item.deductions === 0 ? "0" : (item.deductions || "")} onWheel={(e) => e.target.blur()} onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()} placeholder="0" style={{ padding: "10px", borderRadius: "8px", border: "1px solid #EBE9E1", color: COLORS.sidebar, outline: "none", fontSize: "13px", fontWeight: "600", background: "#F1F5F9" }} />
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <label style={{ fontSize: "11px", fontWeight: "700", color: COLORS.muted }}>Thotrasi (6%)</label>
@@ -8988,14 +8964,14 @@ Powered by Stacli mandi os`;
                                 </div>
                                 <div style={{ position: "relative", zIndex: 1, textAlign: "right" }}>
                                    <span style={{ display: "block", fontSize: "36px", fontWeight: "950", color: COLORS.accent, lineHeight: 1 }}>{Number(finalSettlement).toLocaleString()}</span>
-                                   <span style={{ display: "block", fontSize: "10px", color: "#FFFFFF", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", marginTop: "8px" }}>Proceed to Preview & Print</span>
+                                   <span style={{ display: "block", fontSize: "10px", color: "#FFFFFF", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", marginTop: "8px" }}>Proceed to Generate Bill</span>
                                 </div>
                              </div>
                           </div>
 
                           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "32px", paddingTop: "24px", borderTop: "2px solid #F1F5F9" }}>
                             <Button style={{ background: "#F1F5F9", color: COLORS.sidebar, fontWeight: "800", border: "none" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Produce Sold"); }}>Previous</Button>
-                            <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Preview & Print"); }}>Next </Button>
+                            <Button style={{ background: COLORS.sidebar, fontWeight: "800", padding: "12px 32px", borderRadius: "8px" }} onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setActiveSupplierBillTab("Generate Bill"); }}>Next </Button>
                           </div>
                         </div>
                       );
@@ -9004,11 +8980,11 @@ Powered by Stacli mandi os`;
                 </div>
               )}
 
-              {activeSupplierBillTab === "Preview & Print" && (
+              {activeSupplierBillTab === "Generate Bill" && (
                 <div style={{ animation: "fadeIn 0.4s ease-out" }}>
                   <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: 0, letterSpacing: "-0.5px" }}>Preview & Print</h2>
+                      <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: 0, letterSpacing: "-0.5px" }}>Generate Bill</h2>
                       <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Generated document for supplier settlement record</p>
                     </div>
                     <div style={{ display: "flex", gap: "12px" }}>
@@ -9458,7 +9434,7 @@ Powered by Stacli mandi os`;
                                  otherDeductions: [{ name: "Other", amount: "0" }],
                                },
                              });
-                             setActiveSupplierBillTab("Preview & Print");
+                             setActiveSupplierBillTab("Generate Bill");
                              setIsEditingSupplierBill(false);
                              setEditingSupplierBillId(null);
                              fetchData();
@@ -9482,7 +9458,7 @@ Powered by Stacli mandi os`;
                       }}
                       onClick={() => {
                         window.scrollTo({ top: 0, behavior: "smooth" });
-                        setActiveSupplierBillTab("Preview & Print");
+                        setActiveSupplierBillTab("Generate Bill");
                       }}
                     >
                       Next 
