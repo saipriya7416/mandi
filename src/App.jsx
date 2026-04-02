@@ -8873,7 +8873,7 @@ Powered by Stacli mandi os`;
                 <div style={{ animation: "fadeIn 0.4s ease-out" }}>
                   <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: 0, letterSpacing: "-0.5px" }}>Generate Bill</h2>
+                      <h2 style={{ fontSize: "28px", fontWeight: "900", color: COLORS.sidebar, margin: 0, letterSpacing: "-0.5px" }}>Bill Generation</h2>
                       <p style={{ margin: "4px 0 0", color: COLORS.muted, fontSize: "14px", fontWeight: "600" }}>Generated document for supplier settlement record</p>
                     </div>
                     <div style={{ display: "flex", gap: "12px" }}>
