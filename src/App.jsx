@@ -7142,7 +7142,7 @@ Powered by Stacli mandi os`;
                           const itemCount = l.lineItems?.length || 0;
                           const entryDate = l.entryDate ? formatDate(l.entryDate) : "No Date";
                           const products = l.lineItems?.map(i => i.productId).filter(Boolean).slice(0, 2).join(", ") || "\u2014";
-                          const formattedLotId = l.lotId?.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") || "N/A";
+                          const formattedLotId = l.lotId?.replace(/^LOT-/, "") || "N/A";
                           return {
                             label: formattedLotId,
                             tooltip: `${formattedLotId}  |  ${displayName}  |  ${entryDate}  |  ${itemCount} item${itemCount !== 1 ? "s" : ""}  |  ${products}`,
@@ -19412,7 +19412,7 @@ Powered by Stacli mandi os`;
                                        const raw = viewingEntity.data.lotId;
                                        if (!raw) return "N/A";
                                        if (String(raw).startsWith("sim_")) return "N/A";
-                                       if (String(raw).startsWith("LOT-")) return String(raw).replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3");
+                                       if (String(raw).startsWith("LOT-")) return String(raw).replace(/^LOT-/, "");
                                        return raw;
                                      })()}
                                    </td>
@@ -19456,7 +19456,7 @@ Powered by Stacli mandi os`;
                         <thead>
                           <tr style={{ background: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
                             {Object.entries(viewingEntity.data)
-                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "attached_bill_photo", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
+                              .filter(([key]) => !["_id", "__v", "createdAt", "updatedAt", "password", "allocationDate", "buyerInvoiceNo", "allItems", "buyerName", "supplierId", "entryDate", "lineItems", "attached_bill_photo", "aadhaar", "pan", "voterId", "idType", "govIdNumber"].includes(key))
                               .map(([key]) => (
                                 <th 
                                   key={key} 
@@ -19478,7 +19478,6 @@ Powered by Stacli mandi os`;
                                       if (normalized === "buyerid") return "Customer ID";
                                       if (normalized === "farmername") return "Supplier Name";
                                       if (normalized === "buyerinvoiceno") return "Customer Invoice Number";
-                                      if (normalized === "allocationdate") return "Allocation Date";
                                       return key.replace(/([A-Z])/g, " $1").trim();
                                     })()}
                                 </th>
@@ -19567,7 +19566,7 @@ Powered by Stacli mandi os`;
                                           <span 
                                             onClick={() => {
                                               const rawLotId = viewingEntity.data.lotId || "N/A";
-                                              const displayLotId = (rawLotId && rawLotId.startsWith("LOT-")) ? rawLotId.replace(/LOT-(\d{4})(\d{2})(\d{2})-.*/, "$1-$2-$3") : (rawLotId && rawLotId.startsWith("sim_") ? "N/A" : rawLotId);
+                                              const displayLotId = (rawLotId && rawLotId.startsWith("LOT-")) ? rawLotId.replace(/^LOT-/, "") : (rawLotId && rawLotId.startsWith("sim_") ? "N/A" : rawLotId);
                                               
                                               setBillPhotoModal({ 
                                                 open: true, 
